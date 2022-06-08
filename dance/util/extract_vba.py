@@ -38,7 +38,7 @@ def main():
     f.write(vba)
   logger.info(f'wrote {len(vba)} characters to {filename}')
 
-  filename='./vba/fcast_vba.md'
+  filename='./docs/fcast_vba.md'
   with open(filename,'w') as f:
     f.write(f'```vb\n{vba}\n```')
   logger.info(f'wrote markdown version with code formatting to {filename}')
