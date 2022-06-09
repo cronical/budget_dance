@@ -8,16 +8,6 @@ def existing_file(fn):
     return fn
   return None
 
-def case_together(word):
-  '''return some numbers in a list that will sort the same letters together regardless of case'''
-  n=[ord(a)for a in word]
-  for i,v in enumerate(n):
-    if v > 64 and v<91:
-      n[i]=256+2*(v-64) # upper case 1st
-    if v > 96 and v < 123:
-      n[i]=257+2*(v-95) # then lower case of same letter
-  return n
-
 def process(in_file,out_file):
   try:
     out=open(out_file,'w')
@@ -45,7 +35,7 @@ def process(in_file,out_file):
         code_rows=[line.strip()]
     if in_header:
       header+=line
-  sorted_code_bits={key: val for key, val in sorted(code_bits.items(), key = lambda ele: case_together(ele[0]))}
+  sorted_code_bits={key: val for key, val in sorted(code_bits.items(), key = lambda ele: ele[0].lower())}
   for line in header:
     out.write(line)
   for name,val in sorted_code_bits.items():
