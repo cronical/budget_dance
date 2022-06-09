@@ -21,5 +21,14 @@
       "args": ["-r","-v","--vbadecompress", "./tmp/vbaProject/VBA/Module1"],
       "justMyCode": true
     },
+    {
+      "name": "sort_vba args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/util/sort_vba.py",
+      "console": "integratedTerminal",
+      "args": ["vba/fcast_vba.txt","vba/sorted_vba.txt"],
+      "justMyCode": true
+    },
   ]
 }
