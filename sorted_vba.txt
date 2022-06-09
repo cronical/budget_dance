@@ -2,27 +2,6 @@ Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = True
 Option Base 0
 
-Function ANN(account As String, account_owner As String, y_year As String) As Double'return a year's value for an annuity stream based on the prior year's end balance
-'does not properly handle partial years
-    Dim this_year As Integer, age As Integer
-    Dim prior_end_bal As Double, term As Double, result As Double, anny_rate As Double, anny_dur As Double
-    Dim anny_start As Date, o1 As String, n As Integer
-    Dim dur_parm As String
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    age = age_of(account_owner, y_year) - 1
-    o1 = Left(account_owner, 1)
-    anny_rate = get_val("anny_rate", "tbl_retir_parms", o1)
-    dur_parm = "anny_dur"  ' hack picks different duration for roth
-    If InStr(account, "Roth") > 0 Then dur_parm = "roth_dur"
-    anny_dur = get_val(dur_parm, "tbl_retir_parms", o1)
-    anny_start = get_val("anny_start", "tbl_retir_parms", o1)
-    n = anny_dur - (this_year - year(anny_start))
-    result = 0
-    If n > 0 Then
-        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
-    End If
-
 Function acct_who1(acct As String) As String'return the first initial of the owner of an account in format type - who - firm
     Dim parts() As String
     parts = Split(acct, " - ")
@@ -56,6 +35,27 @@ Function age_of(inits As String, y_year As String) As Integer'return the age att
     age = Int(Application.WorksheetFunction.RoundDown(diff, 0))
     age_of = age
 End Function
+
+Function ANN(account As String, account_owner As String, y_year As String) As Double'return a year's value for an annuity stream based on the prior year's end balance
+'does not properly handle partial years
+    Dim this_year As Integer, age As Integer
+    Dim prior_end_bal As Double, term As Double, result As Double, anny_rate As Double, anny_dur As Double
+    Dim anny_start As Date, o1 As String, n As Integer
+    Dim dur_parm As String
+    this_year = IntYear(y_year)
+    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
+    age = age_of(account_owner, y_year) - 1
+    o1 = Left(account_owner, 1)
+    anny_rate = get_val("anny_rate", "tbl_retir_parms", o1)
+    dur_parm = "anny_dur"  ' hack picks different duration for roth
+    If InStr(account, "Roth") > 0 Then dur_parm = "roth_dur"
+    anny_dur = get_val(dur_parm, "tbl_retir_parms", o1)
+    anny_start = get_val("anny_start", "tbl_retir_parms", o1)
+    n = anny_dur - (this_year - year(anny_start))
+    result = 0
+    If n > 0 Then
+        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
+    End If
 
 Sub calc_retir()'iterate through the years to calc retirement streams based on balances from prior year
 'prior balance from balances feeds current retirement, which feeds aux, which feeds current balances
@@ -105,6 +105,18 @@ Sub calc_retir()'iterate through the years to calc retirement streams based on b
 Function d2s(dt As Date) As String    d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
+Function endbal(acct As String, y_year As String) As Variant'compute the end balance for an account for a year
+    Dim rate As Variant
+    Dim val As Variant
+    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
+    adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
+    rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
+    unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
+    val = open_bal + adds + rlzd + unrlzd
+    endbal = val
+
+End Function
+
 Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double'computes the resulting federal tax with capital gains portion at 15%
 'the input should include qualified dividends
 
@@ -143,18 +155,6 @@ Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double'Ca
                 result = (rt * taxable_Income) - sb
                 result = Round(result, 0)
             End If
-
-Function endbal(acct As String, y_year As String) As Variant'compute the end balance for an account for a year
-    Dim rate As Variant
-    Dim val As Variant
-    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
-    adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
-    rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
-    unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
-    val = open_bal + adds + rlzd + unrlzd
-    endbal = val
-
-End Function
 
 Function gain(acct As String, y_year As String, realized As Boolean) As Variant    'work out an esitmate of the realized or unrealized gain for an account for a year for forecast
     ' for actual, use the values from invest_actl
@@ -202,6 +202,10 @@ Function is_forecast(y_year As String) As Boolean    'determine if this year is 
     r = ty >= ffy
     is_forecast = r
 End Function
+
+Sub log(txt As String)    If dbg Then
+        Debug.Print (Format(Now, "mm/dd/yyyy HH:mm:ss: ") & txt)
+    End If
 
 Function LUMP(account As String, y_year As String) As Double'return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table
 'for the current year (items that begin with the account name)
@@ -253,10 +257,6 @@ Function MedicarePrem(bord As Integer, year As String, magi As Variant, inflatio
             Exit For
         End If
 
-Sub log(txt As String)    If dbg Then
-        Debug.Print (Format(Now, "mm/dd/yyyy HH:mm:ss: ") & txt)
-    End If
-
 Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double'Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date
 'The end date is a string since there is a bug in the Mac Excel.
 'The end date represents the month of the last period to include.  The day is ignored and the last day of the month is used.
@@ -280,22 +280,6 @@ Function PartDSurcharge(year As String, magi As Variant, inflation As Variant) A
 'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
     PartDSurcharge = MedicarePrem(2, year, magi, inflation)
 End Function
-
-Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double'return the req minimum distribution table 1 result for a year for a given account, owner (GBD or VEC) and year.
-'if death year is not given then this function treat this as spousal inheritance
-'if death year is given the treat this as a beneficiary inheritance
-    Dim this_year As Integer, age As Integer
-    Dim prior_end_bal As Double, life_expectancy As Double, result As Double
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    If death_year = 0 Then ' for spousal use actual age this year
-        age = age_of(account_owner, y_year)
-        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
-    Else ' work with the age at year after death for beneficiary type
-        age = age_of(account_owner, "Y" & (death_year + 1))
-        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
-        life_expectancy = life_expectancy - (this_year - (death_year + 1)) 'factor is reduced by one for each succeeding distribution year.
-    End If
 
 Function retir_med(who1 As String, y_year As String) As Double'return the forecast medical expenses including premium and deductible for person with initial who1 given a year
     Dim this_year As Integer, tbl_name As String
@@ -327,6 +311,22 @@ Function retir_parm(code As String, who As String) As Variant'Get a retirement p
         v = .Range(s)
         retir_parm = v
     End With
+
+Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double'return the req minimum distribution table 1 result for a year for a given account, owner (GBD or VEC) and year.
+'if death year is not given then this function treat this as spousal inheritance
+'if death year is given the treat this as a beneficiary inheritance
+    Dim this_year As Integer, age As Integer
+    Dim prior_end_bal As Double, life_expectancy As Double, result As Double
+    this_year = IntYear(y_year)
+    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
+    If death_year = 0 Then ' for spousal use actual age this year
+        age = age_of(account_owner, y_year)
+        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
+    Else ' work with the age at year after death for beneficiary type
+        age = age_of(account_owner, "Y" & (death_year + 1))
+        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
+        life_expectancy = life_expectancy - (this_year - (death_year + 1)) 'factor is reduced by one for each succeeding distribution year.
+    End If
 
 Function sort_tax_table()'make sure the federal tax tables are sorted properly
     Dim tbl_name As String
