@@ -134,7 +134,7 @@ Sub calc_retir()
 End Sub
 
 Function age_of(inits As String, y_year As String) As Integer
-'return the age attained by GBD or VEC in a given year
+'return the age attained by an account owner in a given year
     Dim dob As Date, eoy As Date
     Dim diff As Double, age As Integer
     dob = get_val("DOB", "tbl_retir_parms", Left(inits, 1))
