@@ -60,7 +60,7 @@ def process(input,output,doc_file=None):
     doc_file.write("|---|---|\n")
     for name,val in sorted_code_bits.items():
       doc_file.write(f'|{name}|{val["signature"].strip()}|\n')
-      txt='. '.join([ds.strip() for ds in val['doc_strings']])
+      txt='. '.join([ds.strip().capitalize() for ds in val['doc_strings']])
       doc_file.write(f'||{txt}|\n')
     doc_file.close()
 
