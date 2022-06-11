@@ -4,4 +4,4 @@ The accounting system is Moneydance.  The long term planning is via Excel, inclu
 
 [Spreadsheet](fcast.md)
 
-[Visual Basic](fcast_vba.md)
+[Visual Basic](vba_index.md)
