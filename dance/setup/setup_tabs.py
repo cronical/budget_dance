@@ -52,27 +52,30 @@ def refresh_sheets(target):
       if existing:
         logger.info(f'Sheet {sheet_name} already exists, so not initializing')
         continue
-      # if new write the title and headings
-      title_cell=f'{get_column_letter(first_not_hidden(sheet_info))}1'
-      ws[title_cell].value=sheet_info['title']
-      ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
-      col_defns=sheet_info['columns']
-      col_count=len(col_defns)
-      for col_no,col_data in enumerate(col_defns):
-        ws.column_dimensions[get_column_letter(1+col_no)].width=col_data['width']
-        if 'hidden' in sheet_info:
-          ws.column_dimensions[get_column_letter(1+col_no)].hidden=col_data['name']in sheet_info['hidden']
-        ws.cell(row=2,column=1+col_no,value=col_data['name'])
-      if sheet_info['years']:
-        for x, y in enumerate(year_columns):
-          ws.column_dimensions[get_column_letter(1+x+col_count)].width=config['year_column_width']
-          ws.cell(row=2,column=1+len(col_defns)+x,value=y)
-        col_count+=len(year_columns)
-      rng=f'A2:{get_column_letter(col_count)}3'
-      tab = Table(displayName=sheet_name, ref=rng)
-      style = TableStyleInfo(name=sheet_group_info['table_style'],  showRowStripes=True)# Add a builtin style with striped rows and banded columns
-      tab.tableStyleInfo = style
-      ws.add_table(tab)
+      for table_info in sheet_info['tables']:
+        
+        
+        # if new write the title and headings
+        title_cell=f'{get_column_letter(first_not_hidden(table_info))}1'
+        ws[title_cell].value=table_info['title']
+        ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
+        col_defns=table_info['columns']
+        col_count=len(col_defns)
+        for col_no,col_data in enumerate(col_defns):
+          ws.column_dimensions[get_column_letter(1+col_no)].width=col_data['width']
+          if 'hidden' in sheet_info:
+            ws.column_dimensions[get_column_letter(1+col_no)].hidden=col_data['name']in table_info['hidden']
+          ws.cell(row=2,column=1+col_no,value=col_data['name'])
+        if table_info['years']:
+          for x, y in enumerate(year_columns):
+            ws.column_dimensions[get_column_letter(1+x+col_count)].width=config['year_column_width']
+            ws.cell(row=2,column=1+len(col_defns)+x,value=y)
+          col_count+=len(year_columns)
+        rng=f'A2:{get_column_letter(col_count)}3'
+        tab = Table(displayName=table_info['name'], ref=rng)
+        style = TableStyleInfo(name=sheet_group_info['table_style'],  showRowStripes=True)# Add a builtin style with striped rows and banded columns
+        tab.tableStyleInfo = style
+        ws.add_table(tab)
       ws.sheet_view.zoomScale=config['zoom_scale']
       
   wb.save(filename=target)
