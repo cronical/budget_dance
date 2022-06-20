@@ -34,9 +34,9 @@
       "name": "create_wb args",
       "type": "python",
       "request": "launch",
-      "program": "dance/util/create_wb.py",
+      "program": "dance/setup/create_wb.py",
       "console": "integratedTerminal",
-      "args": ["data/test_wb.zip"],
+      "args": ["data/test_wb.xlsm","-o"],
       "justMyCode": true
     }
   ]
