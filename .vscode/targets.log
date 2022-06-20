@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Sun Jun 12 14:27:24 2022
+# Make data base, printed on Sun Jun 19 20:23:34 2022
 
 # Variables
 
@@ -42,13 +42,11 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-55014946-75f9-48f7-896a-b79bf9eafad0.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-a6ff8a67-5117-44b5-adda-e060ef096fad.sock
 # environment
 VSCODE_CWD = /
 # environment
 PATH = /usr/local/opt/mysql-client/bin:/Users/george/.pymac/bin:/usr/local/mysql/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/Users/george/.pyenv/shims:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/george/.new_local/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin
-# environment
-LaunchInstanceID = 010D38E6-F4C2-4571-AD35-0AE5BC3E8318
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -76,11 +74,11 @@ HOME = /Users/george
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedData/4af164ea3a06f701fe3e89a2bcbb421d2026b68f
 # environment
 LOGNAME = george
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -114,7 +112,7 @@ TMPDIR = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.67.2-main.sock
+VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.68.0-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -122,7 +120,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.11149208.11149214
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.15414747.15414753
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -137,8 +135,6 @@ MAKEFILES :=
 <F = $(notdir $<)
 # environment
 LC_ALL = C
-# environment
-SECURITYSESSIONID = 186a7
 # automatic
 ^F = $(notdir $^)
 # default
@@ -150,9 +146,10 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 461
+VSCODE_PID = 3084
 # variable set hash-table stats:
-# Load=68/1024=7%, Rehash=0, Collisions=1/89=1%
+ 
+# Load=66/1024=6%, Rehash=0, Collisions=1/87=1%
 
 # Pattern-specific Variable Values
 
@@ -160,9 +157,9 @@ VSCODE_PID = 461
 
 # Directories
 
-# . (device 16777233, inode 12442697): 17 files, no impossibilities.
+# . (device 16777233, inode 12442697): 18 files, no impossibilities.
 
-# 17 files, no impossibilities in 1 directories.
+# 18 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -234,6 +231,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Sun Jun 12 14:27:24 2022
+# Finished Make data base on Sun Jun 19 20:23:34 2022
 
  

@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 '''Initialize the workbook'''
 import argparse
+from ast import Store
 from os import chdir,getcwd ,mkdir,walk
 from os.path import exists, join,sep
 from shutil import copy2,rmtree
+from sys import exit
 import xml.etree.ElementTree as ET
 import zipfile
 from openpyxl import Workbook
-from logs import get_logger
+from dance.util.logs import get_logger
+from dance.setup.setup_tabs import refresh_sheets
 
 def get_all_file_paths(directory):
     '''zip does one file at a time so get the list'''
@@ -35,11 +38,13 @@ def zip_up(zip_name,directory):
       zip.write(file)
   chdir(dir)
   
-def create(filename):
+def create(filename,overwrite=False):
   '''create the excel file, then insert the vba project'''
   logger=get_logger(__file__)
   logger.info(f'current working directory is {getcwd()}')
-  assert not exists(filename),f'File name {filename} already exists'
+  if not overwrite:
+    logger.error(f'File name {filename} already exists, use -o to force overwrite')
+    exit(-1)
   wb=Workbook()
   wb.save(filename)
   logger.info(f'initial file saved as {filename}')
@@ -50,13 +55,14 @@ def create(filename):
 
   # In addition to the vba project (which is in an OLE2 format)
   # relationships and content types need to be correctly configured
-
-  to_copy=['./tmp/xl/vbaProject.bin','./tmp/xl/_rels/workbook.xml.rels','./tmp/[Content_Types].xml']
+  # shared strings seems to be required by openpyxl if the others are provided
+  to_copy=['./tmp/xl/vbaProject.bin','./tmp/xl/_rels/workbook.xml.rels','./tmp/[Content_Types].xml',
+  './tmp/xl/sharedStrings.xml']
   for dst in to_copy:
     src='./vba/'+dst.split(sep)[-1]
     copy2(src,dst)
     logger.info(f'copied {src} to {dst}')
-
+  
   zip_up(filename,'tmp')
   logger.info(f're-wrote {filename}')
   #cleanup
@@ -64,9 +70,14 @@ def create(filename):
   rmtree(tmp)
   mkdir(tmp)
   logger.info(f'cleaned up {tmp}')
+
+  refresh_sheets(args.out_file)
+
 if __name__=='__main__':
     # execute only if run as a script
   parser = argparse.ArgumentParser(description ="initialize the forecast spreadsheet")
   parser.add_argument('out_file', help='provide the name of the output file')
+  parser.add_argument('-o','--overwrite',default=False, action='store_true',help='force overwrite if file already exists')
   args=parser.parse_args()
-  create(args.out_file)
+  create(args.out_file,args.overwrite)
+  
