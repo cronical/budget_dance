@@ -22,99 +22,109 @@ sheet_groups:
 sheets:
   accounts:
     sheet_group: acct-bal
-    title: Accounts
-    years: false
-    columns:
-      - name: Account
-        width: 28
-      - name: Type
-        width: 12
-      - name: Income Txbl
-        width: 12
-      - name: Active
-        width: 12
-      - name: Rlz share
-        width: 12
-      - name: Unrlz share
-        width: 12
-      - name: Actl_source
-        width: 28
-      - name: Actl_source_tab
-        width: 17
-      - name: Fcst_source
-        width: 28
-      - name: Fcst_source_tab
-        width: 18
-      - name: Notes
-        width: 55
+    tables:
+      - name: tbl_accounts
+        title: Accounts
+        years: false
+        columns:
+          - name: Account
+            width: 28
+          - name: Type
+            width: 12
+          - name: Income Txbl
+            width: 12
+          - name: Active
+            width: 12
+          - name: Rlz share
+            width: 12
+          - name: Unrlz share
+            width: 12
+          - name: Actl_source
+            width: 28
+          - name: Actl_source_tab
+            width: 17
+          - name: Fcst_source
+            width: 28
+          - name: Fcst_source_tab
+            width: 18
+          - name: Notes
+            width: 55
 
   balances:
     sheet_group: acct-bal
-    title: Balances
-    years: true
-    columns:
-    - name: Key
-      width: 38
-    - name: ValType
-      width: 12
-    - name: AcctName
-      width: 28
-    - name: Type
-      width: 12
-    - name: Income Txbl
-      width: 12
-    - name: Active
-      width: 12
-    hidden:
-    - Key
+    tables:
+      - name: tbl_balances
+        title: Balances
+        years: true
+        columns:
+        - name: Key
+          width: 38
+        - name: ValType
+          width: 12
+        - name: AcctName
+          width: 28
+        - name: Type
+          width: 12
+        - name: Income Txbl
+          width: 12
+        - name: Active
+          width: 12
+        hidden:
+        - Key
   iande:
     sheet_group: income-expense
-    title: Income and Expense
-    years: true
-    columns:
-    - name: Key
-      width: 70
-    - name: Account
-      width: 30
-    hidden:
-    - Key
+    tables:
+      - name: tbl_iande
+        title: Income and Expense
+        years: true
+        columns:
+        - name: Key
+          width: 70
+        - name: Account
+          width: 30
+        hidden:
+        - Key
   aux:
     sheet_group: income-expense
-    title: Auxiliary data and calculations - DO NOT SORT
-    years: true
-    columns:
-    - name: Line
-      width: 52
-    - name: Source
-      width: 52
-    - name: Source Table
-      width: 16
-    - name: Sign
-      width: 12
-    - name: Type
-      width: 12
-    - name: Accum_by
-      width: 18
+    tables:
+      - name: tbl_aux
+        title: Auxiliary data and calculations - DO NOT SORT
+        years: true
+        columns:
+        - name: Line
+          width: 52
+        - name: Source
+          width: 52
+        - name: Source Table
+          width: 16
+        - name: Sign
+          width: 12
+        - name: Type
+          width: 12
+        - name: Accum_by
+          width: 18
   retirement:
     sheet_group: retirement
-    title: Retirement Income & Expense Plan
-    years: true
-    columns:
-    - name: Item
-      width: 28
-    - name: Who
-      width: 12
-    - name: who1
-      width: 12
-    - name: Type
-      width: 12
-    - name: Firm
-      width: 18
-    - name: Election
-      width: 18
-    - name: Start Date
-      width: 16
-    - name: Yearly
-      width: 12
-    hidden:
-    - who1
+    tables:
+      - name: tbl_retir_vals
+        title: Retirement Income & Expense Plan
+        years: true
+        columns:
+        - name: Item
+          width: 28
+        - name: Who
+          width: 12
+        - name: who1
+          width: 12
+        - name: Type
+          width: 12
+        - name: Firm
+          width: 18
+        - name: Election
+          width: 18
+        - name: Start Date
+          width: 16
+        - name: Yearly
+          width: 12
+        hidden:
+        - who1
