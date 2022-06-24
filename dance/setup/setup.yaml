@@ -32,13 +32,9 @@ sheets:
           - name: Type
             width: 12
           - name: Income Txbl
-            width: 12
           - name: Active
-            width: 12
           - name: Rlz share
-            width: 12
           - name: Unrlz share
-            width: 12
           - name: Actl_source
             width: 28
           - name: Actl_source_tab
@@ -66,9 +62,7 @@ sheets:
         - name: Type
           width: 12
         - name: Income Txbl
-          width: 12
         - name: Active
-          width: 12
         hidden:
         - Key
   iande:
@@ -128,3 +122,39 @@ sheets:
           width: 12
         hidden:
         - who1
+  retireparms:
+    sheet_group: retirement
+    tables:
+    - name: tbl_retir_parms
+      title: Retirement Parameters
+      years: False
+      columns:
+      - name: Code
+        width: 30
+      - name: Description
+        width: 40
+      - name: G
+        width: 15
+      - name: V
+      - name: who1
+      - name: Months
+      - name: Date
+      - name: Rate
+    - name: tbl_pens_facts
+      title: Pension Facts
+      years: False
+      row: 48
+      columns:
+      - name: Pension
+      - name: Source of info
+      - name: COLA
+      - name: Single
+      - name: EE50
+      - name: Spouse50
+      - name: EE75
+      - name: Spouse75
+      - name: EE100
+        width: 14
+      - name: Spouse100
+      - name: Lump
+      - name: 10 year certain
