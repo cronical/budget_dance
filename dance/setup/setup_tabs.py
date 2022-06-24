@@ -52,26 +52,52 @@ def refresh_sheets(target):
       if existing:
         logger.info(f'Sheet {sheet_name} already exists, so not initializing')
         continue
+
+      # if new sheets write tables 
+      set_widths={}
       for table_info in sheet_info['tables']:
-        
-        
-        # if new write the title and headings
-        title_cell=f'{get_column_letter(first_not_hidden(table_info))}1'
+
+        #take specified or default row and column 
+        row=1
+        if 'row' in table_info:
+          row=table_info['row']        
+        start_col=1
+        if 'start_col' in table_info:
+          start_col=table_info['start_col']
+      
+        title_cell=f'{get_column_letter(first_not_hidden(table_info))}{row}'
         ws[title_cell].value=table_info['title']
         ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
         col_defns=table_info['columns']
         col_count=len(col_defns)
+
+        last_width=config['year_column_width'] # use the year column width as a default for 1st column
         for col_no,col_data in enumerate(col_defns):
-          ws.column_dimensions[get_column_letter(1+col_no)].width=col_data['width']
-          if 'hidden' in sheet_info:
+          width=last_width # user prior column's width as default
+          if 'width' in col_data:
+            width=col_data['width']
+          
+          # if width already set from prior table use that
+          if (1+col_no) in set_widths:
+            width=set_widths[1+col_no]
+          else:
+            set_widths[1+col_no]=width
+          ws.column_dimensions[get_column_letter(1+col_no)].width=width
+
+          # if any table marks this col as hidden it will be so for all tables
+          if 'hidden' in table_info:
             ws.column_dimensions[get_column_letter(1+col_no)].hidden=col_data['name']in table_info['hidden']
-          ws.cell(row=2,column=1+col_no,value=col_data['name'])
+          ws.cell(row=row+1,column=1+col_no,value=col_data['name'])
+          last_width=width
         if table_info['years']:
           for x, y in enumerate(year_columns):
             ws.column_dimensions[get_column_letter(1+x+col_count)].width=config['year_column_width']
             ws.cell(row=2,column=1+len(col_defns)+x,value=y)
           col_count+=len(year_columns)
-        rng=f'A2:{get_column_letter(col_count)}3'
+        
+        # make into a table
+        top_left=f'{get_column_letter(start_col)}{row+1}'
+        rng=f'{top_left}:{get_column_letter(col_count)}{2+row}'
         tab = Table(displayName=table_info['name'], ref=rng)
         style = TableStyleInfo(name=sheet_group_info['table_style'],  showRowStripes=True)# Add a builtin style with striped rows and banded columns
         tab.tableStyleInfo = style
