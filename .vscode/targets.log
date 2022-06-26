@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Sun Jun 19 20:23:34 2022
+# Make data base, printed on Fri Jun 24 16:17:55 2022
 
 # Variables
 
@@ -21,10 +21,10 @@ make: *** No rule to make target `all'.  Stop.
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
+ 
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
- 
 # automatic
 @F = $(notdir $@)
 # makefile
@@ -42,7 +42,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-a6ff8a67-5117-44b5-adda-e060ef096fad.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-09820721-d2f9-4e8b-b77d-21b63b44101a.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -54,11 +54,11 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.eCzHWYWOr6/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.hh7reNO611/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = /private/tmp/com.apple.launchd.K6EGnabBl6/org.macosforge.xquartz:0
+DISPLAY = /private/tmp/com.apple.launchd.kFr2YTnXz7/org.macosforge.xquartz:0
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
@@ -74,7 +74,7 @@ HOME = /Users/george
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedData/4af164ea3a06f701fe3e89a2bcbb421d2026b68f
+VSCODE_CODE_CACHE_PATH = /Users/george/Library/Application Support/Code/CachedData/30d9c6cd9483b2cc586687151bcbcd635f373630
 # environment
 LOGNAME = george
 # environment
@@ -100,7 +100,7 @@ USER = george
 # makefile
 .DEFAULT_GOAL := 
 # environment
-DBUS_LAUNCHD_SESSION_BUS_SOCKET = /private/tmp/com.apple.launchd.yuqmAdxLQb/unix_domain_listener
+DBUS_LAUNCHD_SESSION_BUS_SOCKET = /private/tmp/com.apple.launchd.FAZLvIRSnm/unix_domain_listener
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # default
@@ -112,7 +112,7 @@ TMPDIR = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.68.0-main.sock
+VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.68.1-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -120,7 +120,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.15414747.15414753
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.15727965.15727971
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -146,9 +146,8 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 3084
+VSCODE_PID = 11903
 # variable set hash-table stats:
- 
 # Load=66/1024=6%, Rehash=0, Collisions=1/87=1%
 
 # Pattern-specific Variable Values
@@ -157,7 +156,7 @@ VSCODE_PID = 3084
 
 # Directories
 
-# . (device 16777233, inode 12442697): 18 files, no impossibilities.
+# . (device 16777230, inode 12442697): 18 files, no impossibilities.
 
 # 18 files, no impossibilities in 1 directories.
 
@@ -190,6 +189,7 @@ Makefile:
 #  File has been updated.
 #  Failed to be updated.
 # variable set hash-table stats:
+ 
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # Not a target:
@@ -231,6 +231,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Sun Jun 19 20:23:34 2022
+# Finished Make data base on Fri Jun 24 16:17:55 2022
 
  

@@ -19,6 +19,12 @@ sheet_groups:
   actuals:
     color: 58BD2D
     table_style: TableStyleMedium4
+  taxes:
+    color: BD710D
+    table_style: TableStyleMedium2
+  tables:
+    color: 7E0505
+    table_style: TableStyleMedium5
 sheets:
   accounts:
     sheet_group: acct-bal
@@ -127,7 +133,7 @@ sheets:
     tables:
     - name: tbl_retir_parms
       title: Retirement Parameters
-      years: False
+      years: false
       columns:
       - name: Code
         width: 30
@@ -142,7 +148,7 @@ sheets:
       - name: Rate
     - name: tbl_pens_facts
       title: Pension Facts
-      years: False
+      years: false
       row: 48
       columns:
       - name: Pension
@@ -158,3 +164,183 @@ sheets:
       - name: Spouse100
       - name: Lump
       - name: 10 year certain
+  iande_actl:
+    sheet_group: actuals
+    tables:
+    - name: tbl_iande_actl
+      title: Income and Expense Actuals
+      years: true
+      actual_only: true
+      columns:
+      - name: key
+        width: 35
+      - name: Account
+      hidden:
+      - key
+  manual_actl:
+    sheet_group: actuals
+    tables:
+    - name: tbl_manual_actl
+      title: Manually input actual items
+      years: true
+      actual_only: true
+      columns:
+      - name: Item
+        width: 40
+      - name: Notes
+  transfers_actl:
+    sheet_group: actuals
+    tables:
+    - name: tbl_transfers_actl
+      title: Actual transfers between accounts
+      years: true
+      actual_only: true
+      columns:
+      - name: Account
+        width: 50
+  invest_actl:
+    sheet_group: actuals
+    tables:
+    - name: tbl_invest_actl
+      title: Investment gains, losses and transfers
+      years: true
+      actual_only: true
+      columns:
+      - name: Key
+        width: 35
+      - name: ValType
+        width: 18
+      - name: AcctName
+        width: 25
+  taxes:
+    sheet_group: taxes
+    tables:
+    - name: tbl_taxes
+      title: Federal and State Taxes
+      years: true
+      columns:
+      - name: Line
+        width: 45
+      - name: Tax document
+        width: 12
+      - name: Send to
+      - name: Source
+        width: 50
+      - name: actl_source_tab
+        width: 12
+      - name: fcast_source_tab
+      - name: Sign
+        width: 8
+  capgn:
+    sheet_group: taxes
+    tables:
+    - name: tbl_cap_gn
+      title: For Current Year Tax Estimates
+      years: false
+      columns:
+      - name: Account
+        width: 24
+      - name: Security 
+        width: 75
+      - name: Quantity 
+        width: 18
+      - name: Acquisition Cost 
+      - name: Liquidation Amount 
+      - name: Short Term 
+      - name: Long Term 
+      - name: Total Realized Gain/Loss 
+  tax_tables:
+    sheet_group: taxes
+    tables:
+    - name: tbl_fed_tax
+      title: Federal Tax Table Married Joint
+      years: false
+      columns:
+      - name: Year
+        width: 8
+      - name: Range
+        width: 14
+      - name: Rate
+      - name: Subtract
+    - name: tbl_rmd_1
+      title: Reqd Min Distr Table I
+      years: false
+      start_col: 6
+      columns:
+      - name: Age
+        width: 14
+      - name: Life Expectancy
+        width: 18
+    - name: tbl_rmd_3
+      title: Reqd Min Distr Table III
+      years: false
+      start_col: 9
+      columns:
+      - name: Age
+        width: 14
+      - name: Distribution
+        width: 18
+  gen_tables:
+    sheet_group: tables
+    tables:
+    - name: tbl_gen_state
+      title: General State
+      years: false
+      columns:
+      - name: Item
+        width: 18
+      - name: Value
+    - name: tbl_state_tax_facts
+      title: State Tax Facts
+      years: false
+      row: 5
+      columns:
+      - name: State
+        width: 18
+      - name: Top Rate
+      - name: Adj to Eff
+      - name: Eff Rate
+      - name: Brackets
+      - name: Tax on SS
+      - name: 401K
+      - name: IRA
+      - name: Private Pension
+      - name: Div & Int Rate
+      - name: Rules
+        width: 40
+      - name: Sales Tax
+        width: 18
+    - name: tbl_part_b
+      title: Part B Premium
+      years: false
+      row: 18
+      columns:
+      - name: Year
+        width: 14
+      - name: Range_low
+      - name: Range_high
+      - name: Part_B
+      - name: Part_D_addl
+    - name: tbl_infl
+      title: Historical Inflation
+      years: false
+      row: 18
+      start_col: 7
+      columns:
+      - name: Year
+        width: 18
+      - name: Annual CPI
+  utility:
+    sheet_group: tables
+    tables:
+    - name: tbl_table_map
+      title: Table Locator
+      years: false
+      data:
+        source: internal
+        name: table_map
+      columns:
+      - name: Table
+        width: 20
+      - name: Worksheet
+

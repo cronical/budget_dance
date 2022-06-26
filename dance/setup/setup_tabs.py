@@ -19,6 +19,14 @@ def first_not_hidden(tab_info):
       continue
     return col_no+1
 
+def include_year(table_info,first_forecast_year,proposed_year):
+  '''return True if proposed year should be displayed'''
+  ao=False
+  if 'actual_only' in table_info:
+    ao=table_info['actual_only']
+  if not ao:
+    return True
+  return first_forecast_year > proposed_year
 
 def refresh_sheets(target):
   '''create or refresh tabs'''
@@ -35,6 +43,9 @@ def refresh_sheets(target):
   if 'Sheet' in sheets:
     del wb['Sheet']
     logger.info('Removed Sheet')
+  
+  table_map={}
+  
   for sheet_group,sheet_group_info in config['sheet_groups'].items():
     for sheet_name,sheet_info in config['sheets'].items():
       if sheet_info['sheet_group'] != sheet_group:
@@ -60,14 +71,17 @@ def refresh_sheets(target):
         #take specified or default row and column 
         row=1
         if 'row' in table_info:
-          row=table_info['row']        
+          row=table_info['row']
         start_col=1
         if 'start_col' in table_info:
           start_col=table_info['start_col']
       
-        title_cell=f'{get_column_letter(first_not_hidden(table_info))}{row}'
+        title_cell=f'{get_column_letter((start_col-1)+first_not_hidden(table_info))}{row}'
         ws[title_cell].value=table_info['title']
         ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
+        row+=1 
+        start_row=row # mark start of table
+
         col_defns=table_info['columns']
         col_count=len(col_defns)
 
@@ -82,28 +96,59 @@ def refresh_sheets(target):
             width=set_widths[1+col_no]
           else:
             set_widths[1+col_no]=width
-          ws.column_dimensions[get_column_letter(1+col_no)].width=width
+          ws.column_dimensions[get_column_letter(start_col+col_no)].width=width
 
           # if any table marks this col as hidden it will be so for all tables
           if 'hidden' in table_info:
-            ws.column_dimensions[get_column_letter(1+col_no)].hidden=col_data['name']in table_info['hidden']
-          ws.cell(row=row+1,column=1+col_no,value=col_data['name'])
+            ws.column_dimensions[get_column_letter(start_col+col_no)].hidden=col_data['name']in table_info['hidden']
+          ws.cell(row=row,column=start_col+col_no,value=col_data['name'])
           last_width=width
-        if table_info['years']:
-          for x, y in enumerate(year_columns):
-            ws.column_dimensions[get_column_letter(1+x+col_count)].width=config['year_column_width']
-            ws.cell(row=2,column=1+len(col_defns)+x,value=y)
-          col_count+=len(year_columns)
         
+        # if table has years add them
+        if table_info['years']:
+          include=[include_year(table_info,config['first_forecast_year'],int(y[1:])) for y in year_columns]
+          for x, y in enumerate(year_columns):
+            if include[x]:
+              ws.column_dimensions[get_column_letter(start_col+x+col_count)].width=config['year_column_width']
+              ws.cell(row=start_row,column=start_col+len(col_defns)+x,value=y)
+          col_count+=sum(include)
+
+        # if table has a data source add those rows
+        if 'data' in table_info:
+          assert 'source' in table_info['data']
+          assert table_info['data']['source']=='internal', 'only internal data so far'
+          try:
+            var_name=table_info['data']['name']
+            data=locals()[var_name]
+          except KeyError:
+            logger.error(f'configured internal data source {var_name} does not exist.')
+            quit()
+          if not isinstance(data,dict):
+            logger.error(f'configured internal data source {var_name} is not a dict.')
+            quit()
+          if col_count !=2:
+            logger.error(f'{table_name} should have two columns to receive internal data')
+            quit()            
+          for k,v in data.items():
+            row+=1
+            ws.cell(row=row,column=start_col).value=k
+            ws.cell(row=row,column=start_col+1).value=v
+        else: # just a blank row
+          row+=1
         # make into a table
-        top_left=f'{get_column_letter(start_col)}{row+1}'
-        rng=f'{top_left}:{get_column_letter(col_count)}{2+row}'
-        tab = Table(displayName=table_info['name'], ref=rng)
+        top_left=f'{get_column_letter(start_col)}{start_row}'
+        bot_right=f'{get_column_letter((start_col-1)+col_count)}{row}'
+        rng=f'{top_left}:{bot_right}'
+        table_name=table_info['name']
+        tab = Table(displayName=table_name, ref=rng)
         style = TableStyleInfo(name=sheet_group_info['table_style'],  showRowStripes=True)# Add a builtin style with striped rows and banded columns
         tab.tableStyleInfo = style
         ws.add_table(tab)
+        logger.info(f'  table {table_name} added')
+        table_map[table_name]=sheet_name
       ws.sheet_view.zoomScale=config['zoom_scale']
-      
+
+
   wb.save(filename=target)
   logger.info('workbook {} saved'.format(target))
 
