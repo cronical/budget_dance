@@ -1,4 +1,4 @@
-'''get annual cpi data'''
+'''get annual various remote data'''
 import requests
 import json
 from math import ceil 

@@ -119,7 +119,7 @@ def refresh_sheets(target):
         if 'data' in table_info:
           assert 'source' in table_info['data']
           data_info=table_info['data']          
-          valid_sources=['internal','remote']
+          valid_sources=['internal','remote','local']
           source=data_info['source'] 
           if source not in valid_sources:
             logger.error(f'Only the following are valid data sources {valid_sources}')
@@ -155,6 +155,9 @@ def refresh_sheets(target):
               logger.info('API key retrieved from private data')
             data=remote_data.request(data_info)
             logger.info(f'pulled data from remote')
+          if source=='local':
+            import local_data
+            data=local_data.read_data(data_info)
           for k,v in data.items():
             row+=1
             ws.cell(row=row,column=start_col).value=k
