@@ -52,6 +52,26 @@ sheets:
             width: 18
           - name: Notes
             width: 55
+        data:
+          source: local
+          type: md_acct
+          path: ./data/2022 Account Balances.tsv
+          group:
+          - Bank Accounts
+          - Credit Cards
+          - Real Estate
+          - Other Asset
+          - Liabilities
+          - Mortgage Loans
+          - Non Mort Loans
+          no_details_for:
+          - Assets
+          - Loans
+          include_zeros:
+          - 529 - ML
+          - Capital One Investing
+
+
 
   balances:
     sheet_group: acct-bal
