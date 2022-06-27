@@ -3,6 +3,7 @@
 May be modified to add new tabs and re-run.  Does not replace or delete any tabs, only adds them
 """
 import argparse
+from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
@@ -45,7 +46,8 @@ def refresh_sheets(target):
     logger.info('Removed Sheet')
   
   table_map={}
-  
+  ffy=config['first_forecast_year']
+  general_state={'first_forecast': f'Y{ffy}'}
   for sheet_group,sheet_group_info in config['sheet_groups'].items():
     for sheet_name,sheet_info in config['sheets'].items():
       if sheet_info['sheet_group'] != sheet_group:
@@ -106,7 +108,7 @@ def refresh_sheets(target):
         
         # if table has years add them
         if table_info['years']:
-          include=[include_year(table_info,config['first_forecast_year'],int(y[1:])) for y in year_columns]
+          include=[include_year(table_info,ffy,int(y[1:])) for y in year_columns]
           for x, y in enumerate(year_columns):
             if include[x]:
               ws.column_dimensions[get_column_letter(start_col+x+col_count)].width=config['year_column_width']
@@ -116,24 +118,48 @@ def refresh_sheets(target):
         # if table has a data source add those rows
         if 'data' in table_info:
           assert 'source' in table_info['data']
-          assert table_info['data']['source']=='internal', 'only internal data so far'
-          try:
-            var_name=table_info['data']['name']
-            data=locals()[var_name]
-          except KeyError:
-            logger.error(f'configured internal data source {var_name} does not exist.')
+          data_info=table_info['data']          
+          valid_sources=['internal','remote']
+          source=data_info['source'] 
+          if source not in valid_sources:
+            logger.error(f'Only the following are valid data sources {valid_sources}')
             quit()
-          if not isinstance(data,dict):
-            logger.error(f'configured internal data source {var_name} is not a dict.')
-            quit()
-          if col_count !=2:
-            logger.error(f'{table_name} should have two columns to receive internal data')
-            quit()            
+          if source == 'internal':
+            try:
+              var_name=data_info['name']
+              data=locals()[var_name]
+            except KeyError:
+              logger.error(f'configured internal data source {var_name} does not exist.')
+              quit()
+            if not isinstance(data,dict):
+              logger.error(f'configured internal data source {var_name} is not a dict.')
+              quit()
+            if col_count !=2:
+              logger.error(f'{table_name} should have two columns to receive internal data')
+              quit()            
+
+          if source == 'remote':
+            import remote_data
+            fn='./private/api_keys.yaml'
+            if not exists(fn):
+              logger.error(f'call for remote data but file {fn} does not exist')
+              quit()
+            with open(fn) as y:
+              api_keys=yaml.load(y,yaml.Loader)
+            key_name=data_info['api_key'] 
+            if key_name not in api_keys:
+              logger.error(f'call for remote data but api key name {key_name} does not exist in {fn}')
+              quit()              
+            api_key=api_keys[key_name]
+            logger.info('API key retrieved from private data')
+            parameters=data_info['parameters']
+            data=remote_data.request(data_info['site_code'], api_key,parameters['startyear'],parameters['endyear'],parameters)
+            logger.info(f'pulled data from remote')
           for k,v in data.items():
             row+=1
             ws.cell(row=row,column=start_col).value=k
             ws.cell(row=row,column=start_col+1).value=v
-        else: # just a blank row
+        else: # if no data, just a blank row
           row+=1
         # make into a table
         top_left=f'{get_column_letter(start_col)}{start_row}'

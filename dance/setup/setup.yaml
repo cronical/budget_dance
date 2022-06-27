@@ -4,6 +4,7 @@ year_column_width: 12
 first_forecast_year : 2022
 zoom_scale: 135 # how to scale the worksheets
 
+
 # The table styles are seen on the table tab in excel broken into Light, Medium and Dark.
 # The number seems to be the index in that list (top to bottom, left to right, origin 1)
 sheet_groups:
@@ -290,6 +291,9 @@ sheets:
       - name: Item
         width: 18
       - name: Value
+      data:
+        source: internal
+        name: general_state
     - name: tbl_state_tax_facts
       title: State Tax Facts
       years: false
@@ -330,6 +334,16 @@ sheets:
       - name: Year
         width: 18
       - name: Annual CPI
+      data:
+        source: remote
+        site_code: BLS
+        api_key: bls # ref in ./private/api_keys.yml
+        parameters:
+          startyear: 1970
+          endyear: 2021
+          seriesid: 
+          - CUUR0000SA0 # All items in U.S. city average, all urban consumers, not seasonally adjusted
+
   utility:
     sheet_group: tables
     tables:
