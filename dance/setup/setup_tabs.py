@@ -140,20 +140,20 @@ def refresh_sheets(target):
 
           if source == 'remote':
             import remote_data
-            fn='./private/api_keys.yaml'
-            if not exists(fn):
-              logger.error(f'call for remote data but file {fn} does not exist')
-              quit()
-            with open(fn) as y:
-              api_keys=yaml.load(y,yaml.Loader)
-            key_name=data_info['api_key'] 
-            if key_name not in api_keys:
-              logger.error(f'call for remote data but api key name {key_name} does not exist in {fn}')
-              quit()              
-            api_key=api_keys[key_name]
-            logger.info('API key retrieved from private data')
-            parameters=data_info['parameters']
-            data=remote_data.request(data_info['site_code'], api_key,parameters['startyear'],parameters['endyear'],parameters)
+            if 'api_key' in data_info:
+              fn='./private/api_keys.yaml'
+              if not exists(fn):
+                logger.error(f'call for remote data but file {fn} does not exist')
+                quit()
+              with open(fn) as y:
+                api_keys=yaml.load(y,yaml.Loader)
+              key_name=data_info['api_key'] 
+              if key_name not in api_keys:
+                logger.error(f'call for remote data but api key name {key_name} does not exist in {fn}')
+                quit()              
+              data_info['api_key']=api_keys[key_name]
+              logger.info('API key retrieved from private data')
+            data=remote_data.request(data_info)
             logger.info(f'pulled data from remote')
           for k,v in data.items():
             row+=1

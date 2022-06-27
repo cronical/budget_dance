@@ -272,8 +272,15 @@ sheets:
         width: 14
       - name: Life Expectancy
         width: 18
-    - name: tbl_rmd_3
-      title: Reqd Min Distr Table III
+      data:
+        source: remote
+        site_code: FEDREG
+        table:
+          find_method: caption
+          method_parms:
+            text: Table 1 to Paragraph (b)
+    - name: tbl_uniform_lifetime
+      title: Uniform Lifetime Table
       years: false
       start_col: 9
       columns:
@@ -281,6 +288,13 @@ sheets:
         width: 14
       - name: Distribution
         width: 18
+      data:
+        source: remote
+        site_code: FEDREG
+        table:
+          find_method: caption
+          method_parms:
+            text: Table 2 to Paragraph (c)
   gen_tables:
     sheet_group: tables
     tables:
@@ -339,8 +353,8 @@ sheets:
         site_code: BLS
         api_key: bls # ref in ./private/api_keys.yml
         parameters:
-          startyear: 1970
-          endyear: 2021
+          start_year: 1970
+          end_year: 2021
           seriesid: 
           - CUUR0000SA0 # All items in U.S. city average, all urban consumers, not seasonally adjusted
 
