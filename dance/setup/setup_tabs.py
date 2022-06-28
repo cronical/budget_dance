@@ -158,10 +158,16 @@ def refresh_sheets(target):
           if source=='local':
             import local_data
             data=local_data.read_data(data_info)
-          for k,v in data.items():
-            row+=1
-            ws.cell(row=row,column=start_col).value=k
-            ws.cell(row=row,column=start_col+1).value=v
+          if isinstance(data,dict):
+            for k,v in data.items():
+              row+=1
+              ws.cell(row=row,column=start_col).value=k
+              ws.cell(row=row,column=start_col+1).value=v
+          if isinstance(data,list):
+            for values in data:
+              row+=1
+              for i,v in enumerate(values):
+                ws.cell(row=row,column=start_col+i).value=v
         else: # if no data, just a blank row
           row+=1
         # make into a table
