@@ -11,6 +11,7 @@ Welcome to Budget Dance's documentation!
    :caption: Contents:
 
    fcast
+   setup
    data_from_moneydance
    appendix
    vba_index
