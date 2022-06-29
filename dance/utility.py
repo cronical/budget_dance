@@ -4,7 +4,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table
 import openpyxl.utils.cell
-from dance.util.logs import get_logger
+from util.logs import get_logger
 
 def tsv_to_df(filename,sep='\t',skiprows=0):
   '''grab the data from a Moneydance report and return a dataFrame'''
