@@ -119,7 +119,7 @@ def refresh_sheets(target):
         if 'data' in table_info:
           assert 'source' in table_info['data']
           data_info=table_info['data']          
-          valid_sources=['internal','remote']
+          valid_sources=['internal','remote','local']
           source=data_info['source'] 
           if source not in valid_sources:
             logger.error(f'Only the following are valid data sources {valid_sources}')
@@ -140,25 +140,34 @@ def refresh_sheets(target):
 
           if source == 'remote':
             import remote_data
-            fn='./private/api_keys.yaml'
-            if not exists(fn):
-              logger.error(f'call for remote data but file {fn} does not exist')
-              quit()
-            with open(fn) as y:
-              api_keys=yaml.load(y,yaml.Loader)
-            key_name=data_info['api_key'] 
-            if key_name not in api_keys:
-              logger.error(f'call for remote data but api key name {key_name} does not exist in {fn}')
-              quit()              
-            api_key=api_keys[key_name]
-            logger.info('API key retrieved from private data')
-            parameters=data_info['parameters']
-            data=remote_data.request(data_info['site_code'], api_key,parameters['startyear'],parameters['endyear'],parameters)
+            if 'api_key' in data_info:
+              fn='./private/api_keys.yaml'
+              if not exists(fn):
+                logger.error(f'call for remote data but file {fn} does not exist')
+                quit()
+              with open(fn) as y:
+                api_keys=yaml.load(y,yaml.Loader)
+              key_name=data_info['api_key'] 
+              if key_name not in api_keys:
+                logger.error(f'call for remote data but api key name {key_name} does not exist in {fn}')
+                quit()              
+              data_info['api_key']=api_keys[key_name]
+              logger.info('API key retrieved from private data')
+            data=remote_data.request(data_info)
             logger.info(f'pulled data from remote')
-          for k,v in data.items():
-            row+=1
-            ws.cell(row=row,column=start_col).value=k
-            ws.cell(row=row,column=start_col+1).value=v
+          if source=='local':
+            import local_data
+            data=local_data.read_data(data_info)
+          if isinstance(data,dict):
+            for k,v in data.items():
+              row+=1
+              ws.cell(row=row,column=start_col).value=k
+              ws.cell(row=row,column=start_col+1).value=v
+          if isinstance(data,list):
+            for values in data:
+              row+=1
+              for i,v in enumerate(values):
+                ws.cell(row=row,column=start_col+i).value=v
         else: # if no data, just a blank row
           row+=1
         # make into a table
