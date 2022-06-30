@@ -1,0 +1,29 @@
+dance.util.sort\_vba
+====================
+
+.. automodule:: dance.util.sort_vba
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      process
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

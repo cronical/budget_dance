@@ -1,0 +1,29 @@
+dance.integrity
+===============
+
+.. automodule:: dance.integrity
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      required_lines
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

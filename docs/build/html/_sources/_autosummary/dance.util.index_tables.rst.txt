@@ -1,0 +1,29 @@
+﻿dance.util.index\_tables
+========================
+
+.. automodule:: dance.util.index_tables
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

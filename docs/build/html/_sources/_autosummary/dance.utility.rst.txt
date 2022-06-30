@@ -1,0 +1,37 @@
+dance.utility
+=============
+
+.. automodule:: dance.utility
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      df_for_range
+      df_for_table_name
+      df_for_table_name_for_update
+      fresh_sheet
+      get_val
+      main
+      put_val
+      tsv_to_df
+      ws_for_table_name
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
