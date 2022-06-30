@@ -1,0 +1,30 @@
+﻿transfers\_actl\_load
+=====================
+
+.. automodule:: transfers_actl_load
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      non_bank_transfers
+      process
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

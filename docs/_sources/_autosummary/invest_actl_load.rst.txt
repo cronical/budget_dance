@@ -1,0 +1,29 @@
+﻿invest\_actl\_load
+==================
+
+.. automodule:: invest_actl_load
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      process
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

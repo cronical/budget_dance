@@ -6,8 +6,8 @@
 import os
 from shutil import rmtree, copy2
 import zipfile
-from oledump import FindAll, SearchAndDecompress
-from logs import get_logger
+from util.oledump import FindAll, SearchAndDecompress
+from util.logs import get_logger
 
 def main():
   '''Pulls out certain components from the Excel file'''

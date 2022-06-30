@@ -15,9 +15,9 @@ import sys
 import pathlib
 sys.path.insert(0, os.path.abspath('.'))
 print('***')
-dance=pathlib.Path(__file__).parents[2].resolve().as_posix()+'/dance'
-util=dance+'/util'
-sys.path.insert(0, dance)
+source_folder=pathlib.Path(__file__).parents[2].resolve().as_posix()+'/dance'
+print(source_folder)
+sys.path.insert(0, source_folder)
 
 
 # -- Project information -----------------------------------------------------
@@ -38,8 +38,20 @@ release = '0.0.1'
 extensions = [
   'sphinx.ext.autodoc',
   'sphinx.ext.autosummary',
+  'sphinx.ext.napoleon',
   'myst_parser'
 ]
+
+## Include Python objects as they appear in source files
+## Default: alphabetically ('alphabetical')
+autodoc_member_order = 'bysource'
+## Default flags used by autodoc directives
+autodoc_default_options = {
+    'members': True,
+    'show-inheritance': True,
+}
+## Generate autodoc stubs with summaries from code
+autosummary_generate = True
 
 source_suffix = {
     '.rst': 'restructuredtext',

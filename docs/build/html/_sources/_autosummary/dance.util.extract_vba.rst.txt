@@ -1,0 +1,29 @@
+﻿dance.util.extract\_vba
+=======================
+
+.. automodule:: dance.util.extract_vba
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

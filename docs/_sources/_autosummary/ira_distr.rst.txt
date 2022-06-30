@@ -1,0 +1,30 @@
+﻿ira\_distr
+==========
+
+.. automodule:: ira_distr
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      ira_distr_records
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
