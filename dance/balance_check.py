@@ -9,8 +9,8 @@ and prints out how closely the values match
   # utility to compare the balances between moneydance account balances report and fcast.xlsm
 import argparse
 import pandas as pd
-from util.files import tsv_to_df
-from util.tables import  df_for_table_name
+from dance.util.files import tsv_to_df
+from dance.util.tables import  df_for_table_name
 
 def compare(year):
   '''

@@ -1,28 +1,28 @@
 #! /usr/bin/env python
-"""
+'''
 Update the tab 'invest_actl'
-"""
+'''
 import os
 from dateutil.parser import parse
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-import pandas as pd
-from utility import tsv_to_df,df_for_table_name
-from utility import fresh_sheet
+from dance.util.files import tsv_to_df
+from dance.util.tables import df_for_table_name
+from dance.util.books import fresh_sheet
 from util.logs import get_logger
 
 def process():
-  """
-  Read data from 'data/xinvest.tsv' and performance reports 
+  '''
+  Read data from 'data/xinvest.tsv' and performance reports
   merge and manipulate before writing to 'data/fcst.xlsm'
-  """
+  '''
   logger=get_logger(__file__)
   source='data/fcast.xlsm'
   target = source
-  xfer_file="data/invest_x.tsv"
-  perf_file_prefix="invest-p-"
+  xfer_file='data/invest_x.tsv'
+  perf_file_prefix='invest-p-'
   datadir='./data/'
   sheet='invest_actl'
   tab_tgt='tbl_invest_actl'
@@ -30,7 +30,7 @@ def process():
   # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
   # The number seems to be the index in that list (top to bottom, left to right, origin 1)
 
-  logger.info("Starting investment actual load")
+  logger.info('Starting investment actual load')
 
   # get the account list
   accounts=df_for_table_name('tbl_accounts')
@@ -39,7 +39,7 @@ def process():
   # get the output of the Moneydance report
   df=tsv_to_df (xfer_file,skiprows=3)
   df.dropna(axis=0,how='any',inplace=True)
-  df=df[df["Account"].str.contains("TRANSFERS")==False]
+  df=df[df['Account'].str.contains('TRANSFERS') is False]
   df=df.groupby('Account').sum() # add the ins and outs
   df=df.mul(-1)# fix the sign
   df.index=df.index.str.strip() # remove leading spaces
@@ -64,9 +64,9 @@ def process():
       orig=[df.columns[x] for x in [1,5]]
       open_close=[parse(x)for x in orig]
       ys=[x.year for x in open_close]
-      assert ys[0]==ys[1], "Report covers more than one year"
-      assert (1+(open_close[1]-open_close[0]).days) in [365,366], "Not a full year"
-      assert ys[0]==int(fn_year), "File name year does not equal internal year"
+      assert ys[0]==ys[1], 'Report covers more than one year'
+      assert 1+(open_close[1]-open_close[0]).days in [365,366], 'Not a full year'
+      assert ys[0]==int(fn_year), 'File name year does not equal internal year'
       # change to 'Open' and 'End'
       map={orig[0]:'Open',orig[1]:'End'}
       df.rename(columns=map,inplace=True)
@@ -77,30 +77,30 @@ def process():
       df=df.loc[df.Security != 'Total: '] # remove grand total
       df.loc[:,'Security']=df['Security'].str.replace('Total: ','') # just the account names
 
-      # prepare for joins with common index 
-      df.set_index('Security',inplace=True) 
+      # prepare for joins with common index
+      df.set_index('Security',inplace=True)
       found=[x in accounts.index.to_list() for x in df.index.to_list()]
       if not all(found):
 
-        print("Not all accounts for %s are in master. Missing:"%fn_year)
+        print('Not all accounts for %s are in master. Missing:'%fn_year)
         for a in [x for x in df.index.to_list() if x not in accounts.index.to_list()]:
           print('  %s'%a)
         assert all(found)
 
       # all master accts, and all performance columns
-      df=accounts.join(df)[df.columns] 
+      df=accounts.join(df)[df.columns]
       df.fillna(value=0,inplace=True) # zero out the perf values for accts in master not perf
-      
+
       # append the transfers
       df=df.join(xfers[fn_year])
       df.rename(columns={fn_year:'Transfers'},inplace=True)
 
-      # compute the two gain fields 
+      # compute the two gain fields
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
       df=df.assign(Unrealized=lambda x: x.End - (x.Open+x.Transfers+x.Realized))
-      
-      # use names in spreadsheet 
-      map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'} 
+
+      # use names in spreadsheet
+      map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
       df.rename(columns=map,inplace=True)
 
       # rework so the rows of 3 value types for each account
@@ -125,7 +125,7 @@ def process():
   # for set heading values for columns
   for cl in list(range(0,table.shape[1])):
     ws.cell(1,cl+1,value=table.columns[cl])
-  # the data items 
+  # the data items
   for rw in list(range(0,table.shape[0])):
     for cl in cols:
       val=table.loc[table.index[rw]][cl]
@@ -136,7 +136,7 @@ def process():
   for i in list(range(0,len(w))):
     ws.column_dimensions[get_column_letter(1+i)].width=w[i]
 
-  # make the range a table in Excel  
+  # make the range a table in Excel
   rng=ws.dimensions
   tab = Table(displayName=tab_tgt, ref=rng)
 
@@ -149,6 +149,5 @@ def process():
   wb.save(target)
   logger.info('Saved to {}'.format(target))
 
-if __name__ == "__main__":
-  """execute only if run as a script"""
+if __name__ == '__main__':
   process()
