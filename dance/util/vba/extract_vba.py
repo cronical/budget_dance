@@ -6,13 +6,13 @@
 import os
 from shutil import rmtree, copy2
 import zipfile
-from util.oledump import FindAll, SearchAndDecompress
-from util.logs import get_logger
+from dance.util.vba.oledump import FindAll, SearchAndDecompress
+from dance.util.logs import get_logger
 
 def main():
   '''Pulls out certain components from the Excel file'''
   logger=get_logger(__file__)
-  logger.info(f'current working directory is {os.getcwd()}')
+  logger.info('current working directory is %s',os.getcwd())
 
   with zipfile.ZipFile('data/fcast.xlsm', 'r') as z:
     z.extractall('./tmp/')
@@ -29,7 +29,7 @@ def main():
     filename=src.split(os.path.sep)[-1]
     dst='./vba/'+filename
     copy2(src,dst)
-    logger.info(f'copied vba project to {dst}')
+    logger.info('copied vba project to %s',dst)
 
     if 'vbaProject.bin' in src:
       cmd='unar -q -o tmp/ '+src
@@ -51,18 +51,18 @@ def main():
   filename='./vba/fcast.vb'
   with open(filename,'w') as f:
     f.write(vba)
-  logger.info(f'wrote {len(vba)} characters to {filename}')
+  logger.info('wrote %d characters to %s',len(vba), filename)
 
   filename='./docs/fcast_vba.md'
   with open(filename,'w') as f:
     f.write(f'```vb\n{vba}\n```')
-  logger.info(f'wrote markdown version with code formatting to {filename}')
+  logger.info('wrote markdown version with code formatting to %s',filename)
 
   #cleanup
   tmp='./tmp'
   rmtree(tmp)
   os.mkdir(tmp)
-  logger.info(f'cleaned up {tmp}')
+  logger.info('cleaned up %s',tmp)
 
 if __name__=='__main__':
   main()
