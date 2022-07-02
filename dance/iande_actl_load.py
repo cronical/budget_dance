@@ -1,28 +1,35 @@
 #! /usr/bin/env python
-"""Load data from 'data/iande.tsv' into tab 'iande_actl'
+'''Load data from 'data/iande.tsv' into tab 'iande_actl'
 
 Handles category nesting as groups with subtotals
 
-"""
+'''
 import argparse
-import pandas as pd
-from utility import tsv_to_df,df_for_range,ws_for_table_name,df_for_range, get_val
+import warnings
+
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
+from dance.util.books import fresh_sheet
+from dance.util.files import tsv_to_df, get_val
+from dance.util.tables import df_for_range,ws_for_table_name
+from dance.util.logs import get_logger
 from integrity import required_lines
-from util.logs import get_logger
 
 def process(force=False):
-  """
+  '''
   Convert the data file into a worksheet
   :param force: Optional true to override warning
   :type force: boolean
-  """
+  '''
   logger=get_logger(__file__)
 
 
 
   source='data/fcast.xlsm'
   target = source
-  input_file="data/iande.tsv"
+  input_file='data/iande.tsv'
   initialize_iande=False # don't initialize iande (only import into iande_actl)
 
   # get the output of the Moneydance report
@@ -65,10 +72,11 @@ def process(force=False):
   last_level=-1
   for rw in rows:
     lev=level[rw]
-    if 0==lev:pathparts=[]
+    if 0==lev:
+      pathparts=[]
     else:
       if lev > last_level: pathparts.append(keyparts[rw-1].strip())
-      if lev < last_level: 
+      if lev < last_level:
         pathparts=pathparts[:-1]
     a=pathparts.copy()
     a.append(keyparts[rw].strip())
@@ -86,7 +94,6 @@ def process(force=False):
     except ValueError:
       n=0
 
-  from openpyxl import load_workbook
   wb = load_workbook(filename = source, read_only=False, keep_vba=True)
   logger.info('loaded workbook from {}'.format(source))
 
@@ -98,47 +105,47 @@ def process(force=False):
   ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
   ws=wb[ws_name]
   table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-  f_fcst= get_val(table=table,line_key='first_forecast',col_name='Value')
-  print ("First forecast year is: %s"%f_fcst)
+  f_fcst= get_val(table,line_key='first_forecast',col_name='Value')
+  print ('First forecast year is: %s'%f_fcst)
 
   # make sure nothing of the forecast gets lost due to changed line.
   req_lines, all_lines =required_lines(f_fcst)
   if not req_lines.issubset(set(keys)):
-    logger.warning("Existing forecast lines are not all present")
-    logger.warning("The following line(s) exist in {} but do not occur in the file to import ({})"\
+    logger.warning('Existing forecast lines are not all present')
+    logger.warning('The following line(s) exist in {} but do not occur in the file to import ({})'\
       .format(source,input_file))
     missing=list(req_lines.difference(set(keys)))
-    for ms in missing: logger.info("   {}".format(ms))
-    logger.info("Intialize iande flag is set to %r"%initialize_iande)
+    for ms in missing:
+      logger.info('   {}'.format(ms))
+    logger.info('Intialize iande flag is set to %r',initialize_iande)
     if initialize_iande:
-      print("That will remove those forecast lines from iande")
+      print('That will remove those forecast lines from iande')
       if not force:
-        logger.error("Exiting {}. Re-run with -f to continue".format(__file__))
+        logger.error('Exiting {}. Re-run with -f to continue'.format(__file__))
         quit()
     else:
-      logger.info("But we are only updating iande_actl, so we don't care.")
-  else:  
-    logger.info("All forecast items are included in input file.")
+      logger.info('But we are only updating iande_actl, it does not matter.')
+  else:
+    logger.info('All forecast items are included in input file.')
 
   # now report any new lines
   new=list(set(keys).difference(all_lines))
   new.sort()
-  if 0<len(new): 
+  if 0<len(new):
     logger.info('Note: new lines (will be in iande_actl but not in iande, but you can manually add them there')
     logger.info('Note: lines with the suffix "-Other" occur when a transaction exists at a non-leaf in the category tree')
     logger.info('      If not desired, remove transaction and run again.  ')
-  for nw in new: logger.info("   {}".format(nw))
+  for nw in new:
+    logger.info('   {}'.format(nw))
 
-  '''utility to aid with setting up groups'''
   def getlev (e):
+    '''utility to aid with setting up groups'''
     return e[0]
 
-  from openpyxl.utils import get_column_letter
-  from openpyxl.worksheet.table import Table, TableStyleInfo
 
   #set up to also seed the iande tab on the 2nd pass
   sheets= ['iande_actl','iande']
-  tab_tgts=["tbl_iande_actl", 'tbl_iande']
+  tab_tgts=['tbl_iande_actl', 'tbl_iande']
   enabled=[True,initialize_iande] # normally set to [True, False], but both True to initialize iande
   tab_styles=['TableStyleMedium7','TableStyleMedium5']
   # copy the data in to enabled tabs in file and into table, set up subtotals and groups
@@ -149,7 +156,6 @@ def process(force=False):
       tab_tgt=ctl[1]
       tab_style=ctl[3]
 
-      from utility import fresh_sheet
       wb=fresh_sheet(wb,sheet)
       ws=wb[sheet]
       cols=list(range(0,df.shape[1]))
@@ -170,7 +176,7 @@ def process(force=False):
       all_col_names=df.columns.tolist() + seeding_col_names
       for cl in list(range(0,len(all_col_names))):
         ws.cell(1,cl+1,value=all_col_names[cl])
-      
+
       # the data items - only for the imported data
       # for seeding of iande virtualize the actuals (all columns).
       # that is, refer to the values in the iande_actl tab
@@ -197,7 +203,7 @@ def process(force=False):
       for rw in rows:
         #for all cells apply formats
         for cl in cols:
-          ws.cell(column=cl+1,row=rw+2).number_format='#,###,##0;-#,###,##0;"-"'
+          ws.cell(column=cl+1,row=rw+2).number_format='#,###,##0;-#,###,##0;'-''
         level_change= level[rw]-last_level
         k=ws.cell(row=rw+2,column=1).value # get the key value from the file
         if level_change <0: #this should be a total line
@@ -210,23 +216,22 @@ def process(force=False):
             for cl in cols:
               ws.cell(column=cl+1,row=x+2).number_format='###'
             # prepare the grouping specs
-            groups.append([level[rw]+1,x+2,rw+1])  
+            groups.append([level[rw]+1,x+2,rw+1])
           except ValueError:
             assert False, '{} not found in keys'.format(k)
-          
           # now replace the hard values with formulas
           # if its not a total just let the value stay there
           for cl in cols:
             let=get_column_letter(cl+1)
             formula='=subtotal(9,{}{}:{}{})'.format(let,x+2,let,rw+1)
             ws.cell(column=cl+1,row=rw+2, value=formula)
-        
-        if (-1!=k.find('TOTAL INCOME - EXPENSES')): # we are on the last row
-          x=keys.index("Income - TOTAL")
+
+        if -1!=k.find('TOTAL INCOME - EXPENSES'): # we are on the last row
+          x=keys.index('Income - TOTAL')
           for cl in cols:
             let=get_column_letter(cl+1)
             formula='={}{}-{}{}'.format(let,x+2,let,rw+1)
-            ws.cell(column=cl+1,row=rw+2, value=formula)  
+            ws.cell(column=cl+1,row=rw+2, value=formula)
         #for all cells apply formats
         last_level=level[rw]
 
@@ -248,19 +253,18 @@ def process(force=False):
       tab.tableStyleInfo = style
       ws.add_table(tab)
       logger.info('table {} added'.format(tab_tgt))
-      
+
       #open pyxl shape_writer getting a python future warning
-      import warnings
-      warnings.filterwarnings("ignore",category=FutureWarning)
+      warnings.filterwarnings('ignore',category=FutureWarning)
 
       wb.save(target)
       logger.info('saved to {}'.format(target))
 
       # ws.column_dimensions.group('A','A', hidden=True)
 
-if __name__ == "__main__":
-  """execute only if run as a script"""
-  parser = argparse.ArgumentParser(description ="Copies data from 'data/iande.tsv' into tab 'iande_actl' after doing some checks. ")
-  parser.add_argument("--force", "-f",action="store_true", help="Use -f to ignore warning")
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser(description ='Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks. ')
+  parser.add_argument('--force', '-f',action='store_true', help='Use -f to ignore warning')
   args=parser.parse_args()
   process(args.force)
+  

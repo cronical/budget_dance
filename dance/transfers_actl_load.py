@@ -1,34 +1,40 @@
 #! /usr/bin/env python
-"""For actual years, loads the non-bank transfers into the 'transfers_actl' tab
+'''For actual years, loads the non-bank transfers into the 'transfers_actl' tab
 
 This handles creating nested account keys, groups and totals as well as the raw data.
 
-"""
+'''
 
 import pandas as pd
 import numpy as np
-from utility import  tsv_to_df
+
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
+from bank_actl_load import bank_cc_changes
+from dance.util.books import fresh_sheet
+from dance.util.files import  tsv_to_df
 
 def non_bank_transfers():
   '''get the in and out flows for the non bank transfers, prepare the keys and return a dataframe'''
-  
-  df=tsv_to_df ("data/transfers.tsv",skiprows=3)
+
+  df=tsv_to_df ('data/transfers.tsv',skiprows=3)
 
   df=df[~df['Account'].isnull()] #remove the blank rows
-  df=df[~df['Account'].str.contains("TRANSFERS")] # remove the headings and totals
+  df=df[~df['Account'].str.contains('TRANSFERS')] # remove the headings and totals
 
   # throw away total column
   df.rename(columns={'Total':'level'},inplace=True)
 
   # create the key field to allow for pivot
   # fill it first with a temporary value used to compute the heirarchy level
-  df.insert(loc=0,column='key',value=df.Account.str.lstrip()) 
+  df.insert(loc=0,column='key',value=df.Account.str.lstrip())
   #create a level indicator as a dataframe field, then as a list
   df['level']=((df.Account.str.len() - df.key.str.len())-4)/3
   level=[int(x) for x in df.level.tolist()]
   del df['level']
 
-  
   def ravel(pathparts):
     '''create the real key field to include the heirarchy'''
 
@@ -44,16 +50,17 @@ def non_bank_transfers():
   last_level=-1
   for rw in rows:
     lev=level[rw]
-    if 0==lev:pathparts=[]
+    if 0==lev:
+      pathparts=[]
     else:
       if lev > last_level: pathparts.append(keyparts[rw-1].strip())
-      if lev < last_level: 
+      if lev < last_level:
         pathparts=pathparts[:-1]
     a=pathparts.copy()
     a.append(keyparts[rw].strip())
     keys.append(ravel(a))
     last_level=lev
-  
+
   # put the keys into the df and make that the index
   df['key']=keys
   df.set_index('key',inplace=True)
@@ -70,11 +77,10 @@ def non_bank_transfers():
   return df
 
 def process():
-  """loads the non-bank transfers into the 'transfers_actl' tab"""
+  '''loads the non-bank transfers into the 'transfers_actl' tab'''
   df=non_bank_transfers()
 
   # bring in the bank data
-  from bank_actl_load import bank_cc_changes
   bank_changes=bank_cc_changes()
 
   #combine the sets
@@ -82,10 +88,10 @@ def process():
 
   #the parent accounts don't contain data.  Get a list of those
   parents=[]
-  for ix,row in df.iterrows():
+  for _,row in df.iterrows():
     if not ':' in row.Account:
-        if all([0==x for x in row.to_list()[1:]]):
-          parents.append(row.Account.strip())
+      if all([0==x for x in row.to_list()[1:]]):
+        parents.append(row.Account.strip())
 
   # summary adds the inbound and outbound transfers together
   summary=pd.pivot_table(df,index=['key'],values=df.columns[1:],aggfunc=np.sum)
@@ -94,15 +100,10 @@ def process():
   source='data/fcast.xlsm'
   target = source
   sheet= 'transfers_actl'
-  tab_tgt="tbl_transfers_actl"
-  from openpyxl import load_workbook
-  from openpyxl.utils import get_column_letter
-  from openpyxl.styles import numbers
-  from openpyxl.worksheet.table import Table, TableStyleInfo
+  tab_tgt='tbl_transfers_actl'
 
   wb = load_workbook(filename = source, read_only=False, keep_vba=True)
 
-  from utility import fresh_sheet
   wb=fresh_sheet(wb,sheet)
   ws = wb[sheet]
 
@@ -139,7 +140,7 @@ def process():
         ws.cell(xl_row,cl+2,value=-data_row[cl])
 
       #process subtotals if there are any
-      if pending>0:  
+      if pending>0:
         stot[-1]=stot[-1]+1 # include the row we just wrote in the subtotal
 
         # if the next row is at a lower level, then insert a total row for each time it pops
@@ -149,7 +150,7 @@ def process():
           nr_items_to_st=stot[-1]
 
           # subtotal row location adds one for each pop
-          adj_row=adj_row+1 
+          adj_row=adj_row+1
           stot_row=xl_row+adj_row
 
           # locate the start of the items to subtotal
@@ -163,9 +164,9 @@ def process():
             ws.cell(stot_row,cl+2,value=formula)
 
           # capture the grouping info
-          groups.append([level[rw]-(adj_row-1),xl_start_row,stot_row-1])  
+          groups.append([level[rw]-(adj_row-1),xl_start_row,stot_row-1])
 
-          # pop the items          
+          # pop the items
           heir.pop()
           stot.pop()
           pop_count=pop_count-1
@@ -174,7 +175,7 @@ def process():
           if len(stot)>0:
             stot[-1]=stot[-1]+nr_items_to_st+1
     rw=rw+1
-        
+
 
   # set the label column width
   ws.column_dimensions['A'].width = 45
@@ -184,7 +185,7 @@ def process():
   for rw in rows:
     #for all cells apply formats
     for cl in cols:
-      ws.cell(column=cl+2,row=rw+2).number_format='#,###,##0;-#,###,##0;"-"'
+      ws.cell(column=cl+2,row=rw+2).number_format='#,###,##0;-#,###,##0;'-''
 
   # sort the row groups definitions: highest level to lowest level
   def getlev (e):
@@ -203,7 +204,7 @@ def process():
   groups.sort(key=getlev)
 
   for grp in groups:
-    ws.row_dimensions.group(start=grp[1],end=grp[2],outline_level=grp[0]) 
+    ws.row_dimensions.group(start=grp[1],end=grp[2],outline_level=grp[0])
 
 
 
@@ -214,13 +215,12 @@ def process():
   # Add a builtin style with striped rows and banded columns
   # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
   # The number seems to be the index in that list (top to bottom, left to right, origin 1)
-  style = TableStyleInfo(name="TableStyleMedium7",  showRowStripes=True)
+  style = TableStyleInfo(name='TableStyleMedium7',  showRowStripes=True)
   tab.tableStyleInfo = style
 
   ws.add_table(tab)
 
   wb.save(target)
 
-if __name__ == "__main__":
-  """execute only if run as a script"""
+if __name__ == '__main__':
   process()
