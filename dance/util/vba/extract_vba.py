@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-'''extract the vba from the excel file so it can be stored in source control
-:requires: the unarchiver command line utility, unar to handle the OLE compression
-'''
+'''Extract the vba from the excel file so it can be stored in source control.
 
+  requires: the unarchiver command line utility, unar to handle the OLE compression
+  '''
 import os
 from shutil import rmtree, copy2
 import zipfile
@@ -31,7 +31,6 @@ def main():
     copy2(src,dst)
     logger.info(f'copied vba project to {dst}')
 
-    # 
     if 'vbaProject.bin' in src:
       cmd='unar -q -o tmp/ '+src
       rc=os.system(cmd)
@@ -65,5 +64,6 @@ def main():
   os.mkdir(tmp)
   logger.info(f'cleaned up {tmp}')
 
-if __name__=="__main__":
+if __name__=='__main__':
   main()
+  

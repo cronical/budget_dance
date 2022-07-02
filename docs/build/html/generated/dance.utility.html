@@ -57,7 +57,7 @@
 <td><p>Opens the file, and extracts a table as a dataFrame with the first column as the dataframe index returns dataframe, worksheet, range_ref and workbook since its going to be updated don't allow data only</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dance.utility.fresh_sheet" title="dance.utility.fresh_sheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fresh_sheet</span></code></a>(wb, sheet_name[, tab_color])</p></td>
-<td><p>remove the named sheet from the work book and created a fresh one at the same location, copying tab color.</p></td>
+<td><p>Create or refresh a worksheet in a workbook.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_val</span></code>([table, line_key, col_name])</p></td>
 <td><p></p></td>
@@ -69,7 +69,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dance.utility.tsv_to_df" title="dance.utility.tsv_to_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tsv_to_df</span></code></a>(filename[, sep, skiprows])</p></td>
-<td><p>grab the data from a Moneydance report and return a dataFrame</p></td>
+<td><p>Grab the data from a Moneydance report and return a Pandas DataFrame.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dance.utility.ws_for_table_name" title="dance.utility.ws_for_table_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ws_for_table_name</span></code></a>([table_map, table_name])</p></td>
 <td><p>return name of worksheet holding table given a data frame holding the table</p></td>
@@ -79,15 +79,36 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="dance.utility.tsv_to_df">
 <span class="sig-prename descclassname"><span class="pre">dance.utility.</span></span><span class="sig-name descname"><span class="pre">tsv_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skiprows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.utility.tsv_to_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>grab the data from a Moneydance report and return a dataFrame</p>
+<dd><p>Grab the data from a Moneydance report and return a Pandas DataFrame.</p>
+<p>Typically the file has tab separated fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – The name of the file to read.</p></li>
+<li><p><strong>sep</strong> – The field separator, default is tab.</p></li>
+<li><p><strong>skiprows</strong> – the number of rows to skip at the start of the file.  Default is 0.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: A data frame with numbers converted to floats and dates as datetime.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dance.utility.fresh_sheet">
 <span class="sig-prename descclassname"><span class="pre">dance.utility.</span></span><span class="sig-name descname"><span class="pre">fresh_sheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'58BD2D'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.utility.fresh_sheet" title="Permalink to this definition">¶</a></dt>
-<dd><p>remove the named sheet from the work book and created a fresh one at the same location,
-copying tab color.  If not already existing will create the new sheet at the end.
-returns the workbook</p>
+<dd><p>Create or refresh a worksheet in a workbook.</p>
+<p>Removes the named sheet (if it exists) from the work book and created a fresh one at the same location (or at the end)
+If not already existing will create the new sheet at the end. Copies tab color if the sheet already exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wb</strong> – An openpyxl workbook</p></li>
+<li><p><strong>sheet_name</strong> – The name of the worksheet</p></li>
+<li><p><strong>tab_color</strong> – An RGB color as a 6 character hex string. Only used if the worksheet does not already exist</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: the workbook</p>
 </dd></dl>
 
 <dl class="py function">
