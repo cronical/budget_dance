@@ -2,9 +2,9 @@
 '''takes an input file with vba source code and puts the functions and subs into alpha order and writes to the output file'''
 import argparse
 
-def process(input,output,doc_file=None):
+def process(input,output,md_file=None):
   '''
-  Read and process the input stream and send it to the output. If doc_file is given a markdown file is also created.
+  Read and process the input stream and send it to the output. If md_file is given a markdown file is also created for documentation.
   The arguments are files that are already open. - they are of type _io.TextIOWrapper
   They are closed at the end.
   '''
@@ -17,8 +17,8 @@ def process(input,output,doc_file=None):
   for line in input.readlines():
     if in_item:
       item_line_number+=1
-      if line.strip().startswith("'"):
-        if item_line_number==1: 
+      if line.strip().startswith('\''):
+        if item_line_number==1:
           in_doc_string=True
       else:
         in_doc_string=False
@@ -54,22 +54,23 @@ def process(input,output,doc_file=None):
       output.write(line)
   for fn in input,output:
     fn.close()
-  if doc_file:
-    doc_file.write("# VBA Code Summary\n\n")
-    doc_file.write("|Function or Sub|Signature and info|\n")
-    doc_file.write("|---|---|\n")
+  if md_file:
+    md_file.write('# VBA Code Summary\n\n')
+    md_file.write('|Function or Sub|Signature and info|\n')
+    md_file.write('|---|---|\n')
     for name,val in sorted_code_bits.items():
-      doc_file.write(f'|{name}|{val["signature"].strip()}|\n')
+      signa=val['signature'].strip()
+      md_file.write(f'|{name}|{signa}|\n')
       txt='. '.join([ds.strip().capitalize() for ds in val['doc_strings']])
-      doc_file.write(f'||{txt}|\n')
-    doc_file.close()
+      md_file.write(f'||{txt}|\n')
+    md_file.close()
 
 
-  
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
   # execute only if run as a script
-  parser = argparse.ArgumentParser(description ="takes an input file with vba source code and puts the functions and subs into alpha order and writes to the output file")
+  parser = argparse.ArgumentParser(description ='takes an input file with vba source code and puts the functions and subs into alpha order and writes to the output file')
   parser.add_argument('in_file',type=argparse.FileType('r'), help='provide the name of the input file')
   parser.add_argument('out_file', type=argparse.FileType('w',encoding='UTF-8'),help='provide the name of the output file')
   parser.add_argument('-d','--doc_file', type=argparse.FileType('w',encoding='UTF-8'),help='provide the name of the documentation file')

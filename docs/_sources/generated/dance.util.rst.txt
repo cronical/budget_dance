@@ -27,9 +27,10 @@ dance.util
    :toctree:
    :recursive:
 
-   dance.util.extract_vba
+   dance.util.books
+   dance.util.files
    dance.util.index_tables
    dance.util.logs
-   dance.util.oledump
-   dance.util.sort_vba
+   dance.util.tables
+   dance.util.vba
 
