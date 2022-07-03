@@ -45,8 +45,3 @@ def get_val(frame, line_key ,  col_name):
 def put_val(frame, line_key ,  col_name, value):
   '''Put a single value into a dataframe'''
   frame.loc[line_key,col_name]=value
-
-
-
-
-
