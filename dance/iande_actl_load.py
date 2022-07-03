@@ -13,10 +13,28 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from dance.util.books import fresh_sheet
 from dance.util.files import tsv_to_df, get_val
-from dance.util.tables import df_for_range,ws_for_table_name
+from dance.util.tables import df_for_range,df_for_table_name,ws_for_table_name
 from dance.util.logs import get_logger
-from integrity import required_lines
 
+def required_lines(forecast_start_year):
+  '''Compute the list of required lines given the forecast start year in form y_year
+  Args:
+    forecast_start_year: The first forecast year as a String (Ynnnn)
+
+  Returns: the required lines and all lines as sets
+  '''
+
+  df=df_for_table_name(table_name='tbl_iande')
+  cols= list(df)
+  ix=cols.index(forecast_start_year)
+  c=cols[ix:]
+
+  def not_all_are_empty(a):
+    return any([x is not None for x in list(a)])
+
+  must_have=set(df.index[df[c].apply(not_all_are_empty,axis=1)])
+
+  return must_have, set(df.index)
 def process(force=False):
   '''
   Convert the data file into a worksheet
