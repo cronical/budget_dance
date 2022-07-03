@@ -1,8 +1,6 @@
 #! /usr/bin/env python
-'''Load data from 'data/iande.tsv' into tab 'iande_actl'
-
-Handles category nesting as groups with subtotals
-
+'''
+Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks.
 '''
 import argparse
 import warnings
@@ -37,13 +35,15 @@ def required_lines(forecast_start_year):
   return must_have, set(df.index)
 def process(force=False):
   '''
-  Convert the data file into a worksheet
-  :param force: Optional true to override warning
-  :type force: boolean
+  Load data from 'data/iande.tsv' into tab 'iande_actl'
+  Handles category nesting as groups with subtotals.
+  Makes checks to ensure nothing of the forecast gets lost due to changed lines.
+  Checks can be overridden by a flag.
+
+  args:
+    force: Optional, True to override warning
   '''
   logger=get_logger(__file__)
-
-
 
   source='data/fcast.xlsm'
   target = source
@@ -66,7 +66,7 @@ def process(force=False):
   # fix an anomoly in the md report
   df.Account=df.Account.apply(indent_other)
 
-  # determine level of each row in the category hierarch
+  # determine level of each row in the category hierarchy
   # hold the flat view in the key column for now
   df.insert(loc=0,column='key',value=df.Account.str.lstrip()) # a temporary value - used to define level
   #create a level indicator
@@ -126,7 +126,7 @@ def process(force=False):
   f_fcst= get_val(table,line_key='first_forecast',col_name='Value')
   print ('First forecast year is: %s'%f_fcst)
 
-  # make sure nothing of the forecast gets lost due to changed line.
+  # make sure nothing of the forecast gets lost due to changed lines.
   req_lines, all_lines =required_lines(f_fcst)
   if not req_lines.issubset(set(keys)):
     logger.warning('Existing forecast lines are not all present')
