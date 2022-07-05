@@ -67,6 +67,7 @@ sheets:
           no_details_for:
           - Assets
           - Loans
+          - Investment Accounts
           include_zeros:
           - 529 - ML
           - Capital One Investing
@@ -74,6 +75,7 @@ sheets:
           - 401K - GBD MML - Roth
           - CHET - Ben
           - HSA - GBD - Devenir
+          - HSA - G - Invest
           tax_free_keys:
           - 401K
           - CHET

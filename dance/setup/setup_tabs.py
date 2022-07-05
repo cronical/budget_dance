@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
+import pandas as pd
 import yaml
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data
@@ -170,6 +171,12 @@ def refresh_sheets(target):
               row+=1
               for i,v in enumerate(values):
                 ws.cell(row=row,column=start_col+i).value=v
+          if isinstance(data,pd.DataFrame):
+            for _,values in data.iterrows():
+              row+=1
+              for i,cn in enumerate( [x['name']for x in col_defns]):
+                if cn in values:
+                  ws.cell(row=row,column=start_col+i).value=values[cn]
         else: # if no data, just a blank row
           row+=1
         # make into a table
