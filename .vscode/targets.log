@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Fri Jun 24 16:17:55 2022
+# Make data base, printed on Mon Jul  4 19:14:19 2022
 
 # Variables
 
@@ -21,7 +21,6 @@ make: *** No rule to make target `all'.  Stop.
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
- 
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
@@ -42,11 +41,13 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-09820721-d2f9-4e8b-b77d-21b63b44101a.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-5398897b-8675-46a9-9954-2d61ea02c934.sock
 # environment
 VSCODE_CWD = /
 # environment
-PATH = /usr/local/opt/mysql-client/bin:/Users/george/.pymac/bin:/usr/local/mysql/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/Users/george/.pyenv/shims:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/george/.new_local/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin
+PATH = /usr/local/opt/mysql-client/bin:/Users/george/.pymac/bin:/usr/local/mysql/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/Users/george/.pyenv/shims:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/george/.new_local/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/Users/george/argus
+# environment
+LaunchInstanceID = 7E9FFC45-CF3C-4F61-983C-60A642E553A7
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -54,11 +55,11 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.hh7reNO611/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.y4TaSuHQnY/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = /private/tmp/com.apple.launchd.kFr2YTnXz7/org.macosforge.xquartz:0
+DISPLAY = /private/tmp/com.apple.launchd.MXuGcOHrl1/org.macosforge.xquartz:0
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
@@ -100,7 +101,7 @@ USER = george
 # makefile
 .DEFAULT_GOAL := 
 # environment
-DBUS_LAUNCHD_SESSION_BUS_SOCKET = /private/tmp/com.apple.launchd.FAZLvIRSnm/unix_domain_listener
+DBUS_LAUNCHD_SESSION_BUS_SOCKET = /private/tmp/com.apple.launchd.XY9PmkqK28/unix_domain_listener
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # default
@@ -135,6 +136,9 @@ MAKEFILES :=
 <F = $(notdir $<)
 # environment
 LC_ALL = C
+# environment
+ 
+SECURITYSESSIONID = 186a7
 # automatic
 ^F = $(notdir $^)
 # default
@@ -146,9 +150,11 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 11903
+VSCODE_PID = 562
+# environment
+USE_DEBUGPY = False
 # variable set hash-table stats:
-# Load=66/1024=6%, Rehash=0, Collisions=1/87=1%
+# Load=69/1024=7%, Rehash=0, Collisions=1/90=1%
 
 # Pattern-specific Variable Values
 
@@ -156,9 +162,9 @@ VSCODE_PID = 11903
 
 # Directories
 
-# . (device 16777230, inode 12442697): 18 files, no impossibilities.
+# . (device 16777234, inode 12442697): 19 files, no impossibilities.
 
-# 18 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -189,7 +195,6 @@ Makefile:
 #  File has been updated.
 #  Failed to be updated.
 # variable set hash-table stats:
- 
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # Not a target:
@@ -231,6 +236,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Fri Jun 24 16:17:55 2022
+# Finished Make data base on Mon Jul  4 19:14:19 2022
 
  
