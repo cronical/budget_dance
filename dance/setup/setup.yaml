@@ -52,7 +52,7 @@ sheets:
             width: 18
           - name: Notes
             width: 55
-        data:
+        data: &acct_data_info
           source: local
           type: md_acct
           path: ./data/2022 Account Balances.tsv
@@ -103,6 +103,10 @@ sheets:
         - name: Active
         hidden:
         - Key
+        data:
+          <<: *acct_data_info
+          type: md_bal
+          path: ./data/2017 Account Balances.tsv
   iande:
     sheet_group: income-expense
     tables:

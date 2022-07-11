@@ -16,7 +16,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="dance.integrity" href="dance.integrity.html" />
+    <link rel="next" title="dance.invest_actl_load" href="dance.invest_actl_load.html" />
     <link rel="prev" title="dance.bracket_fix" href="dance.bracket_fix.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -29,7 +29,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="dance.integrity.html" title="dance.integrity"
+          <a href="dance.invest_actl_load.html" title="dance.invest_actl_load"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="dance.bracket_fix.html" title="dance.bracket_fix"
@@ -48,22 +48,38 @@
             
   <section id="module-dance.iande_actl_load">
 <span id="dance-iande-actl-load"></span><h1>dance.iande_actl_load<a class="headerlink" href="#module-dance.iande_actl_load" title="Permalink to this heading">¶</a></h1>
-<p>Load data from ‘data/iande.tsv’ into tab ‘iande_actl’</p>
-<p>Handles category nesting as groups with subtotals</p>
+<p>Copies data from “data/iande.tsv” into tab “iande_actl” after doing some checks.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dance.iande_actl_load.process" title="dance.iande_actl_load.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>([force])</p></td>
-<td><p>Convert the data file into a worksheet :param force: Optional true to override warning :type force: boolean</p></td>
+<td><p>Load data from 'data/iande.tsv' into tab 'iande_actl' Handles category nesting as groups with subtotals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dance.iande_actl_load.required_lines" title="dance.iande_actl_load.required_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">required_lines</span></code></a>(forecast_start_year)</p></td>
+<td><p>Compute the list of required lines given the forecast start year in form y_year :param forecast_start_year: The first forecast year as a String (Ynnnn)</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
+<dt class="sig sig-object py" id="dance.iande_actl_load.required_lines">
+<span class="sig-prename descclassname"><span class="pre">dance.iande_actl_load.</span></span><span class="sig-name descname"><span class="pre">required_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_start_year</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.iande_actl_load.required_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the list of required lines given the forecast start year in form y_year
+:param forecast_start_year: The first forecast year as a String (Ynnnn)</p>
+<p>Returns: the required lines and all lines as sets</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dance.iande_actl_load.process">
 <span class="sig-prename descclassname"><span class="pre">dance.iande_actl_load.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.iande_actl_load.process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the data file into a worksheet
-:param force: Optional true to override warning
-:type force: boolean</p>
+<dd><p>Load data from ‘data/iande.tsv’ into tab ‘iande_actl’
+Handles category nesting as groups with subtotals.
+Makes checks to ensure nothing of the forecast gets lost due to changed lines.
+Checks can be overridden by a flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>force</strong> – Optional, True to override warning</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -82,8 +98,8 @@
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="dance.integrity.html"
-                          title="next chapter">dance.integrity</a></p>
+    <p class="topless"><a href="dance.invest_actl_load.html"
+                          title="next chapter">dance.invest_actl_load</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -116,7 +132,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="dance.integrity.html" title="dance.integrity"
+          <a href="dance.invest_actl_load.html" title="dance.invest_actl_load"
              >next</a> |</li>
         <li class="right" >
           <a href="dance.bracket_fix.html" title="dance.bracket_fix"

@@ -3,11 +3,17 @@ import pandas as pd
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
 
-def read_data(data_info):
+def read_data(data_info,target_file=None):
   if data_info['type']== 'md_acct':
     df= read_accounts(data_info)
     df= prepare_account_tab(data_info,df)
-    return df
+  if data_info['type']=='md_bal':
+    bal_df=read_bal(data_info)
+    acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
+    if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
+      raise ValueError('Balance account(s) are not all in the Accounts table')
+    df=prepare_balance_tab(data_info,df)
+  return df
 
 def filter_nz(df,include_zeros):
   '''get a filter for the the rows in a dataframe that have a balance or are allowed by config.
@@ -31,7 +37,6 @@ def no_suffix(acct_total_key):
   '''
   return ' - '.join(acct_total_key.split(' - ')[:-1])
 
-# -----------------------------
 def read_accounts(data_info):
   '''Get the account data as specified in the data_info.
 
@@ -187,7 +192,7 @@ def read_accounts(data_info):
   return df[['Account','Type','Current Balance','is_total' ,'level']]
 
 def prepare_account_tab(data_info, in_df):
-  '''Add in the added fields
+  '''Add in the added fields for the account worksheet
   args:
     data_info: a dictionary describing the data (from the config.yaml file)
     in_df: a dataframe with columns: Account, Type, Current Balance, is_total and level
@@ -212,3 +217,45 @@ def prepare_account_tab(data_info, in_df):
   del df['is_total']
   del df['level']
   return df
+
+def read_bal(data_info):
+  '''Get the balance data as specified in the data_info.
+  The specified data should represent the opening balances for the system.
+
+  args: data_info. See read_accounts for details on argument.
+
+  returns: dataframe including 'Account', 'Type', 'Current Balance'
+
+  raises: error if there is an account not found in the accounts worksheet
+
+  '''
+  df=read_accounts(data_info)
+  pass
+  return df
+
+def prepare_balance_tab(data_info,df):
+  '''Add in the added fields for the balance worksheet
+  args:
+    data_info: a dictionary describing the data (from the config.yaml file)
+    in_df: a dataframe with at least columns: Account, and Current Balance
+
+  returns: a dataframe for the balance tab
+  '''
+
+  repeated_formulas={
+    'Key':'=CONCATENATE([@ValType],[@AcctName])',
+    'Type':'=get_val([@AcctName],"tbl_accounts",D$2))',
+    'Income Txbl': '=get_val([@AcctName],"tbl_accounts",E$2)',
+    'Active': '=get_val([@AcctName],"tbl_accounts",F$2)'
+  }
+  # the actual and the forecast formulas
+  # symbolic names (in braces) are filled in before inserting into the worksheet
+  actl_formulas={
+    'Rate':'=simple_return([@AcctName],{THIS_YEAR_COL}$2)',
+    'Start Bal':'=get_val("End Bal"&[@AcctName],"tbl_balances",{PRIOR_YEAR_COL}$2)',
+    'Add/Wdraw':'=-add_wdraw([@AcctName],{THIS_YEAR_COL}$2)',
+    'Rlz Int/Gn':'',
+    'Unrlz Gn/Ls':'',
+    'End Bal': ''  }
+
+  return 'None'
