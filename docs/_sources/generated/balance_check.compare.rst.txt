@@ -1,6 +1,0 @@
-﻿balance\_check.compare
-======================
-
-.. currentmodule:: balance_check
-
-.. autofunction:: compare

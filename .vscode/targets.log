@@ -10,12 +10,13 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Mon Jul  4 19:14:19 2022
+# Make data base, printed on Mon Jul 11 19:03:16 2022
 
 # Variables
 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
+ 
 # automatic
 ?F = $(notdir $?)
 # environment
@@ -41,7 +42,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-5398897b-8675-46a9-9954-2d61ea02c934.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8m/59p77_gx22b9wsbsv06279rm0000gn/T/vscode-ipc-caecbc02-6d4c-46ff-a586-e137411b31b0.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -117,6 +118,7 @@ VSCODE_IPC_HOOK = /Users/george/Library/Application Support/Code/1.68.1-main.soc
 # makefile
 MAKEFLAGS = Rrqp
 # environment
+ 
 MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
@@ -137,7 +139,6 @@ MAKEFILES :=
 # environment
 LC_ALL = C
 # environment
- 
 SECURITYSESSIONID = 186a7
 # automatic
 ^F = $(notdir $^)
@@ -236,6 +237,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Mon Jul  4 19:14:19 2022
+# Finished Make data base on Mon Jul 11 19:03:16 2022
 
  

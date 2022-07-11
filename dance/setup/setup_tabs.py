@@ -160,7 +160,7 @@ def refresh_sheets(target):
             data=remote_data.request(data_info)
             logger.info('pulled data from remote')
           if source=='local':
-            data=read_data(data_info)
+            data=read_data(data_info,target_file=target)
           if isinstance(data,dict):
             for k,v in data.items():
               row+=1
@@ -189,6 +189,8 @@ def refresh_sheets(target):
         tab.tableStyleInfo = style
         ws.add_table(tab)
         logger.info('  table {} added'.format(table_name))
+        wb.save(filename=target) # save after each sheet to allow successive sheets to locate earlier sheet data
+        logger.info('workbook {} saved'.format(target))
         table_map[table_name]=sheet_name
       ws.sheet_view.zoomScale=config['zoom_scale']
 
