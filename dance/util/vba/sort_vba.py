@@ -64,7 +64,7 @@ def process(input,output,index_file,sorted_file):
     sorted_file.write(txt)
 
   # start the output
-  sorted_file.write('Visual Basic Code\n#################\n\n.. code-block:: vbscript\n\n')
+  sorted_file.write('# VBA Code\n``` vbscript\n')
   for line in header:
     double_write(line)
   for name,val in sorted_code_bits.items():
@@ -74,11 +74,11 @@ def process(input,output,index_file,sorted_file):
       double_write("'"+line)
     for line in val['code_rows']:
       double_write(line)
-  sorted_file.write('\n')
+  sorted_file.write('```\n')
   for fn in input,output,sorted_file:
     fn.close()
   logger.info('Wrote sorted output to {}'.format(output.name))
-  logger.info('Wrote sorted output as restructured text to {}'.format(sorted_file.name))
+  logger.info('Wrote sorted output as markdown to {}'.format(sorted_file.name))
   index_file.write('# VBA Code Summary\n\n')
   index_file.write('|Function or Sub|Signature and info|\n')
   index_file.write('|---|---|\n')
@@ -96,8 +96,8 @@ if __name__ == '__main__':
   # execute only if run as a script
   parser = argparse.ArgumentParser(description ='takes an input file with vba source code and puts the functions and subs into alpha order and writes to the output file')
   parser.add_argument('-i','--in_file',type=argparse.FileType('r'), default='vba/fcast.vb',help='provide the name of the input file')
-  parser.add_argument('-','--out_file', type=argparse.FileType('w',encoding='UTF-8'),default='vba/fcast_sorted.vb',help='provide the name of the output file')
-  parser.add_argument('-x','--index_file', type=argparse.FileType('w',encoding='UTF-8'),default='docs/source/vba_index.md',help='provide the name of the index documentation file')
-  parser.add_argument('-s','--sorted_file', type=argparse.FileType('w',encoding='UTF-8'),default='docs/source/vba_sorted.rst',help='provide the name of the sorted code documentation file')
+  parser.add_argument('-o','--out_file', type=argparse.FileType('w',encoding='UTF-8'),default='vba/fcast_sorted.vb',help='provide the name of the output file')
+  parser.add_argument('-x','--index_file', type=argparse.FileType('w',encoding='UTF-8'),default='docs/vba_index.md',help='provide the name of the index documentation file')
+  parser.add_argument('-s','--sorted_file', type=argparse.FileType('w',encoding='UTF-8'),default='docs/vba_sorted.md',help='provide the name of the sorted code documentation file')
   args=parser.parse_args()
   process(args.in_file,args.out_file,args.index_file,args.sorted_file)
