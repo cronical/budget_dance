@@ -13,6 +13,7 @@ Welcome to Budget Dance's documentation!
    data_from_moneydance
    appendix
    vba_index
+   vba_sorted
    cli
 
 

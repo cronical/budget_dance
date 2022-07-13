@@ -25,9 +25,9 @@
       "name": "sort_vba args",
       "type": "python",
       "request": "launch",
-      "program": "dance/util/sort_vba.py",
+      "program": "dance/util/vba/sort_vba.py",
       "console": "integratedTerminal",
-      "args": ["vba/fcast_vba.txt","vba/sorted_vba.txt","-d","docs/source/vba_index.md"],
+      "args": ["-i","vba/fcast.vb","-o","vba/fcast_sorted.vb","-x","docs/source/vba_index.md","-s","docs/source/vba_sorted.md"],
       "justMyCode": true
     },
     {

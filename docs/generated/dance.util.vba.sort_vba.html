@@ -50,15 +50,15 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dance.util.vba.sort_vba.process" title="dance.util.vba.sort_vba.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>(input, output[, md_file])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dance.util.vba.sort_vba.process" title="dance.util.vba.sort_vba.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>(input, output, index_file, sorted_file)</p></td>
 <td><p>Read and process the input stream and send it to the output.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
 <dt class="sig sig-object py" id="dance.util.vba.sort_vba.process">
-<span class="sig-prename descclassname"><span class="pre">dance.util.vba.sort_vba.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.util.vba.sort_vba.process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and process the input stream and send it to the output. If md_file is given a markdown file is also created for documentation.
+<span class="sig-prename descclassname"><span class="pre">dance.util.vba.sort_vba.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dance.util.vba.sort_vba.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and process the input stream and send it to the output. Create index and full text markdown files for documentation.
 The arguments are files that are already open. - they are of type _io.TextIOWrapper
 They are closed at the end.</p>
 </dd></dl>
