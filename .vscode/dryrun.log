@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory `/Users/george/argus/budget'
-make: Leaving directory `/Users/george/argus/budget'
- 
-make: *** No targets specified and no makefile found.  Stop.
-
