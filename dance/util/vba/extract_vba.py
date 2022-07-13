@@ -53,11 +53,6 @@ def main():
     f.write(vba)
   logger.info('wrote %d characters to %s',len(vba), filename)
 
-  filename='./docs/fcast_vba.md'
-  with open(filename,'w') as f:
-    f.write(f'```vb\n{vba}\n```')
-  logger.info('wrote markdown version with code formatting to %s',filename)
-
   #cleanup
   tmp='./tmp'
   rmtree(tmp)

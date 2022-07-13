@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Visual Basic Code &#8212; Budget Dance 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/celery.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI" href="cli.html" />
+    <link rel="prev" title="VBA Code Summary" href="vba_index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cli.html" title="CLI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vba_index.html" title="VBA Code Summary"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Budget Dance 0.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Visual Basic Code</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="visual-basic-code">
+<h1>Visual Basic Code<a class="headerlink" href="#visual-basic-code" title="Permalink to this heading">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Attribute</span> <span class="n">VB_Name</span> <span class="o">=</span> <span class="s2">&quot;Module1&quot;</span>
+<span class="n">Public</span> <span class="n">Const</span> <span class="n">dbg</span> <span class="n">As</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">Option</span> <span class="n">Base</span> <span class="mi">0</span>
+
+<span class="n">Function</span> <span class="n">acct_who1</span><span class="p">(</span><span class="n">acct</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">String</span>
+<span class="s1">&#39;return the first initial of the owner of an account in format type - who - firm</span>
+    <span class="n">Dim</span> <span class="n">parts</span><span class="p">()</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="s2">&quot; - &quot;</span><span class="p">)</span>
+    <span class="n">who</span> <span class="o">=</span> <span class="n">parts</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">acct_who1</span> <span class="o">=</span> <span class="n">Left</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">add_wdraw</span><span class="p">(</span><span class="n">acct</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">Optional</span> <span class="n">is_fcst</span> <span class="n">As</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;grab the actual transfers in (positive) our out(negative)</span>
+<span class="s1">&#39;ignoring the optional is_fcst argument - instead: compute it</span>
+    <span class="n">Dim</span> <span class="n">line</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">prefix</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">is_fcst</span> <span class="o">=</span> <span class="n">is_forecast</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;actl&quot;</span>
+    <span class="n">If</span> <span class="n">is_fcst</span> <span class="n">Then</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;fcst&quot;</span>
+    <span class="n">add_wdraw</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">acct_type</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_accounts&quot;</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">)</span>
+    <span class="n">tbl</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_accounts&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">&amp;</span> <span class="s2">&quot;_source_tab&quot;</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_accounts&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">&amp;</span> <span class="s2">&quot;_source&quot;</span><span class="p">)</span>
+    <span class="n">If</span> <span class="p">(</span><span class="s2">&quot;I&quot;</span> <span class="o">=</span> <span class="n">acct_type</span><span class="p">)</span> <span class="n">And</span> <span class="n">Not</span> <span class="n">is_fcst</span> <span class="n">Then</span> <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;add/wdraw&quot;</span> <span class="o">&amp;</span> <span class="n">line</span> <span class="s1">&#39; complete key for investment actuals</span>
+
+    <span class="n">If</span> <span class="n">line</span> <span class="o">&lt;&gt;</span> <span class="s2">&quot;zero&quot;</span> <span class="n">Then</span>  <span class="s1">&#39; keyword to enable forecasting of zeros</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">tbl</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+        <span class="n">add_wdraw</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">End</span> <span class="n">If</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">age_of</span><span class="p">(</span><span class="n">inits</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Integer</span>
+<span class="s1">&#39;return the age attained by an account owner in a given year</span>
+    <span class="n">Dim</span> <span class="n">dob</span> <span class="n">As</span> <span class="n">Date</span><span class="p">,</span> <span class="n">eoy</span> <span class="n">As</span> <span class="n">Date</span>
+    <span class="n">Dim</span> <span class="n">diff</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">age</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">dob</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;DOB&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_retir_parms&quot;</span><span class="p">,</span> <span class="n">Left</span><span class="p">(</span><span class="n">inits</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">eoy</span> <span class="o">=</span> <span class="n">DateSerial</span><span class="p">(</span><span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">),</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">eoy</span> <span class="o">-</span> <span class="n">dob</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">RoundDown</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">age_of</span> <span class="o">=</span> <span class="n">age</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">ANN</span><span class="p">(</span><span class="n">account</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">account_owner</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;return a year&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="k">for</span> <span class="n">an</span> <span class="n">annuity</span> <span class="n">stream</span> <span class="n">based</span> <span class="n">on</span> <span class="n">the</span> <span class="n">prior</span> <span class="n">year</span><span class="s1">&#39;s end balance</span>
+<span class="s1">&#39;does not properly handle partial years</span>
+    <span class="n">Dim</span> <span class="n">this_year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">age</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">prior_end_bal</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">term</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">anny_rate</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">anny_dur</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">anny_start</span> <span class="n">As</span> <span class="n">Date</span><span class="p">,</span> <span class="n">o1</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">n</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">dur_parm</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">this_year</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">prior_end_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End Bal&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="n">this_year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">age_of</span><span class="p">(</span><span class="n">account_owner</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">o1</span> <span class="o">=</span> <span class="n">Left</span><span class="p">(</span><span class="n">account_owner</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">anny_rate</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;anny_rate&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_retir_parms&quot;</span><span class="p">,</span> <span class="n">o1</span><span class="p">)</span>
+    <span class="n">dur_parm</span> <span class="o">=</span> <span class="s2">&quot;anny_dur&quot;</span>  <span class="s1">&#39; hack picks different duration for roth</span>
+    <span class="n">If</span> <span class="n">InStr</span><span class="p">(</span><span class="n">account</span><span class="p">,</span> <span class="s2">&quot;Roth&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">Then</span> <span class="n">dur_parm</span> <span class="o">=</span> <span class="s2">&quot;roth_dur&quot;</span>
+    <span class="n">anny_dur</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">dur_parm</span><span class="p">,</span> <span class="s2">&quot;tbl_retir_parms&quot;</span><span class="p">,</span> <span class="n">o1</span><span class="p">)</span>
+    <span class="n">anny_start</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;anny_start&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_retir_parms&quot;</span><span class="p">,</span> <span class="n">o1</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">anny_dur</span> <span class="o">-</span> <span class="p">(</span><span class="n">this_year</span> <span class="o">-</span> <span class="n">year</span><span class="p">(</span><span class="n">anny_start</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">If</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">Then</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Pmt</span><span class="p">(</span><span class="n">anny_rate</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">prior_end_bal</span><span class="p">)</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">ANN</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Sub</span> <span class="n">calc_retir</span><span class="p">()</span>
+<span class="s1">&#39;iterate through the years to calc retirement streams based on balances from prior year</span>
+<span class="s1">&#39;prior balance from balances feeds current retirement, which feeds aux, which feeds current balances</span>
+<span class="s1">&#39;iande depends on retirement as well and taxes depend on iande</span>
+    <span class="n">Dim</span> <span class="n">rcols</span> <span class="n">As</span> <span class="n">Range</span><span class="p">,</span> <span class="n">rcell</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">Dim</span> <span class="n">tbls</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="n">As</span> <span class="n">ListObject</span>
+    <span class="n">Dim</span> <span class="n">tbl_names</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">ws_names</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">msg</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Entering manual calculation mode.&quot;</span><span class="p">)</span>
+    <span class="n">Application</span><span class="o">.</span><span class="n">Calculation</span> <span class="o">=</span> <span class="n">xlCalculationManual</span>
+    <span class="n">tbl_names</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;tbl_retir_vals&quot;</span>
+    <span class="n">tbl_names</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;tbl_aux&quot;</span>
+    <span class="n">tbl_names</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;tbl_balances&quot;</span>
+    <span class="n">tbl_names</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;tbl_iande&quot;</span>
+    <span class="n">tbl_names</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;tbl_taxes&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">For</span> <span class="n">i</span> <span class="o">=</span> <span class="n">LBound</span><span class="p">(</span><span class="n">tbl_names</span><span class="p">)</span> <span class="n">To</span> <span class="n">UBound</span><span class="p">(</span><span class="n">tbl_names</span><span class="p">)</span>
+        <span class="n">ws_names</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_names</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">Set</span> <span class="n">tbls</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws_names</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_names</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">If</span> <span class="n">Len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="n">Then</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">&amp;</span> <span class="s2">&quot;,&quot;</span>
+        <span class="n">If</span> <span class="n">i</span> <span class="o">=</span> <span class="n">UBound</span><span class="p">(</span><span class="n">tbl_names</span><span class="p">)</span> <span class="n">Then</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">&amp;</span> <span class="s2">&quot; and &quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">&amp;</span> <span class="n">ws_names</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="n">Next</span> <span class="n">i</span>
+
+    <span class="n">Set</span> <span class="n">rcols</span> <span class="o">=</span> <span class="n">tbls</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">HeaderRowRange</span>
+    <span class="n">Set</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tbls</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;Start_Date&quot;</span><span class="p">)</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Dirty</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Calculate</span>
+    <span class="n">Set</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tbls</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;yearly&quot;</span><span class="p">)</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Dirty</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Calculate</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Retirement Start_date and yearly columns refreshed.&quot;</span><span class="p">)</span>
+    <span class="n">For</span> <span class="n">Each</span> <span class="n">rcell</span> <span class="n">In</span> <span class="n">rcols</span>
+
+        <span class="n">If</span> <span class="n">InStr</span><span class="p">(</span><span class="n">rcell</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;Y20&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">Then</span>
+            <span class="n">For</span> <span class="n">i</span> <span class="o">=</span> <span class="n">LBound</span><span class="p">(</span><span class="n">tbls</span><span class="p">)</span> <span class="n">To</span> <span class="n">UBound</span><span class="p">(</span><span class="n">tbls</span><span class="p">)</span>
+                <span class="n">Set</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tbls</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="n">rcell</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Dirty</span>
+                <span class="n">col</span><span class="o">.</span><span class="n">Range</span><span class="o">.</span><span class="n">Calculate</span>
+            <span class="n">Next</span> <span class="n">i</span>
+            <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Calculated &quot;</span> <span class="o">&amp;</span> <span class="n">msg</span> <span class="o">&amp;</span> <span class="s2">&quot; for &quot;</span> <span class="o">&amp;</span> <span class="n">rcell</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">End</span> <span class="n">If</span>
+    <span class="n">Next</span> <span class="n">rcell</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Entering automatic calculation mode.&quot;</span><span class="p">)</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
+    <span class="n">Application</span><span class="o">.</span><span class="n">Calculation</span> <span class="o">=</span> <span class="n">xlCalculationAutomatic</span>
+
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Function</span> <span class="n">d2s</span><span class="p">(</span><span class="n">dt</span> <span class="n">As</span> <span class="n">Date</span><span class="p">)</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">d2s</span> <span class="o">=</span> <span class="n">Format</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;mm/dd/yyyy&quot;</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">endbal</span><span class="p">(</span><span class="n">acct</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;compute the end balance for an account for a year</span>
+    <span class="n">Dim</span> <span class="n">rate</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">Dim</span> <span class="n">val</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">open_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Start bal&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">adds</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Add/Wdraw&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">rlzd</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Rlz Int/Gn&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">unrlzd</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Unrlz Gn/Ls&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">open_bal</span> <span class="o">+</span> <span class="n">adds</span> <span class="o">+</span> <span class="n">rlzd</span> <span class="o">+</span> <span class="n">unrlzd</span>
+    <span class="n">endbal</span> <span class="o">=</span> <span class="n">val</span>
+
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">Fed_Tax_CapGn</span><span class="p">(</span><span class="n">tax_Year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">taxable_Income</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">totCapGn</span> <span class="n">As</span> <span class="n">Double</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;computes the resulting federal tax with capital gains portion at 15%</span>
+<span class="s1">&#39;the input should include qualified dividends</span>
+
+    <span class="n">Dim</span> <span class="n">base</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">cgt</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">Federal_Tax</span><span class="p">(</span><span class="n">tax_Year</span><span class="p">,</span> <span class="n">taxable_Income</span> <span class="o">-</span> <span class="n">totCapGn</span><span class="p">)</span>
+    <span class="n">cgt</span> <span class="o">=</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="n">totCapGn</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">cgt</span>
+    <span class="n">Fed_Tax_CapGn</span> <span class="o">=</span> <span class="n">result</span>
+
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">Federal_Tax</span><span class="p">(</span><span class="n">tax_Year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">taxable_Income</span> <span class="n">As</span> <span class="n">Double</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;Calculate the federal income tax for a given year and taxable income amount</span>
+<span class="s1">&#39;gets a result of zero if year not in the table.</span>
+    <span class="n">Dim</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">ListObject</span>
+    <span class="n">Dim</span> <span class="n">lr</span> <span class="n">As</span> <span class="n">ListRow</span>
+    <span class="n">Dim</span> <span class="n">rng</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">Dim</span> <span class="n">yr</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">ti</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">rt</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">sb</span> <span class="n">As</span> <span class="n">Double</span>
+
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="s2">&quot;tbl_fed_tax&quot;</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">For</span> <span class="n">Each</span> <span class="n">lr</span> <span class="n">In</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListRows</span><span class="p">()</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">Range</span>
+        <span class="n">yr</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">rt</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">sb</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">If</span> <span class="n">tax_Year</span> <span class="o">=</span> <span class="n">yr</span> <span class="n">Then</span>
+            <span class="n">If</span> <span class="n">taxable_Income</span> <span class="o">&gt;</span> <span class="n">ti</span> <span class="n">Then</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">rt</span> <span class="o">*</span> <span class="n">taxable_Income</span><span class="p">)</span> <span class="o">-</span> <span class="n">sb</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">Round</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">End</span> <span class="n">If</span>
+        <span class="n">End</span> <span class="n">If</span>
+    <span class="n">Next</span> <span class="n">lr</span>
+    <span class="n">Federal_Tax</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">gain</span><span class="p">(</span><span class="n">acct</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">realized</span> <span class="n">As</span> <span class="n">Boolean</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;work out an esitmate of the realized or unrealized gain for an account for a year for forecast</span>
+<span class="s1">&#39; for actual, use the values from invest_actl</span>
+    <span class="n">Dim</span> <span class="n">rate</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">Dim</span> <span class="n">val</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">Dim</span> <span class="n">col_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">If</span> <span class="n">realized</span> <span class="n">Then</span>
+        <span class="n">col_name</span> <span class="o">=</span> <span class="s2">&quot;Rlz share&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;Rlz Int/Gn&quot;</span>
+    <span class="n">Else</span>
+        <span class="n">col_name</span> <span class="o">=</span> <span class="s2">&quot;Unrlz share&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;Unrlz Gn/Ls&quot;</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">is_fcst</span> <span class="o">=</span> <span class="n">is_forecast</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">If</span> <span class="n">is_fcst</span> <span class="n">Then</span>
+        <span class="n">open_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Start bal&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Rate&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+        <span class="n">alloc</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_accounts&quot;</span><span class="p">,</span> <span class="n">col_name</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">open_bal</span> <span class="o">*</span> <span class="n">rate</span> <span class="o">*</span> <span class="n">alloc</span>
+    <span class="n">Else</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">prefix</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_invest_actl&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="n">val</span>
+
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">get_val</span><span class="p">(</span><span class="n">line_key</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">col_name</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;Fetches a value from a given table (it must be an actual worksheet table</span>
+<span class="s1">&#39;If the line is not found in the table, a zero is returned.</span>
+
+    <span class="n">Dim</span> <span class="n">value</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">rng</span> <span class="n">As</span> <span class="n">Variant</span>
+
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+
+    <span class="s1">&#39;now get the data</span>
+    <span class="n">With</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span><span class="o">.</span><span class="n">HeaderRowRange</span>
+        <span class="n">Dim</span> <span class="n">cr</span> <span class="n">As</span> <span class="n">Range</span>
+
+        <span class="n">On</span> <span class="n">Error</span> <span class="n">GoTo</span> <span class="n">ErrHandler1</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Match</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span><span class="o">.</span><span class="n">DataBodyRange</span>
+        <span class="n">On</span> <span class="n">Error</span> <span class="n">GoTo</span> <span class="n">ErrHandler</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">VLookup</span><span class="p">(</span><span class="n">line_key</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">If</span> <span class="n">IsEmpty</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="n">Then</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">End</span> <span class="n">If</span>
+
+    <span class="n">End</span> <span class="n">With</span>
+    <span class="n">get_val</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">Exit</span> <span class="n">Function</span>
+
+<span class="n">ErrHandler</span><span class="p">:</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;get_val: &quot;</span> <span class="o">&amp;</span> <span class="n">line_key</span> <span class="o">&amp;</span> <span class="s2">&quot; not found in &quot;</span> <span class="o">&amp;</span> <span class="n">tbl_name</span> <span class="o">&amp;</span> <span class="s2">&quot;, using zero as value for &quot;</span> <span class="o">&amp;</span> <span class="n">col_name</span><span class="p">)</span>
+    <span class="n">Dim</span> <span class="n">lkrange</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">If</span> <span class="kc">False</span> <span class="n">Then</span> <span class="s1">&#39;use this to debug missing lines. e.g. tbl_name = &quot;tbl_taxes&quot; Then</span>
+        <span class="n">Set</span> <span class="n">lkrange</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">DataBodyRange</span>
+        <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="n">lkrange</span><span class="o">.</span><span class="n">Count</span><span class="p">)</span>
+        <span class="n">For</span> <span class="n">Each</span> <span class="n">c</span> <span class="n">In</span> <span class="n">lkrange</span><span class="o">.</span><span class="n">Cells</span>
+            <span class="n">log</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">Next</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">get_val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Exit</span> <span class="n">Function</span>
+<span class="n">ErrHandler1</span><span class="p">:</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;get_val: &quot;</span> <span class="o">&amp;</span> <span class="n">Err</span><span class="o">.</span><span class="n">Number</span> <span class="o">&amp;</span> <span class="s2">&quot; &quot;</span> <span class="o">&amp;</span> <span class="n">Err</span><span class="o">.</span><span class="n">Description</span><span class="p">)</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Trying to locate column: &quot;</span> <span class="o">&amp;</span> <span class="n">col_name</span> <span class="o">&amp;</span> <span class="s2">&quot; in table &quot;</span> <span class="o">&amp;</span> <span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;line is &quot;</span> <span class="o">&amp;</span> <span class="n">line_key</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">yval</span><span class="p">)</span> <span class="n">As</span> <span class="n">Integer</span>
+<span class="s1">&#39;strips off the Y on the argument (eg Y2019) and returns an integer</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">+</span> <span class="n">Right</span><span class="p">(</span><span class="n">yval</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">IntYear</span> <span class="o">=</span> <span class="n">y</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">is_forecast</span><span class="p">(</span><span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Boolean</span>
+<span class="s1">&#39;determine if this year is a forecast year</span>
+    <span class="n">ffys</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;first_forecast&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_gen_state&quot;</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">ffy</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">ffys</span><span class="p">)</span>
+    <span class="n">ty</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ty</span> <span class="o">&gt;=</span> <span class="n">ffy</span>
+    <span class="n">is_forecast</span> <span class="o">=</span> <span class="n">r</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Sub</span> <span class="n">log</span><span class="p">(</span><span class="n">txt</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span>
+    <span class="n">If</span> <span class="n">dbg</span> <span class="n">Then</span>
+        <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="n">Format</span><span class="p">(</span><span class="n">Now</span><span class="p">,</span> <span class="s2">&quot;mm/dd/yyyy HH:mm:ss: &quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">txt</span><span class="p">)</span>
+    <span class="n">End</span> <span class="n">If</span>
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Function</span> <span class="n">LUMP</span><span class="p">(</span><span class="n">account</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;return the expected lump sum payment for an account based on the prior year&#39;</span><span class="n">s</span> <span class="n">end</span> <span class="n">balance</span> <span class="o">+</span> <span class="nb">any</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">aux</span> <span class="n">table</span>
+<span class="s1">&#39;for the current year (items that begin with the account name)</span>
+    <span class="n">Dim</span> <span class="n">this_year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">prior_end_bal</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">adj</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">ListObject</span><span class="p">,</span> <span class="n">crit_col</span> <span class="n">As</span> <span class="n">ListColumn</span><span class="p">,</span> <span class="n">val_col</span> <span class="n">As</span> <span class="n">ListColumn</span>
+    <span class="n">this_year</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">prior_end_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End Bal&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="n">this_year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">criteria</span> <span class="o">=</span> <span class="n">account</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="s2">&quot;tbl_aux&quot;</span>
+    <span class="n">ws_name</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws_name</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">crit_col</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;Accum_by&quot;</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">val_col</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">SumIf</span><span class="p">(</span><span class="n">crit_col</span><span class="o">.</span><span class="n">Range</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">val_col</span><span class="o">.</span><span class="n">Range</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">adj</span> <span class="o">+</span> <span class="n">prior_end_bal</span>
+    <span class="n">LUMP</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">MedicarePrem</span><span class="p">(</span><span class="n">bord</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">magi</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">inflation</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium or part D surcharge (IRMAA)</span>
+<span class="s1">&#39;bord isa 1 for part B premium or 2 for Part D surcharge</span>
+<span class="s1">&#39;If the year is not in the table, then the largest year lower than that given will be used</span>
+<span class="s1">&#39;and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly</span>
+    <span class="n">Dim</span> <span class="n">yr</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">ws_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">ListObject</span>
+    <span class="n">Dim</span> <span class="n">lr</span> <span class="n">As</span> <span class="n">ListRow</span><span class="p">,</span> <span class="n">rng</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">Dim</span> <span class="n">infl</span> <span class="n">As</span> <span class="n">Variant</span>
+
+    <span class="n">yr</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">magi</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">magi</span><span class="p">)</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="s2">&quot;tbl_part_b&quot;</span>
+    <span class="n">ws_name</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws_name</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">yr_col</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">VLookup</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span> <span class="n">yr_col</span><span class="o">.</span><span class="n">Range</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="s1">&#39; latest year for which we have data</span>
+    <span class="n">MedicarePrem</span> <span class="o">=</span> <span class="mi">0</span> <span class="s1">&#39;in case the if never succeeds</span>
+    <span class="n">For</span> <span class="n">Each</span> <span class="n">lr</span> <span class="n">In</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListRows</span><span class="p">()</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">Range</span>
+        <span class="n">ry</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">rl</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">rh</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">valu</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">bord</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">pw</span> <span class="o">=</span> <span class="p">(</span><span class="n">yr</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">ry</span> <span class="o">=</span> <span class="n">y</span> <span class="n">And</span> <span class="n">rl</span> <span class="o">&lt;</span> <span class="n">magi</span> <span class="n">And</span> <span class="n">rh</span> <span class="o">&gt;=</span> <span class="n">magi</span><span class="p">)</span> <span class="n">Then</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">valu</span> <span class="o">*</span> <span class="mi">12</span>
+            <span class="n">infl</span> <span class="o">=</span> <span class="n">CDbl</span><span class="p">(</span><span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Power</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">pw</span><span class="p">))</span>
+            <span class="n">MedicarePrem</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">infl</span>
+            <span class="n">Exit</span> <span class="n">For</span>
+        <span class="n">End</span> <span class="n">If</span>
+    <span class="n">Next</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">mo_apply</span><span class="p">(</span><span class="n">start_date</span> <span class="n">As</span> <span class="n">Date</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">Optional</span> <span class="n">end_mdy</span> <span class="n">As</span> <span class="n">String</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date</span>
+<span class="s1">&#39;The end date is a string since there is a bug in the Mac Excel.</span>
+<span class="s1">&#39;The end date represents the month of the last period to include.  The day is ignored and the last day of the month is used.</span>
+    <span class="n">Dim</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">distance</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">sign</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">months</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">ed</span> <span class="n">As</span> <span class="n">Date</span><span class="p">,</span> <span class="n">sd</span> <span class="n">As</span> <span class="n">Date</span>
+    <span class="n">If</span> <span class="n">end_mdy</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="n">Then</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="n">DateSerial</span><span class="p">(</span><span class="mi">3000</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span> <span class="s1">&#39;the default since the literal is not working on MacExcel</span>
+    <span class="n">Else</span>
+        <span class="n">mdy</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span><span class="n">end_mdy</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="n">DateSerial</span><span class="p">(</span><span class="n">mdy</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">mdy</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">ed</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Min</span><span class="p">(</span><span class="n">ed</span><span class="p">,</span> <span class="n">DateSerial</span><span class="p">(</span><span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">),</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+    <span class="n">sd</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">DateSerial</span><span class="p">(</span><span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="p">(</span><span class="n">ed</span> <span class="o">-</span> <span class="n">sd</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">365.25</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="n">Round</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Min</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">months</span><span class="p">)</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">months</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">months</span> <span class="o">/</span> <span class="mi">12</span>
+    <span class="n">mo_apply</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">PartBPrem</span><span class="p">(</span><span class="n">year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">magi</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">inflation</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium</span>
+<span class="s1">&#39;If the year is not in the table, then the largest year lower than that given will be used</span>
+<span class="s1">&#39;and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly</span>
+    <span class="n">PartBPrem</span> <span class="o">=</span> <span class="n">MedicarePrem</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">magi</span><span class="p">,</span> <span class="n">inflation</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">PartDSurcharge</span><span class="p">(</span><span class="n">year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">magi</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">inflation</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part D surcharge</span>
+<span class="s1">&#39;If the year is not in the table, then the largest year lower than that given will be used</span>
+<span class="s1">&#39;and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly</span>
+    <span class="n">PartDSurcharge</span> <span class="o">=</span> <span class="n">MedicarePrem</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">magi</span><span class="p">,</span> <span class="n">inflation</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">retir_med</span><span class="p">(</span><span class="n">who1</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;return the forecast medical expenses including premium and deductible for person with initial who1 given a year</span>
+    <span class="n">Dim</span> <span class="n">this_year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">med_exp</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">Dim</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">ListObject</span><span class="p">,</span> <span class="n">crit_col1</span> <span class="n">As</span> <span class="n">ListColumn</span><span class="p">,</span> <span class="n">crit_col2</span> <span class="n">As</span> <span class="n">ListColumn</span><span class="p">,</span> <span class="n">val_col</span> <span class="n">As</span> <span class="n">ListColumn</span>
+    <span class="n">Dim</span> <span class="n">criteria1</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">criteria2</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">criteria1</span> <span class="o">=</span> <span class="s2">&quot;MEDIC*&quot;</span>
+    <span class="n">criteria2</span> <span class="o">=</span> <span class="n">who1</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="s2">&quot;tbl_retir_vals&quot;</span>
+    <span class="n">ws_name</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws_name</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">crit_col1</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">crit_col2</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="s2">&quot;Who1&quot;</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">val_col</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">ListColumns</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">med_exp</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">SumIfs</span><span class="p">(</span><span class="n">val_col</span><span class="o">.</span><span class="n">Range</span><span class="p">,</span> <span class="n">crit_col1</span><span class="o">.</span><span class="n">Range</span><span class="p">,</span> <span class="n">criteria1</span><span class="p">,</span> <span class="n">crit_col2</span><span class="o">.</span><span class="n">Range</span><span class="p">,</span> <span class="n">criteria2</span><span class="p">)</span>
+    <span class="n">retir_med</span> <span class="o">=</span> <span class="n">med_exp</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">retir_parm</span><span class="p">(</span><span class="n">code</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">who</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;Get a retirement paramenter given code and code (G or V)</span>
+    <span class="n">Dim</span> <span class="n">rng</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">On</span> <span class="n">Error</span> <span class="n">GoTo</span> <span class="n">ErrHandler</span>
+    <span class="n">sht</span> <span class="o">=</span> <span class="s2">&quot;retireparms&quot;</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">InStr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;abGV&quot;</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">vbTextCompare</span><span class="p">)</span>
+    <span class="n">With</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">sht</span><span class="p">)</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="o">.</span><span class="n">Range</span><span class="p">(</span><span class="s2">&quot;Table3[code]&quot;</span><span class="p">)</span>
+        <span class="n">rw</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">Match</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">rw</span> <span class="o">=</span> <span class="n">rw</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">Row</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">sht</span> <span class="o">&amp;</span> <span class="s2">&quot;!&quot;</span> <span class="o">&amp;</span> <span class="o">.</span><span class="n">Cells</span><span class="p">(</span><span class="n">rw</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span><span class="o">.</span><span class="n">Address</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="o">.</span><span class="n">Range</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">retir_parm</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="n">End</span> <span class="n">With</span>
+    <span class="n">Exit</span> <span class="n">Function</span>
+
+<span class="n">ErrHandler</span><span class="p">:</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;retir_parm: &quot;</span> <span class="o">&amp;</span> <span class="n">Err</span><span class="o">.</span><span class="n">Description</span> <span class="o">&amp;</span> <span class="s2">&quot; (&quot;</span> <span class="o">&amp;</span> <span class="n">Err</span><span class="o">.</span><span class="n">Number</span> <span class="o">&amp;</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+    <span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Looking for: &quot;</span> <span class="o">&amp;</span> <span class="n">code</span> <span class="o">&amp;</span> <span class="s2">&quot; who:&quot;</span> <span class="o">&amp;</span> <span class="n">who</span><span class="p">)</span>
+
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">RMD_1</span><span class="p">(</span><span class="n">account</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">account_owner</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">Optional</span> <span class="n">death_year</span> <span class="n">As</span> <span class="n">Integer</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;return the req minimum distribution table 1 result for a year for a given account, owner (GBD or VEC) and year.</span>
+<span class="s1">&#39;if death year is not given then this function treat this as spousal inheritance</span>
+<span class="s1">&#39;if death year is given the treat this as a beneficiary inheritance</span>
+    <span class="n">Dim</span> <span class="n">this_year</span> <span class="n">As</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">age</span> <span class="n">As</span> <span class="n">Integer</span>
+    <span class="n">Dim</span> <span class="n">prior_end_bal</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">life_expectancy</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">this_year</span> <span class="o">=</span> <span class="n">IntYear</span><span class="p">(</span><span class="n">y_year</span><span class="p">)</span>
+    <span class="n">prior_end_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End Bal&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="n">this_year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">If</span> <span class="n">death_year</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">Then</span> <span class="s1">&#39; for spousal use actual age this year</span>
+        <span class="n">age</span> <span class="o">=</span> <span class="n">age_of</span><span class="p">(</span><span class="n">account_owner</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+        <span class="n">life_expectancy</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="s2">&quot;tbl_rmd_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Life Expectancy&quot;</span><span class="p">)</span>
+    <span class="n">Else</span> <span class="s1">&#39; work with the age at year after death for beneficiary type</span>
+        <span class="n">age</span> <span class="o">=</span> <span class="n">age_of</span><span class="p">(</span><span class="n">account_owner</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">death_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">life_expectancy</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="s2">&quot;tbl_rmd_1&quot;</span><span class="p">,</span> <span class="s2">&quot;Life Expectancy&quot;</span><span class="p">)</span>
+        <span class="n">life_expectancy</span> <span class="o">=</span> <span class="n">life_expectancy</span> <span class="o">-</span> <span class="p">(</span><span class="n">this_year</span> <span class="o">-</span> <span class="p">(</span><span class="n">death_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="s1">&#39;factor is reduced by one for each succeeding distribution year.</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">prior_end_bal</span> <span class="o">/</span> <span class="n">life_expectancy</span>
+    <span class="n">RMD_1</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">simple_return</span><span class="p">(</span><span class="n">account</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="s1">&#39;return the rlzd gain divided by the average of the start and end balances (or zero)</span>
+<span class="n">sb</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Start Bal&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+<span class="n">eb</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End Bal&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+<span class="n">rg</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Rlz Int/Gn&quot;</span> <span class="o">&amp;</span> <span class="n">account</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+<span class="n">av</span> <span class="o">=</span> <span class="p">(</span><span class="n">sb</span> <span class="o">+</span> <span class="n">eb</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">If</span> <span class="n">av</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">Then</span>
+<span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">Else</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">rg</span> <span class="o">/</span> <span class="n">av</span>
+<span class="n">End</span> <span class="n">If</span>
+<span class="n">simple_return</span> <span class="o">=</span> <span class="n">result</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">sort_tax_table</span><span class="p">()</span>
+<span class="s1">&#39;make sure the federal tax tables are sorted properly</span>
+    <span class="n">Dim</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="s2">&quot;tbl_fed_tax&quot;</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Dim</span> <span class="n">tbl</span> <span class="n">As</span> <span class="n">ListObject</span>
+    <span class="n">Set</span> <span class="n">tbl</span> <span class="o">=</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span><span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">)</span>
+    <span class="n">Dim</span> <span class="n">year_column</span> <span class="n">As</span> <span class="n">Range</span><span class="p">,</span> <span class="n">range_column</span> <span class="n">As</span> <span class="n">Range</span>
+    <span class="n">Set</span> <span class="n">year_column</span> <span class="o">=</span> <span class="n">Range</span><span class="p">(</span><span class="n">tbl_name</span> <span class="o">&amp;</span> <span class="s2">&quot;[Year]&quot;</span><span class="p">)</span>
+    <span class="n">Set</span> <span class="n">range_column</span> <span class="o">=</span> <span class="n">Range</span><span class="p">(</span><span class="n">tbl_name</span> <span class="o">&amp;</span> <span class="s2">&quot;[Range]&quot;</span><span class="p">)</span>
+    <span class="n">With</span> <span class="n">tbl</span><span class="o">.</span><span class="n">sort</span>
+    <span class="o">.</span><span class="n">SortFields</span><span class="o">.</span><span class="n">Clear</span>
+    <span class="o">.</span><span class="n">SortFields</span><span class="o">.</span><span class="n">Add</span> <span class="n">Key</span><span class="o">:=</span><span class="n">year_column</span><span class="p">,</span> <span class="n">SortOn</span><span class="o">:=</span><span class="n">xlSortOnValues</span><span class="p">,</span> <span class="n">Order</span><span class="o">:=</span><span class="n">xlAscending</span>
+    <span class="o">.</span><span class="n">SortFields</span><span class="o">.</span><span class="n">Add</span> <span class="n">Key</span><span class="o">:=</span><span class="n">range_column</span><span class="p">,</span> <span class="n">SortOn</span><span class="o">:=</span><span class="n">xlSortOnValues</span><span class="p">,</span> <span class="n">Order</span><span class="o">:=</span><span class="n">xlAscending</span>
+    <span class="o">.</span><span class="n">Header</span> <span class="o">=</span> <span class="n">xlYes</span>
+    <span class="o">.</span><span class="n">Apply</span>
+    <span class="n">End</span> <span class="n">With</span>
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Sub</span> <span class="n">test_fed_tax</span><span class="p">()</span>
+    <span class="n">Dim</span> <span class="n">r</span> <span class="n">As</span> <span class="n">Double</span><span class="p">,</span> <span class="n">c</span> <span class="n">As</span> <span class="n">Double</span>
+
+    <span class="n">zt</span> <span class="o">=</span> <span class="s2">&quot;not passed&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">Federal_Tax</span><span class="p">(</span><span class="mi">2150</span><span class="p">,</span> <span class="mi">9999</span><span class="p">)</span>
+    <span class="n">If</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">r</span> <span class="n">Then</span> <span class="n">zt</span> <span class="o">=</span> <span class="s2">&quot;passed&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">74031</span>
+    <span class="n">pt</span> <span class="o">=</span> <span class="s2">&quot;not passed&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">Federal_Tax</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">350000</span><span class="p">)</span>
+    <span class="n">If</span> <span class="n">r</span> <span class="o">=</span> <span class="n">n</span> <span class="n">Then</span> <span class="n">pt</span> <span class="o">=</span> <span class="s2">&quot;passed&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">72331</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="s2">&quot;not passed&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Fed_Tax_CapGn</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">350000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+    <span class="n">If</span> <span class="n">c</span> <span class="o">=</span> <span class="n">n</span> <span class="n">Then</span> <span class="n">ct</span> <span class="o">=</span> <span class="s2">&quot;passed&quot;</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="s2">&quot;Zero test: &quot;</span> <span class="o">&amp;</span> <span class="n">zt</span><span class="p">)</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="s2">&quot;Positive test:&quot;</span> <span class="o">&amp;</span> <span class="n">pt</span><span class="p">)</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="s2">&quot;Capital gains test:&quot;</span> <span class="o">&amp;</span> <span class="n">ct</span><span class="p">)</span>
+
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_get_val</span><span class="p">()</span>
+    <span class="n">Dim</span> <span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">line_name</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Dim</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Expenses:T:Soc Sec - TOTAL&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_iande_actl&quot;</span><span class="p">,</span> <span class="s2">&quot;Y2018&quot;</span><span class="p">))</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End BalMortgage - Nationstar&quot;</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="s2">&quot;Y2019&quot;</span><span class="p">))</span>
+
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_LUMP</span><span class="p">()</span>
+    <span class="n">Dim</span> <span class="n">val</span> <span class="n">As</span> <span class="n">Double</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">LUMP</span><span class="p">(</span><span class="s2">&quot;401K - GBD - TRV&quot;</span><span class="p">,</span> <span class="s2">&quot;Y2022&quot;</span><span class="p">)</span>
+    <span class="n">Debug</span><span class="o">.</span><span class="n">Print</span> <span class="p">(</span><span class="n">val</span><span class="p">)</span>
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_medicarePrem</span><span class="p">()</span>
+<span class="n">Dim</span> <span class="n">test_cases</span><span class="p">()</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">Dim</span> <span class="n">yr</span> <span class="n">As</span> <span class="n">String</span>
+<span class="n">Dim</span> <span class="n">infl</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">Dim</span> <span class="n">magi</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">test_cases</span><span class="p">()</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">Array</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">175000</span><span class="p">,</span> <span class="mi">1</span><span class="c1">#), Array(2022, 182001, 1#), Array(2022, 400000, 1#), Array(2023, 175000, 1.02))</span>
+<span class="n">log</span> <span class="p">(</span><span class="s2">&quot;Part B tests&quot;</span><span class="p">)</span>
+<span class="n">For</span> <span class="n">i</span> <span class="o">=</span> <span class="n">LBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="n">To</span> <span class="n">UBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span>
+    <span class="n">yr</span> <span class="o">=</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">magi</span> <span class="o">=</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">infl</span> <span class="o">=</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">partB</span> <span class="o">=</span> <span class="n">PartBPrem</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span> <span class="n">magi</span><span class="p">,</span> <span class="n">infl</span><span class="p">)</span>
+    <span class="n">partD</span> <span class="o">=</span> <span class="n">PartDSurcharge</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span> <span class="n">magi</span><span class="p">,</span> <span class="n">infl</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Input: year=&quot;</span> <span class="o">&amp;</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="s2">&quot; magi=&quot;</span> <span class="o">&amp;</span> <span class="n">magi</span> <span class="o">&amp;</span> <span class="s2">&quot; inflation=&quot;</span> <span class="o">&amp;</span> <span class="n">infl</span> <span class="o">&amp;</span> <span class="s2">&quot;   Output: &quot;</span> <span class="o">&amp;</span> <span class="n">partB</span> <span class="o">&amp;</span> <span class="s2">&quot;  Part D: &quot;</span> <span class="o">&amp;</span> <span class="n">partD</span>
+    <span class="n">log</span> <span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="n">Next</span>
+
+
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_mo_apply</span><span class="p">()</span>
+<span class="n">Dim</span> <span class="n">test_cases</span><span class="p">()</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">Dim</span> <span class="n">test_case</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">Dim</span> <span class="n">yr</span> <span class="n">As</span> <span class="n">String</span>
+<span class="n">Dim</span> <span class="n">start_date</span> <span class="n">As</span> <span class="n">Date</span><span class="p">,</span> <span class="n">end_date</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="n">test_cases</span><span class="p">()</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span> <span class="n">_</span>
+<span class="n">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">2022</span><span class="p">),</span> <span class="n">_</span>
+<span class="n">Array</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2025</span><span class="p">,</span> <span class="mi">2025</span><span class="p">),</span> <span class="n">_</span>
+<span class="n">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2022</span><span class="p">),</span> <span class="n">_</span>
+<span class="n">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">2025</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2025</span><span class="p">),</span> <span class="n">_</span>
+<span class="n">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">2022</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2022</span><span class="p">)</span> <span class="n">_</span>
+<span class="p">)</span>
+<span class="n">log</span> <span class="p">(</span><span class="s2">&quot;mo_apply tests&quot;</span><span class="p">)</span>
+<span class="n">For</span> <span class="n">i</span> <span class="o">=</span> <span class="n">LBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="n">To</span> <span class="n">UBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span>
+    <span class="n">test_case</span> <span class="o">=</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">DateSerial</span><span class="p">(</span><span class="n">test_case</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">test_case</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">yr</span> <span class="o">=</span> <span class="s2">&quot;Y&quot;</span> <span class="o">&amp;</span> <span class="n">test_case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="s2">&quot;-none-&quot;</span>
+    <span class="n">If</span> <span class="n">UBound</span><span class="p">(</span><span class="n">test_case</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="n">Then</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">test_case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="s2">&quot;/1/&quot;</span> <span class="o">&amp;</span> <span class="n">test_case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mo_apply</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">yr</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+    <span class="n">Else</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mo_apply</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">yr</span><span class="p">)</span>
+    <span class="n">End</span> <span class="n">If</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Input: year=&quot;</span> <span class="o">&amp;</span> <span class="n">yr</span> <span class="o">&amp;</span> <span class="s2">&quot; start/end dates = &quot;</span> <span class="o">&amp;</span> <span class="n">start_date</span> <span class="o">&amp;</span> <span class="s2">&quot; &quot;</span> <span class="o">&amp;</span> <span class="n">end_date</span> <span class="o">&amp;</span> <span class="s2">&quot;   Output: &quot;</span> <span class="o">&amp;</span> <span class="n">result</span>
+    <span class="n">log</span> <span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="n">Next</span> <span class="n">i</span>
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_retir_med</span><span class="p">()</span>
+<span class="n">Dim</span> <span class="n">test_cases</span><span class="p">()</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="n">Dim</span> <span class="n">yr</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">who</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">result</span> <span class="n">As</span> <span class="n">Double</span>
+<span class="n">test_cases</span><span class="p">()</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">Array</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;Y2022&quot;</span><span class="p">),</span> <span class="n">Array</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="s2">&quot;Y2026&quot;</span><span class="p">))</span>
+<span class="n">log</span> <span class="p">(</span><span class="s2">&quot;retir_med tests&quot;</span><span class="p">)</span>
+<span class="n">For</span> <span class="n">i</span> <span class="o">=</span> <span class="n">LBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span> <span class="n">To</span> <span class="n">UBound</span><span class="p">(</span><span class="n">test_cases</span><span class="p">)</span>
+    <span class="n">who</span> <span class="o">=</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">yr</span> <span class="o">=</span> <span class="n">test_cases</span><span class="p">(</span><span class="n">i</span><span class="p">)(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">retir_med</span><span class="p">(</span><span class="n">who</span><span class="p">,</span> <span class="n">yr</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Input: year=&quot;</span> <span class="o">&amp;</span> <span class="n">yr</span> <span class="o">&amp;</span> <span class="s2">&quot; who=&quot;</span> <span class="o">&amp;</span> <span class="n">who</span> <span class="o">&amp;</span> <span class="s2">&quot;   Output: &quot;</span> <span class="o">&amp;</span> <span class="n">result</span>
+    <span class="n">log</span> <span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="n">Next</span>
+
+
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Sub</span> <span class="n">test_sort</span><span class="p">()</span>
+    <span class="n">sort_tax_table</span>
+<span class="n">End</span> <span class="n">Sub</span>
+
+<span class="n">Function</span> <span class="n">unrlz</span><span class="p">(</span><span class="n">acct</span> <span class="n">As</span> <span class="n">String</span><span class="p">,</span> <span class="n">y_year</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">Variant</span>
+<span class="s1">&#39;compute the unrealized gain or loss for an account for a year, assuming end bal is fixed</span>
+    <span class="n">Dim</span> <span class="n">open_bal</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">adds</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">rlzd</span> <span class="n">As</span> <span class="n">Variant</span><span class="p">,</span> <span class="n">end_bal</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">Dim</span> <span class="n">val</span> <span class="n">As</span> <span class="n">Variant</span>
+    <span class="n">open_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Start bal&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">adds</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Add/Wdraw&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">rlzd</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;Rlz Int/Gn&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">end_bal</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="s2">&quot;End bal&quot;</span> <span class="o">&amp;</span> <span class="n">acct</span><span class="p">,</span> <span class="s2">&quot;tbl_balances&quot;</span><span class="p">,</span> <span class="n">y_year</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">end_bal</span> <span class="o">-</span> <span class="p">(</span><span class="n">open_bal</span> <span class="o">+</span> <span class="n">adds</span> <span class="o">+</span> <span class="n">rlzd</span><span class="p">)</span>
+    <span class="n">unrlz</span> <span class="o">=</span> <span class="n">val</span>
+
+<span class="n">End</span> <span class="n">Function</span>
+
+<span class="n">Function</span> <span class="n">ws_for_table_name</span><span class="p">(</span><span class="n">tbl_name</span> <span class="n">As</span> <span class="n">String</span><span class="p">)</span> <span class="n">As</span> <span class="n">String</span>
+<span class="s1">&#39; find out what worksheet the named table occurs on</span>
+    <span class="n">With</span> <span class="n">ThisWorkbook</span><span class="o">.</span><span class="n">Worksheets</span><span class="p">(</span><span class="s2">&quot;utility&quot;</span><span class="p">)</span>
+        <span class="n">Set</span> <span class="n">rng</span> <span class="o">=</span> <span class="o">.</span><span class="n">ListObjects</span><span class="p">(</span><span class="s2">&quot;tbl_table_map&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">DataBodyRange</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">WorksheetFunction</span><span class="o">.</span><span class="n">VLookup</span><span class="p">(</span><span class="n">tbl_name</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">End</span> <span class="n">With</span>
+    <span class="n">ws_for_table_name</span> <span class="o">=</span> <span class="n">ws</span>
+<span class="n">End</span> <span class="n">Function</span>
+</pre></div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="vba_index.html"
+                          title="previous chapter">VBA Code Summary</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="cli.html"
+                          title="next chapter">CLI</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/vba_sorted.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cli.html" title="CLI"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vba_index.html" title="VBA Code Summary"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Budget Dance 0.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Visual Basic Code</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, George Dobbs.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
+    </div>
+  </body>
+</html>
