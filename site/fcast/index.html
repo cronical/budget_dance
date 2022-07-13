@@ -1,0 +1,1159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Design and use of fcast.xlsm - Budget Dance</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#design-and-use-of-fcastxlsm" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Budget Dance" class="md-header__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Budget Dance
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Design and use of fcast.xlsm
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Budget Dance" class="md-nav__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Budget Dance
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Tools to map accounting data to long term plans
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendix/" class="md-nav__link">
+        Appendix
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_from_moneydance/" class="md-nav__link">
+        Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Design and use of fcast.xlsm
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Design and use of fcast.xlsm
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    Purpose
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-set-up" class="md-nav__link">
+    General set up
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worksheets" class="md-nav__link">
+    Worksheets
+  </a>
+  
+    <nav class="md-nav" aria-label="Worksheets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accounts" class="md-nav__link">
+    accounts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#balances" class="md-nav__link">
+    balances
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invest-actl" class="md-nav__link">
+    invest-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfers-actl" class="md-nav__link">
+    transfers-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande-actl" class="md-nav__link">
+    iande-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande-map" class="md-nav__link">
+    iande-map
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande" class="md-nav__link">
+    iande
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aux" class="md-nav__link">
+    aux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capgn" class="md-nav__link">
+    capgn
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taxes" class="md-nav__link">
+    taxes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tax-est" class="md-nav__link">
+    tax-est
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tables" class="md-nav__link">
+    tables
+  </a>
+  
+    <nav class="md-nav" aria-label="tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#federal-tax-tables" class="md-nav__link">
+    Federal tax tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-taxes" class="md-nav__link">
+    state taxes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-b-premium" class="md-nav__link">
+    Part B Premium
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inflation" class="md-nav__link">
+    inflation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rmd" class="md-nav__link">
+    RMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-management" class="md-nav__link">
+    State management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retirement" class="md-nav__link">
+    retirement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retireparms" class="md-nav__link">
+    retireparms
+  </a>
+  
+    <nav class="md-nav" aria-label="retireparms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-to-drive-the-retirement-tab" class="md-nav__link">
+    parameters to drive the retirement tab
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pension-options" class="md-nav__link">
+    pension options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hsa" class="md-nav__link">
+    hsa
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual_actl" class="md-nav__link">
+    manual_actl
+  </a>
+  
+    <nav class="md-nav" aria-label="manual_actl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ira-txbl-distr-line" class="md-nav__link">
+    IRA-Txbl-Distr - line
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    functions
+  </a>
+  
+    <nav class="md-nav" aria-label="functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tables_1" class="md-nav__link">
+    tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    conventions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ranges" class="md-nav__link">
+    ranges
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        Setting up the spreadsheet
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vba_index/" class="md-nav__link">
+        VBA Code Summary
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vba_sorted/" class="md-nav__link">
+        VBA Code
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    Purpose
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#general-set-up" class="md-nav__link">
+    General set up
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worksheets" class="md-nav__link">
+    Worksheets
+  </a>
+  
+    <nav class="md-nav" aria-label="Worksheets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accounts" class="md-nav__link">
+    accounts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#balances" class="md-nav__link">
+    balances
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invest-actl" class="md-nav__link">
+    invest-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfers-actl" class="md-nav__link">
+    transfers-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande-actl" class="md-nav__link">
+    iande-actl
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande-map" class="md-nav__link">
+    iande-map
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iande" class="md-nav__link">
+    iande
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aux" class="md-nav__link">
+    aux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capgn" class="md-nav__link">
+    capgn
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taxes" class="md-nav__link">
+    taxes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tax-est" class="md-nav__link">
+    tax-est
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tables" class="md-nav__link">
+    tables
+  </a>
+  
+    <nav class="md-nav" aria-label="tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#federal-tax-tables" class="md-nav__link">
+    Federal tax tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-taxes" class="md-nav__link">
+    state taxes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-b-premium" class="md-nav__link">
+    Part B Premium
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inflation" class="md-nav__link">
+    inflation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rmd" class="md-nav__link">
+    RMD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-management" class="md-nav__link">
+    State management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retirement" class="md-nav__link">
+    retirement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retireparms" class="md-nav__link">
+    retireparms
+  </a>
+  
+    <nav class="md-nav" aria-label="retireparms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-to-drive-the-retirement-tab" class="md-nav__link">
+    parameters to drive the retirement tab
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pension-options" class="md-nav__link">
+    pension options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hsa" class="md-nav__link">
+    hsa
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual_actl" class="md-nav__link">
+    manual_actl
+  </a>
+  
+    <nav class="md-nav" aria-label="manual_actl">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ira-txbl-distr-line" class="md-nav__link">
+    IRA-Txbl-Distr - line
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    functions
+  </a>
+  
+    <nav class="md-nav" aria-label="functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tables_1" class="md-nav__link">
+    tables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    conventions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ranges" class="md-nav__link">
+    ranges
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="design-and-use-of-fcastxlsm">Design and use of fcast.xlsm</h1>
+<h2 id="purpose">Purpose</h2>
+<p>This system extends the family's historical financials into the future.  It allows for planning for income/expenses as well as financial moves between accounts.   It has a tax calculator (which is far from general, but works for us). </p>
+<h2 id="general-set-up">General set up</h2>
+<p>The system uses a set of Excel tables, which are distributed over a set of worksheets. 
+Many of the tables represent time series where the time is based on years.  The data elements are typically financial values assoicated with a year.  For instance, the balances table tracks how balances change year by year.</p>
+<p>The time sequence columns are labeled with 'Y' + year.  Other columns are labeled with appropriate short column labels.  The meaning of the column data depends on the state of the system.  To the left of some point, data is considered actual, while to the right it is forecast.</p>
+<p>Use of Visual Basic (macros) allows for calculations to be done in a more readable manner.  However there is a downside.  This is that Excel cannot use its dependency trees to know what need to occur when the macros reference or update done with this method.  So far I have not turned on the use of the application volitile method, as there is significant overhead, possibly causing slow performance. There is a macro, currently called calc_retir(), to perform the re-calcuations in the correct order. </p>
+<p>External access to the spreadsheet is used. Mostly these are programs to transfer Moneydance actual data into the Workbook.  This is done via Python using the openxlpy library.  These files are in the <code>dance</code> subfolder.</p>
+<p>One of these Python files, <code>util/index_tables.py</code> enumerates and indexs the tables (something oddly missing in Excel due to the fact that it is worksheet oriented). The index is stored on the utility worksheet.</p>
+<h2 id="worksheets">Worksheets</h2>
+<h3 id="accounts">accounts</h3>
+<p>This worksheet lists the tracked accounts and their attributes. Some of these accounts are real accounts at financial institutions.  Others summarize sets of assets or liabilities. One account is designated as the sweep account.</p>
+<p>The attributes are:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>A=Asset, B=Bank, C=Credit Cards, I=Investment, L=Liability, N=Loans</td>
+</tr>
+<tr>
+<td>Income Txbl</td>
+<td>0 if sheltered, 1 if normal taxes, 2 for muni bonds</td>
+</tr>
+<tr>
+<td>Active</td>
+<td>0 if inactive, 1 if active</td>
+</tr>
+<tr>
+<td>Rlz share</td>
+<td>between 0 and 1 - factor to apply to income to categorize as realized in forecasts</td>
+</tr>
+<tr>
+<td>Unrlz share</td>
+<td>same as above, but for unrealized.  These should add to 1.</td>
+</tr>
+<tr>
+<td>actl_source</td>
+<td>The line name where to find the actual add/wdraw amount</td>
+</tr>
+<tr>
+<td>actl_source_tab</td>
+<td>The table name where to find the actual add/wdraw amount</td>
+</tr>
+<tr>
+<td>fcst_source</td>
+<td>The line name where to find the forecast add/wdraw amount</td>
+</tr>
+<tr>
+<td>fcst_source_tab</td>
+<td>The table name where to find the forecast add/wdraw amount</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>Place to indicate special things about the account</td>
+</tr>
+</tbody>
+</table>
+<h3 id="balances">balances</h3>
+<p>The following fields are looked up from the account page: Type, Income Txbl, and Active.</p>
+<p>This table has six rows for each account.  </p>
+<table>
+<thead>
+<tr>
+<th>ValType</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rate</td>
+<td>Used to forecast gains, which are split by the indicators on the account rows.  Computed for historical rows.</td>
+</tr>
+<tr>
+<td>Start Bal</td>
+<td>Previous year's end balance</td>
+</tr>
+<tr>
+<td>Add/Wdraw</td>
+<td>Either manual, or some rows will have formulas</td>
+</tr>
+<tr>
+<td>Rlz Int/Gn</td>
+<td>start * rate * split</td>
+</tr>
+<tr>
+<td>Unrlz Gn/Ls</td>
+<td>start * rate * split</td>
+</tr>
+<tr>
+<td>End Bal</td>
+<td>Adds the start balance to each of the other change categories.</td>
+</tr>
+</tbody>
+</table>
+<p>The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that is defined)</p>
+<p>At the bottom there is a summary of account balances by type.</p>
+<h3 id="invest-actl">invest-actl</h3>
+<p>The Python program <code>invest-actl-load.py</code> gets the master list of investment accounts from <code>fcast.xlsm</code>.  It then reads the <code>data/invst_*.tsv</code> files and computes the net flows for each account by year.</p>
+<p>The MoneyDance Investment Performance report is named <code>invest-p-YYYY.tsv</code>. There is one for each actual year. The program reads these as well.</p>
+<p>It ends up with 3 rows of actuals for each investment like:</p>
+<table>
+<thead>
+<tr>
+<th>ValType</th>
+<th>AcctName</th>
+<th>Y1</th>
+<th>Y2</th>
+<th>Y...</th>
+<th>Yn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add/Wdraw</td>
+<td>401K</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Rlz Int/Gn</td>
+<td>401K</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Unrlz Gn/Ls</td>
+<td>401K</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>This can be used to look up the actuals on the balances tab. The visual basic function <code>gain</code> references the realized and unrealized gain lines for actuals. the visual basic function <code>add_wdraw</code> likewise references the first line.</p>
+<h3 id="transfers-actl">transfers-actl</h3>
+<p>Gathers the transfers to and from all accounts coming from or going to banks or credit cards.  This also shows the transfers to and from bank and credit card accounts.  The bank and credit card transfers are derived another way and are also included on this tab.</p>
+<p>If there are transfers between these accounts, then they should pass through a bank account in order to be captured here.  That is the purpose of the pseudo bank account 'Passthru' and its sub-accounts in Moneydance.</p>
+<p>This tab is loaded by <code>transfers-actl-load.py</code> from these sources:</p>
+<ol>
+<li>A copy of the output of moneydance transfer report stored under <code>budget/data</code>.  </li>
+<li>The method used is the difference of progressive balances.  The balances are generated by the <code>Account Balances</code> report selecting only banks and credit cards.  This is done for each year.  The tab-separated files are stored under <code>budget/data</code> as <code>bank-bal-YYYY</code>. </li>
+<li>A third method is planned which will ensure that all accounts have rows - even those with zero transfers.</li>
+</ol>
+<h3 id="iande-actl">iande-actl</h3>
+<p>This is Income and Expense actuals as it comes from Moneydance <code>Income &amp; Expense by Year</code> report.  A key is constructed which includes the hierarchy.  That occurs in the A column. The summary rows are replaced by formulas as part of the import process.  These can be copied into future years. The column headings are of the Y+year style to facilitate lookups.  </p>
+<p>This data is loaded from <code>data/iande.tsv</code> with the program  <code>iande-actl-load.py</code> </p>
+<h3 id="iande-map">iande-map</h3>
+<p>(Planned) assists with mapping actuals to rows in iande. See item 3 under iande.</p>
+<h3 id="iande">iande</h3>
+<p>This is for income and expenses. This is both actuals and forecast.  This tab is seeded with the original iande-actl data.   But it is expected that over time the rows will change.  For instance, if we later drop the first few years, we will find that some of the rows no longer come over from Moneydance.  On the other hand, we may add rows in Moneydance.  It is also possible that we may want to re-organize or rename the rows.  Take deleted rows first.</p>
+<ol>
+<li>Deleted Rows - The python script that loads the latest from Moneydance performs a check before executing the load.  It requires that any row that contains data or a fomula in the forecast era exist in the fresh import from Moneydance, when seeding the iande data.</li>
+<li>New rows - The new rows will be added into the <code>tbl_iande-actl</code> table but the <code>tbl_iande</code> won't know about them, possibly yielding totals that don't match.  At this point its up to the operator to make any needed adjustments to <code>tbl_iande</code> so that it's consistent with the actuals feed. Note - if new subcategories are created: then its best to insert them on <code>tbl_iande</code> so that what used to be a leaf node now has no data (its just a heading), copy the fixed values to the new rows and ensure the subtotals are proper for non-fixed (forecast values). Note: the report filters out categories that do not have any actuals.  In order to create forecasts for these, go ahead and create the desired rows in Moneydance and manually construct the rows in <code>tbl_iande</code>.</li>
+<li>Re-arrangement and renaming - At this point its up to the operator to make any needed adjustments to <code>tbl_iande</code> so that it's consistent with the actuals feed.</li>
+</ol>
+<p>The net of this is that except during periods of change, the rows of the iande tab and the rows of the iande-actl tab form the same set.  We don't require these to be in the same order.</p>
+<h3 id="aux">aux</h3>
+<p>This is a set of rows needed to establish forecasts in some cases.  The rows may be input or calculated.  The need arises for aux data and calcs, for instance, in handling 401K accounts, where the EE contribution is tax deductable but is only part of the amount for add/wdraw at the balance level.  That value plus the pre-tax deductions amounts from the paychecks need to be summed to produce the W2 exclusions.  This is the place where those calcs happen. </p>
+<h3 id="capgn">capgn</h3>
+<p>This is for the purposes of estimating taxes for the current and prior year until tax statements arrive.</p>
+<h3 id="taxes">taxes</h3>
+<p>This computes Federal and State income taxes. It requires the data from the tables tab.  For actuals it pulls data mostly from iande-actl.  A few income fields need to come from tax documents. </p>
+<h3 id="tax-est">tax-est</h3>
+<p>This helps figure if estimated taxes are needed or if W4 filings need to be made.</p>
+<h3 id="tables">tables</h3>
+<p>A table of state tax information, tax tables, Medicare Part B premiums, inflation, required minimum distribution tables, and a general state mangement table.</p>
+<h4 id="federal-tax-tables">Federal tax tables</h4>
+<p>These use the subtraction method in IRS pub detailed here: https://www.irs.gov/pub/irs-pdf/i1040gi.pdf.  This takes 6 rows and 4 columns per year.  These are organized in a single table.  A VBA macro is used to select the right values for use on the <code>taxes</code> tab. </p>
+<p>The prgram <code>bracket_fix.py</code> computes the numbers for the subtraction table based on a csv file which is shows the values using the additive method. Not sure where I found that file, most recently, I recreated the format.  Kind of painful.  May be best to wait for the 1040 Instructions to be published each year. (Or find a reliable source)</p>
+<h4 id="state-taxes">state taxes</h4>
+<p>This compiles facts about various states for the purpose of considering relocation. Can be referenced in the tax calcs. Source: https://www.kiplinger.com/tool/retirement/T055-S001-state-by-state-guide-to-taxes-on-retirees/index.php</p>
+<h4 id="part-b-premium">Part B Premium</h4>
+<p>Values to select the premium given modified AGI and year.</p>
+<h4 id="inflation">inflation</h4>
+<p>3 columns about 75 rows</p>
+<h4 id="rmd">RMD</h4>
+<p>Table III is for normal plans.  Table I is for beneficiaries (inherited IRA).</p>
+<h4 id="state-management">State management</h4>
+<p>Currently this has only one value, the first forecast year.</p>
+<h3 id="retirement">retirement</h3>
+<p>Plans out income streams and post-retirement medical expenses.  This affects both the balances and the iande tabs.</p>
+<p>Retirement medical is modeled here.   Deductibles and copays are in 'other'. These values are posted as totals in the premium lines of IANDE and are meant to represent all net medical expenses.</p>
+<h3 id="retireparms">retireparms</h3>
+<h4 id="parameters-to-drive-the-retirement-tab">parameters to drive the retirement tab</h4>
+<p>To make the calculations more understandable some are done on this table. For instance, the months column is input data, which is used to offset the birthday of the account owner to yield a start date.</p>
+<h4 id="pension-options">pension options</h4>
+<p>Facts about pensions used by retirement sheet.  </p>
+<h3 id="hsa">hsa</h3>
+<p>A page with a section for each HSA account.</p>
+<h3 id="manual_actl">manual_actl</h3>
+<p>A number of entries are needed to determine taxes.  When easiest, these are input on this table: <code>tbl_manual_actl</code>. A Moneydance report <code>W2-exclusions</code> extracts the amounts that can be excluded from the W2s.  This relies on the Pre-tax and pre-tax tags. These should be input manually.</p>
+<p>Computes the actual 401K contributions to post to the iande tab.</p>
+<h4 id="ira-txbl-distr-line">IRA-Txbl-Distr - line</h4>
+<p>This is needed to handle the accounting difficulty that arises with IRA distributions when the source account is in Moneydance (see note).  The gross amount is taxable and thus needs to be included in the tax calculation.  However, the tax amounts go to the state and federal expense lines and the net goes to the receiving bank.  There is no place to declare income.</p>
+<p>The solution is to use a Moneydance tag, <code>IRA-Txbl-Distr</code> on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. This data is exported from Moneydance via the <code>IRA-Distr</code> report, saved in the <code>data/IRA-Distr</code>file and imported via the <code>ira-distr.py</code> routine, which places it on the <code>IRA-Txbl-Distr</code> line on the aux table.  From there it flows to the <code>iande</code> tab and then to the <code>taxes</code> tab.  The value in <code>iande_actl</code> cannot be used since Moneydance itself does not have this total.</p>
+<h2 id="functions">functions</h2>
+<p>There are Visual Basic for Applications functions in this worksheet.  There are some complex dependencies.  Currently, in some cases it is necessary to run <code>calc_retir</code> in order to complete the calculations. </p>
+<h3 id="tables_1">tables</h3>
+<p>The get_val routine requires the use of worksheet tables.  This allows the tables to have their own column names and for the values to be located.  Tables are located on worksheets.  So that we don't have to care about that an index of tables is created in the 'utility' worksheet.  This itself is a table and it is created by a Python program <code>index-tables.py</code>.</p>
+<h3 id="conventions">conventions</h3>
+<p>All table names begin with <code>tbl_</code>.
+Always use lowercase except for acronyms 
+Use underscores between words
+Use std abbreviations: actual=actl; balances=bals; investments=invest; retirement=retir; annuity=anny;duration=dur;pension=pens; value or valuation = val;parameters=parms</p>
+<h3 id="ranges">ranges</h3>
+<p>The use of named ranges is minimized due to the use of structured tables. The following are the ones remaining of the initial plan.  These will changes as needed.</p>
+<p>HSA_g_actl
+HSA_g_years
+infl_data
+xfer_to_invest
+xfer_to_non_invest
+xfer_to_other</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../data_from_moneydance/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Data from Moneydance" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Data from Moneydance
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Setting up the spreadsheet" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Setting up the spreadsheet
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
