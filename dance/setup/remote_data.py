@@ -1,7 +1,8 @@
 '''get annual various remote data'''
 import requests
 import json
-from math import ceil 
+from math import ceil, floor
+from bs4 import BeautifulSoup
 
 urls={'BLS': 'https://api.bls.gov/publicAPI/v2/timeseries/data/',
   'FEDREG':'https://www.federalregister.gov/documents/2020/11/12/2020-24723/updated-life-expectancy-and-distribution-period-tables-used-for-purposes-of-determining-minimum'}
@@ -18,18 +19,17 @@ def request(data_info):
     parameters=data_info['parameters']
     del parameters['start_year']
     del parameters['end_year']
-    parameters["registrationkey"]=data_info['api_key']
+    parameters['registrationkey']=data_info['api_key']
     cpi={} # the index not the inflation rate
     n=ceil((end_year-start_year)/20)
     for i in range(n):
       s=start_year+i*20
       e=min(end_year,s+20)
-      parameters["startyear"]=s
-      parameters["endyear"]=e
+      parameters['startyear']=s
+      parameters['endyear']=e
       data = json.dumps(parameters)
       url=urls[data_info['site_code']]
       p = requests.post(url, data=data, headers=headers)
-    
       json_data = json.loads(p.text)
       for row in json_data['Results']['series'][0]['data']:
         if row['period']=='M12':
@@ -47,13 +47,11 @@ def request(data_info):
     headers={'User-Agent': user_agent}
     response=requests.get(urls['FEDREG'],headers=headers)
     assert response.status_code==200,'trouble'
-    from bs4 import BeautifulSoup
-    from math import floor
     soup=BeautifulSoup(response.text,'lxml')
     method=data_info['table']['find_method']
     if method=='caption':
       method_parms=data_info['table']['method_parms']
-      table=soup.find('caption',string=method_parms['text']).find_parent("table")
+      table=soup.find('caption',string=method_parms['text']).find_parent('table')
       data={}
       for tr in table.find_all('tr'):
         class_ = tr.get('class')

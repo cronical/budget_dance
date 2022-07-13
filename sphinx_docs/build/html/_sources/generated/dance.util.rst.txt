@@ -1,0 +1,37 @@
+﻿dance.util
+==========
+
+.. automodule:: dance.util
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   dance.util.books
+   dance.util.files
+   dance.util.index_tables
+   dance.util.lexers
+   dance.util.logs
+   dance.util.tables
+   dance.util.vba
+
