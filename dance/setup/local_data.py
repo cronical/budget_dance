@@ -1,18 +1,35 @@
 '''get annual various local data'''
 import pandas as pd
+from openpyxl.utils import get_column_letter
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
 
-def read_data(data_info,target_file=None):
+def read_data(data_info,years=None,ffy=None,target_file=None):
+  '''Read data for various tabs and prepare it for insertion into the workbook.
+  Uses the type value in data_info to determine what to do.
+
+  args:
+    data_info: a dictionary that contains data to control the reading and preparation
+    years: Some types require additional info such as the years for the column.
+    ffy: first forecast year as integer
+    target_file: supports the case when there is a need to look at previously written worksheets
+
+  returns: dataframe with columns specific to the type
+
+  raises: ValueError when things don't make sense.
+    Such as in the case of balances if there is an account not found in the accounts worksheet
+    '''
+  logger=get_logger(__file__)
   if data_info['type']== 'md_acct':
     df= read_accounts(data_info)
     df= prepare_account_tab(data_info,df)
   if data_info['type']=='md_bal':
-    bal_df=read_bal(data_info)
+    bal_df=read_accounts(data_info)
     acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
     if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
       raise ValueError('Balance account(s) are not all in the Accounts table')
-    df=prepare_balance_tab(data_info,df)
+    logger.info('All balance accounts are in the accounts table.')
+    df=prepare_balance_tab(years,ffy,bal_df)
   return df
 
 def filter_nz(df,include_zeros):
@@ -36,6 +53,11 @@ def no_suffix(acct_total_key):
   returns: same without the suffix
   '''
   return ' - '.join(acct_total_key.split(' - ')[:-1])
+
+def this_row(field):
+  ''' prepare part of the formula so support Excel;s preference for the [#this row] style over the direct @
+  '''
+  return '[[#this row],[{}]]'.format(field)
 
 def read_accounts(data_info):
   '''Get the account data as specified in the data_info.
@@ -208,7 +230,8 @@ def prepare_account_tab(data_info, in_df):
   df['Active']=(df[['Current Balance']] != 0).astype(int) # default zero accounts to inactive
   df['Rlz share']=0
   df['Unrlz share']=1
-  source_formulas=[ '=@[Account]','=@[Account] & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
+  acct_ref='= '+this_row('Account')
+  source_formulas=[ acct_ref,acct_ref + ' & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
   flag=(df.level>0) & (df.Type!='I') & (df.is_total)
   df['Actl_source']=[source_formulas[ x] for x in flag]
   source_tabs=['tbl_tranfers_actl','tbl_invest_actl']# actuals are sourced from this, (depends on account type)
@@ -218,44 +241,73 @@ def prepare_account_tab(data_info, in_df):
   del df['level']
   return df
 
-def read_bal(data_info):
-  '''Get the balance data as specified in the data_info.
-  The specified data should represent the opening balances for the system.
-
-  args: data_info. See read_accounts for details on argument.
-
-  returns: dataframe including 'Account', 'Type', 'Current Balance'
-
-  raises: error if there is an account not found in the accounts worksheet
-
-  '''
-  df=read_accounts(data_info)
-  pass
-  return df
-
-def prepare_balance_tab(data_info,df):
+def prepare_balance_tab(years,first_forecast,in_df):
   '''Add in the added fields for the balance worksheet
   args:
-    data_info: a dictionary describing the data (from the config.yaml file)
+    years: iterable with the numeric years to be appended to the columns
+    first_forecast: integer year that is the 1st to use the forecast formulas
     in_df: a dataframe with at least columns: Account, and Current Balance
 
   returns: a dataframe for the balance tab
   '''
 
-  repeated_formulas={
-    'Key':'=CONCATENATE([@ValType],[@AcctName])',
-    'Type':'=get_val([@AcctName],"tbl_accounts",D$2))',
-    'Income Txbl': '=get_val([@AcctName],"tbl_accounts",E$2)',
-    'Active': '=get_val([@AcctName],"tbl_accounts",F$2)'
-  }
-  # the actual and the forecast formulas
-  # symbolic names (in braces) are filled in before inserting into the worksheet
-  actl_formulas={
-    'Rate':'=simple_return([@AcctName],{THIS_YEAR_COL}$2)',
-    'Start Bal':'=get_val("End Bal"&[@AcctName],"tbl_balances",{PRIOR_YEAR_COL}$2)',
-    'Add/Wdraw':'=-add_wdraw([@AcctName],{THIS_YEAR_COL}$2)',
-    'Rlz Int/Gn':'',
-    'Unrlz Gn/Ls':'',
-    'End Bal': ''  }
 
-  return 'None'
+
+  repeated_formulas={
+    'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), this_row('AcctName')),
+    'Type':'=@get_val({},"tbl_accounts",D$2)'.format(this_row('AcctName')), 
+    'Income Txbl': '=@get_val( {},"tbl_accounts",E$2)'.format(this_row('AcctName')),
+    'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(this_row('AcctName'))
+  }
+  lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active']
+
+  # the actual and the forecast formulas
+  # braces are filled in before inserting into the worksheet
+  actl_formulas={
+    'Rate':'=simple_return( [@AcctName],{}$2)',
+    'Start Bal':'=get_val("End Bal" &  [@AcctName],"tbl_balances",{}$2)',
+    'Add/Wdraw':'=-add_wdraw( [@AcctName],{}$2)',
+    'Rlz Int/Gn':'=@gain( [@AcctName],{}$2,TRUE)',
+    'Unrlz Gn/Ls':'=@gain( [@AcctName],{}$2,FALSE)',
+    'End Bal': '=@endbal( [@AcctName],{}$2))'  }
+  fcst_formulas={
+    'Rate':'=rolling_avg("tbl_balances", [@Key],{}$2,3)',
+    'Start Bal':'=get_val("End Bal" &  [@AcctName],"tbl_balances",{}$2)',
+    'Add/Wdraw':'=-add_wdraw( [@AcctName],{}$2)',
+    'Rlz Int/Gn':'=@gain( [@AcctName],{}$2,TRUE)',
+    'Unrlz Gn/Ls':'=@gain( [@AcctName],{}$2,FALSE)',
+    'End Bal': '=@endbal( [@AcctName],{}$2))'  }
+
+  val_types=actl_formulas.keys()
+  r_count=len(val_types)
+  df=pd.DataFrame([])
+  # prepare the data for each account
+  for _,row in in_df.iterrows():
+    a_df=pd.DataFrame([])
+    for c in lead_cols:
+      if c in repeated_formulas:
+        a_df[c]=[repeated_formulas[c]]*r_count
+      else:
+        if c== 'ValType':
+          a_df[c]=val_types
+        else:
+          a_df[c]=[row['Account']]*len(val_types)
+    for c in years:
+      formulas=[]
+      for vt in val_types:
+        raw_formula=[actl_formulas,fcst_formulas][c >= first_forecast][vt]
+        yx=years.index(c)
+        this_year_col=get_column_letter(1+len(lead_cols)+yx)
+        if vt == 'Start Bal': # only type to use prior year col
+          if yx >0:
+            prior_year_col=get_column_letter(len(lead_cols)+yx)
+            formula=raw_formula.format(prior_year_col)
+          else: # initial year is the balance from the input
+            formula=float(in_df.loc[in_df.Account == row['Account'],'Current Balance'])
+        else:
+          formula=raw_formula.format(this_year_col)
+        formulas+=[formula]
+      a_df['Y{}'.format(c)]=formulas
+    df=pd.concat([df,a_df],axis=0)
+  df.reset_index(inplace=True)
+  return df

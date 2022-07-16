@@ -21,7 +21,7 @@
 |Federal_Tax|Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the federal income tax for a given year and taxable income amount. Gets a result of zero if year not in the table.|
 |gain|Function gain(acct As String, y_year As String, realized As Boolean) As Variant|
-||Work out an esitmate of the realized or unrealized gain for an account for a year for forecast. For actual, use the values from invest_actl|
+||For bank accounts and investments, return the realized or unrealized gain for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_actl. For bank account actuals use the row in iande defined by the 'bank_interest' value on the general (state) table|
 |get_val|Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant|
 ||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.|
 |IntYear|Function IntYear(yval) As Integer|
@@ -46,6 +46,8 @@
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
 ||Return the req minimum distribution table 1 result for a year for a given account, owner (gbd or vec) and year.. If death year is not given then this function treat this as spousal inheritance. If death year is given the treat this as a beneficiary inheritance|
+|rolling_avg|Function rolling_avg(table As String, key As String, this_y_year As String, lookback As Integer) As Double|
+||Look back at previous columns and average the numeric values found there, ignoring non-numerics. Return the average|
 |simple_return|Function simple_return(account As String, y_year As String) As Double|
 ||Return the rlzd gain divided by the average of the start and end balances (or zero)|
 |sort_tax_table|Function sort_tax_table()|

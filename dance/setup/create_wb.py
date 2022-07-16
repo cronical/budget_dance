@@ -6,7 +6,7 @@ from os.path import exists, join,sep
 from shutil import copy2,rmtree
 from sys import exit
 import zipfile
-from openpyxl import Workbook
+from openpyxl import load_workbook
 from dance.util.logs import get_logger
 from dance.setup.setup_tabs import refresh_sheets
 
@@ -37,15 +37,27 @@ def zip_up(zip_name,directory):
   chdir(dir)
 
 def create(filename,overwrite=False):
-  '''create the excel file, then insert the vba project'''
+  '''Create the excel file, insert the vba project and then add in the worksheets.
+  The vba project requires some special handling.  It has references to the worksheets.
+  The vba code has previously been extracted and is inserted by unzipping the xslm file and replacing certain parts before rezipping it.
+  It appears that this will get confused under circumstances where the worksheet list from the overlay does not match that in the stored vba project.
+  This will result a ThisWorkbook1 in addition to the expected ThisWorkbook item undert "Microsoft Excel Objects", causing code crashes.
+  The solution at this point is to use an empty macro enabled worksheet to start with.  This has a sheet named accounts.
+  Excel itself does not allow this to be done, but the code here does that, before it recreates that sheet.
+  This manouever appears to leave the VBA project consistent with the other components of the spreadsheet.
+  '''
   logger=get_logger(__file__)
   logger.info('current working directory is {}'.format(getcwd()))
   if not overwrite:
     logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
     exit(-1)
-  wb=Workbook()
+  wb=load_workbook('data/empty_template.xlsm',keep_vba=True)
   wb.save(filename)
   logger.info('initial file saved as {}'.format(filename))
+
+
+
+  logger.info('starting copy of vba')
   if exists('./tmp'):
     rmtree('./tmp')
   with zipfile.ZipFile(filename, 'r') as z:
@@ -69,7 +81,8 @@ def create(filename,overwrite=False):
   mkdir(tmp)
   logger.info('cleaned up {}'.format(tmp))
 
-  refresh_sheets(args.out_file)
+  refresh_sheets(filename,overwrite)
+
 
 if __name__=='__main__':
     # execute only if run as a script
