@@ -3,7 +3,7 @@ end_year : 2030
 year_column_width: 12
 first_forecast_year : 2022
 zoom_scale: 135 # how to scale the worksheets
-
+bank_interest: Income:I:Invest income:Int:Bank
 
 # The table styles are seen on the table tab in excel broken into Light, Medium and Dark.
 # The number seems to be the index in that list (top to bottom, left to right, origin 1)

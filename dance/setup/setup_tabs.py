@@ -14,8 +14,6 @@ from dance.util.logs import get_logger
 from dance.setup.local_data import read_data
 import remote_data
 
-
-
 def first_not_hidden(tab_info):
   '''determine the first column that is not hidden (origin 1)'''
   if 'hidden' not in tab_info:
@@ -34,25 +32,30 @@ def include_year(table_info,first_forecast_year,proposed_year):
     return True
   return first_forecast_year > proposed_year
 
-def refresh_sheets(target):
+def refresh_sheets(target,overwrite=False):
   '''create or refresh tabs'''
   logger=get_logger(__file__)
   fn='dance/setup/setup.yaml'
   with open(fn) as y:
     config=yaml.load(y,yaml.Loader)
   logger.debug('read {} as config'.format(fn))
-
-  year_columns=[f'Y{x}' for x in range(config['start_year'],1+config['end_year'])]
+  years=range(config['start_year'],1+config['end_year'])
+  year_columns=[f'Y{x}' for x in years]
   wb=load_workbook(filename = target,keep_vba=True)
   sheets=wb.sheetnames
   logger.info('{} existing sheets in {}'.format(len(sheets),target))
-  if 'Sheet' in sheets:
-    del wb['Sheet']
-    logger.info('Removed Sheet')
 
-  table_map={}
+  for default_name in 'Sheet','Sheet1','Sheet2','Sheet3':
+    if default_name in sheets:
+      del wb[default_name]
+      logger.info('Removed "{}"'.format(default_name))
+
+  table_map={} # build list of tables and which sheet they are on
   ffy=config['first_forecast_year']
-  general_state={'first_forecast': f'Y{ffy}'}
+  general_state={'first_forecast': f'Y{ffy}',
+    'bank_interest':config['bank_interest']}
+  _=general_state # it is used by referencing locals(), but pylance can't figure it out
+
   for sheet_group,sheet_group_info in config['sheet_groups'].items():
     for sheet_name,sheet_info in config['sheets'].items():
       if sheet_info['sheet_group'] != sheet_group:
@@ -68,8 +71,14 @@ def refresh_sheets(target):
         logger.info('sheet {} added'.format(sheet_name))
       ws.sheet_properties.tabColor= color
       if existing:
-        logger.info('Sheet {} already exists, so not initializing'.format(sheet_name))
-        continue
+        if not overwrite:
+          logger.info('Sheet {} already exists, so not initializing'.format(sheet_name))
+          continue
+        else:
+          del wb[sheet_name]
+          ws=wb.create_sheet(sheet_name)
+          logger.info('sheet {} deleted and recreated'.format(sheet_name))
+
 
       # if new sheets write tables
       set_widths={}
@@ -160,7 +169,7 @@ def refresh_sheets(target):
             data=remote_data.request(data_info)
             logger.info('pulled data from remote')
           if source=='local':
-            data=read_data(data_info,target_file=target)
+            data=read_data(data_info,years,ffy,target_file=target)
           if isinstance(data,dict):
             for k,v in data.items():
               row+=1

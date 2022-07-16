@@ -1,5 +1,5 @@
 # VBA Code
-``` py
+``` vbscript
 Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = True
 Option Base 0
@@ -181,11 +181,20 @@ Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double
 End Function
 
 Function gain(acct As String, y_year As String, realized As Boolean) As Variant
-'work out an esitmate of the realized or unrealized gain for an account for a year for forecast
-' for actual, use the values from invest_actl
+'For bank accounts and investments, return the realized or unrealized gain for an account for a year for actual or forecast
+'Other types of accounts return zero.
+' for investments actuals, use the values from invest_actl
+' for bank account actuals use the row in iande defined by the 'bank_interest' value on the general (state) table
     Dim rate As Variant
     Dim val As Variant
     Dim col_name As String
+    Dim interest_row As String
+        
+    gain = 0 ' return zero if not investment or bank account
+    account_type = get_val(acct, "tbl_accounts", "Type")
+    If Not ((account_type = "I") Or (account_type = "B")) Then
+        Exit Function
+    End If
     If realized Then
         col_name = "Rlz share"
         prefix = "Rlz Int/Gn"
@@ -199,8 +208,17 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
         rate = get_val("Rate" & acct, "tbl_balances", y_year)
         alloc = get_val(acct, "tbl_accounts", col_name)
         val = open_bal * rate * alloc
-    Else
-        val = get_val(prefix & acct, "tbl_invest_actl", y_year)
+    Else ' actuals
+        If account_type = "I" Then
+            val = get_val(prefix & acct, "tbl_invest_actl", y_year)
+        Else 'banks
+            If realized Then
+                interest_row = get_val("bank_interest", "tbl_gen_state", "value")
+                val = get_val(interest_row, "tbl_iande", y_year)
+            Else ' banks never have unrealized
+                val = 0
+            End If
+        End If
     End If
     gain = val
         
@@ -388,7 +406,7 @@ Function retir_parm(code As String, who As String) As Variant
     With ThisWorkbook.Worksheets(sht)
         Set rng = .Range("Table3[code]")
         rw = Application.WorksheetFunction.Match(code, rng, False)
-        rw = rw + rng.Row - 1
+        rw = rw + rng.row - 1
         s = sht & "!" & .Cells(rw, cl).Address
         v = .Range(s)
         retir_parm = v
@@ -421,6 +439,28 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     RMD_1 = result
 End Function
 
+Function rolling_avg(table As String, key As String, this_y_year As String, lookback As Integer) As Double
+'Look back at previous columns and average the numeric values found there, ignoring non-numerics
+'Return the average
+Dim y_year As String
+this_year = IntYear(this_y_year)
+tot = 0
+cnt = 0
+For y = this_year - lookback To this_year - 1
+    y_year = "Y" & y
+    value = get_val(key, table, y_year)
+    If Not value = 0 Then
+        tot = tot + value
+        cnt = cnt + 1
+    End If
+Next y
+If cnt <> 0 Then
+    rolling_avg = tot / cnt
+Else
+    rolling_avg = 0
+End If
+End Function
+
 Function simple_return(account As String, y_year As String) As Double
 'return the rlzd gain divided by the average of the start and end balances (or zero)
 sb = get_val("Start Bal" & account, "tbl_balances", y_year)
@@ -447,8 +487,8 @@ Function sort_tax_table()
     Set range_column = Range(tbl_name & "[Range]")
     With tbl.sort
        .SortFields.Clear
-       .SortFields.Add Key:=year_column, SortOn:=xlSortOnValues, Order:=xlAscending
-       .SortFields.Add Key:=range_column, SortOn:=xlSortOnValues, Order:=xlAscending
+       .SortFields.Add key:=year_column, SortOn:=xlSortOnValues, Order:=xlAscending
+       .SortFields.Add key:=range_column, SortOn:=xlSortOnValues, Order:=xlAscending
        .Header = xlYes
        .Apply
     End With

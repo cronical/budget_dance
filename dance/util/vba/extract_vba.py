@@ -14,7 +14,7 @@ def main():
   logger=get_logger(__file__)
   logger.info('current working directory is %s',os.getcwd())
 
-  with zipfile.ZipFile('data/fcast.xlsm', 'r') as z:
+  with zipfile.ZipFile('data/fcast-rebuild.xlsm', 'r') as z:
     z.extractall('./tmp/')
 
   #make sure the vba project is not already there
