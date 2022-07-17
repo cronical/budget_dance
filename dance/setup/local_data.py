@@ -251,32 +251,32 @@ def prepare_balance_tab(years,first_forecast,in_df):
   returns: a dataframe for the balance tab
   '''
 
-
-
+  acct_ref=this_row('AcctName')
+  key_ref=this_row('Key')
   repeated_formulas={
-    'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), this_row('AcctName')),
-    'Type':'=@get_val({},"tbl_accounts",D$2)'.format(this_row('AcctName')), 
-    'Income Txbl': '=@get_val( {},"tbl_accounts",E$2)'.format(this_row('AcctName')),
-    'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(this_row('AcctName'))
+    'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), acct_ref),
+    'Type':'=@get_val({},"tbl_accounts",D$2)'.format(acct_ref),
+    'Income Txbl': '=@get_val( {},"tbl_accounts",E$2)'.format(acct_ref),
+    'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(acct_ref)
   }
   lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active']
 
   # the actual and the forecast formulas
   # braces are filled in before inserting into the worksheet
   actl_formulas={
-    'Rate':'=simple_return( [@AcctName],{}$2)',
-    'Start Bal':'=get_val("End Bal" &  [@AcctName],"tbl_balances",{}$2)',
-    'Add/Wdraw':'=-add_wdraw( [@AcctName],{}$2)',
-    'Rlz Int/Gn':'=@gain( [@AcctName],{}$2,TRUE)',
-    'Unrlz Gn/Ls':'=@gain( [@AcctName],{}$2,FALSE)',
-    'End Bal': '=@endbal( [@AcctName],{}$2))'  }
+    'Rate':'=simple_return( %s,{}$2)' % (acct_ref),
+    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{}$2)' % (acct_ref),
+    'Add/Wdraw':'=-add_wdraw( %s,{}$2)' % (acct_ref),
+    'Rlz Int/Gn':'=@gain( %s,{}$2,TRUE)' % (acct_ref),
+    'Unrlz Gn/Ls':'=@gain( %s,{}$2,FALSE)' % (acct_ref),
+    'End Bal': '=@endbal( %s,{}$2)'  % (acct_ref) }
   fcst_formulas={
-    'Rate':'=rolling_avg("tbl_balances", [@Key],{}$2,3)',
-    'Start Bal':'=get_val("End Bal" &  [@AcctName],"tbl_balances",{}$2)',
-    'Add/Wdraw':'=-add_wdraw( [@AcctName],{}$2)',
-    'Rlz Int/Gn':'=@gain( [@AcctName],{}$2,TRUE)',
-    'Unrlz Gn/Ls':'=@gain( [@AcctName],{}$2,FALSE)',
-    'End Bal': '=@endbal( [@AcctName],{}$2))'  }
+    'Rate':'=rolling_avg("tbl_balances", %s,{}$2,3)' % key_ref,
+    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{}$2)' % (acct_ref),
+    'Add/Wdraw':'=-add_wdraw( %s,{}$2)' % (acct_ref),
+    'Rlz Int/Gn':'=@gain( %s,{}$2,TRUE)' % (acct_ref),
+    'Unrlz Gn/Ls':'=@gain( %s,{}$2,FALSE)' % (acct_ref),
+    'End Bal': '=@endbal( %s,{}$2)' % (acct_ref)  }
 
   val_types=actl_formulas.keys()
   r_count=len(val_types)

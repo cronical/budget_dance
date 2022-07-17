@@ -1,6 +1,6 @@
 '''Utility to add tabs to the workbook and sets the tab colors
 
-May be modified to add new tabs and re-run.  Does not replace or delete any tabs, only adds them
+May be modified to add new tabs and re-run.  Unless overwrite is selected, does not replace or delete any tabs, only adds them
 '''
 import argparse
 from os.path import exists
@@ -40,7 +40,7 @@ def refresh_sheets(target,overwrite=False):
     config=yaml.load(y,yaml.Loader)
   logger.debug('read {} as config'.format(fn))
   years=range(config['start_year'],1+config['end_year'])
-  year_columns=[f'Y{x}' for x in years]
+  all_year_columns=[f'Y{x}' for x in years] # all the years, some tables may have only actual
   wb=load_workbook(filename = target,keep_vba=True)
   sheets=wb.sheetnames
   logger.info('{} existing sheets in {}'.format(len(sheets),target))
@@ -84,19 +84,17 @@ def refresh_sheets(target,overwrite=False):
       set_widths={}
       for table_info in sheet_info['tables']:
 
-        #take specified or default row and column
-        row=1
-        if 'row' in table_info:
-          row=table_info['row']
-        start_col=1
-        if 'start_col' in table_info:
-          start_col=table_info['start_col']
+        #take specified or default items
+        key_values={'title_row':1,'start_col':1,'include_years':False}
+        for k in key_values:
+          if k in table_info:
+            key_values[k]=table_info[k]
 
-        title_cell=f'{get_column_letter((start_col-1)+first_not_hidden(table_info))}{row}'
+        title_cell=f'{get_column_letter((key_values["start_col"]-1)+first_not_hidden(table_info))}{key_values["title_row"]}'
         ws[title_cell].value=table_info['title']
         ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
-        row+=1
-        start_row=row # mark start of table
+        row=key_values['title_row']+1
+        table_start_row=row # mark start of table
 
         col_defns=table_info['columns']
         col_count=len(col_defns)
@@ -112,22 +110,26 @@ def refresh_sheets(target,overwrite=False):
             width=set_widths[1+col_no]
           else:
             set_widths[1+col_no]=width
-          ws.column_dimensions[get_column_letter(start_col+col_no)].width=width
+          ws.column_dimensions[get_column_letter(key_values['start_col']+col_no)].width=width
 
           # if any table marks this col as hidden it will be so for all tables
           if 'hidden' in table_info:
-            ws.column_dimensions[get_column_letter(start_col+col_no)].hidden=col_data['name']in table_info['hidden']
-          ws.cell(row=row,column=start_col+col_no,value=col_data['name'])
+            ws.column_dimensions[get_column_letter(key_values['start_col']+col_no)].hidden=col_data['name']in table_info['hidden']
+          ws.cell(row=row,column=key_values['start_col']+col_no,value=col_data['name'])
           last_width=width
 
-        # if table has years add them
-        if table_info['years']:
-          include=[include_year(table_info,ffy,int(y[1:])) for y in year_columns]
-          for x, y in enumerate(year_columns):
-            if include[x]:
-              ws.column_dimensions[get_column_letter(start_col+x+col_count)].width=config['year_column_width']
-              ws.cell(row=start_row,column=start_col+len(col_defns)+x,value=y)
-          col_count+=sum(include)
+        # if table has years, determine which ones are for this table
+        # (if actual only, just the actual years)
+        table_year_columns=[]
+        if key_values['include_years']:
+          for y in all_year_columns:
+            if not include_year(table_info,ffy,int(y[1:])):
+              continue
+            table_year_columns+=[y]
+          for x, y in enumerate(table_year_columns):
+            ws.column_dimensions[get_column_letter(key_values['start_col']+x+col_count)].width=config['year_column_width']
+            ws.cell(row=table_start_row,column=key_values['start_col']+len(col_defns)+x,value=y)
+          col_count+=len(table_year_columns)
 
         # if table has a data source add those rows
         if 'data' in table_info:
@@ -173,24 +175,24 @@ def refresh_sheets(target,overwrite=False):
           if isinstance(data,dict):
             for k,v in data.items():
               row+=1
-              ws.cell(row=row,column=start_col).value=k
-              ws.cell(row=row,column=start_col+1).value=v
+              ws.cell(row=row,column=key_values['start_col']).value=k
+              ws.cell(row=row,column=key_values['start_col']+1).value=v
           if isinstance(data,list):
             for values in data:
               row+=1
               for i,v in enumerate(values):
-                ws.cell(row=row,column=start_col+i).value=v
+                ws.cell(row=row,column=key_values['start_col']+i).value=v
           if isinstance(data,pd.DataFrame):
             for _,values in data.iterrows():
               row+=1
-              for i,cn in enumerate( [x['name']for x in col_defns]):
+              for i,cn in enumerate( [x['name']for x in col_defns]+table_year_columns):
                 if cn in values:
-                  ws.cell(row=row,column=start_col+i).value=values[cn]
+                  ws.cell(row=row,column=key_values['start_col']+i).value=values[cn]
         else: # if no data, just a blank row
           row+=1
         # make into a table
-        top_left=f'{get_column_letter(start_col)}{start_row}'
-        bot_right=f'{get_column_letter((start_col-1)+col_count)}{row}'
+        top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row}'
+        bot_right=f'{get_column_letter((key_values["start_col"]-1)+col_count)}{row}'
         rng=f'{top_left}:{bot_right}'
         table_name=table_info['name']
         tab = Table(displayName=table_name, ref=rng)
