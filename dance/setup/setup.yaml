@@ -32,7 +32,7 @@ sheets:
     tables:
       - name: tbl_accounts
         title: Accounts
-        years: false
+        include_years: false
         columns:
           - name: Account
             width: 28
@@ -89,7 +89,7 @@ sheets:
     tables:
       - name: tbl_balances
         title: Balances
-        years: true
+        include_years: true
         columns:
         - name: Key
           width: 38
@@ -112,7 +112,7 @@ sheets:
     tables:
       - name: tbl_iande
         title: Income and Expense
-        years: true
+        include_years: true
         columns:
         - name: Key
           width: 70
@@ -125,7 +125,7 @@ sheets:
     tables:
       - name: tbl_aux
         title: Auxiliary data and calculations - DO NOT SORT
-        years: true
+        include_years: true
         columns:
         - name: Line
           width: 52
@@ -144,7 +144,7 @@ sheets:
     tables:
       - name: tbl_retir_vals
         title: Retirement Income & Expense Plan
-        years: true
+        include_years: true
         columns:
         - name: Item
           width: 28
@@ -169,7 +169,7 @@ sheets:
     tables:
     - name: tbl_retir_parms
       title: Retirement Parameters
-      years: false
+      include_years: false
       columns:
       - name: Code
         width: 30
@@ -184,8 +184,8 @@ sheets:
       - name: Rate
     - name: tbl_pens_facts
       title: Pension Facts
-      years: false
-      row: 48
+      include_years: false
+      title_row: 48
       columns:
       - name: Pension
       - name: Source of info
@@ -205,7 +205,7 @@ sheets:
     tables:
     - name: tbl_iande_actl
       title: Income and Expense Actuals
-      years: true
+      include_years: true
       actual_only: true
       columns:
       - name: key
@@ -218,7 +218,7 @@ sheets:
     tables:
     - name: tbl_manual_actl
       title: Manually input actual items
-      years: true
+      include_years: true
       actual_only: true
       columns:
       - name: Item
@@ -229,7 +229,7 @@ sheets:
     tables:
     - name: tbl_transfers_actl
       title: Actual transfers between accounts
-      years: true
+      include_years: true
       actual_only: true
       columns:
       - name: Account
@@ -239,7 +239,7 @@ sheets:
     tables:
     - name: tbl_invest_actl
       title: Investment gains, losses and transfers
-      years: true
+      include_years: true
       actual_only: true
       columns:
       - name: Key
@@ -253,7 +253,7 @@ sheets:
     tables:
     - name: tbl_taxes
       title: Federal and State Taxes
-      years: true
+      include_years: true
       columns:
       - name: Line
         width: 45
@@ -272,7 +272,7 @@ sheets:
     tables:
     - name: tbl_cap_gn
       title: For Current Year Tax Estimates
-      years: false
+      include_years: false
       columns:
       - name: Account
         width: 24
@@ -290,7 +290,7 @@ sheets:
     tables:
     - name: tbl_fed_tax
       title: Federal Tax Table Married Joint
-      years: false
+      include_years: false
       columns:
       - name: Year
         width: 8
@@ -300,7 +300,7 @@ sheets:
       - name: Subtract
     - name: tbl_rmd_1
       title: Reqd Min Distr Table I
-      years: false
+      include_years: false
       start_col: 6
       columns:
       - name: Age
@@ -316,7 +316,7 @@ sheets:
             text: Table 1 to Paragraph (b)
     - name: tbl_uniform_lifetime
       title: Uniform Lifetime Table
-      years: false
+      include_years: false
       start_col: 9
       columns:
       - name: Age
@@ -335,7 +335,7 @@ sheets:
     tables:
     - name: tbl_gen_state
       title: General State
-      years: false
+      include_years: false
       columns:
       - name: Item
         width: 18
@@ -345,8 +345,8 @@ sheets:
         name: general_state
     - name: tbl_state_tax_facts
       title: State Tax Facts
-      years: false
-      row: 5
+      include_years: false
+      title_row: 5
       columns:
       - name: State
         width: 18
@@ -365,8 +365,8 @@ sheets:
         width: 18
     - name: tbl_part_b
       title: Part B Premium
-      years: false
-      row: 18
+      include_years: false
+      title_row: 18
       columns:
       - name: Year
         width: 14
@@ -376,8 +376,8 @@ sheets:
       - name: Part_D_addl
     - name: tbl_infl
       title: Historical Inflation
-      years: false
-      row: 18
+      include_years: false
+      title_row: 18
       start_col: 7
       columns:
       - name: Year
@@ -398,7 +398,7 @@ sheets:
     tables:
     - name: tbl_table_map
       title: Table Locator
-      years: false
+      include_years: false
       data:
         source: internal
         name: table_map
