@@ -1,5 +1,5 @@
 '''DataFrame utilities'''
-
+import yaml
 import pandas as pd
 
 
@@ -17,13 +17,15 @@ def tsv_to_df(filename,sep='\t',skiprows=0):
 
   Returns: A data frame with numbers converted to floats and dates as datetime.
 
+  Raises: FileNotFoundError
+
   '''
   logger=get_logger(__file__)
   try:
     df=pd.read_csv(filename,sep=sep,skiprows=skiprows,dtype='str') # keep as string because there are some clean ups needed
   except FileNotFoundError:
-    logger.error('No file "{}". Quitting.'.format(filename))
-    quit()
+    logger.error('No file "{}"'.format(filename))
+    raise
   cols=df.columns
   for col in cols[1:]:
     if col != 'Date' and col != 'Notes':
@@ -37,11 +39,19 @@ def tsv_to_df(filename,sep='\t',skiprows=0):
 
   return df
 
-
-def get_val(frame, line_key ,  col_name):
-  '''get a single value from a dataframe'''
-  return frame.loc[line_key,col_name]
-
-def put_val(frame, line_key ,  col_name, value):
-  '''Put a single value into a dataframe'''
-  frame.loc[line_key,col_name]=value
+def read_config():
+  '''Reads the config
+  
+  returns: the config as a dict
+  
+  raises FileNotFoundError
+  '''
+  logger=get_logger(__file__)
+  fn='dance/setup/setup.yaml'
+  try:
+    with open(fn) as y:
+      config=yaml.load(y,yaml.Loader)
+  except FileNotFoundError as e:
+    raise f'file not found {fn}' from e
+  logger.debug('read {} as config'.format(fn))
+  return config
