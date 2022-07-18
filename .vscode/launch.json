@@ -38,6 +38,15 @@
       "console": "integratedTerminal",
       "args": ["data/test_wb.xlsm","-o"],
       "justMyCode": true
+    },
+    {
+      "name": "iande_actl_load args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/iande_actl_load.py",
+      "console": "integratedTerminal",
+      "args": ["-w","data/test_wb.xlsm","-i","-y","Y2022"],
+      "justMyCode": true
     }
   ]
 }

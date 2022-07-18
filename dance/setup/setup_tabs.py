@@ -12,6 +12,7 @@ import pandas as pd
 import yaml
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data
+from dance.util.files import read_config
 import remote_data
 
 def first_not_hidden(tab_info):
@@ -35,10 +36,7 @@ def include_year(table_info,first_forecast_year,proposed_year):
 def refresh_sheets(target,overwrite=False):
   '''create or refresh tabs'''
   logger=get_logger(__file__)
-  fn='dance/setup/setup.yaml'
-  with open(fn) as y:
-    config=yaml.load(y,yaml.Loader)
-  logger.debug('read {} as config'.format(fn))
+  config=read_config()
   years=range(config['start_year'],1+config['end_year'])
   all_year_columns=[f'Y{x}' for x in years] # all the years, some tables may have only actual
   wb=load_workbook(filename = target,keep_vba=True)
@@ -187,7 +185,10 @@ def refresh_sheets(target,overwrite=False):
               row+=1
               for i,cn in enumerate( [x['name']for x in col_defns]+table_year_columns):
                 if cn in values:
-                  ws.cell(row=row,column=key_values['start_col']+i).value=values[cn]
+                  ix=key_values['start_col']+i
+                  ws.cell(row=row,column=ix).value=values[cn]
+                  if cn.startswith('Y'):
+                    ws.cell(row=row,column=ix).number_format='#,###,##0;-#,###,##0;'-''
         else: # if no data, just a blank row
           row+=1
         # make into a table

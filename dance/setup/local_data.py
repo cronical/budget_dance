@@ -2,7 +2,9 @@
 import pandas as pd
 from openpyxl.utils import get_column_letter
 from dance.util.files import tsv_to_df
+from dance.util.tables import this_row
 from dance.util.logs import get_logger
+logger=get_logger(__file__)
 
 def read_data(data_info,years=None,ffy=None,target_file=None):
   '''Read data for various tabs and prepare it for insertion into the workbook.
@@ -19,17 +21,15 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
   raises: ValueError when things don't make sense.
     Such as in the case of balances if there is an account not found in the accounts worksheet
     '''
-  logger=get_logger(__file__)
   if data_info['type']== 'md_acct':
     df= read_accounts(data_info)
     df= prepare_account_tab(data_info,df)
   if data_info['type']=='md_bal':
-    bal_df=read_accounts(data_info)
-    acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
-    if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
-      raise ValueError('Balance account(s) are not all in the Accounts table')
-    logger.info('All balance accounts are in the accounts table.')
-    df=prepare_balance_tab(years,ffy,bal_df)
+    df=read_balances(data_info,target_file)
+    df=prepare_balance_tab(years,ffy,df)
+  if data_info['type']=='md_iande_actl':
+    df=read_iande_actl(data_info)
+
   return df
 
 def filter_nz(df,include_zeros):
@@ -54,11 +54,6 @@ def no_suffix(acct_total_key):
   '''
   return ' - '.join(acct_total_key.split(' - ')[:-1])
 
-def this_row(field):
-  ''' prepare part of the formula so support Excel;s preference for the [#this row] style over the direct @
-  '''
-  return '[[#this row],[{}]]'.format(field)
-
 def read_accounts(data_info):
   '''Get the account data as specified in the data_info.
 
@@ -73,8 +68,6 @@ def read_accounts(data_info):
 
   returns: dataframe including 'Account', 'Type', 'Current Balance', is_total, and 'level'
   '''
-
-  logger=get_logger(__file__)
   # doing the same with data frame
   types={'Assets':'A','Bank Accounts':'B','Credit Cards':'C','Investment Accounts':'I','Liabilities':'L','Loans':'N'}
   groups=data_info['group']
@@ -212,6 +205,18 @@ def read_accounts(data_info):
   df['Type']=[types[x] for x in df.category.tolist()]
   logger.info('Returning {} rows'.format(len(df)))
   return df[['Account','Type','Current Balance','is_total' ,'level']]
+
+def read_balances(data_info,target_file):
+  bal_df=read_accounts(data_info)
+  acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
+  if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
+    raise ValueError('Balance account(s) are not all in the Accounts table')
+  logger.info('All balance accounts are in the accounts table.')
+  return bal_df
+
+def read_iande_actl(data_info):
+  _=data_info
+  return pd.DataFrame([])
 
 def prepare_account_tab(data_info, in_df):
   '''Add in the added fields for the account worksheet
