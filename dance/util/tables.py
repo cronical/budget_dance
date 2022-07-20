@@ -1,9 +1,17 @@
 '''Utilities dealing with worksheet tables.'''
 import pandas as pd
 from openpyxl import load_workbook
-import openpyxl.utils.cell
-from dance.util.logs import get_logger
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 
+import openpyxl.utils.cell
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
+from dance.util.books import fresh_sheet
+from dance.util.logs import get_logger
+from dance.util.files import read_config
+
+logger=get_logger(__file__)
 
 def df_for_range(worksheet=None,range_ref=None):
   '''get a dataframe given a range reference on a worksheet'''
@@ -29,7 +37,6 @@ def ws_for_table_name(table_map=None,table_name=None):
 
 def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False):
   '''Opens the file, and extracts a table as a dataFrame with the first column as the dataframe index'''
-  logger=get_logger(__file__)
   wb = load_workbook(filename = workbook, read_only=False, keep_vba=True, data_only=data_only)
   ws=wb['utility']
   ref=ws.tables['tbl_table_map'].ref
@@ -45,7 +52,6 @@ def df_for_table_name_for_update(table_name=None):
   '''Opens the file, and extracts a table as a dataFrame with the first column as the dataframe index
   returns dataframe, worksheet, range_ref and workbook
   since its going to be updated don't allow data only '''
-  logger=get_logger(__file__)
   source='data/fcast.xlsm'
   wb = load_workbook(filename = source, read_only=False, keep_vba=True)
   logger.info('Loaded workbook from {}'.format(source))
@@ -83,4 +89,96 @@ def this_row(field):
   ''' prepare part of the formula so support Excel;s preference for the [#this row] style over the direct @
   '''
   return '[[#this row],[{}]]'.format(field)
+
+def first_not_hidden(table_info):
+  '''determine the first column that is not hidden (origin 1)'''
+  if 'hidden' not in table_info:
+    return 1
+  for col_no,col_data in enumerate(table_info['columns']):
+    if col_data['name'] in table_info['hidden']:
+      continue
+    return col_no+1
+
+
+def write_table(workbook,target_sheet,table_name,df,groups=None):
+  '''Write the dataframe to the worksheet, including the columns,
+  add folding based on groups if given, and make into a table.
+  Reads the config file to determine some values.
+
+  args:
+    workbook: the name of the workbook to write to
+    target_sheet: the name of the worksheet in the workbook
+    table_name: the name of the table to write into the target_sheet
+    df: The prepared dataframe that has the correct columns
+    groups: a list of 3 element lists, each representing a grouping. The elements are level, start, end
+
+  raises: IndexError if table not in config for the given sheet
+  '''
+
+  try:
+    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+    config=read_config()
+  except FileNotFoundError as e:
+    raise FileNotFoundError('workbook or config file not found ') from e
+  tables=config['sheets'][target_sheet]['tables']
+  tx=[table_info['name'] for table_info in tables].index(table_name)
+  sg=config['sheets'][target_sheet]['sheet_group']
+  table_style=config['sheet_groups'][sg]['table_style']
+  try:
+    table_info=tables[tx]
+  except IndexError as e:
+    raise IndexError('Bad table reference: {}'.format(table_name)) from e
+
+  key_values={'title_row':1,'start_col':1,'include_years':False}
+  for k in key_values:   #take specified or default items
+    if k in table_info:
+      key_values[k]=table_info[k]
+
+  title_cell=f'{get_column_letter((key_values["start_col"]-1)+first_not_hidden(table_info))}{key_values["title_row"]}'
+  wb=fresh_sheet(wb,target_sheet)
+  ws=wb[target_sheet]
+  ws[title_cell].value=table_info['title']
+  ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
+  table_start_row=key_values['title_row']+1 # the heading of the table (normally excel row 2 )
   
+  ws.append(list(df.columns))
+  keys=list(df.key)
+  for ix,values in df.iterrows(): # the indexes start at zero and the data values
+    for cx,cn in enumerate( df.columns):
+      if cn in values:
+        cix=key_values['start_col']+cx
+        ws.cell(row=ix+table_start_row+1,column=cix).value=values[cn]
+        if cn.startswith('Y'):
+          if values['key'] + ' - TOTAL' in keys:
+            ws.cell(row=ix+table_start_row+1,column=cix).number_format='###' # blank out zeros on section start
+          else:
+            ws.cell(row=ix+table_start_row+1,column=cix).number_format='#,###,##0;-#,###,##0;"-"' # hyphens for zeros on other lines
+
+  if groups is not None: # the folding groups
+    # set up the row groups highest level to lowest level
+    # outline levels are +1 to our levels here
+    # 0 here = 1 in Excel - such as Income, Expense
+    # 1 here = 2 in Excel - such as I, T and X
+
+    def getlev (e):
+      '''utility to aid with setting up groups'''
+      return e[0]
+    groups.sort(key=getlev)
+    for grp in groups:
+      ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
+
+  # making the table
+  
+  top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row}'
+  bot_right=f'{get_column_letter((key_values["start_col"]-1)+df.shape[1])}{table_start_row+1+df.shape[0]}'
+  rng=f'{top_left}:{bot_right}'
+  tab = Table(displayName=table_info['name'], ref=rng)
+  # Add a builtin style with striped rows and banded columns
+  # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
+  # The number seems to be the index in that list (top to bottom, left to right, origin 1)
+  tab.tableStyleInfo = TableStyleInfo(name=table_style,  showRowStripes=True)
+  ws.add_table(tab)
+  logger.info('table {} added'.format(target_sheet))
+
+  wb.save(workbook)
+  logger.info('saved to {}'.format(workbook))

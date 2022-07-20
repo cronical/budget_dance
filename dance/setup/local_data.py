@@ -1,13 +1,14 @@
 '''get annual various local data'''
 import pandas as pd
 from openpyxl.utils import get_column_letter
+from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
 from dance.util.files import tsv_to_df
 from dance.util.tables import this_row
 from dance.util.logs import get_logger
 logger=get_logger(__file__)
 
 def read_data(data_info,years=None,ffy=None,target_file=None):
-  '''Read data for various tabs and prepare it for insertion into the workbook.
+  '''Read data and prepare datafor various tabs and prepare it for insertion into the workbook.
   Uses the type value in data_info to determine what to do.
 
   args:
@@ -16,11 +17,12 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
     ffy: first forecast year as integer
     target_file: supports the case when there is a need to look at previously written worksheets
 
-  returns: dataframe with columns specific to the type
+  returns: dataframe with columns specific to the type and groups (which may be None)
 
   raises: ValueError when things don't make sense.
     Such as in the case of balances if there is an account not found in the accounts worksheet
     '''
+  groups=None
   if data_info['type']== 'md_acct':
     df= read_accounts(data_info)
     df= prepare_account_tab(data_info,df)
@@ -28,9 +30,9 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
     df=read_balances(data_info,target_file)
     df=prepare_balance_tab(years,ffy,df)
   if data_info['type']=='md_iande_actl':
-    df=read_iande_actl(data_info)
-
-  return df
+    df=read_iande_actl(data_info=data_info)
+    df,groups=prepare_iande_actl(workbook=target_file,target_sheet='iande_actl',df=df)
+  return df,groups
 
 def filter_nz(df,include_zeros):
   '''get a filter for the the rows in a dataframe that have a balance or are allowed by config.
@@ -213,10 +215,6 @@ def read_balances(data_info,target_file):
     raise ValueError('Balance account(s) are not all in the Accounts table')
   logger.info('All balance accounts are in the accounts table.')
   return bal_df
-
-def read_iande_actl(data_info):
-  _=data_info
-  return pd.DataFrame([])
 
 def prepare_account_tab(data_info, in_df):
   '''Add in the added fields for the account worksheet

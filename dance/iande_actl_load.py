@@ -6,16 +6,14 @@ import argparse
 
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
 
-from dance.util.books import fresh_sheet
 from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import df_for_table_name,get_value_for_key, this_row
+from dance.util.tables import df_for_table_name,get_value_for_key, this_row, write_table
 from dance.util.logs import get_logger
 
 logger=get_logger(__file__)
 
-def test_required_lines(workbook,forecast_start_year,initialize_iande=False,force=False):
+def test_required_lines(workbook,forecast_start_year,initialize_iande=False,force=False,verbose=False):
   ''' Test the proposed updates to income and expense, to keep iande and iande_actl aligned.
   Compute the list of required lines given the forecast start year in form y_year
   Args:
@@ -24,10 +22,12 @@ def test_required_lines(workbook,forecast_start_year,initialize_iande=False,forc
     forecast_start_year: The first forecast year as a String (Ynnnn)
     initialize_iande: True if we are going to (re)initialize iande. Default False.
     force: True if we are going to allow forecast values to be destroyed. Default False
+    verbose: True to report out all the lines that are in actl but not in iande. default False.
 
   returns: the required lines and all lines as sets
 
-  raises: ValueError when removing non-zero forecast lines without the -f (force) flag
+  raises:
+    ValueError: when removing non-zero forecast lines without the -f (force) flag
 
   '''
   iande=df_for_table_name(table_name='tbl_iande',workbook=workbook)
@@ -65,11 +65,15 @@ def test_required_lines(workbook,forecast_start_year,initialize_iande=False,forc
   new=list(set(keys).difference(all_lines))
   new.sort()
   if 0<len(new):
-    logger.info('Note: new lines (will be in iande_actl but not in iande, but you can manually add them there')
+    logger.info('Note: new lines will be in iande_actl but not in iande')
+    logger.info('These may be added later by the program and/or you can manually add them there')
     logger.info('Note: lines with the suffix "-Other" occur when a transaction exists at a non-leaf in the category tree')
     logger.info('      If not desired, remove transaction and run again.  ')
-  for nw in new:
-    logger.info('   {}'.format(nw))
+    if verbose:
+      for nw in new:
+        logger.info('   {}'.format(nw))
+    else:
+      logger.info('To see the list re-run with verbose option')
 
 def indent_other(str):
   '''indent -other rows to fix an anomoly in the md report
@@ -79,7 +83,7 @@ def indent_other(str):
   else:
     return '   '+str
 
-def ravel(pathparts):
+def ravel(pathparts): # TODO remove this function
   '''create the real key field'''
   path=''
   for pp in pathparts:
@@ -87,14 +91,18 @@ def ravel(pathparts):
     path=path+pp
   return path
 
-def read_iande_actl():
+def read_iande_actl(data_info):
   '''
   Read data from 'data/iande.tsv' into a dataframe, creating key of nested category names
 
+  args:
+    data_info: dict that has a value for path used to locate the input file
+
   returns: dataframe which includes column 'level', to be removed later before inserting into wb
-  raises: FileNotFoundError
+  raises:
+    FileNotFoundError: if the input file does not exist.
   '''
-  input_file='data/iande.tsv'
+  input_file=data_info['path']
 
   # get the input data from file
   try:
@@ -133,8 +141,8 @@ def read_iande_actl():
         pathparts=pathparts[:-1]
     a=pathparts.copy()
     a.append(keyparts[rw].strip())
-    key=ravel(a)
-    assert key==':'.join(a),'hmm they are not the same'
+    #key=ravel(a) # TODO remove line
+    key=':'.join(a)
     keys.append(key)
     last_level=lev
 
@@ -148,32 +156,35 @@ def read_iande_actl():
       df.rename(columns={cn:nn},inplace=True)
     except ValueError:
       n=0
+  df.reset_index(drop=True,inplace=True)
   return df
 
-def prepare_iande_actl(df,workbook,target_sheet,force=False,f_fcast=None):
+def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose=False):
   '''prepare the dataframe for insertion into workbook
     Makes checks to ensure nothing of the forecast gets lost due to changed lines.
     Checks can be overridden by a flag.
     Handles category nesting as groups with subtotals.
 
-
     args:
-    workbook: the name of the spreadsheet to load data into.
-    target_sheet: the name of the tab to update. Either 'iande_actl' or'iande'
-    force: Optional, True to override warning. Default False
-    ffy: The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
+      workbook: the name of the spreadsheet to load data into.
+      target_sheet: the name of the tab to update. Either 'iande_actl' or'iande'
+      df: the dataframe that has basic clean up already done
+      force: Optional. True to override warning. Default False
+      ffy: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
+      verbose: True to report out all the lines that are in actl but not in iande. default False.
+
+    returns:
+      A dataframe and the groups (for folding)
 
     raises:
       FileNotFoundError: if workbook does not exist or the config file does not exist.
       ValueError: if tab_target is not iande or iande_actl
-
-
     '''
 
   valid_sheets=['iande_actl','iande']
   if target_sheet not in valid_sheets:
     raise ValueError('tab_target must be iande or iande_actl')
-  initialize_iande=target_sheet='iande'
+  initialize_iande=target_sheet=='iande'
   # get the workbook from file
   try:
     wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
@@ -182,40 +193,37 @@ def prepare_iande_actl(df,workbook,target_sheet,force=False,f_fcast=None):
   except FileNotFoundError as e:
     raise f'file not found {workbook}' from e
   if f_fcast is None:
-    f_fcst=get_value_for_key(wb,'first_forecast') # get the first forecast year from the general state table
-  logger.info ('First forecast year is: %s',f_fcst)
+    f_fcast=get_value_for_key(wb,'first_forecast') # get the first forecast year from the general state table
+  logger.info ('First forecast year is: %s',f_fcast)
 
-  test_required_lines(workbook,f_fcast,initialize_iande=initialize_iande,force=force) # raises error if not good.
+  test_required_lines(workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
 
-  def getlev (e):
-    '''utility to aid with setting up groups'''
-    return e[0]
+
 
   # copy the data in to enabled tabs in file and into table, set up subtotals and groups
 
-  sg=config['sheets'][target_sheet]['sheet_group']
-  tab_style=config['sheet_groups'][sg]['table_style']
   tables=config['sheets'][target_sheet]['tables']
   assert len(tables)==1,'too many tables'
   tab_tgt=tables[0]['name']
 
   old_df=df_for_table_name(tab_tgt,workbook,data_only=True)
+  old_df.reset_index(inplace=True)
+  old_df.rename(columns={'index':'key'},inplace=True)
   old_cols=list(old_df.columns)
-  if target_sheet=='iande_actl':
-    assert old_cols==list(df.columns),'column names in file do not match update'
-  if target_sheet=='iande':
-    ixs=[old_cols.index(c) for c in df.columns]
-    assert ixs==list(range(len(df.columns))),'update column names are not all in existing tab in order'
-    future_columns=[cn for cn in old_cols if cn not in df.columns] # create future columns
+  new_cols=[cn for cn in df.columns if cn != 'level']
+  if target_sheet=='iande_actl': # allow for new column names through time
+    ixs=[new_cols.index(c) for c in old_cols]
+    assert ixs==list(range(len(old_cols))),'old column names are not all matching new columns'
+    logger.info('{} new column(s)'.format(len(set(new_cols) - set(old_cols))))
+  if target_sheet=='iande': # add forecast columns based 
+    ixs=[old_cols.index(c) for c in new_cols]
+    assert ixs==list(range(len(new_cols))),'update column names are not all in existing tab in order'
+    future_columns=[cn for cn in old_cols if cn not in new_cols] # create future columns
     tr=this_row('Key')
     for x,c in enumerate(future_columns):
       cl=get_column_letter(len(old_cols)+x)
       val=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
       df[c]=[val]*len(df)
-
-  wb=fresh_sheet(wb,target_sheet)
-  ws=wb[target_sheet]
-  cols=df.columns
 
   # put in subtotal formulas for the numeric columns
   # the subtotals are aligned with the groups, so do those too
@@ -225,70 +233,47 @@ def prepare_iande_actl(df,workbook,target_sheet,force=False,f_fcast=None):
   keys=list(df['key'])
   for ix,row in df.iterrows():
     level_change= row['level']-last_level
-    k=row['Key']# get the key value from the file
+    k=row['key']# get the key value from the file
     if level_change <0: #this should be a total line
       n=k.find(' - TOTAL') # see if it has the total label
       assert -1 != n # if not we are in trouble
       bare = k[:n]# # remove the total label
       try:
-        x=keys.index(bare) # look for this in the keys - should be there
-        #since we have the row for the section start - we'll blank out those zeros
-        # TODO move the formatting logic to the spreadsheet load section
-        #for cl in cols:
-        #  ws.cell(column=cl+1,row=x+2).number_format='###'
         # prepare the grouping specs
-        groups.append([row['level']+1,x+2,ix+1])
-      except ValueError:
-        assert False, '{} not found in keys'.format(k)
+        x=keys.index(bare) # look for this in the keys - should be there
+        groups.append([row['level']+1,x+3,ix+2])
+      except ValueError as e:
+        raise ValueError(f'{k} not found in keys'.format()) from e
       # now replace the hard values with formulas
       # if its not a total just let the value stay there
-      for cx,cl in enumerate(cols):
+      for cx,cl in enumerate(df.columns):
         if cl.startswith('Y'):
           let=get_column_letter(cx+1)
-          formula='=subtotal(9,{}{}:{}{})'.format(let,x+2,let,row+1)
+          formula='=subtotal(9,{}{}:{}{})'.format(let,x+3,let,ix+2)
           df.loc[ix,[cl]]=formula
 
     if -1!=k.find('TOTAL INCOME - EXPENSES'): # we are on the last row
       x=keys.index('Income - TOTAL')
-      for cx,cl in enumerate(cols):
+      y=keys.index('Expenses - TOTAL')
+      for cx,cl in enumerate(df.columns):
         if cl.startswith('Y'):
           let=get_column_letter(cx+1)
-          formula='={}{}-{}{}'.format(let,x+2,let,row+1)
-          df.loc[ix[cl]]=formula
-    #for all cells apply formats
+          formula='={}{}-{}{}'.format(let,x+3,let,y+3)
+          df.loc[ix,[cl]]=formula
     last_level=row['level']
 
-  # set up the row groups highest level to lowest level
-  # outline levels are +1 to our levels here
-  # 0 here = 1 in Excel - such as Income, Expense
-  # 1 here = 2 in Excel - such as I, T and X
-
-  groups.sort(key=getlev)
-  for grp in groups:
-    ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
-
-  rng=ws.dimensions
-  tab = Table(displayName=tab_tgt, ref=rng)
-  # Add a builtin style with striped rows and banded columns
-  # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
-  # The number seems to be the index in that list (top to bottom, left to right, origin 1)
-  style = TableStyleInfo(name=tab_style,  showRowStripes=True)
-  tab.tableStyleInfo = style
-  ws.add_table(tab)
-  logger.info('table {} added'.format(target_sheet))
-
-  wb.save(workbook)
-  logger.info('saved to {}'.format(workbook))
-
-  # ws.column_dimensions.group('A','A', hidden=True)
+  del df['level']
+  return df,groups
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description ='Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks. ')
+  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande_actl" after doing some checks. ')
   parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--path','-p',default= 'data/iande.tsv',help='The path and name of the input file')
   parser.add_argument('--sheet','-s',default='iande_actl',help='which sheet - iande or iande_actl')
-  parser.add_argument('--force', '-f',action='store_true', help='Use -f to ignore warning')
+  parser.add_argument('--force', '-f',action='store_true', default=False, help='Use -f to ignore warning')
   parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
-  iande_actl=read_iande_actl()
-  prepare_iande_actl(iande_actl,workbook=args.workbook,target_sheet=args.sheet,force=args.force,f_fcast=args.ffy)
-  
+  iande_actl=read_iande_actl(data_info={'path':args.path})
+  table='tbl_'+args.sheet
+  iande_actl,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=iande_actl,force=args.force,f_fcast=args.ffy)
+  write_table(workbook=args.workbook,target_sheet=args.sheet,df=iande_actl,table_name=table,groups=fold_groups)

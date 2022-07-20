@@ -213,6 +213,10 @@ sheets:
       - name: Account
       hidden:
       - key
+      data: &iande_actl_data_info
+        source: local
+        type: md_iande_actl
+        path: ./data/iande.tsv  
   manual_actl:
     sheet_group: actuals
     tables:

@@ -7,22 +7,13 @@ from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
-from openpyxl.worksheet.table import Table, TableStyleInfo
 import pandas as pd
 import yaml
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data
 from dance.util.files import read_config
+from dance.util.tables import first_not_hidden,write_table
 import remote_data
-
-def first_not_hidden(tab_info):
-  '''determine the first column that is not hidden (origin 1)'''
-  if 'hidden' not in tab_info:
-    return 1
-  for col_no,col_data in enumerate(tab_info['columns']):
-    if col_data['name'] in tab_info['hidden']:
-      continue
-    return col_no+1
 
 def include_year(table_info,first_forecast_year,proposed_year):
   '''return True if proposed year should be displayed'''
@@ -33,15 +24,15 @@ def include_year(table_info,first_forecast_year,proposed_year):
     return True
   return first_forecast_year > proposed_year
 
-def refresh_sheets(target,overwrite=False):
+def refresh_sheets(target_file,overwrite=False):
   '''create or refresh tabs'''
   logger=get_logger(__file__)
   config=read_config()
   years=range(config['start_year'],1+config['end_year'])
   all_year_columns=[f'Y{x}' for x in years] # all the years, some tables may have only actual
-  wb=load_workbook(filename = target,keep_vba=True)
+  wb=load_workbook(filename = target_file,keep_vba=True)
   sheets=wb.sheetnames
-  logger.info('{} existing sheets in {}'.format(len(sheets),target))
+  logger.info('{} existing sheets in {}'.format(len(sheets),target_file))
 
   for default_name in 'Sheet','Sheet1','Sheet2','Sheet3':
     if default_name in sheets:
@@ -77,7 +68,6 @@ def refresh_sheets(target,overwrite=False):
           ws=wb.create_sheet(sheet_name)
           logger.info('sheet {} deleted and recreated'.format(sheet_name))
 
-
       # if new sheets write tables
       set_widths={}
       for table_info in sheet_info['tables']:
@@ -96,6 +86,8 @@ def refresh_sheets(target,overwrite=False):
 
         col_defns=table_info['columns']
         col_count=len(col_defns)
+        all_columns=col_defns # TODO come back and add the years
+
 
         last_width=config['year_column_width'] # use the year column width as a default for 1st column
         for col_no,col_data in enumerate(col_defns):
@@ -129,8 +121,11 @@ def refresh_sheets(target,overwrite=False):
             ws.cell(row=table_start_row,column=key_values['start_col']+len(col_defns)+x,value=y)
           col_count+=len(table_year_columns)
 
+        groups=None
         # if table has a data source add those rows
-        if 'data' in table_info:
+        if 'data' not in table_info:
+          data=pd.DataFrame([None]*col_count,columns=all_columns) # a row of blanks if no data is provided
+        else:
           assert 'source' in table_info['data']
           data_info=table_info['data']
           valid_sources=['internal','remote','local']
@@ -149,7 +144,7 @@ def refresh_sheets(target,overwrite=False):
               logger.error('configured internal data source {} is not a dict.'.format(var_name))
               quit()
             if col_count !=2:
-              logger.error('{} should have two columns to receive internal data'.format(table_name))
+              logger.error('{} should have two columns to receive internal data'.format(table_info['name']))
               quit()
 
           if source == 'remote':
@@ -169,46 +164,25 @@ def refresh_sheets(target,overwrite=False):
             data=remote_data.request(data_info)
             logger.info('pulled data from remote')
           if source=='local':
-            data=read_data(data_info,years,ffy,target_file=target)
+            data,groups=read_data(data_info,years,ffy,target_file=target_file)
           if isinstance(data,dict):
-            for k,v in data.items():
-              row+=1
-              ws.cell(row=row,column=key_values['start_col']).value=k
-              ws.cell(row=row,column=key_values['start_col']+1).value=v
+            data=pd.DataFrame([(k,v) for k,v in data.items()],columns=all_columns)
           if isinstance(data,list):
-            for values in data:
-              row+=1
-              for i,v in enumerate(values):
-                ws.cell(row=row,column=key_values['start_col']+i).value=v
+            data=pd.DataFrame(list,columns=all_columns)
           if isinstance(data,pd.DataFrame):
-            for _,values in data.iterrows():
-              row+=1
-              for i,cn in enumerate( [x['name']for x in col_defns]+table_year_columns):
-                if cn in values:
-                  ix=key_values['start_col']+i
-                  ws.cell(row=row,column=ix).value=values[cn]
-                  if cn.startswith('Y'):
-                    ws.cell(row=row,column=ix).number_format='#,###,##0;-#,###,##0;'-''
-        else: # if no data, just a blank row
-          row+=1
-        # make into a table
-        top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row}'
-        bot_right=f'{get_column_letter((key_values["start_col"]-1)+col_count)}{row}'
-        rng=f'{top_left}:{bot_right}'
-        table_name=table_info['name']
-        tab = Table(displayName=table_name, ref=rng)
-        style = TableStyleInfo(name=sheet_group_info['table_style'],  showRowStripes=True)# Add a builtin style with striped rows and banded columns
-        tab.tableStyleInfo = style
-        ws.add_table(tab)
-        logger.info('  table {} added'.format(table_name))
-        wb.save(filename=target) # save after each sheet to allow successive sheets to locate earlier sheet data
-        logger.info('workbook {} saved'.format(target))
-        table_map[table_name]=sheet_name
+            pass
+        write_table(workbook=target_file,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
+
+
+        logger.info('  table {} added'.format(table_info['name']))
+        wb.save(filename=target_file) # save after each sheet to allow successive sheets to locate earlier sheet data
+        logger.info('workbook {} saved'.format(target_file))
+        table_map[table_info['name']]=sheet_name
       ws.sheet_view.zoomScale=config['zoom_scale']
 
 
-  wb.save(filename=target)
-  logger.info('workbook {} saved'.format(target))
+  wb.save(filename=target_file)
+  logger.info('workbook {} saved'.format(target_file))
 
 if __name__=='__main__':
     # execute only if run as a script
