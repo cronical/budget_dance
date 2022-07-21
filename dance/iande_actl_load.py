@@ -7,6 +7,8 @@ import argparse
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
+
+from dance.util.books import col_attrs_for_sheet, set_col_attrs, fresh_sheet
 from dance.util.files import tsv_to_df, read_config
 from dance.util.tables import df_for_table_name,get_value_for_key, this_row, write_table
 from dance.util.logs import get_logger
@@ -170,7 +172,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
       target_sheet: the name of the tab to update. Either 'iande_actl' or'iande'
       df: the dataframe that has basic clean up already done
       force: Optional. True to override warning. Default False
-      ffy: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
+      f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
       verbose: True to report out all the lines that are in actl but not in iande. default False.
 
     returns:
@@ -198,12 +200,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   test_required_lines(workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
 
-
-
-  # copy the data in to enabled tabs in file and into table, set up subtotals and groups
-
   tables=config['sheets'][target_sheet]['tables']
-  assert len(tables)==1,'too many tables'
+  assert len(tables)==1,'not exactly one table defined'
   tab_tgt=tables[0]['name']
 
   old_df=df_for_table_name(tab_tgt,workbook,data_only=True)
@@ -215,7 +213,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     ixs=[new_cols.index(c) for c in old_cols]
     assert ixs==list(range(len(old_cols))),'old column names are not all matching new columns'
     logger.info('{} new column(s)'.format(len(set(new_cols) - set(old_cols))))
-  if target_sheet=='iande': # add forecast columns based 
+  if target_sheet=='iande': # add forecast columns based
     ixs=[old_cols.index(c) for c in new_cols]
     assert ixs==list(range(len(new_cols))),'update column names are not all in existing tab in order'
     future_columns=[cn for cn in old_cols if cn not in new_cols] # create future columns
@@ -276,4 +274,9 @@ if __name__ == '__main__':
   iande_actl=read_iande_actl(data_info={'path':args.path})
   table='tbl_'+args.sheet
   iande_actl,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=iande_actl,force=args.force,f_fcast=args.ffy)
-  write_table(workbook=args.workbook,target_sheet=args.sheet,df=iande_actl,table_name=table,groups=fold_groups)
+  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb=fresh_sheet(wkb,args.sheet)
+  wkb= write_table(wkb,target_sheet=args.sheet,df=iande_actl,table_name=table,groups=fold_groups)
+  attrs=col_attrs_for_sheet(args.sheet,read_config())
+  set_col_attrs(wkb,args.sheet,attrs)
+  wkb.save(args.workbook)

@@ -171,15 +171,12 @@ def refresh_sheets(target_file,overwrite=False):
             data=pd.DataFrame(list,columns=all_columns)
           if isinstance(data,pd.DataFrame):
             pass
-        write_table(workbook=target_file,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
-
-
-        logger.info('  table {} added'.format(table_info['name']))
-        wb.save(filename=target_file) # save after each sheet to allow successive sheets to locate earlier sheet data
+        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
+        # save after each sheet to allow successive sheets to locate earlier sheet data
+        wb.save(target_file)
         logger.info('workbook {} saved'.format(target_file))
         table_map[table_info['name']]=sheet_name
       ws.sheet_view.zoomScale=config['zoom_scale']
-
 
   wb.save(filename=target_file)
   logger.info('workbook {} saved'.format(target_file))
