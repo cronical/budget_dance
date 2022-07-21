@@ -7,7 +7,6 @@ from openpyxl.utils import get_column_letter
 import openpyxl.utils.cell
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-from dance.util.books import fresh_sheet
 from dance.util.logs import get_logger
 from dance.util.files import read_config
 
@@ -64,7 +63,6 @@ def df_for_table_name_for_update(table_name=None):
   logger.info('{} rows and {} columns in sheet {}'.format(table.shape[0],table.shape[1],ws))
   return table, ws,ws.tables[table_name].ref,wb
 
-
 def get_val(frame, line_key ,  col_name):
   '''get a single value from a dataframe'''
   return frame.loc[line_key,col_name]
@@ -74,16 +72,49 @@ def put_val(frame, line_key ,  col_name, value):
   frame.loc[line_key,col_name]=value
 
 def get_value_for_key(wb,key):
-  # get a value from the general state table
-  ws=wb['utility']
-  ref=ws.tables['tbl_table_map'].ref
-  table_map = df_for_range(worksheet=ws,range_ref=ref)
-  table_name='tbl_gen_state'
-  ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
-  ws=wb[ws_name]
-  table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-  f_fcst= get_val(table,line_key=key,col_name='Value')
-  return f_fcst
+  '''Get a value from the general state table
+
+  args:
+    wb: the openpyxl workbook
+    key: an item in the general (state) table
+
+  returns: the value from the generate (state) table
+
+  raises:
+    ValueError: in case the structure in the file is not yet in place or the key is missing.
+    Oddly ValueError works but KeyError does nothing.
+  '''
+
+  try:
+    ws=wb['utility']
+    ref=ws.tables['tbl_table_map'].ref
+    table_map = df_for_range(worksheet=ws,range_ref=ref)
+    table_name='tbl_gen_state'
+    ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
+    ws=wb[ws_name]
+    table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
+    value= get_val(table,line_key=key,col_name='Value')
+    return value
+  except KeyError as err:
+    print('here')
+    raise ValueError(str(err)) from None
+
+def get_f_fcast_year(wb,config):
+  '''get the first forecast year, using the value from the workbook if available, otherwise from the config
+
+  args:
+    wb: the workbook
+    config: the config dict
+
+  returns: integer year which is the first forecast
+  '''
+  ffy=None
+  try:
+    ffy=get_value_for_key(wb,'first_forecast')
+    ffy=int(ffy[1:])
+  except ValueError:
+    ffy=config['first_forecast_year']
+  return ffy
 
 def this_row(field):
   ''' prepare part of the formula so support Excel;s preference for the [#this row] style over the direct @
@@ -99,24 +130,25 @@ def first_not_hidden(table_info):
       continue
     return col_no+1
 
-
-def write_table(workbook,target_sheet,table_name,df,groups=None):
+def write_table(wb,target_sheet,table_name,df,groups=None):
   '''Write the dataframe to the worksheet, including the columns,
   add folding based on groups if given, and make into a table.
   Reads the config file to determine some values.
 
   args:
-    workbook: the name of the workbook to write to
+    wb: the openpyxl workbook to write to
     target_sheet: the name of the worksheet in the workbook
     table_name: the name of the table to write into the target_sheet
     df: The prepared dataframe that has the correct columns
     groups: a list of 3 element lists, each representing a grouping. The elements are level, start, end
 
+  returns: the workbook
+
   raises: IndexError if table not in config for the given sheet
   '''
 
   try:
-    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+
     config=read_config()
   except FileNotFoundError as e:
     raise FileNotFoundError('workbook or config file not found ') from e
@@ -135,21 +167,22 @@ def write_table(workbook,target_sheet,table_name,df,groups=None):
       key_values[k]=table_info[k]
 
   title_cell=f'{get_column_letter((key_values["start_col"]-1)+first_not_hidden(table_info))}{key_values["title_row"]}'
-  wb=fresh_sheet(wb,target_sheet)
+
   ws=wb[target_sheet]
   ws[title_cell].value=table_info['title']
   ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
   table_start_row=key_values['title_row']+1 # the heading of the table (normally excel row 2 )
-  
+
   ws.append(list(df.columns))
-  keys=list(df.key)
+  keyfld=df.columns[0] # TODO this technique of blanking they section start seems kludgey - could it be done with the groups instead?
+  keys=list(df[keyfld])
   for ix,values in df.iterrows(): # the indexes start at zero and the data values
     for cx,cn in enumerate( df.columns):
       if cn in values:
         cix=key_values['start_col']+cx
         ws.cell(row=ix+table_start_row+1,column=cix).value=values[cn]
         if cn.startswith('Y'):
-          if values['key'] + ' - TOTAL' in keys:
+          if values[keyfld] + ' - TOTAL' in keys:
             ws.cell(row=ix+table_start_row+1,column=cix).number_format='###' # blank out zeros on section start
           else:
             ws.cell(row=ix+table_start_row+1,column=cix).number_format='#,###,##0;-#,###,##0;"-"' # hyphens for zeros on other lines
@@ -168,9 +201,9 @@ def write_table(workbook,target_sheet,table_name,df,groups=None):
       ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
 
   # making the table
-  
+
   top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row}'
-  bot_right=f'{get_column_letter((key_values["start_col"]-1)+df.shape[1])}{table_start_row+1+df.shape[0]}'
+  bot_right=f'{get_column_letter((key_values["start_col"]-1)+df.shape[1])}{table_start_row+df.shape[0]}'
   rng=f'{top_left}:{bot_right}'
   tab = Table(displayName=table_info['name'], ref=rng)
   # Add a builtin style with striped rows and banded columns
@@ -178,7 +211,51 @@ def write_table(workbook,target_sheet,table_name,df,groups=None):
   # The number seems to be the index in that list (top to bottom, left to right, origin 1)
   tab.tableStyleInfo = TableStyleInfo(name=table_style,  showRowStripes=True)
   ws.add_table(tab)
-  logger.info('table {} added'.format(target_sheet))
+  logger.info('table {} added to {}'.format(table_info['name'],target_sheet))
 
-  wb.save(workbook)
-  logger.info('saved to {}'.format(workbook))
+  return wb
+
+def columns_for_table(wb,sheet,table_name,config):
+  '''Get the column definitions for a table based on the config
+
+  args:
+    wb: the name of the workbook which may hold the correct first forecast year, 
+      but if its not there, we get it from the config.
+    sheet: the name of the sheet where the table is
+    table_name: table name, like 'tbl_x_x'
+    config: the config dict
+
+  returns: 
+    A pandas dataframe with the name of the columns and attributes as columns
+    The index can be used with an offset to locate the table on the worksheet
+
+  '''
+  ffy=get_f_fcast_year(wb,config)
+  for table_info in config['sheets'][sheet]['tables']:
+    if table_info['name']!=table_name:
+      continue
+    years=range(config['start_year'],config['end_year']+1)
+    # limit years as needed for actual only
+    ao=False
+    if 'actual_only' in table_info:
+      ao = table_info['actual_only']
+    if ao:
+      years=[y for y in years if y < ffy]
+    years=['Y{}'.format(y) for y in years]
+    col_defs=[{'name':'default','width':config['year_column_width']}]
+    col_defs+=table_info['columns']
+    iy=False
+    if 'include_years' in table_info:
+      iy=table_info['include_years']
+    if iy:
+      for y in years:
+        col_defs.append({'name':y,'width':config['year_column_width']})
+    df=pd.DataFrame(col_defs)
+    df=pd.DataFrame.fillna(df,method='ffill') # forward fill missing values
+    df.width=df.width.astype(int)
+    df=df.drop(0) # remove the default
+    hide_these=[]
+    if 'hidden' in table_info:
+      hide_these=table_info['hidden']
+    df['hidden']= df.name.isin(hide_these)
+    return df

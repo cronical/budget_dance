@@ -312,5 +312,5 @@ def prepare_balance_tab(years,first_forecast,in_df):
         formulas+=[formula]
       a_df['Y{}'.format(c)]=formulas
     df=pd.concat([df,a_df],axis=0)
-  df.reset_index(inplace=True)
+  df.reset_index(inplace=True,drop='True')
   return df

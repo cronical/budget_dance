@@ -19,7 +19,7 @@ sheet_groups:
     table_style: TableStyleMedium10
   actuals:
     color: 58BD2D
-    table_style: TableStyleMedium4
+    table_style: TableStyleMedium7
   taxes:
     color: BD710D
     table_style: TableStyleMedium2
@@ -208,11 +208,11 @@ sheets:
       include_years: true
       actual_only: true
       columns:
-      - name: key
+      - name: Key
         width: 35
       - name: Account
       hidden:
-      - key
+      - Key
       data: &iande_actl_data_info
         source: local
         type: md_iande_actl
