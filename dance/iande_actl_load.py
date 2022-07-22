@@ -85,14 +85,6 @@ def indent_other(str):
   else:
     return '   '+str
 
-def ravel(pathparts): # TODO remove this function
-  '''create the real key field'''
-  path=''
-  for pp in pathparts:
-    if len(path)>0: path=path +':'
-    path=path+pp
-  return path
-
 def read_iande_actl(data_info):
   '''
   Read data from 'data/iande.tsv' into a dataframe, creating key of nested category names
@@ -143,7 +135,6 @@ def read_iande_actl(data_info):
         pathparts=pathparts[:-1]
     a=pathparts.copy()
     a.append(keyparts[rw].strip())
-    #key=ravel(a) # TODO remove line
     key=':'.join(a)
     keys.append(key)
     last_level=lev

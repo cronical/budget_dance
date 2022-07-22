@@ -35,15 +35,6 @@ def non_bank_transfers():
   level=[int(x) for x in df.level.tolist()]
   del df['level']
 
-  def ravel(pathparts):
-    '''create the real key field to include the heirarchy'''
-
-    path=''
-    for pp in pathparts:
-      if len(path)>0: path=path +':'
-      path=path+pp
-    return path
-
   keys=[]
   keyparts=df.Account.tolist()
   rows=list(range(0,len(level))) # rows and columns are origin 0, excel uses origin 1 plus it contains the headings so for rows its off by 2
@@ -58,7 +49,7 @@ def non_bank_transfers():
         pathparts=pathparts[:-1]
     a=pathparts.copy()
     a.append(keyparts[rw].strip())
-    keys.append(ravel(a))
+    keys.append(':'.join(a))
     last_level=lev
 
   # put the keys into the df and make that the index
