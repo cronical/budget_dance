@@ -15,7 +15,7 @@ from dance.util.logs import get_logger
 
 logger=get_logger(__file__)
 
-def test_required_lines(workbook,forecast_start_year,initialize_iande=False,force=False,verbose=False):
+def test_required_lines(df,workbook,forecast_start_year,initialize_iande=False,force=False,verbose=False):
   ''' Test the proposed updates to income and expense, to keep iande and iande_actl aligned.
   Compute the list of required lines given the forecast start year in form y_year
   Args:
@@ -39,17 +39,19 @@ def test_required_lines(workbook,forecast_start_year,initialize_iande=False,forc
     logger.info(str(err))
     logger.info('Unable to check required lines')
     return
-  cols= list(iande)
+  iande.insert(loc=0,column='Key',value=iande.index) # it comes with the key as the index
+  iande.reset_index(drop=True,inplace=True)
+  cols= list(iande.columns)
   ix=cols.index(forecast_start_year)
   c=cols[ix:]
 
   def not_all_are_empty(a):
     return any([x is not None for x in list(a)])
 
-  req_lines=set(iande.index[iande[c].apply(not_all_are_empty,axis=1)])
+  req_lines=set(iande.Key.loc[iande[c].apply(not_all_are_empty,axis=1)])
   # make sure nothing of the forecast gets lost due to changed lines.
 
-  keys=list(iande_actl['key'])
+  keys=list(df['Key'])
   if not req_lines.issubset(set(keys)):
     logger.warning('Existing forecast lines are not all present')
     logger.warning('The following line(s) exist in {} but do not occur in the file to import ({})'\
@@ -165,8 +167,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
   logger.info ('First forecast year is: %s',f_fcast)
 
-  test_required_lines(workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
-
   tables=config['sheets'][target_sheet]['tables']
   assert len(tables)==1,'not exactly one table defined'
   tab_tgt=tables[0]['name']
@@ -219,6 +219,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     last_level=row['level']
   del df['level'] # clear out temp field
 
+  test_required_lines(df,workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
+
   # now replace the hard values with formulas
   # if its not a total just let the value stay there
   for group in groups:
@@ -240,7 +242,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   if target_sheet=='iande': # adjust for iande, adding columns
     for y in range(f_fcast,config['end_year']+1): # add columns for future years
-      df['Y{}'.format(y)]=0
+      df['Y{}'.format(y)]=None
 
   cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
 
