@@ -82,8 +82,6 @@ sheets:
           - "529"
           - IRA
 
-
-
   balances:
     sheet_group: acct-bal
     tables:
@@ -120,6 +118,11 @@ sheets:
           width: 30
         hidden:
         - Key
+        data: &iande_data_info
+          source: local
+          type: md_iande_actl
+          path: ./data/iande.tsv
+          sheet: iande    
   aux:
     sheet_group: income-expense
     tables:
@@ -213,10 +216,9 @@ sheets:
       - name: Account
       hidden:
       - Key
-      data: &iande_actl_data_info
-        source: local
-        type: md_iande_actl
-        path: ./data/iande.tsv  
+      data: 
+        <<: *iande_data_info
+        sheet: iande_actl
   manual_actl:
     sheet_group: actuals
     tables:

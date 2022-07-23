@@ -1,9 +1,6 @@
 '''Work book oriented utilities'''
-from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
-import pandas as pd
 
-from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import columns_for_table
 
@@ -54,26 +51,24 @@ def col_attrs_for_sheet(wb,sheet,config):
     if 'start_col' in table_info:
       start_col=table_info['start_col']
     for ix,rw in df.iterrows():
-      cn=ix+start_col-1
+      cn=ix+start_col
       if cn not in attrs:
         attrs[cn]={'width':rw['width'],'hidden':rw['hidden']}
   return attrs
 
-def set_col_attrs(workbook,sheet,attrs):
+def set_col_attrs(wb,sheet,attrs):
   '''set column attributes such as width and hidden
 
   args:
-    workbook: the name of the workbook
+    wb: the openpyxl workbook
     sheet: the worksheet name
     attrs: a dictionary with key = excel column number and value another dict with the attributes
 
-  returns: the worksheet
+  returns: the workbook
   '''
-  wb=load_workbook(workbook,keep_vba=True)
   ws=wb[sheet]
   for k,v in attrs.items():
     ws.column_dimensions[get_column_letter(k)].width = v['width']
     ws.column_dimensions[get_column_letter(k)].hidden = v['hidden']
-  wb.save(workbook)
-
+  return wb
   

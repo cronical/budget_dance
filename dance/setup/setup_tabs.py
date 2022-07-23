@@ -8,11 +8,13 @@ from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
 import pandas as pd
+
 import yaml
+from dance.util.books import col_attrs_for_sheet,set_col_attrs
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data
 from dance.util.files import read_config
-from dance.util.tables import first_not_hidden,write_table
+from dance.util.tables import first_not_hidden,write_table,columns_for_table
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -29,7 +31,6 @@ def refresh_sheets(target_file,overwrite=False):
   logger=get_logger(__file__)
   config=read_config()
   years=range(config['start_year'],1+config['end_year'])
-  all_year_columns=[f'Y{x}' for x in years] # all the years, some tables may have only actual
   wb=load_workbook(filename = target_file,keep_vba=True)
   sheets=wb.sheetnames
   logger.info('{} existing sheets in {}'.format(len(sheets),target_file))
@@ -68,8 +69,6 @@ def refresh_sheets(target_file,overwrite=False):
           ws=wb.create_sheet(sheet_name)
           logger.info('sheet {} deleted and recreated'.format(sheet_name))
 
-      # if new sheets write tables
-      set_widths={}
       for table_info in sheet_info['tables']:
 
         #take specified or default items
@@ -81,50 +80,13 @@ def refresh_sheets(target_file,overwrite=False):
         title_cell=f'{get_column_letter((key_values["start_col"]-1)+first_not_hidden(table_info))}{key_values["title_row"]}'
         ws[title_cell].value=table_info['title']
         ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
-        row=key_values['title_row']+1
-        table_start_row=row # mark start of table
 
-        col_defns=table_info['columns']
-        col_count=len(col_defns)
-        all_columns=col_defns # TODO come back and add the years
-
-
-        last_width=config['year_column_width'] # use the year column width as a default for 1st column
-        for col_no,col_data in enumerate(col_defns):
-          width=last_width # user prior column's width as default
-          if 'width' in col_data:
-            width=col_data['width']
-
-          # if width already set from prior table use that
-          if 1+col_no in set_widths:
-            width=set_widths[1+col_no]
-          else:
-            set_widths[1+col_no]=width
-          ws.column_dimensions[get_column_letter(key_values['start_col']+col_no)].width=width
-
-          # if any table marks this col as hidden it will be so for all tables
-          if 'hidden' in table_info:
-            ws.column_dimensions[get_column_letter(key_values['start_col']+col_no)].hidden=col_data['name']in table_info['hidden']
-          ws.cell(row=row,column=key_values['start_col']+col_no,value=col_data['name'])
-          last_width=width
-
-        # if table has years, determine which ones are for this table
-        # (if actual only, just the actual years)
-        table_year_columns=[]
-        if key_values['include_years']:
-          for y in all_year_columns:
-            if not include_year(table_info,ffy,int(y[1:])):
-              continue
-            table_year_columns+=[y]
-          for x, y in enumerate(table_year_columns):
-            ws.column_dimensions[get_column_letter(key_values['start_col']+x+col_count)].width=config['year_column_width']
-            ws.cell(row=table_start_row,column=key_values['start_col']+len(col_defns)+x,value=y)
-          col_count+=len(table_year_columns)
-
+        df=columns_for_table(wb,sheet_name,table_info['name'],config)
+        col_count=df.shape[0]
         groups=None
         # if table has a data source add those rows
         if 'data' not in table_info:
-          data=pd.DataFrame([None]*col_count,columns=all_columns) # a row of blanks if no data is provided
+          data=pd.DataFrame([[None]*col_count],columns=df.name) # a row of blanks if no data is provided
         else:
           assert 'source' in table_info['data']
           data_info=table_info['data']
@@ -166,12 +128,14 @@ def refresh_sheets(target_file,overwrite=False):
           if source=='local':
             data,groups=read_data(data_info,years,ffy,target_file=target_file)
           if isinstance(data,dict):
-            data=pd.DataFrame([(k,v) for k,v in data.items()],columns=all_columns)
+            data=pd.DataFrame([(k,v) for k,v in data.items()],columns=df.name)
           if isinstance(data,list):
-            data=pd.DataFrame(list,columns=all_columns)
+            data=pd.DataFrame(list,columns=df.name)
           if isinstance(data,pd.DataFrame):
             pass
         wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
+        attrs=col_attrs_for_sheet(wb,sheet_name,config)
+        wb=set_col_attrs(wb,sheet_name,attrs)
         # save after each sheet to allow successive sheets to locate earlier sheet data
         wb.save(target_file)
         logger.info('workbook {} saved'.format(target_file))
