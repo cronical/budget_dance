@@ -31,7 +31,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
     df=prepare_balance_tab(years,ffy,df)
   if data_info['type']=='md_iande_actl':
     df=read_iande_actl(data_info=data_info)
-    df,groups=prepare_iande_actl(workbook=target_file,target_sheet='iande_actl',df=df)
+    df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
   return df,groups
 
 def filter_nz(df,include_zeros):

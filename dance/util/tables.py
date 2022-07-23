@@ -35,16 +35,31 @@ def ws_for_table_name(table_map=None,table_name=None):
   return table_map.loc[table_name,'Worksheet']
 
 def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False):
-  '''Opens the file, and extracts a table as a dataFrame with the first column as the dataframe index'''
-  wb = load_workbook(filename = workbook, read_only=False, keep_vba=True, data_only=data_only)
-  ws=wb['utility']
-  ref=ws.tables['tbl_table_map'].ref
-  table_map = df_for_range(worksheet=ws,range_ref=ref)
-  ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
-  ws=wb[ws_name]
-  table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-  logger.info('Loaded worksheet {} from {}'.format(ws_name,workbook))
-  logger.info('{} rows and {} columns'.format(table.shape[0],table.shape[1]))
+  '''Opens the file, and extracts a table as a Pandas dataframe
+
+  args:
+    table_name:
+    workbook:
+    data_only:
+
+  returns: a dataFrame with the first column as the dataframe index
+
+  raises:
+    ValueError: when the file does not exist or its structures are not right
+
+  '''
+  try:
+    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True, data_only=data_only)
+    ws=wb['utility']
+    ref=ws.tables['tbl_table_map'].ref
+    table_map = df_for_range(worksheet=ws,range_ref=ref)
+    ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
+    ws=wb[ws_name]
+    table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
+  except (FileNotFoundError,KeyError):
+    raise ValueError('workbook({}), worksheet({}) or internal structures not available'.format(workbook,table_name)) from None
+  logger.info('Read table {} from {}'.format(table_name,workbook))
+  logger.info('  {} rows and {} columns'.format(table.shape[0],table.shape[1]))
   return table
 
 def df_for_table_name_for_update(table_name=None):
@@ -96,7 +111,6 @@ def get_value_for_key(wb,key):
     value= get_val(table,line_key=key,col_name='Value')
     return value
   except KeyError as err:
-    print('here')
     raise ValueError(str(err)) from None
 
 def get_f_fcast_year(wb,config):
@@ -146,9 +160,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
 
   raises: IndexError if table not in config for the given sheet
   '''
-
+  df.reset_index(drop=True,inplace=True) # rely on the index to figure row on sheet.
   try:
-
     config=read_config()
   except FileNotFoundError as e:
     raise FileNotFoundError('workbook or config file not found ') from e
@@ -172,20 +185,19 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   ws[title_cell].value=table_info['title']
   ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
   table_start_row=key_values['title_row']+1 # the heading of the table (normally excel row 2 )
+  table_start_col=key_values['start_col']
 
-  ws.append(list(df.columns))
-  keyfld=df.columns[0] # TODO this technique of blanking they section start seems kludgey - could it be done with the groups instead?
-  keys=list(df[keyfld])
+  # Place the headings
+  for cx,cn in enumerate( df.columns):
+    ws.cell(table_start_row,column=table_start_col+cx).value=cn
+  # place the values
   for ix,values in df.iterrows(): # the indexes start at zero and the data values
     for cx,cn in enumerate( df.columns):
       if cn in values:
-        cix=key_values['start_col']+cx
+        cix=table_start_col+cx
         ws.cell(row=ix+table_start_row+1,column=cix).value=values[cn]
         if cn.startswith('Y'):
-          if values[keyfld] + ' - TOTAL' in keys:
-            ws.cell(row=ix+table_start_row+1,column=cix).number_format='###' # blank out zeros on section start
-          else:
-            ws.cell(row=ix+table_start_row+1,column=cix).number_format='#,###,##0;-#,###,##0;"-"' # hyphens for zeros on other lines
+          ws.cell(row=ix+table_start_row+1,column=cix).number_format='#,###,##0;-#,###,##0;"-"' # hyphens for zeros on other lines
 
   if groups is not None: # the folding groups
     # set up the row groups highest level to lowest level
@@ -198,6 +210,10 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
       return e[0]
     groups.sort(key=getlev)
     for grp in groups:
+      # use the start of the group to blank out numeric columns
+      for cix,cn in enumerate(df.columns):
+        if cn[0]=='Y':
+          ws.cell(row=1+table_start_row+grp[1],column=table_start_col+cix).number_format='###'
       ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
 
   # making the table
@@ -227,7 +243,7 @@ def columns_for_table(wb,sheet,table_name,config):
 
   returns: 
     A pandas dataframe with the name of the columns and attributes as columns
-    The index can be used with an offset to locate the table on the worksheet
+    The index can be used with an offset to locate the table on the worksheet.  The first index is zero.
 
   '''
   ffy=get_f_fcast_year(wb,config)
@@ -254,6 +270,7 @@ def columns_for_table(wb,sheet,table_name,config):
     df=pd.DataFrame.fillna(df,method='ffill') # forward fill missing values
     df.width=df.width.astype(int)
     df=df.drop(0) # remove the default
+    df.reset_index(drop=True,inplace=True)
     hide_these=[]
     if 'hidden' in table_info:
       hide_these=table_info['hidden']
