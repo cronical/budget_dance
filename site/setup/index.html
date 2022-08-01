@@ -302,6 +302,49 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#global-settings" class="md-nav__link">
+    Global Settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sheet-groups" class="md-nav__link">
+    Sheet groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sheets" class="md-nav__link">
+    Sheets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-definitions" class="md-nav__link">
+    Table Definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-definitions" class="md-nav__link">
+    Data definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specific-sheets-tables" class="md-nav__link">
+    Specific Sheets &amp; Tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Specific Sheets &amp; Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#inflation" class="md-nav__link">
     Inflation
   </a>
@@ -319,6 +362,11 @@
   <a href="#accounts" class="md-nav__link">
     Accounts
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -421,6 +469,49 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#global-settings" class="md-nav__link">
+    Global Settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sheet-groups" class="md-nav__link">
+    Sheet groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sheets" class="md-nav__link">
+    Sheets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-definitions" class="md-nav__link">
+    Table Definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-definitions" class="md-nav__link">
+    Data definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specific-sheets-tables" class="md-nav__link">
+    Specific Sheets &amp; Tables
+  </a>
+  
+    <nav class="md-nav" aria-label="Specific Sheets &amp; Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#inflation" class="md-nav__link">
     Inflation
   </a>
@@ -438,6 +529,11 @@
   <a href="#accounts" class="md-nav__link">
     Accounts
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -479,11 +575,202 @@
 </code></pre>
 <h2 id="the-setup-control-file">The setup control file</h2>
 <p>The control file is <code>dance/setup/setup.yaml</code>.</p>
-<h3 id="inflation">Inflation</h3>
+<h3 id="global-settings">Global Settings</h3>
+<p>The following values are global in nature:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Item</th>
+<th align="left">Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">start_year</td>
+<td align="left">Integer of 1st year to use for time series</td>
+<td>2018</td>
+</tr>
+<tr>
+<td align="left">end_year</td>
+<td align="left">Last Year of the time series</td>
+<td>2030</td>
+</tr>
+<tr>
+<td align="left">year_column_width</td>
+<td align="left">Column size for years</td>
+<td>12</td>
+</tr>
+<tr>
+<td align="left">first_forecast_year</td>
+<td align="left">First year that is considered a forecast. Prior years are considered actual</td>
+<td>2022</td>
+</tr>
+<tr>
+<td align="left">zoom_scale</td>
+<td align="left">Scaling factor for all sheets</td>
+<td>135 # how to scale the worksheets</td>
+</tr>
+<tr>
+<td align="left">bank_interest</td>
+<td align="left">Moneydance category used to convey bank interest to the account balances</td>
+<td>Income:I:Invest income:Int:Bank</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sheet-groups">Sheet groups</h3>
+<p>Sheets are grouped together in sheet groups using the <code>sheet_group</code> definitions.  Each sheet is assigned to a group and thus shares the color and table style.</p>
+<h3 id="sheets">Sheets</h3>
+<p>This section defines the layout and sometimes the data to be loaded into the sheet. It is a list of definition of each sheet.  So at that level it looks like:</p>
+<pre><code class="language-yaml">sheets:
+  accounts:
+  balances:
+  iande:
+  ...
+</code></pre>
+<h3 id="table-definitions">Table Definitions</h3>
+<p>Within each sheet are the list of tables. Most sheets only have one.  Here's an example with two:</p>
+<pre><code class="language-yaml">retireparms:
+  sheet_group: retirement
+  tables:
+  - name: tbl_retire_parms
+  - name: tbl_pens_facts
+</code></pre>
+<p>By convention all the table names start with <code>tbl_</code>.</p>
+<p>The table definition consists of various fields, some of which are optional and/or defaulted.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Item</th>
+<th align="left">Purpose</th>
+<th>Required?</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">title</td>
+<td align="left">The title that is place above the table in Excel</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">include_years</td>
+<td align="left">True if there is a time series for the years</td>
+<td>N</td>
+<td>False</td>
+</tr>
+<tr>
+<td align="left">columns</td>
+<td align="left">A list of the column definitions (name and width) that are included before the time seriex</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">hidden</td>
+<td align="left">A list of columns to hide</td>
+<td>N</td>
+<td>Show every column</td>
+</tr>
+<tr>
+<td align="left">data</td>
+<td align="left">definitions where to get the data for the initial load</td>
+<td>N</td>
+<td>Don't load data</td>
+</tr>
+<tr>
+<td align="left">title_row</td>
+<td align="left">When there is more than one table, locate this table on the sheet</td>
+<td>N</td>
+<td>2</td>
+</tr>
+<tr>
+<td align="left">start_col</td>
+<td align="left">The first column of the table on the sheet (A=1,B=2...)</td>
+<td>N</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-definitions">Data definitions</h3>
+<p>The data definitions are purpose built to support the target table, but there are some elements that are common.  Some data definitions are closely related, so, to prevent duplication, the yaml reference/override notation is used (&amp; and *).  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Item</th>
+<th align="left">Purpose</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">source</td>
+<td align="left">local to reference local files; remote to pull data over internet. remote to pull data over internet. internal is used to create the table/sheet cross reference.</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">type</td>
+<td align="left">These codes are used by the program select the processing logic to use. md_acct - for accounts, md_bal for balances, md_iande_actl for income and expense sheets</td>
+<td>local</td>
+</tr>
+<tr>
+<td align="left">path</td>
+<td align="left">path relative to project folder</td>
+<td>for local sources</td>
+</tr>
+<tr>
+<td align="left">group</td>
+<td align="left">Specific Moneydance groupings to include</td>
+<td>Accounts, Balances</td>
+</tr>
+<tr>
+<td align="left">no_details_for</td>
+<td align="left">For these groupings create rows only at the grouping level, no details. Investments here means to summarize to the investment level and don't carry over the securities.</td>
+<td>Accounts</td>
+</tr>
+<tr>
+<td align="left">include_zeros</td>
+<td align="left">Accounts listed here will be carried over even if the balance is zero</td>
+<td>Accounts</td>
+</tr>
+<tr>
+<td align="left">tax_free_keys</td>
+<td align="left">Mark the accounts that are not subject to current income tax</td>
+<td>Accounts</td>
+</tr>
+<tr>
+<td align="left">site_code</td>
+<td align="left">BLS, or FEDREG. Used to determine which site to reference</td>
+<td>remote</td>
+</tr>
+<tr>
+<td align="left">api_key</td>
+<td align="left">If needed. A reference to the api_key which is stored in ./private/api_keys.yml</td>
+<td>remote</td>
+</tr>
+<tr>
+<td align="left">table</td>
+<td align="left">Defines how to locate a table in HTML</td>
+<td>remote</td>
+</tr>
+<tr>
+<td align="left">table.find_method</td>
+<td align="left">caption - only supported method</td>
+<td>remote</td>
+</tr>
+<tr>
+<td align="left">table.method_parameters</td>
+<td align="left">parameters for the method, specifically the text to search for in the caption.</td>
+<td>remote</td>
+</tr>
+</tbody>
+</table>
+<h3 id="specific-sheets-tables">Specific Sheets &amp; Tables</h3>
+<h4 id="inflation">Inflation</h4>
 <p>You may want to consider a different series.  The default is all items in U.S. city average, all urban consumers, not seasonally adjusted.</p>
-<h3 id="required-minimum-distributions">Required minimum distributions</h3>
+<h4 id="required-minimum-distributions">Required minimum distributions</h4>
 <p>At the time of writing the best source seems to be the Federal Register.  This does not need to edited unless the source changes.  </p>
-<h3 id="accounts">Accounts</h3>
+<h4 id="accounts">Accounts</h4>
 <p>The data section in the <code>setup.yaml</code> needs the following sub-sections:</p>
 <table>
 <thead>

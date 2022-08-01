@@ -405,7 +405,7 @@
 </tr>
 <tr>
 <td></td>
-<td>Work out an esitmate of the realized or unrealized gain for an account for a year for forecast. For actual, use the values from invest_actl</td>
+<td>For bank accounts and investments, return the realized or unrealized gain for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_actl. For bank account actuals use the row in iande defined by the 'bank_interest' value on the general (state) table</td>
 </tr>
 <tr>
 <td>get_val</td>
@@ -502,6 +502,14 @@
 <tr>
 <td></td>
 <td>Return the req minimum distribution table 1 result for a year for a given account, owner (gbd or vec) and year.. If death year is not given then this function treat this as spousal inheritance. If death year is given the treat this as a beneficiary inheritance</td>
+</tr>
+<tr>
+<td>rolling_avg</td>
+<td>Function rolling_avg(table As String, key As String, this_y_year As String, lookback As Integer) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Look back at previous columns and average the numeric values found there, ignoring non-numerics. Return the average</td>
 </tr>
 <tr>
 <td>simple_return</td>
