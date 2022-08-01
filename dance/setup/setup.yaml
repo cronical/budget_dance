@@ -81,7 +81,6 @@ sheets:
           - CHET
           - "529"
           - IRA
-
   balances:
     sheet_group: acct-bal
     tables:
@@ -398,7 +397,6 @@ sheets:
           end_year: 2021
           seriesid: 
           - CUUR0000SA0 # All items in U.S. city average, all urban consumers, not seasonally adjusted
-
   utility:
     sheet_group: tables
     tables:
