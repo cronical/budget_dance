@@ -7,7 +7,7 @@ The logic is to take the year on year delta (less the interest)
 
 import os
 import pandas as pd
-from util.tables import df_for_table_name
+from dance.util.tables import df_for_table_name
 
 
 def bank_cc_changes():

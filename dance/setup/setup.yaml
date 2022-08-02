@@ -239,6 +239,10 @@ sheets:
       columns:
       - name: Account
         width: 50
+      data:
+        source: local
+        type: md_transfers_actl
+        path: ./data/transfers.tsv
   invest_actl:
     sheet_group: actuals
     tables:
