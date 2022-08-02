@@ -2,6 +2,7 @@
 import pandas as pd
 from openpyxl.utils import get_column_letter
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
+from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
 from dance.util.files import tsv_to_df
 from dance.util.tables import this_row
 from dance.util.logs import get_logger
@@ -32,6 +33,9 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
   if data_info['type']=='md_iande_actl':
     df=read_iande_actl(data_info=data_info)
     df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
+  if data_info['type']=='md_transfers_actl':
+    df=read_transfers_actl(data_info=data_info)
+    df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
   return df,groups
 
 def filter_nz(df,include_zeros):

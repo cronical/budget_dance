@@ -146,7 +146,7 @@ def first_not_hidden(table_info):
 
 def write_table(wb,target_sheet,table_name,df,groups=None):
   '''Write the dataframe to the worksheet, including the columns,
-  add folding based on groups if given, and make into a table.
+  add folding based on groups if given, format numbers, and make into a table.
   Reads the config file to determine some values.
 
   args:
@@ -235,13 +235,13 @@ def columns_for_table(wb,sheet,table_name,config):
   '''Get the column definitions for a table based on the config
 
   args:
-    wb: the name of the workbook which may hold the correct first forecast year, 
+    wb: the name of the workbook which may hold the correct first forecast year,
       but if its not there, we get it from the config.
     sheet: the name of the sheet where the table is
     table_name: table name, like 'tbl_x_x'
     config: the config dict
 
-  returns: 
+  returns:
     A pandas dataframe with the name of the columns and attributes as columns
     The index can be used with an offset to locate the table on the worksheet.  The first index is zero.
 

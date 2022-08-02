@@ -4,22 +4,38 @@
 This handles creating nested account keys, groups and totals as well as the raw data.
 
 '''
-
+import argparse
 import pandas as pd
 import numpy as np
 
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
 
-from bank_actl_load import bank_cc_changes
-from dance.util.books import fresh_sheet
-from dance.util.files import  tsv_to_df
+from dance.bank_actl_load import bank_cc_changes
+from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
+from dance.util.files import  tsv_to_df,read_config
+from dance.util.tables import get_f_fcast_year,write_table,columns_for_table
+from dance.util.logs import get_logger
 
-def non_bank_transfers():
-  '''get the in and out flows for the non bank transfers, prepare the keys and return a dataframe'''
+logger=get_logger(__file__)
 
-  df=tsv_to_df ('data/transfers.tsv',skiprows=3)
+def read_transfers_actl(data_info):
+  '''  Read data from files into a dataframe
+
+  args:
+    data_info: dict that has a value for path used to locate the input file
+
+  returns: dataframe with index = the account key
+
+  raises:
+    FileNotFoundError: if the input file does not exist.
+  '''
+  input_file=data_info['path']
+  try:
+    df=tsv_to_df (input_file,skiprows=3)
+    logger.info('loaded dataframe from {}'.format(input_file))
+  except FileNotFoundError as e:
+    raise f'file not found {input_file}' from e
 
   df=df[~df['Account'].isnull()] #remove the blank rows
   df=df[~df['Account'].str.contains('TRANSFERS')] # remove the headings and totals
@@ -65,18 +81,40 @@ def non_bank_transfers():
     except ValueError:
       n=0
 
-  return df
-
-def process():
-  '''loads the transfers into the 'transfers_actl' tab'''
-  df=non_bank_transfers()
-
   # bring in the bank data
   bank_changes=bank_cc_changes()
 
   #combine the sets
   df =pd.concat([df,bank_changes])
 
+  return df
+
+def prepare_transfers_actl(workbook,df,f_fcast=None):
+  '''prepare the dataframe for insertion into workbook.
+  Handles category nesting as groups with subtotals.
+
+  args:
+    workbook: the name of the spreadsheet to load data into.
+    df: the dataframe that has basic clean up already done
+    f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
+
+  returns:
+    A dataframe and the groups (for folding)
+
+  raises:
+    FileNotFoundError: if workbook does not exist or the config file does not exist.
+    IndexError: if columns expected and received from data source do not match
+  '''
+  # get the workbook from file
+  try:
+    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+    logger.info('loaded workbook from {}'.format(workbook))
+    config=read_config()
+  except FileNotFoundError:
+    raise FileNotFoundError(f'file not found {workbook}') from None
+  if f_fcast is None:
+    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
+  logger.info ('First forecast year is: %s',f_fcast)
   #the parent accounts don't contain data.  Get a list of those
   parents=[]
   for _,row in df.iterrows():
@@ -86,34 +124,29 @@ def process():
 
   # summary adds the inbound and outbound transfers together
   summary=pd.pivot_table(df,index=['key'],values=df.columns[1:],aggfunc=np.sum)
+  target_sheet= 'transfers_actl'
+  tables=config['sheets'][target_sheet]['tables']
+  assert len(tables)==1,'not exactly one table defined'
+  tab_tgt=tables[0]['name']
+  cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
+  expected=set(cols_df.name)
+  data_has=set(df.columns)
+  if data_has != expected:
+    msg='Columns expect does not match data source for {}'.format(tab_tgt)
+    logger.error(msg)
+    logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected-data_has,data_has-expected))
+    raise IndexError(msg)
 
-  #prepare target file
-  source='data/fcast.xlsm'
-  target = source
-  sheet= 'transfers_actl'
-  tab_tgt='tbl_transfers_actl'
-
-  wb = load_workbook(filename = source, read_only=False, keep_vba=True)
-
-  wb=fresh_sheet(wb,sheet)
-  ws = wb[sheet]
-
-  #copy the data in to file and make adjustments to the file
-  cols=list(range(0,summary.shape[1]))
-  # set up the columns
-  ws.cell(1,1,value='Account')
-  for cl in cols:
-    val=summary.columns[cl]
-    ws.cell(1,cl+2,value=val)
   groups=[] # level, start, end
   #keep track of nesting of accounts
   heir=[]
   stot=[]
-  rw=0 # add 2 for row is in excel
-  xl_off=2
+  rw=0 
+  xl_off=3 # offset for row is in excel TODO use config variable
   keys=summary.index
   level=[x.count(':')for x in keys.tolist()]
   next_level=level[1:]+[0]
+  gr_df=pd.DataFrame([],columns=summary.columns) # a new dataframe with the groups and subtotals
   for ky in keys:
     # if they key or any of its parts an exact match to one of the parents then we defer writing it
     if all([x in parents for x in ky.split(':')]) :
@@ -125,10 +158,11 @@ def process():
       xl_row=rw+xl_off-pending
 
       #write the values from this row
-      data_row=summary.loc[ky]
-      ws.cell(xl_row,1,value=ky)
-      for cl in cols:
-        ws.cell(xl_row,cl+2,value=-data_row[cl])
+      data_row=summary.loc[[ky]]
+      gr_df=pd.concat([gr_df,data_row])
+#      ws.cell(xl_row,1,value=ky) TODO remove these lines
+#      for cl in cols:
+#        ws.cell(xl_row,cl+2,value=-data_row[cl])
 
       #process subtotals if there are any
       if pending>0:
@@ -148,12 +182,15 @@ def process():
           xl_start_row= stot_row - nr_items_to_st
 
           # insert the label and the formulas
-          ws.cell(stot_row,1,value=heir[-1] + ' - TOTAL')
-          for cl in cols:
+          formulas=[]
+          #ws.cell(stot_row,1,value=heir[-1] + ' - TOTAL')
+          for cl in range(gr_df.shape[1]):
             let=get_column_letter(cl+2)
             formula='=subtotal(9,{}{}:{}{})'.format(let,xl_start_row,let,stot_row-1)
-            ws.cell(stot_row,cl+2,value=formula)
-
+            formulas.append(formula)
+            #ws.cell(stot_row,cl+2,value=formula)
+          st_df=pd.DataFrame([formulas],columns=gr_df.columns,index=[heir[-1] + ' - TOTAL'])
+          gr_df=pd.concat([gr_df,st_df])
           # capture the grouping info
           groups.append([level[rw]-(adj_row-1),xl_start_row,stot_row-1])
 
@@ -166,17 +203,6 @@ def process():
           if len(stot)>0:
             stot[-1]=stot[-1]+nr_items_to_st+1
     rw=rw+1
-
-
-  # set the label column width
-  ws.column_dimensions['A'].width = 45
-
-  # run through all rows and format numbers
-  rows=list(range(0,rw))
-  for rw in rows:
-    #for all cells apply formats
-    for cl in cols:
-      ws.cell(column=cl+2,row=rw+2).number_format='#,###,##0;-#,###,##0;'-''
 
   # sort the row groups definitions: highest level to lowest level
   def getlev (e):
@@ -193,25 +219,23 @@ def process():
       hist[x]=hist[x]+1
 
   groups.sort(key=getlev)
-
-  for grp in groups:
-    ws.row_dimensions.group(start=grp[1],end=grp[2],outline_level=grp[0])
-
-
-
-  # make this into a table
-  rng=ws.dimensions
-  tab = Table(displayName=tab_tgt, ref=rng)
-
-  # Add a builtin style with striped rows and banded columns
-  # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
-  # The number seems to be the index in that list (top to bottom, left to right, origin 1)
-  style = TableStyleInfo(name='TableStyleMedium7',  showRowStripes=True)
-  tab.tableStyleInfo = style
-
-  ws.add_table(tab)
-
-  wb.save(target)
+  gr_df=gr_df.reset_index()
+  gr_df.rename(columns={'index':'Account'},inplace=True)
+  return gr_df,groups
 
 if __name__ == '__main__':
-  process()
+  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "transfers_actl". ')
+  parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--path','-p',default= 'data/transfers.tsv',help='The path and name of the input file')
+  parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
+  args=parser.parse_args()
+  df=read_transfers_actl(data_info={'path':args.path})
+  transfers_actl,fold_groups=prepare_transfers_actl(args.workbook,df)
+  sheet='transfers_actl'
+  table='tbl_'+args.sheet
+  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb=fresh_sheet(wkb,args.sheet)
+  wkb= write_table(wkb,target_sheet=args.sheet,df=transfers_actl,table_name=table,groups=fold_groups)
+  attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
+  wkb=set_col_attrs(wkb,args.sheet,attrs)
+  wkb.save(args.workbook)

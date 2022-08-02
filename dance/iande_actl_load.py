@@ -94,7 +94,7 @@ def indent_other(str):
     return '   '+str
 
 def read_iande_actl(data_info):
-  '''  Read data from 'data/iande.tsv' into a dataframe
+  '''  Read data from file into a dataframe
 
   args:
     data_info: dict that has a value for path used to locate the input file
@@ -245,7 +245,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
       df['Y{}'.format(y)]=None
 
   cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
-
   expected=set(cols_df.name)
   data_has=set(df.columns)
   if data_has != expected:
