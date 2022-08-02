@@ -182,17 +182,17 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   df['Key']=None # build up the keys by including parents
   last_level=-1
+  pathparts=[]
+  pathpart=None
   for ix,row in df[['level','Account']].iterrows():
     lev=row['level']
-    if 0==lev:
-      pathparts=[]
-    else:
-      if lev > last_level:
-        pathparts.append(row['Account'].strip())
-      if lev < last_level:
-        pathparts=pathparts[:-1]
+    if lev > last_level and pathpart is not None:
+      pathparts.append(pathpart)
+    if lev < last_level:
+      pathparts=pathparts[:-1]
+    pathpart=row['Account'].strip()
     a=pathparts.copy()
-    a.append(row['Account'].strip())
+    a.append(pathpart)
     key=':'.join(a)
     df.loc[ix,'Key']=key
     last_level=lev
