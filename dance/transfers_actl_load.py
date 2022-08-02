@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-'''For actual years, loads the non-bank transfers into the 'transfers_actl' tab
+'''For actual years, loads the bank, credit card and non-bank transfers into the 'transfers_actl' tab
 
 This handles creating nested account keys, groups and totals as well as the raw data.
 
@@ -68,7 +68,7 @@ def non_bank_transfers():
   return df
 
 def process():
-  '''loads the non-bank transfers into the 'transfers_actl' tab'''
+  '''loads the transfers into the 'transfers_actl' tab'''
   df=non_bank_transfers()
 
   # bring in the bank data
