@@ -197,7 +197,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
         cix=table_start_col+cx
         ws.cell(row=ix+table_start_row+1,column=cix).value=values[cn]
         if cn.startswith('Y'):
-          ws.cell(row=ix+table_start_row+1,column=cix).number_format='#,###,##0;-#,###,##0;"-"' # hyphens for zeros on other lines
+          fin_format='#,###,##0?;(#,###,##0);"-"?' 
+          ws.cell(row=ix+table_start_row+1,column=cix).number_format=fin_format
 
   if groups is not None: # the folding groups
     # set up the row groups highest level to lowest level
