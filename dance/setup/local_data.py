@@ -244,8 +244,11 @@ def prepare_account_tab(data_info, in_df):
   source_tabs=['tbl_transfers_actl','tbl_invest_actl']# actuals are sourced from this, (depends on account type)
   df['Actl_source_tab']= [source_tabs[x=='I']for x in df.Type.tolist()]
   df['Fcst_source']='zero' # a default, but should be changed by user
+  df['Fcst_source_tab']=None
+  df['Notes']=None
   del df['is_total']
   del df['level']
+  del df['Current Balance']
   return df
 
 def prepare_balance_tab(years,first_forecast,in_df):
