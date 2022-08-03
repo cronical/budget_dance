@@ -89,6 +89,17 @@ def read_transfers_actl(data_info):
 
   return df
 
+def negate(value):
+  '''negate numeric values, otherwise leave the same
+  args:
+    value: number or string
+  returns:
+    the same as input, but numbers are negated.
+  '''
+  if isinstance(value,str):
+    return value
+  return value * -1
+
 def prepare_transfers_actl(workbook,df,f_fcast=None):
   '''prepare the dataframe for insertion into workbook.
   Handles category nesting as groups with subtotals.
@@ -127,7 +138,8 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   target_sheet= 'transfers_actl'
   tables=config['sheets'][target_sheet]['tables']
   assert len(tables)==1,'not exactly one table defined'
-  tab_tgt=tables[0]['name']
+  table_info=tables[0]
+  tab_tgt=table_info['name']
   cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
   expected=set(cols_df.name)
   data_has=set(df.columns)
@@ -141,8 +153,13 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   #keep track of nesting of accounts
   heir=[]
   stot=[]
-  rw=0 
-  xl_off=3 # offset for row is in excel TODO use config variable
+  rw=0
+  key_values={'title_row':1,'start_col':1,'include_years':False}
+  for k in key_values:   #take specified or default items
+    if k in table_info:
+      key_values[k]=table_info[k]
+
+  xl_off=key_values['title_row']+1
   keys=summary.index
   level=[x.count(':')for x in keys.tolist()]
   next_level=level[1:]+[0]
@@ -159,11 +176,8 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
 
       #write the values from this row
       data_row=summary.loc[[ky]]
+      data_row=data_row.apply(negate)
       gr_df=pd.concat([gr_df,data_row])
-#      ws.cell(xl_row,1,value=ky) TODO remove these lines
-#      for cl in cols:
-#        ws.cell(xl_row,cl+2,value=-data_row[cl])
-
       #process subtotals if there are any
       if pending>0:
         stot[-1]=stot[-1]+1 # include the row we just wrote in the subtotal
@@ -183,12 +197,10 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
 
           # insert the label and the formulas
           formulas=[]
-          #ws.cell(stot_row,1,value=heir[-1] + ' - TOTAL')
           for cl in range(gr_df.shape[1]):
-            let=get_column_letter(cl+2)
+            let=get_column_letter(cl+key_values['start_col']+1)# data has the years, account is in index now but it becomes the A column.
             formula='=subtotal(9,{}{}:{}{})'.format(let,xl_start_row,let,stot_row-1)
             formulas.append(formula)
-            #ws.cell(stot_row,cl+2,value=formula)
           st_df=pd.DataFrame([formulas],columns=gr_df.columns,index=[heir[-1] + ' - TOTAL'])
           gr_df=pd.concat([gr_df,st_df])
           # capture the grouping info
