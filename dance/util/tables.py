@@ -1,7 +1,7 @@
 '''Utilities dealing with worksheet tables.'''
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Font, Alignment
 from openpyxl.utils import get_column_letter
 
 import openpyxl.utils.cell
@@ -187,18 +187,26 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   table_start_row=key_values['title_row']+1 # the heading of the table (normally excel row 2 )
   table_start_col=key_values['start_col']
 
+  col_defs=pd.DataFrame(table_info['columns']).set_index('name') # column name is index, attributes are columns
+
   # Place the headings
   for cx,cn in enumerate( df.columns):
     ws.cell(table_start_row,column=table_start_col+cx).value=cn
   # place the values
-  for ix,values in df.iterrows(): # the indexes start at zero and the data values
+  for ix,values in df.iterrows(): # the indexes (starting at zero), and the data values
     for cx,cn in enumerate( df.columns):
       if cn in values:
+        rix=ix+table_start_row+1
         cix=table_start_col+cx
-        ws.cell(row=ix+table_start_row+1,column=cix).value=values[cn]
+        ws.cell(row=rix,column=cix).value=values[cn]
         if cn.startswith('Y'):
-          fin_format='#,###,##0?;(#,###,##0);"-"?' 
-          ws.cell(row=ix+table_start_row+1,column=cix).number_format=fin_format
+          fin_format='#,###,##0?;(#,###,##0);"-"?'
+          ws.cell(row=rix ,column=cix).number_format=fin_format
+        if 'horiz' in col_defs.columns:
+          horiz=col_defs.loc[cn].horiz
+          if pd.notna(horiz):
+            ws.cell(row=rix,column=cix).alignment = Alignment(horizontal=horiz)
+
 
   if groups is not None: # the folding groups
     # set up the row groups highest level to lowest level
