@@ -131,7 +131,29 @@ Sub calc_retir()
     Application.Calculation = xlCalculationAutomatic
 
 End Sub
+Sub calc_table()
+'Testing forced calc of table
+    Dim rcols As Range, rcell As Range
+    Dim tbl As ListObject
+    Dim tbl_name As String
+    Dim ws_name As String
+    Dim msg As String
+    log ("-----------------------------")
+    log ("Entering manual calculation mode.")
+    Application.Calculation = xlCalculationManual
+    tbl_name = "tbl_balances"
+    ws_name = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
 
+    
+    tbl.Range.Dirty
+    tbl.Range.Calculate
+    log (tbl_name & " refreshed.")
+    log ("Entering automatic calculation mode.")
+    log ("-----------------------------")
+    Application.Calculation = xlCalculationAutomatic
+
+End Sub
 Function age_of(inits As String, y_year As String) As Integer
 'return the age attained by an account owner in a given year
     Dim dob As Date, eoy As Date
@@ -274,7 +296,7 @@ Function sort_tax_table()
     Dim year_column As Range, range_column As Range
     Set year_column = Range(tbl_name & "[Year]")
     Set range_column = Range(tbl_name & "[Range]")
-    With tbl.Sort
+    With tbl.sort
        .SortFields.Clear
        .SortFields.Add key:=year_column, SortOn:=xlSortOnValues, Order:=xlAscending
        .SortFields.Add key:=range_column, SortOn:=xlSortOnValues, Order:=xlAscending
@@ -348,8 +370,8 @@ Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean
 'ignoring the optional is_fcst argument - instead: compute it
     Dim line As String, tbl As String, prefix As String
     is_fcst = is_forecast(y_year)
-    prefix = "actl"
-    If is_fcst Then prefix = "fcst"
+    prefix = "Actl"
+    If is_fcst Then prefix = "Fcst"
     add_wdraw = 0
     acct_type = get_val(acct, "tbl_accounts", "Type")
     tbl = get_val(acct, "tbl_accounts", prefix & "_source_tab")
@@ -453,7 +475,7 @@ Function retir_parm(code As String, who As String) As Variant
     With ThisWorkbook.Worksheets(sht)
         Set rng = .Range("Table3[code]")
         rw = Application.WorksheetFunction.Match(code, rng, False)
-        rw = rw + rng.Row - 1
+        rw = rw + rng.row - 1
         s = sht & "!" & .Cells(rw, cl).Address
         v = .Range(s)
         retir_parm = v
@@ -607,7 +629,5 @@ Else
     rolling_avg = 0
 End If
 End Function
-
-
 
 

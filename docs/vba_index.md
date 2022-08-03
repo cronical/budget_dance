@@ -12,6 +12,8 @@
 ||Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
 |calc_retir|Sub calc_retir()|
 ||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande|
+|calc_table|Sub calc_table()|
+||Testing forced calc of table|
 |d2s|Function d2s(dt As Date) As String|
 |||
 |endbal|Function endbal(acct As String, y_year As String) As Variant|

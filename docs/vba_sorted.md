@@ -17,8 +17,8 @@ Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean
 'ignoring the optional is_fcst argument - instead: compute it
     Dim line As String, tbl As String, prefix As String
     is_fcst = is_forecast(y_year)
-    prefix = "actl"
-    If is_fcst Then prefix = "fcst"
+    prefix = "Actl"
+    If is_fcst Then prefix = "Fcst"
     add_wdraw = 0
     acct_type = get_val(acct, "tbl_accounts", "Type")
     tbl = get_val(acct, "tbl_accounts", prefix & "_source_tab")
@@ -112,6 +112,30 @@ Sub calc_retir()
             log ("Calculated " & msg & " for " & rcell.value)
          End If
     Next rcell
+    log ("Entering automatic calculation mode.")
+    log ("-----------------------------")
+    Application.Calculation = xlCalculationAutomatic
+
+End Sub
+
+Sub calc_table()
+'Testing forced calc of table
+    Dim rcols As Range, rcell As Range
+    Dim tbl As ListObject
+    Dim tbl_name As String
+    Dim ws_name As String
+    Dim msg As String
+    log ("-----------------------------")
+    log ("Entering manual calculation mode.")
+    Application.Calculation = xlCalculationManual
+    tbl_name = "tbl_balances"
+    ws_name = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
+
+    
+    tbl.Range.Dirty
+    tbl.Range.Calculate
+    log (tbl_name & " refreshed.")
     log ("Entering automatic calculation mode.")
     log ("-----------------------------")
     Application.Calculation = xlCalculationAutomatic
