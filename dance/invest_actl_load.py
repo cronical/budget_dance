@@ -1,45 +1,51 @@
 #! /usr/bin/env python
 '''
-Update the tab 'invest_actl'
+Update the table 'tbl_invest_actl'
 '''
+import argparse
 import os
 from dateutil.parser import parse
 from openpyxl import load_workbook
-from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
 
-from dance.util.files import tsv_to_df
-from dance.util.tables import df_for_table_name
-from dance.util.books import fresh_sheet
-from util.logs import get_logger
+from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
+from dance.util.files import tsv_to_df, read_config
+from dance.util.tables import df_for_table_name, write_table
+from dance.util.logs import get_logger
 
-def process():
+logger=get_logger(__file__)
+def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
+  '''  Read investment actual data from files into a dataframe
+
+  args:
+    workbook: name of the workbook (to get the accounts data from)
+    data_info: dict that has a value for path used to locate the input file
+    table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
+
+  returns: dataframe with 3 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls)
+
+  raises:
+    FileNotFoundError: if the input file does not exist.
   '''
-  Read data from 'data/xinvest.tsv' and performance reports
-  merge and manipulate before writing to 'data/fcst.xlsm'
-  '''
-  logger=get_logger(__file__)
-  source='data/fcast.xlsm'
-  target = source
-  xfer_file='data/invest_x.tsv'
-  perf_file_prefix='invest-p-'
-  datadir='./data/'
-  sheet='invest_actl'
-  tab_tgt='tbl_invest_actl'
-  tab_style='TableStyleMedium7'
-  # The styles are seen on the table tab in excel broken into Light, Medium and Dark.
-  # The number seems to be the index in that list (top to bottom, left to right, origin 1)
+  input_file=data_info['path']
+  try:
+    df=tsv_to_df (input_file,skiprows=3)
+    logger.info('loaded dataframe from {}'.format(input_file))
+  except FileNotFoundError as e:
+    raise f'file not found {input_file}' from e
+  xfer_file=data_info['path']
+  perf_file_prefix=data_info['file_set']['prefix']
+  datadir=data_info['file_set']['base_path']
 
   logger.info('Starting investment actual load')
 
   # get the account list
-  accounts=df_for_table_name('tbl_accounts')
+  accounts=df_for_table_name(table_name='tbl_accounts',workbook=workbook,table_map=table_map)
   accounts=accounts[accounts.Type == 'I']
 
   # get the output of the Moneydance report
   df=tsv_to_df (xfer_file,skiprows=3)
   df.dropna(axis=0,how='any',inplace=True)
-  df=df[df['Account'].str.contains('TRANSFERS') is False]
+  df=df.loc[~df.Account.str.contains('TRANSFERS')]
   df=df.groupby('Account').sum() # add the ins and outs
   df=df.mul(-1)# fix the sign
   df.index=df.index.str.strip() # remove leading spaces
@@ -57,7 +63,7 @@ def process():
       #grab the year from the file name
       fn_year = file_name.split('.')[0].split('-')[-1]
       perf_file=datadir+file_name
-      logger.info('Processing %s'%fn_year)
+      logger.info('Processing %s',fn_year)
       # now work with the performance data for a year
       df=tsv_to_df (perf_file,skiprows=3)
       # first check to see if the year is valid and its a full year
@@ -94,7 +100,6 @@ def process():
       # append the transfers
       df=df.join(xfers[fn_year])
       df.rename(columns={fn_year:'Transfers'},inplace=True)
-
       # compute the two gain fields
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
       df=df.assign(Unrealized=lambda x: x.End - (x.Open+x.Transfers+x.Realized))
@@ -114,40 +119,26 @@ def process():
       else:
         table=table.join(rows[rows.columns.to_list()[-1]])
       file_cnt=file_cnt+1
-
-  # put the data into the spreadsheet
+    # put the data into the spreadsheet
   table.reset_index(inplace=True) # puts the key back into 1st column
-  wb = load_workbook(filename = source, read_only=False, keep_vba=True)
-  logger.info('Loaded workbook from {}'.format(source))
-  wb=fresh_sheet(wb,sheet)
-  ws=wb[sheet]
-  cols=list(range(0,table.shape[1]))
-  # for set heading values for columns
-  for cl in list(range(0,table.shape[1])):
-    ws.cell(1,cl+1,value=table.columns[cl])
-  # the data items
-  for rw in list(range(0,table.shape[0])):
-    for cl in cols:
-      val=table.loc[table.index[rw]][cl]
-      ws.cell(rw+2,cl+1,value=val)
+  return table
 
-  # set the column widths
-  w=[35, 20, 25] +[15]*(table.shape[1]-3)
-  for i in list(range(0,len(w))):
-    ws.column_dimensions[get_column_letter(1+i)].width=w[i]
-
-  # make the range a table in Excel
-  rng=ws.dimensions
-  tab = Table(displayName=tab_tgt, ref=rng)
-
-  # Add a builtin style with striped rows and banded columns
-  style = TableStyleInfo(name=tab_style,  showRowStripes=True)
-  tab.tableStyleInfo = style
-  ws.add_table(tab)
-  logger.info('Table {} added'.format(tab_tgt))
-
-  wb.save(target)
-  logger.info('Saved to {}'.format(target))
 
 if __name__ == '__main__':
-  process()
+  parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
+  parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--path','-p',default= 'invest_x.tsv',help='The path and name of the input file')
+  parser.add_argument('--base_path','-b',default= 'data/',help='The base path for the performance reports')
+  parser.add_argument('--prefix','-x',default= 'invest-p-',help='The prefix used to locate the performance reports')
+
+  args=parser.parse_args()
+  invest_actl=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path':args.path,
+    'file_set':{'base_path':args.base_path,'prefix':args.prefix}})
+  sheet='invest_actl'
+  table='tbl_'+args.sheet
+  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb=fresh_sheet(wkb,args.sheet)
+  wkb= write_table(wkb,target_sheet=args.sheet,df=invest_actl,table_name=table)
+  attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
+  wkb=set_col_attrs(wkb,args.sheet,attrs)
+  wkb.save(args.workbook)

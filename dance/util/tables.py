@@ -34,13 +34,14 @@ def ws_for_table_name(table_map=None,table_name=None):
 
   return table_map.loc[table_name,'Worksheet']
 
-def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False):
+def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False,table_map=None):
   '''Opens the file, and extracts a table as a Pandas dataframe
 
   args:
     table_name:
     workbook:
     data_only:
+    table_map: in case the utility tab is not yet available, provide a dict mapping tables to worksheets
 
   returns: a dataFrame with the first column as the dataframe index
 
@@ -50,9 +51,13 @@ def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=Fals
   '''
   try:
     wb = load_workbook(filename = workbook, read_only=False, keep_vba=True, data_only=data_only)
-    ws=wb['utility']
-    ref=ws.tables['tbl_table_map'].ref
-    table_map = df_for_range(worksheet=ws,range_ref=ref)
+    if table_map is None:
+      ws=wb['utility']
+      ref=ws.tables['tbl_table_map'].ref
+      table_map = df_for_range(worksheet=ws,range_ref=ref)
+    else: # convert working form to stored form
+      table_map=pd.DataFrame([(k,v) for k,v in table_map.items()],columns=['Table','Worksheet'])
+      table_map.set_index('Table',inplace=True)
     ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
     ws=wb[ws_name]
     table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)

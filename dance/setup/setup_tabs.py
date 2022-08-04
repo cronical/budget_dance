@@ -126,7 +126,7 @@ def refresh_sheets(target_file,overwrite=False):
             data=remote_data.request(data_info)
             logger.info('pulled data from remote')
           if source=='local':
-            data,groups=read_data(data_info,years,ffy,target_file=target_file)
+            data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map)
           if isinstance(data,dict):
             data=pd.DataFrame([(k,v) for k,v in data.items()],columns=df.name)
           if isinstance(data,list):

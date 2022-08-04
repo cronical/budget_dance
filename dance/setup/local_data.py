@@ -3,12 +3,13 @@ import pandas as pd
 from openpyxl.utils import get_column_letter
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
 from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
+from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.util.files import tsv_to_df
 from dance.util.tables import this_row
 from dance.util.logs import get_logger
 logger=get_logger(__file__)
 
-def read_data(data_info,years=None,ffy=None,target_file=None):
+def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
   '''Read data and prepare datafor various tabs and prepare it for insertion into the workbook.
   Uses the type value in data_info to determine what to do.
 
@@ -17,6 +18,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
     years: Some types require additional info such as the years for the column.
     ffy: first forecast year as integer
     target_file: supports the case when there is a need to look at previously written worksheets
+    table_map: a dict mapping tables to worksheets, if it has not already been stored in the target file.
 
   returns: dataframe with columns specific to the type and groups (which may be None)
 
@@ -36,6 +38,8 @@ def read_data(data_info,years=None,ffy=None,target_file=None):
   if data_info['type']=='md_transfers_actl':
     df=read_transfers_actl(data_info=data_info)
     df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
+  if data_info['type']=='md_invest_actl':
+    df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
   return df,groups
 
 def filter_nz(df,include_zeros):
