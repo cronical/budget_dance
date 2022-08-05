@@ -32,7 +32,7 @@ def read_transfers_actl(data_info):
   '''
   input_file=data_info['path']
   try:
-    df=tsv_to_df (input_file,skiprows=3)
+    df=tsv_to_df (input_file,skiprows=3,nan_is_zero=False)
     logger.info('loaded dataframe from {}'.format(input_file))
   except FileNotFoundError as e:
     raise f'file not found {input_file}' from e
@@ -71,6 +71,7 @@ def read_transfers_actl(data_info):
   # put the keys into the df and make that the index
   df['key']=keys
   df.set_index('key',inplace=True)
+  del df ['Account'] # its in the key
 
   # change the year columns to Y+year format
   for cn in df.columns.values.tolist():
@@ -81,24 +82,25 @@ def read_transfers_actl(data_info):
     except ValueError:
       n=0
 
+  # The parent accounts don't contain data.  Get a list of those
+  parents=pd.unique(df.loc[df.isnull().all(axis=1)].index)
+
+  # summary adds the inbound and outbound transfers together
+  summary=pd.pivot_table(df,index=['key'],values=df,aggfunc=np.sum)
+  summary=summary.mul(-1)
+
+  # mark the parent rows, since the sum function turns their values into zeros
+  summary.loc[summary.index.isin(parents),summary.columns]=np.nan
+
   # bring in the bank data
   bank_changes=bank_cc_changes()
+  del bank_changes['Account'] # account is in key
 
   #combine the sets
-  df =pd.concat([df,bank_changes])
-
+  df =pd.concat([summary,bank_changes])
+  df.sort_index(inplace=True)
+  #df=df.reset_index().rename(columns={'key':'Account'})
   return df
-
-def negate(value):
-  '''negate numeric values, otherwise leave the same
-  args:
-    value: number or string
-  returns:
-    the same as input, but numbers are negated.
-  '''
-  if isinstance(value,str):
-    return value
-  return value * -1
 
 def prepare_transfers_actl(workbook,df,f_fcast=None):
   '''prepare the dataframe for insertion into workbook.
@@ -123,60 +125,47 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
     config=read_config()
   except FileNotFoundError:
     raise FileNotFoundError(f'file not found {workbook}') from None
-  if f_fcast is None:
-    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
-  logger.info ('First forecast year is: %s',f_fcast)
-  #the parent accounts don't contain data.  Get a list of those
-  parents=[]
-  for _,row in df.iterrows():
-    if not ':' in row.Account:
-      if all([0==x for x in row.to_list()[1:]]):
-        parents.append(row.Account.strip())
 
-  # summary adds the inbound and outbound transfers together
-  summary=pd.pivot_table(df,index=['key'],values=df.columns[1:],aggfunc=np.sum)
+  # validate only one table
   target_sheet= 'transfers_actl'
   tables=config['sheets'][target_sheet]['tables']
   assert len(tables)==1,'not exactly one table defined'
   table_info=tables[0]
-  tab_tgt=table_info['name']
-  cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
-  expected=set(cols_df.name)
-  data_has=set(df.columns)
-  if data_has != expected:
-    msg='Columns expect does not match data source for {}'.format(tab_tgt)
-    logger.error(msg)
-    logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected-data_has,data_has-expected))
-    raise IndexError(msg)
+
+  # set defaults
+  if f_fcast is None:
+    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
+  logger.info ('First forecast year is: %s',f_fcast)
+  key_values={'title_row':1,'start_col':1,'include_years':False}
+  for k in key_values:   #take specified or default items
+    if k in table_info:
+      key_values[k]=table_info[k]
+
+  # The parent accounts don't contain data.  Get a list of those
+  parents=list(df.loc[df[df.columns[1:]].isnull().all(axis=1)].index)
 
   groups=[] # level, start, end
   #keep track of nesting of accounts
   heir=[]
   stot=[]
   rw=0
-  key_values={'title_row':1,'start_col':1,'include_years':False}
-  for k in key_values:   #take specified or default items
-    if k in table_info:
-      key_values[k]=table_info[k]
-
   xl_off=key_values['title_row']+1
-  keys=summary.index
+  keys=df.index
   level=[x.count(':')for x in keys.tolist()]
   next_level=level[1:]+[0]
-  gr_df=pd.DataFrame([],columns=summary.columns) # a new dataframe with the groups and subtotals
+  gr_df=pd.DataFrame([],columns=df.columns) # a new dataframe with the groups and subtotals
   for ky in keys:
-    # if they key or any of its parts an exact match to one of the parents then we defer writing it
-    if all([x in parents for x in ky.split(':')]) :
+    # if the key or any of its parts an exact match to one of the parents then we defer writing it
+    if any([x==ky for x in parents]): #  TODO all([x in parents for x in ky.split(':')]) :
       heir.append(ky)# the key and the subtotal count
       stot.append(0)
     else:
       #determine how far back to look for the subtotal
       pending=len(heir)
-      xl_row=rw+xl_off-pending
+      xl_row=1+rw+xl_off-pending
 
       #write the values from this row
-      data_row=summary.loc[[ky]]
-      data_row=data_row.apply(negate)
+      data_row=df.loc[[ky]]
       gr_df=pd.concat([gr_df,data_row])
       #process subtotals if there are any
       if pending>0:
@@ -233,6 +222,18 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   groups.sort(key=getlev)
   gr_df=gr_df.reset_index()
   gr_df.rename(columns={'index':'Account'},inplace=True)
+
+  # validate columns (after we move Account from index to columns)
+  tab_tgt=table_info['name']
+  cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
+  expected=set(cols_df.name)
+  data_has=set(gr_df.columns)
+  if data_has != expected:
+    msg='Columns expected does not match data source for {}'.format(tab_tgt)
+    logger.error(msg)
+    logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected-data_has,data_has-expected))
+    raise IndexError(msg)
+
   return gr_df,groups
 
 if __name__ == '__main__':

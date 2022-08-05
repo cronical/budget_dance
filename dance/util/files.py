@@ -5,7 +5,7 @@ import pandas as pd
 
 from dance.util.logs import get_logger
 
-def tsv_to_df(filename,sep='\t',skiprows=0):
+def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True):
   '''Grab the data from a Moneydance report and return a Pandas DataFrame.
 
   Typically the file has tab separated fields.
@@ -14,6 +14,7 @@ def tsv_to_df(filename,sep='\t',skiprows=0):
     filename: The name of the file to read.
     sep: The field separator, default is tab.
     skiprows: the number of rows to skip at the start of the file.  Default is 0.
+    nan_is_zero: whether to fill NaN values with zeros.  Default True.
 
   Returns: A data frame with numbers converted to floats and dates as datetime.
 
@@ -29,7 +30,8 @@ def tsv_to_df(filename,sep='\t',skiprows=0):
   cols=df.columns
   for col in cols[1:]:
     if col != 'Date' and col != 'Notes':
-      df.loc[:,col]=df[col].fillna(value='0.00')
+      if nan_is_zero:
+        df.loc[:,col]=df[col].fillna(value='0.00')
       df.loc[:,col]=df[col].str.replace(r'\$','',regex=True)
       df.loc[:,col]=df[col].str.replace('--','0.00') # occurs in performance report
       df.loc[:,col]=df[col].str.replace('None','0.00') # occurs in performance report

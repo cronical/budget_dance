@@ -64,7 +64,6 @@ def bank_cc_changes():
   for col in cols:
     adj=changes.loc['Bank Accounts',col]-iande_actl.loc['Income:I:Invest income:Int:Bank',col]
     changes.loc['Bank Accounts',col]=adj
-    changes.loc['Credit Cards',col]=-changes.loc['Credit Cards',col]
 
   return changes
 

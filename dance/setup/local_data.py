@@ -86,7 +86,7 @@ def read_accounts(data_info):
   include_zeros.update(groups)# add groups to the include zeros list
   g_totals=[g+' - Total' for g in groups]
 
-  df=tsv_to_df(data_info['path'],skiprows=3)
+  df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False)
   logger.info('{} rows read'.format(len(df)))
   df=df.dropna(how='any',subset='Account') # remove blank rows
   df.reset_index(drop=True,inplace=True)
