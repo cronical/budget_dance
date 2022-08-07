@@ -44,26 +44,22 @@ def bank_cc_changes():
 
   changes=pd.DataFrame(index=rows)
 
-  #for cix in range(1,len(cols)):
-  #  changes[cols[cix]]=balances.apply(lambda x: x[cols[cix]] - x[cols[cix-1]], axis = 1)
-
   for cix,col_name in enumerate(cols):
     if cix >0:
       changes[col_name]= balances[col_name]-last_col
     last_col=balances[col_name]
 
-  changes.insert(loc=0,column='Account',value=rows)
-  changes.insert(loc=0,column='key',value=rows)
-  changes.set_index('key',inplace=True)
-
   # So far we have the change in account value, but part of that comes from bank interest
   # so remove those amounts.
-  # and while we are in here credit cards need a change of sign
+
   iande_actl=df_for_table_name('tbl_iande_actl')
-  cols=changes.columns[1:] # the year numbers
+  cols=changes.columns # the year numbers
   for col in cols:
     adj=changes.loc['Bank Accounts',col]-iande_actl.loc['Income:I:Invest income:Int:Bank',col]
     changes.loc['Bank Accounts',col]=adj
+
+  # and fix the sign
+  # changes=changes.mul(-1)
 
   return changes
 

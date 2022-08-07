@@ -220,8 +220,11 @@ def read_balances(data_info,target_file):
   bal_df=read_accounts(data_info)
   acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
   if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
+
     raise ValueError('Balance account(s) are not all in the Accounts table')
   logger.info('All balance accounts are in the accounts table.')
+  bal_df=acct_df[['Account']].merge(bal_df[['Account','Current Balance']],on='Account',how='left').fillna(value=0)
+
   return bal_df
 
 def prepare_account_tab(data_info, in_df):
@@ -280,7 +283,7 @@ def prepare_balance_tab(years,first_forecast,in_df):
   actl_formulas={
     'Rate':'=simple_return( %s,{}$2)' % (acct_ref),
     'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{}$2)' % (acct_ref),
-    'Add/Wdraw':'=-add_wdraw( %s,{}$2)' % (acct_ref),
+    'Add/Wdraw':'=add_wdraw( %s,{}$2)' % (acct_ref),
     'Rlz Int/Gn':'=@gain( %s,{}$2,TRUE)' % (acct_ref),
     'Unrlz Gn/Ls':'=@gain( %s,{}$2,FALSE)' % (acct_ref),
     'End Bal': '=@endbal( %s,{}$2)'  % (acct_ref) }

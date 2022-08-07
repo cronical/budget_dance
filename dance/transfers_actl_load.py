@@ -94,8 +94,7 @@ def read_transfers_actl(data_info):
 
   # bring in the bank data
   bank_changes=bank_cc_changes()
-  del bank_changes['Account'] # account is in key
-
+  
   #combine the sets
   df =pd.concat([summary,bank_changes])
   df.sort_index(inplace=True)

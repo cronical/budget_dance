@@ -221,6 +221,10 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   test_required_lines(df,workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
 
+  if target_sheet=='iande': # adjust for iande, adding columns
+    for y in range(f_fcast,config['end_year']+1): # add columns for future years
+      df['Y{}'.format(y)]=None
+
   # now replace the hard values with formulas
   # if its not a total just let the value stay there
   for group in groups:
@@ -240,10 +244,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
         formula='={}{}-{}{}'.format(let,group[1],let,y+3)
         df.loc[ix,[cl]]=formula
 
-  if target_sheet=='iande': # adjust for iande, adding columns
-    for y in range(f_fcast,config['end_year']+1): # add columns for future years
-      df['Y{}'.format(y)]=None
-
   cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
   expected=set(cols_df.name)
   data_has=set(df.columns)
@@ -253,16 +253,26 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected-data_has,data_has-expected))
     raise IndexError(msg)
 
-  if target_sheet=='iande': # adjust for iande, using formulas
-    tr=this_row('Key')
-    for ix,c in cols_df.iterrows():# use formulas for actual columns
-      col_name=c['name']
-      if col_name[1:].isnumeric():
-        if int(col_name[1:])<f_fcast: # only actual items
-          cl=get_column_letter(1+ix)
-          formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
-          df[col_name]=[formula]*df.shape[0]
+  if target_sheet=='iande': # adjust for iande, using formulas to pull non-totals from iande_actl
+    tr=this_row('Key') # syntax to refer to key on this row inside of Excel
+#    for ix,c in cols_df.iterrows():# use formulas for actual columns
+#      col_name=c['name']
+#      if col_name[1:].isnumeric():
+#        if int(col_name[1:])<f_fcast: # only actual items
+#          cl=get_column_letter(1+ix)
+#          formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
+#          df[col_name]=[formula]*df.shape[0]
 
+    for rix,row in df.iterrows():
+      for cix,col_name in enumerate(df.columns):
+        if col_name[1:].isnumeric():
+          val=row[col_name]
+          if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
+            if int(col_name[1:])<f_fcast: # but for actual items, refer to iande_actl
+              cl=get_column_letter(1+cix)
+              formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
+              df.loc[rix,col_name]=formula
+      pass
   return df,groups
 
 
