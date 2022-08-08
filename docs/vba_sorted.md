@@ -490,11 +490,12 @@ Function simple_return(account As String, y_year As String) As Double
 sb = get_val("Start Bal" & account, "tbl_balances", y_year)
 eb = get_val("End Bal" & account, "tbl_balances", y_year)
 rg = get_val("Rlz Int/Gn" & account, "tbl_balances", y_year)
+urg = get_val("Unrlz Gn/Ls" & account, "tbl_balances", y_year)
 av = (sb + eb) / 2
 If av = 0 Then
   result = 0
 Else
-  result = rg / av
+  result = (rg + urg) / av
 End If
 simple_return = result
 End Function

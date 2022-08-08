@@ -47,6 +47,15 @@
       "console": "integratedTerminal",
       "args": ["-w","data/test_wb.xlsm","-y","Y2022"],
       "justMyCode": true
+    },
+    {
+      "name": "extract_table args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/util/extract_table.py",
+      "console": "integratedTerminal",
+      "args": ["-t","tbl_part_b","-o","records","-j","data/part_b.json","-d"],
+      "justMyCode": true
     }
   ]
 }

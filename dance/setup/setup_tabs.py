@@ -132,7 +132,11 @@ def refresh_sheets(target_file,overwrite=False):
           if isinstance(data,list):
             data=pd.DataFrame(list,columns=df.name)
           if isinstance(data,pd.DataFrame):
-            pass
+            # it may be that the 1st column is in the index, so fix that
+            mismatch=list(set(df.name)-set(data.columns))
+            if len(mismatch)==1:
+              if list(df.name).index(mismatch[0])==0:
+                data=data.reset_index().rename(columns={'index':mismatch[0]})
         wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)

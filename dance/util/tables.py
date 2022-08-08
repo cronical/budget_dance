@@ -2,6 +2,7 @@
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment
+from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00
 from openpyxl.utils import get_column_letter
 
 import openpyxl.utils.cell
@@ -40,7 +41,7 @@ def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=Fals
   args:
     table_name:
     workbook:
-    data_only:
+    data_only: True to get the data not the formula
     table_map: in case the utility tab is not yet available, provide a dict mapping tables to worksheets
 
   returns: a dataFrame with the first column as the dataframe index
@@ -198,19 +199,31 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   for cx,cn in enumerate( df.columns):
     ws.cell(table_start_row,column=table_start_col+cx).value=cn
   # place the values
+  fin_format=BUILTIN_FORMATS[41] #'#,###,##0;(#,###,##0);"-"?'
   for ix,values in df.iterrows(): # the indexes (starting at zero), and the data values
     for cx,cn in enumerate( df.columns):
       if cn in values:
         rix=ix+table_start_row+1
         cix=table_start_col+cx
         ws.cell(row=rix,column=cix).value=values[cn]
-        if cn.startswith('Y'):
-          fin_format='#,###,##0?;(#,###,##0);"-"?'
-          ws.cell(row=rix ,column=cix).number_format=fin_format
         if 'horiz' in col_defs.columns:
           horiz=col_defs.loc[cn].horiz
           if pd.notna(horiz):
             ws.cell(row=rix,column=cix).alignment = Alignment(horizontal=horiz)
+        if 'number_format' in col_defs.columns: # number formats for non years.
+          num_fmt=col_defs.loc[cn].number_format
+          if pd.notna(num_fmt):
+            if not isinstance(num_fmt,str):
+              num_fmt=BUILTIN_FORMATS[num_fmt]  
+            ws.cell(row=rix,column=cix).number_format=num_fmt
+        if cn.startswith('Y')and cn[1:].isnumeric(): # formats for Y columns
+          if 'ValType' in values:
+            if values['ValType']=='Rate':
+              ws.cell(row=rix,column=cix).number_format=FORMAT_PERCENTAGE_00
+              continue
+          # if not overridden use the fin format
+          ws.cell(row=rix ,column=cix).number_format=fin_format
+
 
 
   if groups is not None: # the folding groups
