@@ -158,11 +158,20 @@ Function age_of(inits As String, y_year As String) As Integer
 'return the age attained by an account owner in a given year
     Dim dob As Date, eoy As Date
     Dim diff As Double, age As Integer
-    dob = get_val("DOB", "tbl_retir_parms", Left(inits, 1))
+    dob = get_val(inits, "tbl_people", "DOB")
     eoy = DateSerial(IntYear(y_year), 12, 31)
     diff = (eoy - dob) / 365.25
     age = Int(Application.WorksheetFunction.RoundDown(diff, 0))
     age_of = age
+End Function
+Function age_as_of_date(inits As String, dt As Date) As Double
+'return the age attained by an account owner in a given year
+    Dim dob As Date, eoy As Date
+    Dim diff As Double, age As Double
+    dob = get_val(inits, "tbl_people", "DOB")
+    diff = (dt - dob) / 365.25
+    age = Application.WorksheetFunction.Round(diff, 3)
+    age_as_of_date = age
 End Function
 
 Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double
