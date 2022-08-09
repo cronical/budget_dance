@@ -1,12 +1,12 @@
 Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = True
 Option Base 0
-Function acct_who1(acct As String) As String
+Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
 'return the first initial of the owner of an account in format type - who - firm
     Dim parts() As String
     parts = Split(acct, " - ")
     who = parts(1)
-    acct_who1 = Left(who, 1)
+    acct_who1 = Left(who, num_chars)
 End Function
 
 Function ANN(account As String, account_owner As String, y_year As String) As Double
