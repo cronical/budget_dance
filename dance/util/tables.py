@@ -200,15 +200,25 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
     ws.cell(table_start_row,column=table_start_col+cx).value=cn
   # place the values
   fin_format=BUILTIN_FORMATS[41] #'#,###,##0;(#,###,##0);"-"?'
+  first_field=None #first non-formula field - used to determine if its a rate
   for ix,values in df.iterrows(): # the indexes (starting at zero), and the data values
     for cx,cn in enumerate( df.columns):
       if cn in values:
+        if first_field is None: # pick this field if its not a formula
+          if values[cn] is not None:
+            if isinstance(values[cn],str):
+              if not values[cn].startswith('='):
+                first_field=cn
         rix=ix+table_start_row+1
         cix=table_start_col+cx
         ws.cell(row=rix,column=cix).value=values[cn]
         if cn.startswith('Y')and cn[1:].isnumeric(): # formats for Y columns
-          if 'ValType' in values:
-            if values['ValType']=='Rate':
+          if first_field is not None:
+            legend=values[first_field]
+            if legend is None: # when no data is provided, there is a row of Nones
+              legend=''
+            legend=legend.lower()
+            if legend.startswith('rate') or legend.endswith('rate'):
               ws.cell(row=rix,column=cix).number_format=FORMAT_PERCENTAGE_00
               continue
           # if not overridden use the fin format

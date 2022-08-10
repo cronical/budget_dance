@@ -85,10 +85,10 @@ def refresh_sheets(target_file,overwrite=False):
         df=columns_for_table(wb,sheet_name,table_info['name'],config)
         col_count=df.shape[0]
         groups=None
-        # if table has a data source add those rows
+        # Excel seems to need at least one data row, so a row of blanks if no data is provided
         if 'data' not in table_info:
-          data=pd.DataFrame([[None]*col_count],columns=df.name) # a row of blanks if no data is provided
-        else:
+          data=pd.DataFrame([[None]*col_count],columns=df.name) 
+        else: # if table has a data source add those rows
           assert 'source' in table_info['data']
           data_info=table_info['data']
           valid_sources=['internal','remote','local']
