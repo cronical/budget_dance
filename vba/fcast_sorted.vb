@@ -2,12 +2,12 @@ Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = True
 Option Base 0
 
-Function acct_who1(acct As String) As String
+Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
 'return the first initial of the owner of an account in format type - who - firm
     Dim parts() As String
     parts = Split(acct, " - ")
     who = parts(1)
-    acct_who1 = Left(who, 1)
+    acct_who1 = Left(who, num_chars)
 End Function
 
 Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean = False) As Variant
@@ -29,11 +29,21 @@ Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean
     End If
 End Function
 
+Function age_as_of_date(inits As String, dt As Date) As Double
+'return the age attained by an account owner in a given year
+    Dim dob As Date, eoy As Date
+    Dim diff As Double, age As Double
+    dob = get_val(inits, "tbl_people", "DOB")
+    diff = (dt - dob) / 365.25
+    age = Application.WorksheetFunction.Round(diff, 3)
+    age_as_of_date = age
+End Function
+
 Function age_of(inits As String, y_year As String) As Integer
 'return the age attained by an account owner in a given year
     Dim dob As Date, eoy As Date
     Dim diff As Double, age As Integer
-    dob = get_val("DOB", "tbl_retir_parms", Left(inits, 1))
+    dob = get_val(inits, "tbl_people", "DOB")
     eoy = DateSerial(IntYear(y_year), 12, 31)
     diff = (eoy - dob) / 365.25
     age = Int(Application.WorksheetFunction.RoundDown(diff, 0))
@@ -41,6 +51,7 @@ Function age_of(inits As String, y_year As String) As Integer
 End Function
 
 Function ANN(account As String, account_owner As String, y_year As String) As Double
+'DEPRECATED - USE annuity instead
 'return a year's value for an annuity stream based on the prior year's end balance
 'does not properly handle partial years
     Dim this_year As Integer, age As Integer
@@ -62,6 +73,30 @@ Function ANN(account As String, account_owner As String, y_year As String) As Do
         result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
     End If
     ANN = result
+End Function
+
+Function annuity(account As String, y_year As String) As Double
+'return a year's value for an annuity stream based on the prior year's end balance
+'fetches the start date, duration and annual annuity rate from tbl_retir_vals
+'rounds to whole number
+    Dim anny_start As Date
+    Dim duration As Integer, this_year As Integer
+    Dim annual_rate As Double, anny_rate As Double
+    this_year = IntYear(y_year)
+    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
+    anny_start = get_val(account, "tbl_retir_vals", "Start Date")
+    duration = get_val(account, "tbl_retir_vals", "Anny Dur Yrs")
+    anny_rate = get_val(account, "tbl_retir_vals", "Anny Rate")
+    
+    n = duration - (this_year - year(anny_start))
+    result = 0
+    If n > 0 Then
+        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
+        factor = mo_apply(anny_start, y_year) ' TODO put end date on this call
+        result = factor * result
+        result = Application.WorksheetFunction.Round(result, 0)
+    End If
+    annuity = result
 End Function
 
 Sub calc_retir()
@@ -330,18 +365,23 @@ Function LUMP(account As String, y_year As String) As Double
     LUMP = result
 End Function
 
-Function MedicarePrem(bord As Integer, year As String, magi As Variant, inflation As Variant) As Variant
-'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium or part D surcharge (IRMAA)
-'bord isa 1 for part B premium or 2 for Part D surcharge
+Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
+'Given a year (as Y+year), return annual part b premium or part D surcharge (IRMAA)
+'normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.
+'b_or_d isa 1 for part B premium or 2 for Part D surcharge
 'If the year is not in the table, then the largest year lower than that given will be used
 'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
     Dim yr As Integer
-    Dim tbl_name As String, ws_name As String
+    Dim tbl_name As String, ws_name As String, magi_yr As String
     Dim tbl As ListObject
     Dim lr As ListRow, rng As Range
     Dim infl As Variant
     
     yr = IntYear(year)
+    If magi = -1 Then
+        magi_yr = y_offset(year, -2)
+        magi = get_val("Adjusted Gross", "tbl_taxes", magi_yr)
+    End If
     magi = Application.WorksheetFunction.Max(1, magi)
     tbl_name = "tbl_part_b"
     ws_name = ws_for_table_name(tbl_name)
@@ -354,7 +394,7 @@ Function MedicarePrem(bord As Integer, year As String, magi As Variant, inflatio
         ry = rng.Cells(1, 1).value
         rl = rng.Cells(1, 2).value
         rh = rng.Cells(1, 3).value
-        valu = rng.Cells(1, 3 + bord).value
+        valu = rng.Cells(1, 3 + b_or_d).value
         pw = (yr - y)
         If (ry = y And rl < magi And rh >= magi) Then
             p = valu * 12
@@ -387,18 +427,18 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
     mo_apply = result
 End Function
 
-Function PartBPrem(year As String, magi As Variant, inflation As Variant) As Variant
+Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
 'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium
 'If the year is not in the table, then the largest year lower than that given will be used
 'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartBPrem = MedicarePrem(1, year, magi, inflation)
+    PartBPrem = MedicarePrem(1, year, inflation, magi)
 End Function
 
-Function PartDSurcharge(year As String, magi As Variant, inflation As Variant) As Variant
+Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
 'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part D surcharge
 'If the year is not in the table, then the largest year lower than that given will be used
 'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartDSurcharge = MedicarePrem(2, year, magi, inflation)
+    PartDSurcharge = MedicarePrem(2, year, inflation, magi)
 End Function
 
 Function retir_med(who1 As String, y_year As String) As Double
@@ -557,14 +597,14 @@ Dim test_cases() As Variant
 Dim yr As String
 Dim infl As Variant
 Dim magi As Variant
-test_cases() = Array(Array(2021, 175000, 1#), Array(2022, 182001, 1#), Array(2022, 400000, 1#), Array(2023, 175000, 1.02))
+test_cases() = Array(Array(2021, 1#, 10000), Array(2022, 1#, 182001), Array(2022, 1#, 400000), Array(2023, 1.02, 75000))
 log ("Part B tests")
 For i = LBound(test_cases) To UBound(test_cases)
     yr = "Y" & test_cases(i)(0)
-    magi = test_cases(i)(1)
-    infl = test_cases(i)(2)
-    partB = PartBPrem(yr, magi, infl)
-    partD = PartDSurcharge(yr, magi, infl)
+    magi = test_cases(i)(2)
+    infl = test_cases(i)(1)
+    partB = PartBPrem(yr, infl, magi)
+    partD = PartDSurcharge(yr, infl, magi)
     msg = "Input: year=" & test_cases(i)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
     log (msg)
 Next
@@ -622,6 +662,24 @@ Sub test_sort()
     sort_tax_table
 End Sub
 
+Function this_col_name() As String
+'return the caller's column name, assuming the cell is in a table.
+'Otherwise generates a #VALUE  error
+'Use to make formulas more portable
+
+    Dim point As Range
+    Dim list_ojb As ListObject
+    Dim cols As ListColumns
+    Dim offset As Integer, col_ix As Integer
+    
+    Set point = Application.Caller
+    Set list_obj = point.ListObject
+    Set cols = list_obj.ListColumns
+    offset = list_obj.Range(1, 1).Column - 1
+    col_ix = offset + point.Column
+    this_col_name = cols(col_ix)
+End Function
+
 Function unrlz(acct As String, y_year As String) As Variant
 'compute the unrealized gain or loss for an account for a year, assuming end bal is fixed
     Dim open_bal As Variant, adds As Variant, rlzd As Variant, end_bal As Variant
@@ -642,4 +700,11 @@ Function ws_for_table_name(tbl_name As String) As String
         ws = Application.WorksheetFunction.VLookup(tbl_name, rng, 2, False)
     End With
     ws_for_table_name = ws
+End Function
+
+Function y_offset(y_year As String, offset As Integer) As String
+'given a y_year offset it by the amount given, producing a new y_year
+    y = IntYear(y_year)
+    r = "Y" & y + offset
+    y_offset = r
 End Function

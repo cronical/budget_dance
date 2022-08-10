@@ -2,14 +2,18 @@
 
 |Function or Sub|Signature and info|
 |---|---|
-|acct_who1|Function acct_who1(acct As String) As String|
+|acct_who1|Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String|
 ||Return the first initial of the owner of an account in format type - who - firm|
 |add_wdraw|Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean = False) As Variant|
 ||Grab the actual transfers in (positive) our out(negative). Ignoring the optional is_fcst argument - instead: compute it|
+|age_as_of_date|Function age_as_of_date(inits As String, dt As Date) As Double|
+||Return the age attained by an account owner in a given year|
 |age_of|Function age_of(inits As String, y_year As String) As Integer|
 ||Return the age attained by an account owner in a given year|
 |ANN|Function ANN(account As String, account_owner As String, y_year As String) As Double|
-||Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
+||Deprecated - use annuity instead. Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
+|annuity|Function annuity(account As String, y_year As String) As Double|
+||Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number|
 |calc_retir|Sub calc_retir()|
 ||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande|
 |calc_table|Sub calc_table()|
@@ -34,13 +38,13 @@
 |||
 |LUMP|Function LUMP(account As String, y_year As String) As Double|
 ||Return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table. For the current year (items that begin with the account name)|
-|MedicarePrem|Function MedicarePrem(bord As Integer, year As String, magi As Variant, inflation As Variant) As Variant|
-||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium or part d surcharge (irmaa). Bord isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
+|MedicarePrem|Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
+||Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|
 ||Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.|
-|PartBPrem|Function PartBPrem(year As String, magi As Variant, inflation As Variant) As Variant|
+|PartBPrem|Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
-|PartDSurcharge|Function PartDSurcharge(year As String, magi As Variant, inflation As Variant) As Variant|
+|PartDSurcharge|Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |retir_med|Function retir_med(who1 As String, y_year As String) As Double|
 ||Return the forecast medical expenses including premium and deductible for person with initial who1 given a year|
@@ -68,7 +72,11 @@
 |||
 |test_sort|Sub test_sort()|
 |||
+|this_col_name|Function this_col_name() As String|
+||Return the caller's column name, assuming the cell is in a table.. Otherwise generates a #value  error. Use to make formulas more portable|
 |unrlz|Function unrlz(acct As String, y_year As String) As Variant|
 ||Compute the unrealized gain or loss for an account for a year, assuming end bal is fixed|
 |ws_for_table_name|Function ws_for_table_name(tbl_name As String) As String|
 ||Find out what worksheet the named table occurs on|
+|y_offset|Function y_offset(y_year As String, offset As Integer) As String|
+||Given a y_year offset it by the amount given, producing a new y_year|
