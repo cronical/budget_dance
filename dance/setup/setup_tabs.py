@@ -12,7 +12,7 @@ import pandas as pd
 import yaml
 from dance.util.books import col_attrs_for_sheet,set_col_attrs
 from dance.util.logs import get_logger
-from dance.setup.local_data import read_data
+from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
 from dance.util.tables import first_not_hidden,write_table,columns_for_table
 import remote_data
@@ -42,8 +42,9 @@ def refresh_sheets(target_file,overwrite=False):
 
   table_map={} # build list of tables and which sheet they are on
   ffy=config['first_forecast_year']
-  general_state={'first_forecast': f'Y{ffy}',
-    'bank_interest':config['bank_interest']}
+  general_state=read_gen_state(config)
+  gs_ffy=general_state['first_forecast']
+  gs_ffy['Value']=f'Y{ffy}' # prefer the value from the config
   _=general_state # it is used by referencing locals(), but pylance can't figure it out
 
   for sheet_group,sheet_group_info in config['sheet_groups'].items():
@@ -105,9 +106,6 @@ def refresh_sheets(target_file,overwrite=False):
             if not isinstance(data,dict):
               logger.error('configured internal data source {} is not a dict.'.format(var_name))
               quit()
-            if col_count !=2:
-              logger.error('{} should have two columns to receive internal data'.format(table_info['name']))
-              quit()
 
           if source == 'remote':
             if 'api_key' in data_info:
@@ -128,7 +126,9 @@ def refresh_sheets(target_file,overwrite=False):
           if source=='local':
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map)
           if isinstance(data,dict):
-            data=pd.DataFrame([(k,v) for k,v in data.items()],columns=df.name)
+            data=pd.DataFrame.from_dict(data,orient='index')
+            data=data.reset_index()
+            data.columns=list(df.name)
           if isinstance(data,list):
             data=pd.DataFrame(list,columns=df.name)
           if isinstance(data,pd.DataFrame):

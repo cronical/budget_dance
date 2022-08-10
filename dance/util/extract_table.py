@@ -19,6 +19,7 @@ def extract(workbook,table,orient,out_file,data_only):
         column_info=table_info['columns']
         name = column_info[0]['name']
         df=df.reset_index().rename(columns={'index':name})
+        break
   df.to_json(out_file,orient=orient)
   logger.info(f'Wrote to {out_file}'.format())
 

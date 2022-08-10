@@ -10,6 +10,7 @@ Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
 End Function
 
 Function ANN(account As String, account_owner As String, y_year As String) As Double
+'DEPRECATED - USE annuity instead
 'return a year's value for an annuity stream based on the prior year's end balance
 'does not properly handle partial years
     Dim this_year As Integer, age As Integer
@@ -31,6 +32,29 @@ Function ANN(account As String, account_owner As String, y_year As String) As Do
         result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
     End If
     ANN = result
+End Function
+Function annuity(account As String, y_year As String) As Double
+'return a year's value for an annuity stream based on the prior year's end balance
+'fetches the start date, duration and annual annuity rate from tbl_retir_vals
+'rounds to whole number
+    Dim anny_start As Date
+    Dim duration As Integer, this_year As Integer
+    Dim annual_rate As Double, anny_rate As Double
+    this_year = IntYear(y_year)
+    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
+    anny_start = get_val(account, "tbl_retir_vals", "Start Date")
+    duration = get_val(account, "tbl_retir_vals", "Anny Dur Yrs")
+    anny_rate = get_val(account, "tbl_retir_vals", "Anny Rate")
+    
+    n = duration - (this_year - year(anny_start))
+    result = 0
+    If n > 0 Then
+        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
+        factor = mo_apply(anny_start, y_year) ' TODO put end date on this call
+        result = factor * result
+        result = Application.WorksheetFunction.Round(result, 0)
+    End If
+    annuity = result
 End Function
 Function LUMP(account As String, y_year As String) As Double
 'return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table

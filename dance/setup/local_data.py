@@ -333,3 +333,22 @@ def prepare_balance_tab(years,first_forecast,in_df):
     df=pd.concat([df,a_df],axis=0)
   df.reset_index(inplace=True,drop='True')
   return df
+
+def read_gen_state(config):
+  '''General state comes from the file but elements can be set by the control program, 
+  so this is called prior to setting up the general_state variable which is then modified.
+  So this allows it to be treated as an "internal" source not a "local" source, and yet
+  most parameters can be edited in the file.
+  
+  args:
+    config: the dict that contains the location of file
+    
+  returns: the parameter table dictionary.
+  '''
+  table_info=config['sheets']['gen_tables']['tables']
+  for table in table_info:
+    if table['name']=='tbl_gen_state':
+      path=table['data']['path']
+  df=pd.read_json(path,orient='index')
+  gen_state=df.to_dict(orient='index')
+  return gen_state

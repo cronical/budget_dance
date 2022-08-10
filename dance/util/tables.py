@@ -206,16 +206,6 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
         rix=ix+table_start_row+1
         cix=table_start_col+cx
         ws.cell(row=rix,column=cix).value=values[cn]
-        if 'horiz' in col_defs.columns:
-          horiz=col_defs.loc[cn].horiz
-          if pd.notna(horiz):
-            ws.cell(row=rix,column=cix).alignment = Alignment(horizontal=horiz)
-        if 'number_format' in col_defs.columns: # number formats for non years.
-          num_fmt=col_defs.loc[cn].number_format
-          if pd.notna(num_fmt):
-            if not isinstance(num_fmt,str):
-              num_fmt=BUILTIN_FORMATS[num_fmt]  
-            ws.cell(row=rix,column=cix).number_format=num_fmt
         if cn.startswith('Y')and cn[1:].isnumeric(): # formats for Y columns
           if 'ValType' in values:
             if values['ValType']=='Rate':
@@ -223,6 +213,18 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
               continue
           # if not overridden use the fin format
           ws.cell(row=rix ,column=cix).number_format=fin_format
+
+        else: # the non year columns
+          if 'horiz' in col_defs.columns:
+            horiz=col_defs.loc[cn].horiz
+            if pd.notna(horiz):
+              ws.cell(row=rix,column=cix).alignment = Alignment(horizontal=horiz)
+          if 'number_format' in col_defs.columns: # number formats for non years.
+            num_fmt=col_defs.loc[cn].number_format
+            if pd.notna(num_fmt):
+              if not isinstance(num_fmt,str):
+                num_fmt=BUILTIN_FORMATS[num_fmt]  
+              ws.cell(row=rix,column=cix).number_format=num_fmt
 
 
 
