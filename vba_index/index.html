@@ -329,7 +329,7 @@
 <tbody>
 <tr>
 <td>acct_who1</td>
-<td>Function acct_who1(acct As String) As String</td>
+<td>Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String</td>
 </tr>
 <tr>
 <td></td>
@@ -342,6 +342,14 @@
 <tr>
 <td></td>
 <td>Grab the actual transfers in (positive) our out(negative). Ignoring the optional is_fcst argument - instead: compute it</td>
+</tr>
+<tr>
+<td>age_as_of_date</td>
+<td>Function age_as_of_date(inits As String, dt As Date) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Return the age attained by an account owner in a given year</td>
 </tr>
 <tr>
 <td>age_of</td>
@@ -357,7 +365,15 @@
 </tr>
 <tr>
 <td></td>
-<td>Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years</td>
+<td>Deprecated - use annuity instead. Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years</td>
+</tr>
+<tr>
+<td>annuity</td>
+<td>Function annuity(account As String, y_year As String) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number</td>
 </tr>
 <tr>
 <td>calc_retir</td>
@@ -366,6 +382,14 @@
 <tr>
 <td></td>
 <td>Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande</td>
+</tr>
+<tr>
+<td>calc_table</td>
+<td>Sub calc_table()</td>
+</tr>
+<tr>
+<td></td>
+<td>Testing forced calc of table</td>
 </tr>
 <tr>
 <td>d2s</td>
@@ -449,11 +473,11 @@
 </tr>
 <tr>
 <td>MedicarePrem</td>
-<td>Function MedicarePrem(bord As Integer, year As String, magi As Variant, inflation As Variant) As Variant</td>
+<td>Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant</td>
 </tr>
 <tr>
 <td></td>
-<td>Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium or part d surcharge (irmaa). Bord isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly</td>
+<td>Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly</td>
 </tr>
 <tr>
 <td>mo_apply</td>
@@ -465,7 +489,7 @@
 </tr>
 <tr>
 <td>PartBPrem</td>
-<td>Function PartBPrem(year As String, magi As Variant, inflation As Variant) As Variant</td>
+<td>Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant</td>
 </tr>
 <tr>
 <td></td>
@@ -473,7 +497,7 @@
 </tr>
 <tr>
 <td>PartDSurcharge</td>
-<td>Function PartDSurcharge(year As String, magi As Variant, inflation As Variant) As Variant</td>
+<td>Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant</td>
 </tr>
 <tr>
 <td></td>
@@ -584,6 +608,14 @@
 <td></td>
 </tr>
 <tr>
+<td>this_col_name</td>
+<td>Function this_col_name() As String</td>
+</tr>
+<tr>
+<td></td>
+<td>Return the caller's column name, assuming the cell is in a table.. Otherwise generates a #value  error. Use to make formulas more portable</td>
+</tr>
+<tr>
 <td>unrlz</td>
 <td>Function unrlz(acct As String, y_year As String) As Variant</td>
 </tr>
@@ -598,6 +630,14 @@
 <tr>
 <td></td>
 <td>Find out what worksheet the named table occurs on</td>
+</tr>
+<tr>
+<td>y_offset</td>
+<td>Function y_offset(y_year As String, offset As Integer) As String</td>
+</tr>
+<tr>
+<td></td>
+<td>Given a y_year offset it by the amount given, producing a new y_year</td>
 </tr>
 </tbody>
 </table>
