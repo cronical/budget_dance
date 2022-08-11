@@ -46,6 +46,8 @@
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |PartDSurcharge|Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
+|prior_value|Function prior_value(line As String) As Variant|
+||Get the prior years' value for this line. suitable only for year columns.|
 |retir_med|Function retir_med(who1 As String, y_year As String) As Double|
 ||Return the forecast medical expenses including premium and deductible for person with initial who1 given a year|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|

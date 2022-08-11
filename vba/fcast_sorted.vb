@@ -103,7 +103,7 @@ Sub calc_retir()
 'iterate through the years to calc retirement streams based on balances from prior year
 'prior balance from balances feeds current retirement, which feeds aux, which feeds current balances
 'iande depends on retirement as well and taxes depend on iande
-    Dim rcols As Range, rcell As Range
+    Dim rcols As range, rcell As range
     Dim tbls(4) As ListObject
     Dim tbl_names(4) As String
     Dim ws_names(4) As String
@@ -128,19 +128,19 @@ Sub calc_retir()
     
     Set rcols = tbls(0).HeaderRowRange
     Set col = tbls(0).ListColumns("Start_Date")
-    col.Range.Dirty
-    col.Range.Calculate
+    col.range.Dirty
+    col.range.Calculate
     Set col = tbls(0).ListColumns("yearly")
-    col.Range.Dirty
-    col.Range.Calculate
+    col.range.Dirty
+    col.range.Calculate
     log ("Retirement Start_date and yearly columns refreshed.")
     For Each rcell In rcols
     
         If InStr(rcell.value, "Y20") = 1 Then
             For i = LBound(tbls) To UBound(tbls)
                 Set col = tbls(i).ListColumns(rcell.value)
-                col.Range.Dirty
-                col.Range.Calculate
+                col.range.Dirty
+                col.range.Calculate
             Next i
             log ("Calculated " & msg & " for " & rcell.value)
          End If
@@ -153,7 +153,7 @@ End Sub
 
 Sub calc_table()
 'Testing forced calc of table
-    Dim rcols As Range, rcell As Range
+    Dim rcols As range, rcell As range
     Dim tbl As ListObject
     Dim tbl_name As String
     Dim ws_name As String
@@ -166,8 +166,8 @@ Sub calc_table()
     Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
 
     
-    tbl.Range.Dirty
-    tbl.Range.Calculate
+    tbl.range.Dirty
+    tbl.range.Calculate
     log (tbl_name & " refreshed.")
     log ("Entering automatic calculation mode.")
     log ("-----------------------------")
@@ -211,7 +211,7 @@ Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double
     Dim tbl_name As String
     Dim tbl As ListObject
     Dim lr As ListRow
-    Dim rng As Range
+    Dim rng As range
     Dim yr As Integer
     Dim ti As Double
     Dim rt As Double
@@ -222,7 +222,7 @@ Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double
     Set tbl = ThisWorkbook.Worksheets(ws).ListObjects(tbl_name)
     result = 0
     For Each lr In tbl.ListRows()
-        Set rng = lr.Range
+        Set rng = lr.range
         yr = rng.Cells(1, 1).value
         ti = rng.Cells(1, 2).value
         rt = rng.Cells(1, 3).value
@@ -286,13 +286,17 @@ Function get_val(line_key As Variant, tbl_name As String, col_name As String) As
 'If the line is not found in the table, a zero is returned.
  
     Dim value As Variant, rng As Variant
+    Dim caller As range
+    Dim address As String
     
+    Set caller = Application.caller()
+    address = caller.Worksheet.Name & "!" & caller(1, 1).address
     ws = ws_for_table_name(tbl_name)
     
     'now get the data
     With ThisWorkbook.Worksheets(ws)
         Set rng = .ListObjects(tbl_name).HeaderRowRange
-        Dim cr As Range
+        Dim cr As range
 
         On Error GoTo ErrHandler1
         col = Application.WorksheetFunction.Match(col_name, rng, False)
@@ -308,8 +312,8 @@ Function get_val(line_key As Variant, tbl_name As String, col_name As String) As
     Exit Function
     
 ErrHandler:
-    log ("get_val: " & line_key & " not found in " & tbl_name & ", using zero as value for " & col_name)
-    Dim lkrange As Range
+    log ("[" & address & " ] get_val: " & line_key & " not found in " & tbl_name & ", using zero as value for " & col_name)
+    Dim lkrange As range
     If False Then 'use this to debug missing lines. e.g. tbl_name = "tbl_taxes" Then
         Set lkrange = ThisWorkbook.Worksheets(ws).ListObjects(tbl_name).ListColumns(1).DataBodyRange
         Debug.Print (lkrange.Count)
@@ -320,7 +324,7 @@ ErrHandler:
     get_val = 0
     Exit Function
 ErrHandler1:
-    log ("get_val: " & Err.Number & " " & Err.Description)
+    log ("[ " & address & " ] get_val: " & Err.Number & " " & Err.Description)
     log ("Trying to locate column: " & col_name & " in table " & tbl_name)
     log ("line is " & line_key)
 End Function
@@ -360,7 +364,7 @@ Function LUMP(account As String, y_year As String) As Double
     Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
     Set crit_col = tbl.ListColumns("Accum_by")
     Set val_col = tbl.ListColumns(y_year)
-    adj = Application.WorksheetFunction.SumIf(crit_col.Range, criteria, val_col.Range)
+    adj = Application.WorksheetFunction.SumIf(crit_col.range, criteria, val_col.range)
     result = adj + prior_end_bal
     LUMP = result
 End Function
@@ -374,7 +378,7 @@ Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, O
     Dim yr As Integer
     Dim tbl_name As String, ws_name As String, magi_yr As String
     Dim tbl As ListObject
-    Dim lr As ListRow, rng As Range
+    Dim lr As ListRow, rng As range
     Dim infl As Variant
     
     yr = IntYear(year)
@@ -387,10 +391,10 @@ Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, O
     ws_name = ws_for_table_name(tbl_name)
     Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
     Set yr_col = tbl.ListColumns("year")
-    y = Application.WorksheetFunction.VLookup(yr, yr_col.Range, 1, True) ' latest year for which we have data
+    y = Application.WorksheetFunction.VLookup(yr, yr_col.range, 1, True) ' latest year for which we have data
     MedicarePrem = 0 'in case the if never succeeds
     For Each lr In tbl.ListRows()
-        Set rng = lr.Range
+        Set rng = lr.range
         ry = rng.Cells(1, 1).value
         rl = rng.Cells(1, 2).value
         rh = rng.Cells(1, 3).value
@@ -441,6 +445,19 @@ Function PartDSurcharge(year As String, inflation As Variant, Optional magi As V
     PartDSurcharge = MedicarePrem(2, year, inflation, magi)
 End Function
 
+Function prior_value(line As String) As Variant
+' Get the prior years' value for this line. Suitable only for year columns.
+    Dim prior_col As String
+    Dim value As Variant
+    Dim table As String
+    Dim range As range
+    Set range = Application.caller
+    table = range.ListObject.Name
+    prior_col = y_offset(this_col_name(), -1)
+    value = get_val(line, table, prior_col)
+    prior_value = value
+End Function
+
 Function retir_med(who1 As String, y_year As String) As Double
 'return the forecast medical expenses including premium and deductible for person with initial who1 given a year
     Dim this_year As Integer, tbl_name As String
@@ -455,22 +472,22 @@ Function retir_med(who1 As String, y_year As String) As Double
     Set crit_col1 = tbl.ListColumns("Item")
     Set crit_col2 = tbl.ListColumns("Who1")
     Set val_col = tbl.ListColumns(y_year)
-    med_exp = Application.WorksheetFunction.SumIfs(val_col.Range, crit_col1.Range, criteria1, crit_col2.Range, criteria2)
+    med_exp = Application.WorksheetFunction.SumIfs(val_col.range, crit_col1.range, criteria1, crit_col2.range, criteria2)
     retir_med = med_exp
 End Function
 
 Function retir_parm(code As String, who As String) As Variant
 'Get a retirement paramenter given code and code (G or V)
-    Dim rng As Range
+    Dim rng As range
     On Error GoTo ErrHandler
     sht = "retireparms"
     cl = InStr(1, "abGV", who, vbTextCompare)
     With ThisWorkbook.Worksheets(sht)
-        Set rng = .Range("Table3[code]")
+        Set rng = .range("Table3[code]")
         rw = Application.WorksheetFunction.Match(code, rng, False)
         rw = rw + rng.row - 1
-        s = sht & "!" & .Cells(rw, cl).Address
-        v = .Range(s)
+        s = sht & "!" & .Cells(rw, cl).address
+        v = .range(s)
         retir_parm = v
     End With
     Exit Function
@@ -545,9 +562,9 @@ Function sort_tax_table()
     ws = ws_for_table_name(tbl_name)
     Dim tbl As ListObject
     Set tbl = ThisWorkbook.Worksheets(ws).ListObjects(tbl_name)
-    Dim year_column As Range, range_column As Range
-    Set year_column = Range(tbl_name & "[Year]")
-    Set range_column = Range(tbl_name & "[Range]")
+    Dim year_column As range, range_column As range
+    Set year_column = range(tbl_name & "[Year]")
+    Set range_column = range(tbl_name & "[Range]")
     With tbl.sort
        .SortFields.Clear
        .SortFields.Add key:=year_column, SortOn:=xlSortOnValues, Order:=xlAscending
@@ -667,15 +684,15 @@ Function this_col_name() As String
 'Otherwise generates a #VALUE  error
 'Use to make formulas more portable
 
-    Dim point As Range
+    Dim point As range
     Dim list_ojb As ListObject
     Dim cols As ListColumns
     Dim offset As Integer, col_ix As Integer
     
-    Set point = Application.Caller
+    Set point = Application.caller
     Set list_obj = point.ListObject
     Set cols = list_obj.ListColumns
-    offset = list_obj.Range(1, 1).Column - 1
+    offset = list_obj.range(1, 1).Column - 1
     col_ix = offset + point.Column
     this_col_name = cols(col_ix)
 End Function
