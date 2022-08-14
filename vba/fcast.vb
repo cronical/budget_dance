@@ -8,7 +8,31 @@ Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
     who = parts(1)
     acct_who1 = Left(who, num_chars)
 End Function
+Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
+' Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.
+' Use of this can help avoid the hard coding of addresses into formulas
+' By default the tag column is "tag" but an alternate can be provided
+' Other agg_methods are "min" and "max"
+    Dim agg_val As Double
+    
+    Dim tbl As ListObject
+    Dim point As range, val_rng As range, tag_col As range
+    Set point = Application.caller
+    Set tbl = point.ListObject
+    Set tag_rng = tbl.ListColumns(tag_col_name).range
+    Set val_rng = tbl.ListColumns(y_year).range
+    Select Case agg_method
+    Case "sum"
+        agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rng, by_tag)
+    Case "min"
+        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rng, by_tag)
+    Case "max"
+        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rng, by_tag)
+    End Select
+    agg = agg_val
+    
 
+End Function
 Function ANN(account As String, account_owner As String, y_year As String) As Double
 'DEPRECATED - USE annuity instead
 'return a year's value for an annuity stream based on the prior year's end balance
@@ -132,20 +156,19 @@ Sub calc_retir()
     Next i
     
     Set rcols = tbls(0).HeaderRowRange
-    Set col = tbls(0).ListColumns("Start_Date")
-    col.range.Dirty
-    col.range.Calculate
     Set col = tbls(0).ListColumns("yearly")
     col.range.Dirty
     col.range.Calculate
-    log ("Retirement Start_date and yearly columns refreshed.")
+    log ("Retirement yearly column refreshed.")
     For Each rcell In rcols
     
         If InStr(rcell.value, "Y20") = 1 Then
             For i = LBound(tbls) To UBound(tbls)
                 Set col = tbls(i).ListColumns(rcell.value)
+                t_name = tbls(i).Name
                 col.range.Dirty
                 col.range.Calculate
+                log ("  " & t_name)
             Next i
             log ("Calculated " & msg & " for " & rcell.value)
          End If
@@ -598,28 +621,43 @@ Next
 
 End Sub
 
-Function retir_med(who1 As String, y_year As String) As Double
-'return the forecast medical expenses including premium and deductible for person with initial who1 given a year
+Function retir_med(inits As String, y_year As String) As Double
+'return the forecast medical expenses including premium and deductible for person with initials init given a year
+    retir_med = retir_agg(y_year, "MEDIC*", inits)
+End Function
+
+Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double
+'get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.
+'wild cards are OK as are Excel functions like "<>" prependedto the values.  For instance "MEDIC*" for type gets all medical assuming rows coded that way
+'NOTE all the criteria fields must have values - suggest using NA if there is no value such as for an election.
+
     Dim this_year As Integer, tbl_name As String
-    Dim med_exp As Double, result As Double
+    Dim result As Double
     Dim tbl As ListObject, crit_col1 As ListColumn, crit_col2 As ListColumn, val_col As ListColumn
     Dim criteria1 As String, criteria2 As String
-    criteria1 = "MEDIC*"
-    criteria2 = who1
+    
     tbl_name = "tbl_retir_vals"
     ws_name = ws_for_table_name(tbl_name)
     Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set crit_col1 = tbl.ListColumns("Item")
-    Set crit_col2 = tbl.ListColumns("Who1")
+    Set crit_col1 = tbl.ListColumns("Type")
+    Set crit_col2 = tbl.ListColumns("Who")
+    Set crit_col3 = tbl.ListColumns("Firm")
+    Set crit_col4 = tbl.ListColumns("Election")
     Set val_col = tbl.ListColumns(y_year)
-    med_exp = Application.WorksheetFunction.SumIfs(val_col.range, crit_col1.range, criteria1, crit_col2.range, criteria2)
-    retir_med = med_exp
+    result = Application.WorksheetFunction.SumIfs(val_col.range, _
+        crit_col1.range, typ, _
+        crit_col2.range, who, _
+        crit_col3.range, firm, _
+        crit_col4.range, election)
+    retir_agg = result
+
 End Function
+
 
 Sub test_retir_med()
 Dim test_cases() As Variant
 Dim yr As String, who As String, result As Double
-test_cases() = Array(Array("G", "Y2022"), Array("V", "Y2026"))
+test_cases() = Array(Array("GBD", "Y2022"), Array("VEC", "Y2026"))
 log ("retir_med tests")
 For i = LBound(test_cases) To UBound(test_cases)
     who = test_cases(i)(0)

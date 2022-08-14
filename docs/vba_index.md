@@ -10,6 +10,8 @@
 ||Return the age attained by an account owner in a given year|
 |age_of|Function age_of(inits As String, y_year As String) As Integer|
 ||Return the age attained by an account owner in a given year|
+|agg|Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
+||Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
 |ANN|Function ANN(account As String, account_owner As String, y_year As String) As Double|
 ||Deprecated - use annuity instead. Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
 |annuity|Function annuity(account As String, y_year As String) As Double|
@@ -48,8 +50,10 @@
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |prior_value|Function prior_value(line As String) As Variant|
 ||Get the prior years' value for this line. suitable only for year columns.|
-|retir_med|Function retir_med(who1 As String, y_year As String) As Double|
-||Return the forecast medical expenses including premium and deductible for person with initial who1 given a year|
+|retir_agg|Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double|
+||Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "<>" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
+|retir_med|Function retir_med(inits As String, y_year As String) As Double|
+||Return the forecast medical expenses including premium and deductible for person with initials init given a year|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
