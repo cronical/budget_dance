@@ -93,6 +93,14 @@ This is Income and Expense actuals as it comes from Moneydance `Income & Expense
 
 This data is loaded from `data/iande.tsv` with the program  `iande-actl-load.py` 
 
+#### IRA-Txbl-Distr
+This line is needed to handle the accounting difficulty that arises with IRA distributions when the source account is in Moneydance (see note).  The gross amount is taxable and thus needs to be included in the tax calculation.  However, the tax amounts go to the state and federal expense lines and the net goes to the receiving bank.  There is no place to declare income.
+
+The solution allows a uniform way of handling the data (at the cost of a bit of special handling). 
+
+The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
+
+This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv`file. It is then imported via special handling in `iande_actl_load`, which calls the `ira_distr_summary()` function and merges the data into `IRA-Txbl-Distr` line on the iande_actl table.  From there it flows to the `iande` tab and then to the `taxes` tab.  The value in `iande_actl` may have values for some years (if the distribution comes from an account not tracked by Moneydance.  This can happen with an inherited IRA).
 
 ### iande-map
 
@@ -185,11 +193,6 @@ A page with a section for each HSA account.
 A number of entries are needed to determine taxes.  When easiest, these are input on this table: `tbl_manual_actl`. A Moneydance report `W2-exclusions` extracts the amounts that can be excluded from the W2s.  This relies on the Pre-tax and pre-tax tags. These should be input manually.
 
 Computes the actual 401K contributions to post to the iande tab.
-
-#### IRA-Txbl-Distr - line
-This is needed to handle the accounting difficulty that arises with IRA distributions when the source account is in Moneydance (see note).  The gross amount is taxable and thus needs to be included in the tax calculation.  However, the tax amounts go to the state and federal expense lines and the net goes to the receiving bank.  There is no place to declare income.
-
-The solution is to use a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. This data is exported from Moneydance via the `IRA-Distr` report, saved in the `data/IRA-Distr`file and imported via the `ira-distr.py` routine, which places it on the `IRA-Txbl-Distr` line on the aux table.  From there it flows to the `iande` tab and then to the `taxes` tab.  The value in `iande_actl` cannot be used since Moneydance itself does not have this total.
 
 ## functions
 

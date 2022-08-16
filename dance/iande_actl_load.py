@@ -12,6 +12,7 @@ from dance.util.books import col_attrs_for_sheet, set_col_attrs, fresh_sheet
 from dance.util.files import tsv_to_df, read_config
 from dance.util.tables import df_for_table_name, this_row, write_table, get_f_fcast_year,columns_for_table
 from dance.util.logs import get_logger
+from dance.ira_distr import ira_distr_summary
 
 logger=get_logger(__file__)
 
@@ -117,6 +118,14 @@ def read_iande_actl(data_info):
   df.fillna(0, inplace=True) # replace the NaN's with zeros
   df.query('Account!=0',inplace=True) # remove blank rows
   df.Account=df.Account.apply(indent_other)
+
+  # special handling for IRA-Txbl-Distr
+
+  for ix,_ in df.loc[df.Account.str.contains('IRA-Txbl-Distr')].iterrows(): # zero or one rows
+    itd=ira_distr_summary().loc['Amount']
+    for y in itd.index:
+      df.loc[ix,y[1:]]=itd[y]
+
 
   # change the year columns to Y+year format
   for cn in df.columns.values.tolist():

@@ -1,16 +1,22 @@
 #! /usr/bin/env python
 '''Process the ira distribution records from Moneydance export'''
 import pandas as pd
-from dance.util.tables import  df_for_table_name_for_update
 from openpyxl.utils.cell import range_boundaries
-from util.logs import get_logger
+from dance.util.logs import get_logger
+from dance.util.tables import  df_for_table_name_for_update
 
 logger=get_logger(__file__)
 
-def ira_distr_records():
-  '''Get the ira distribution records from Moneydance export
+def ira_distr_summary():
+  '''Get the ira distribution records from Moneydance export and summarize so data items can be put in spreadsheet
+  These data refer to distributions from accounts that are internal to Moneydance (typical). 
 
-  Return a dataframe that has both inbound and outbound totals
+  Args: None
+  
+  Returns: 
+    a dataframe that adds the inbound and outbound transfers together
+    So it has one row ('Amount') and multiple y_year columns
+    Only has columns where data exists
   '''
 
   filename='data/IRA-Distr.tsv'
@@ -32,33 +38,5 @@ def ira_distr_records():
   # create the year field to allow for pivot
   df['Year']=df['Date'].dt.year
   df['Year'] = df['Year'].apply('Y{}'.format)
-  return df
-
-def main():
-  '''Adds the inbound and outbound transfers together and writes to spreadsheet'''
-
-  df= ira_distr_records()
-
   summary= df.pivot_table(values='Amount',columns='Year',aggfunc='sum')
-
-  source='data/fcast.xlsm'
-  target = source
-
-  # get the aux table and locate where to put the values
-  aux_table,ws,ref,wb=df_for_table_name_for_update('tbl_aux')
-
-  key='Income:I:Retirement income:IRA-Txbl-Distr'
-  ix=aux_table.index.tolist().index(key) # the row in the table
-  wix = ix +range_boundaries(ref)[1] + 1 # the row in the worksheet origin 1
-  for col in summary.columns:
-    val=summary.loc['Amount',col]
-    cx = aux_table.columns.tolist().index(col)
-    wcx = cx + range_boundaries(ref)[0] + 1 # the column index in the worksheet origin 1
-    ws.cell(row=wix,column=wcx,value=val)
-
-  wb.save(target)
-  logger.info('saved to {}'.format(target))
-
-
-if __name__ == '__main__':
-  main()
+  return summary

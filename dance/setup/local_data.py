@@ -42,8 +42,10 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
   if data_info['type']=='json_index': # a json file organized like: {index -> {column -> value}}
     df=pd.read_json(data_info['path'],orient='index')
+    logger.info(f'Read {data_info["path"]}')
   if data_info['type']=='json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
     df=pd.read_json(data_info['path'],orient='records')
+    logger.info(f'Read {data_info["path"]}')
     pass
   return df,groups
 

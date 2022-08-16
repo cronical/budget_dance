@@ -12,7 +12,7 @@ Use the following command to active the virtual environment: `source .venv/bin/a
 4. Ensure that the formulas on the year are set to `getval...`
 5. Check that income, tax and expense totals match to report: 
    * start at level 3 and drill down to find problems.
-   * IRA distributions are problematic (see note IRA-Txbl-Distr - line)
+   * IRA distributions are problematic [see note IRA-Txbl-Distr](./fcast.md#ira-txbl-distr)
    * If there are new categories - you will need to insert a line
 
 ## First pass on the taxes 
