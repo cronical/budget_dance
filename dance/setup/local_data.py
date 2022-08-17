@@ -288,19 +288,19 @@ def prepare_balance_tab(years,first_forecast,in_df):
   # the actual and the forecast formulas
   # braces are filled in before inserting into the worksheet
   actl_formulas={
-    'Rate':'=simple_return( %s,{}$2)' % (acct_ref),
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{}$2)' % (acct_ref),
-    'Add/Wdraw':'=add_wdraw( %s,{}$2)' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{}$2,TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{}$2,FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{}$2)'  % (acct_ref) }
+    'Rate':'=simple_return( %s,{})' % (acct_ref),
+    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
+    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
+    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
+    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
+    'End Bal': '=@endbal( %s,{})'  % (acct_ref) }
   fcst_formulas={
-    'Rate':'=rolling_avg("tbl_balances", %s,{}$2,3)' % key_ref,
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{}$2)' % (acct_ref),
-    'Add/Wdraw':'=-add_wdraw( %s,{}$2)' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{}$2,TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{}$2,FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{}$2)' % (acct_ref)  }
+    'Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
+    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
+    'Add/Wdraw':'=-add_wdraw( %s,{})' % (acct_ref),
+    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
+    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
+    'End Bal': '=@endbal( %s,{})' % (acct_ref)  }
 
   val_types=actl_formulas.keys()
   r_count=len(val_types)
@@ -324,12 +324,12 @@ def prepare_balance_tab(years,first_forecast,in_df):
         this_year_col=get_column_letter(1+len(lead_cols)+yx)
         if vt == 'Start Bal': # only type to use prior year col
           if yx >0:
-            prior_year_col=get_column_letter(len(lead_cols)+yx)
+            prior_year_col='y_offset(this_col_name(),-1)'
             formula=raw_formula.format(prior_year_col)
           else: # initial year is the balance from the input
             formula=float(in_df.loc[in_df.Account == row['Account'],'Current Balance'])
         else:
-          formula=raw_formula.format(this_year_col)
+          formula=raw_formula.format('this_col_name()')
         formulas+=[formula]
       a_df['Y{}'.format(c)]=formulas
     df=pd.concat([df,a_df],axis=0)
