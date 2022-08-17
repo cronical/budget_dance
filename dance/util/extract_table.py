@@ -20,7 +20,7 @@ def extract(workbook,table,orient,out_file,data_only):
         name = column_info[0]['name']
         df=df.reset_index().rename(columns={'index':name})
         break
-  df.to_json(out_file,orient=orient)
+  df.to_json(out_file,orient=orient)# ,date_format='iso'
   logger.info(f'Wrote to {out_file}'.format())
 
 if __name__ == '__main__':

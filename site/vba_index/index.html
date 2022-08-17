@@ -360,6 +360,14 @@
 <td>Return the age attained by an account owner in a given year</td>
 </tr>
 <tr>
+<td>agg</td>
+<td>Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"</td>
+</tr>
+<tr>
 <td>ANN</td>
 <td>Function ANN(account As String, account_owner As String, y_year As String) As Double</td>
 </tr>
@@ -512,12 +520,20 @@
 <td>Get the prior years' value for this line. suitable only for year columns.</td>
 </tr>
 <tr>
-<td>retir_med</td>
-<td>Function retir_med(who1 As String, y_year As String) As Double</td>
+<td>retir_agg</td>
+<td>Function retir_agg(y_year As String, typ As String, Optional who As String = "<em>", Optional firm As String = "</em>", Optional election As String = "*") As Double</td>
 </tr>
 <tr>
 <td></td>
-<td>Return the forecast medical expenses including premium and deductible for person with initial who1 given a year</td>
+<td>Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "&lt;&gt;" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.</td>
+</tr>
+<tr>
+<td>retir_med</td>
+<td>Function retir_med(inits As String, y_year As String) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Return the forecast medical expenses including premium and deductible for person with initials init given a year</td>
 </tr>
 <tr>
 <td>retir_parm</td>

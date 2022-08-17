@@ -54,7 +54,7 @@
       "request": "launch",
       "program": "dance/util/extract_table.py",
       "console": "integratedTerminal",
-      "args": ["-t","tbl_social_security","-o","records","-j","data/social_security.json"],
+      "args": ["-t","tbl_retir_vals","-o","records","-j","data/retir_vals.json"],
       "justMyCode": true
     }
   ]

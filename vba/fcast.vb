@@ -81,22 +81,11 @@ Function annuity(account As String, y_year As String) As Double
     annuity = result
 End Function
 Function LUMP(account As String, y_year As String) As Double
-'return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table
-'for the current year (items that begin with the account name)
+'return the expected lump sum payment for an account based on the prior year's end balance
     Dim this_year As Integer, tbl_name As String
-    Dim prior_end_bal As Double, adj As Double, result As Double
-    Dim tbl As ListObject, crit_col As ListColumn, val_col As ListColumn
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    criteria = account
-    tbl_name = "tbl_aux"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set crit_col = tbl.ListColumns("Accum_by")
-    Set val_col = tbl.ListColumns(y_year)
-    adj = Application.WorksheetFunction.SumIf(crit_col.range, criteria, val_col.range)
-    result = adj + prior_end_bal
-    LUMP = result
+    Dim prior_end_bal As Double
+    prior_end_bal = get_val("End Bal" & account, "tbl_balances", y_offset(y_year, -1))
+    LUMP = prior_end
 End Function
 Sub test_LUMP()
     Dim val As Double
@@ -375,7 +364,7 @@ Sub test_get_val()
     Dim line_name As String
     Dim y_year As String
     Debug.Print (get_val("Expenses:T:Soc Sec - TOTAL", "tbl_iande_actl", "Y2018"))
-    Debug.Print (get_val("End BalMortgage - Nationstar", "tbl_balances", "Y2019"))
+    Debug.Print (get_val("End BalReal Estate", "tbl_balances", "Y2019"))
 
  End Sub
  Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant
@@ -385,9 +374,11 @@ Sub test_get_val()
     Dim value As Variant, rng As Variant
     Dim caller As range
     Dim address As String
-    
+    address = "no addr"
+    On Error GoTo skip ' allow testing from outside of Excel
     Set caller = Application.caller()
     address = caller.Worksheet.Name & "!" & caller(1, 1).address
+skip:
     ws = ws_for_table_name(tbl_name)
     
     'now get the data
@@ -525,7 +516,32 @@ Function IntYear(yval) As Integer
     y = 0 + Right(yval, 4)
     IntYear = y
 End Function
+Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double
+'get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status
+'wild cards are OK as are Excel functions like "<>" prepended to the values for strings
+'NOTE all the criteria fields must have values - suggest using NA if there is no value such as for an election.
 
+    Dim this_year As Integer, tbl_name As String
+    Dim result As Double
+    Dim tbl As ListObject, crit_col1 As ListColumn, crit_col2 As ListColumn, val_col As ListColumn
+    Dim criteria1 As String, criteria2 As String
+    
+    tbl_name = "tbl_balances"
+    ws_name = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
+    Set crit_col1 = tbl.ListColumns("ValType")
+    Set crit_col2 = tbl.ListColumns("Type")
+    Set crit_col3 = tbl.ListColumns("Income Txbl")
+    Set crit_col4 = tbl.ListColumns("Active")
+    Set val_col = tbl.ListColumns(y_year)
+    result = Application.WorksheetFunction.SumIfs(val_col.range, _
+        crit_col1.range, val_type, _
+        crit_col2.range, acct_type, _
+        crit_col3.range, txbl, _
+        crit_col4.range, active)
+    bal_agg = result
+
+End Function
 Function retir_parm(code As String, who As String) As Variant
 'Get a retirement paramenter given code and code (G or V)
     Dim rng As range

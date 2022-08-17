@@ -44,7 +44,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     df=pd.read_json(data_info['path'],orient='index')
     logger.info(f'Read {data_info["path"]}')
   if data_info['type']=='json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
-    df=pd.read_json(data_info['path'],orient='records')
+    df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
     logger.info(f'Read {data_info["path"]}')
     pass
   return df,groups
@@ -337,14 +337,14 @@ def prepare_balance_tab(years,first_forecast,in_df):
   return df
 
 def read_gen_state(config):
-  '''General state comes from the file but elements can be set by the control program, 
+  '''General state comes from the file but elements can be set by the control program,
   so this is called prior to setting up the general_state variable which is then modified.
   So this allows it to be treated as an "internal" source not a "local" source, and yet
   most parameters can be edited in the file.
-  
+
   args:
     config: the dict that contains the location of file
-    
+
   returns: the parameter table dictionary.
   '''
   table_info=config['sheets']['gen_tables']['tables']

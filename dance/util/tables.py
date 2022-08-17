@@ -1,10 +1,11 @@
 '''Utilities dealing with worksheet tables.'''
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment
+from openpyxl.formatting import Rule
+from openpyxl.styles import Font, Alignment, PatternFill, Side,Border
 from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00
+from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.utils import get_column_letter
-
 import openpyxl.utils.cell
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
@@ -233,7 +234,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
             num_fmt=col_defs.loc[cn].number_format
             if pd.notna(num_fmt):
               if not isinstance(num_fmt,str):
-                num_fmt=BUILTIN_FORMATS[num_fmt]  
+                num_fmt=BUILTIN_FORMATS[num_fmt]
               ws.cell(row=rix,column=cix).number_format=num_fmt
 
 
@@ -267,6 +268,51 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   tab.tableStyleInfo = TableStyleInfo(name=table_style,  showRowStripes=True)
   ws.add_table(tab)
   logger.info('table {} added to {}'.format(table_info['name'],target_sheet))
+
+  # add conditional formatting if any
+  if 'highlights' in table_info:
+    # set range to without the heading
+    top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row+1}'
+    rng=f'{top_left}:{bot_right}'
+    for cf in table_info['highlights']:
+      font=fill=border=None
+      # ignore unsupported options
+      if 'font' in cf:
+        # only support bold, italic and color
+        codes={'bold':False,'italic':False, 'color':'000000'}
+        for fnt_code, fnt_val in cf['font'].items():
+          codes[fnt_code]=fnt_val
+        font=Font(bold=codes['bold'],italic=codes['italic'],color=codes['color'])
+      if 'fill' in cf:
+        codes={'bgcolor':'000000'} # only option
+        for fill_code, fill_val in cf['fill'].items():
+          codes[fill_code]=fill_val
+        fill=PatternFill(start_color=codes['bgcolor'],end_color=codes['bgcolor'])
+      if 'border' in cf:
+        codes={'edges':None,'style':None,'color': '000000'}
+        for bord_code,bord_val in cf['border'].items():
+          codes[bord_code]=bord_val
+        if codes['edges'] is not None:
+          edges=codes['edges']
+          if isinstance(edges,str):
+            edges=[edges]
+          side=Side(border_style=codes['style'],color=codes['color'])
+          edge_codes={ 'left':None,'right':None,'top':None,'bottom':None}
+          for edge in edges:
+            edge_codes[edge]=side
+          border=Border(left=edge_codes['left'],right=edge_codes['right'],top=edge_codes['top'],bottom=edge_codes['bottom'])
+
+      dxf= DifferentialStyle(font=font,fill=fill,border=border)
+      if 'keys' in cf:
+        for key in cf['keys']:
+          formula=cf['formula'].format(key)
+          rule=Rule(type='expression',dxf=dxf,stopIfTrue=False)
+          rule.formula=[formula]
+          ws.conditional_formatting.add(rng,rule)
+      else:
+        rule=Rule(type='expression',dxf=dxf,stopIfTrue=False)
+        rule.formula=[cf['formula']]
+        ws.conditional_formatting.add(rng,rule)
 
   return wb
 
