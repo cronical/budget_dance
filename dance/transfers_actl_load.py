@@ -244,10 +244,10 @@ if __name__ == '__main__':
   df=read_transfers_actl(data_info={'path':args.path})
   transfers_actl,fold_groups=prepare_transfers_actl(args.workbook,df)
   sheet='transfers_actl'
-  table='tbl_'+args.sheet
+  table='tbl_'+sheet
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
-  wkb=fresh_sheet(wkb,args.sheet)
-  wkb= write_table(wkb,target_sheet=args.sheet,df=transfers_actl,table_name=table,groups=fold_groups)
-  attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
-  wkb=set_col_attrs(wkb,args.sheet,attrs)
+  wkb=fresh_sheet(wkb,sheet)
+  wkb= write_table(wkb,target_sheet=sheet,df=transfers_actl,table_name=table,groups=fold_groups)
+  attrs=col_attrs_for_sheet(wkb,sheet,read_config())
+  wkb=set_col_attrs(wkb,sheet,attrs)
   wkb.save(args.workbook)
