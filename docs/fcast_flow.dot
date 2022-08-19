@@ -2,6 +2,7 @@ digraph {
   graph [
     label = "Forecast periods data flows\n\nAll current year unless ending in _py"
     labelloc= t
+    rankdir="LR"
   ]
 
   subgraph cluster_0{
@@ -32,6 +33,8 @@ digraph {
     int_inc
     int_inc_te
     tax_pmts
+    expenses
+    net_inc
   }
 
   subgraph cluster_3{
@@ -62,8 +65,11 @@ digraph {
   {acct_rate acct_bal} -> acct_rlzd
   acct_rlzd -> {int_inc int_inc_te}
   {IRA_txbl_distr pension SS_income int_inc int_inc_te} -> adj_gross
+  {IRA_txbl_distr pension SS_income int_inc int_inc_te expenses}->net_inc
   {tax_pmts fed_inc_tax} -> fed_owe
   model_tax_pmts -> tax_pmts
   {tax_pmts st_inc_tax}-> st_owe
   model_hsa_disb -> hsa
+  med_oth->expenses
+  net_inc ->acct_bal
   }
