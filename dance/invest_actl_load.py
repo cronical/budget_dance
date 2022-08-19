@@ -132,13 +132,13 @@ if __name__ == '__main__':
   parser.add_argument('--prefix','-x',default= 'invest-p-',help='The prefix used to locate the performance reports')
 
   args=parser.parse_args()
-  invest_actl=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path':args.path,
+  invest_actl=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path':args.base_path + args.path,
     'file_set':{'base_path':args.base_path,'prefix':args.prefix}})
   sheet='invest_actl'
-  table='tbl_'+args.sheet
+  table='tbl_'+sheet
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
-  wkb=fresh_sheet(wkb,args.sheet)
-  wkb= write_table(wkb,target_sheet=args.sheet,df=invest_actl,table_name=table)
-  attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
-  wkb=set_col_attrs(wkb,args.sheet,attrs)
+  wkb=fresh_sheet(wkb,sheet)
+  wkb= write_table(wkb,target_sheet=sheet,df=invest_actl,table_name=table)
+  attrs=col_attrs_for_sheet(wkb,sheet,read_config())
+  wkb=set_col_attrs(wkb,sheet,attrs)
   wkb.save(args.workbook)
