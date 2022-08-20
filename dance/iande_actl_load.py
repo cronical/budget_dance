@@ -173,7 +173,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   except FileNotFoundError:
     raise FileNotFoundError(f'file not found {workbook}') from None
   if f_fcast is None:
-    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
+    f_fcast='Y%d'% get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
   logger.info ('First forecast year is: %s',f_fcast)
 
   tables=config['sheets'][target_sheet]['tables']
