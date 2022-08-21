@@ -109,7 +109,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       df.rename(columns=map,inplace=True)
 
       # rework so the rows of 3 value types for each account
-      rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls']].transpose().stack().reset_index()
+      rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains']].transpose().stack().reset_index()
       map=dict(zip(rows.columns.to_list(),['ValType','AcctName','Y'+fn_year]))
       rows.rename(columns=map,inplace=True)
       rows=rows.assign(Key=lambda x: x.ValType + x.AcctName)
