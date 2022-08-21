@@ -173,7 +173,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   except FileNotFoundError:
     raise FileNotFoundError(f'file not found {workbook}') from None
   if f_fcast is None:
-    f_fcast='Y%d'% get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
+    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
   logger.info ('First forecast year is: %s',f_fcast)
 
   tables=config['sheets'][target_sheet]['tables']
@@ -264,14 +264,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   if target_sheet=='iande': # adjust for iande, using formulas to pull non-totals from iande_actl
     tr=this_row('Key') # syntax to refer to key on this row inside of Excel
-#    for ix,c in cols_df.iterrows():# use formulas for actual columns
-#      col_name=c['name']
-#      if col_name[1:].isnumeric():
-#        if int(col_name[1:])<f_fcast: # only actual items
-#          cl=get_column_letter(1+ix)
-#          formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
-#          df[col_name]=[formula]*df.shape[0]
-
     for rix,row in df.iterrows():
       for cix,col_name in enumerate(df.columns):
         if col_name[1:].isnumeric():
