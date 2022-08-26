@@ -297,7 +297,7 @@ def prepare_balance_tab(years,first_forecast,in_df):
   fcst_formulas={
     'Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
     'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
-    'Add/Wdraw':'=-add_wdraw( %s,{})' % (acct_ref),
+    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
     'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
     'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
     'End Bal': '=@endbal( %s,{})' % (acct_ref)  }
