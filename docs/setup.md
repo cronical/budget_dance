@@ -85,7 +85,7 @@ The data definitions are purpose built to support the target table, but there ar
 |Item|Purpose|Used for|
 |:--|:---|---|
 |source|local to reference local files; remote to pull data over internet. remote to pull data over internet. internal is used to create the table/sheet cross reference.|
-|type|These codes are used by the program select the processing logic to use. md_acct - for accounts, md_bal for balances, md_iande_actl for income and expense sheets|local|s
+|type|These codes are used by the program select the processing logic to use. [See supported types](#supported-types)|local|
 |path|path relative to project folder|for local sources|
 |group|Specific Moneydance groupings to include|Accounts, Balances|
 |no_details_for|For these groupings create rows only at the grouping level, no details. Investments here means to summarize to the investment level and don't carry over the securities.|Accounts|
@@ -96,6 +96,61 @@ The data definitions are purpose built to support the target table, but there ar
 |table|Defines how to locate a table in HTML|remote|
 |table.find_method|caption - only supported method|remote|
 |table.method_parameters|parameters for the method, specifically the text to search for in the caption.|remote|
+
+#### Supported Types
+
+|Type|Purpose|
+|:--|:---|
+|md_acct|Processes the account extract from Moneydance|
+|md_bal|Processes the balances extract from Moneydance|
+|md_iande_actl|Processes the income and expense extract from Moneydance to create the iande and iande_actl sheets|
+|md_transfers_actl|Sets up the non-investment actual transfers|
+|md_invest_actl|Sets up the investment actual transfers|
+json_index|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.
+json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.
+
+### Forecast Formulas
+
+If there is a key `fcst_formulas` under the table| it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
+
+```yaml
+fcst_formulas:
+  - base_field: ValType
+    matches:
+    - Rate
+    formula: =.03
+  - base_field: ValType
+    matches:
+    - Add/Wdraw
+    formula: =add_wdraw( [@AcctName],this_col_name())
+  - base_field: ...
+```
+
+### Build-time created fields
+
+The account table (and maybe others) needs a way to determine values at build time. The following may be directly under the table.
+
+```yaml
+dyno_fields:
+    - base_field: Account
+      matches:
+        - 401K - GBD - TRV
+        - CHET - Fidelity
+      actions:
+        - target_field: Fcst_source
+          suffix: "- wdraw"
+        - target_field: Fcst_source_tab
+          constant: tbl_aux
+    - base_field: ...
+```
+
+#### Formula Specifics
+
+- Always start the formula with a leading equals sign.
+- Constants are fine, but remember to use the leading equals sign
+- Structured table references are supported and recommended.  
+- Refer to this column with the VBA function `this_col_name()`
+- Many VBA functions are designed to be used in formulas
 
 ### Specific Sheets & Tables
 

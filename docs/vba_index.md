@@ -12,10 +12,14 @@
 ||Return the age attained by an account owner in a given year|
 |agg|Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
 ||Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
+|agg_table|Function agg_table(tbl_name As String, y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
+||Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
 |ANN|Function ANN(account As String, account_owner As String, y_year As String) As Double|
 ||Deprecated - use annuity instead. Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
 |annuity|Function annuity(account As String, y_year As String) As Double|
 ||Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number|
+|bal_agg|Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double|
+||Get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status. Wild cards are ok as are excel functions like "<>" prepended to the values for strings. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
 |calc_retir|Sub calc_retir()|
 ||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande|
 |calc_table|Sub calc_table()|
@@ -39,7 +43,7 @@
 |log|Sub log(txt As String)|
 |||
 |LUMP|Function LUMP(account As String, y_year As String) As Double|
-||Return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table. For the current year (items that begin with the account name)|
+||Return the expected lump sum payment for an account based on the prior year's end balance|
 |MedicarePrem|Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|

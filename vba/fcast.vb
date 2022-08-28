@@ -30,9 +30,35 @@ Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", O
         agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rng, by_tag)
     End Select
     agg = agg_val
-    
-
 End Function
+Function agg_table(tbl_name As String, y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
+' Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.
+' Use of this can help avoid the hard coding of addresses into formulas
+' By default the tag column is "tag" but an alternate can be provided
+' Other agg_methods are "min" and "max"
+    Dim agg_val As Double
+    
+    Dim tbl As ListObject
+    Dim point As range, val_rng As range, tag_col As range
+    Set point = Application.caller
+    
+    ws_name = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
+    
+    Set tag_rng = tbl.ListColumns(tag_col_name).range
+    Set val_rng = tbl.ListColumns(y_year).range
+    Select Case agg_method
+    Case "sum"
+        agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rng, by_tag)
+    Case "min"
+        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rng, by_tag)
+    Case "max"
+        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rng, by_tag)
+    End Select
+    agg_table = agg_val
+End Function
+
+
 Function ANN(account As String, account_owner As String, y_year As String) As Double
 'DEPRECATED - USE annuity instead
 'return a year's value for an annuity stream based on the prior year's end balance
@@ -112,20 +138,21 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     RMD_1 = result
 End Function
 Sub log(txt As String)
-    If dbg Then
-        Debug.Print (Format(Now, "mm/dd/yyyy HH:mm:ss: ") & txt)
-    End If
+    fn = ThisWorkbook.Path & "/fcast_log.txt"
+    Open ThisWorkbook.Path & "/log.txt" For Append As #1
+    Print #1, (Format(Now, "mm/dd/yyyy HH:mm:ss: ") & txt)
+    Close #1
 End Sub
 
 Sub calc_retir()
 'iterate through the years to calc retirement streams based on balances from prior year
 'prior balance from balances feeds current retirement, which feeds aux, which feeds current balances
 'iande depends on retirement as well and taxes depend on iande
-    Dim rcols As range, rcell As range
+    Dim rcols As range, rcell As range, single_cell As range
     Dim tbls(4) As ListObject
     Dim tbl_names(4) As String
     Dim ws_names(4) As String
-    Dim msg As String
+    Dim msg As String, formula As String
     log ("-----------------------------")
     log ("Entering manual calculation mode.")
     Application.Calculation = xlCalculationManual
@@ -152,14 +179,28 @@ Sub calc_retir()
     For Each rcell In rcols
     
         If InStr(rcell.value, "Y20") = 1 Then
+            log ("Calculating for " & rcell.value)
             For i = LBound(tbls) To UBound(tbls)
                 Set col = tbls(i).ListColumns(rcell.value)
                 t_name = tbls(i).Name
-                col.range.Dirty
-                col.range.Calculate
-                log ("  " & t_name)
+                log ("  " & t_name & " - range " & col.range.address)
+                If dbg Then
+                    For Each single_cell In col.range.Cells
+                        formula = single_cell.formula
+                        If 0 < Len(formula) Then
+                            If Left(formula, 1) = "=" Then
+                            log ("    " & single_cell.address & ":    " & formula)
+                                single_cell.Dirty
+                                single_cell.Calculate
+                            End If
+                        End If
+                        Next
+                Else
+                    col.range.Dirty
+                    col.range.Calculate
+                End If
             Next i
-            log ("Calculated " & msg & " for " & rcell.value)
+
          End If
     Next rcell
     log ("Entering automatic calculation mode.")
@@ -426,12 +467,20 @@ Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean
     add_wdraw = 0
     acct_type = get_val(acct, "tbl_accounts", "Type")
     tbl = get_val(acct, "tbl_accounts", prefix & "_source_tab")
+    
+    'logic to switch sign for retirement
+    sign = 1
+    If tbl = "tbl_retir_vals" Then
+        sign = -1
+    End If
+    
+    
     line = get_val(acct, "tbl_accounts", prefix & "_source")
     If ("I" = acct_type) And Not is_fcst Then line = "add/wdraw" & line ' complete key for investment actuals
     
     If line <> "zero" Then  ' keyword to enable forecasting of zeros
         value = get_val(line, tbl, y_year)
-        add_wdraw = value
+        add_wdraw = value * sign
     End If
 End Function
 Function is_forecast(y_year As String) As Boolean
@@ -712,8 +761,12 @@ this_year = IntYear(this_y_year)
 tot = 0
 cnt = 0
 For y = this_year - lookback To this_year - 1
-    y_year = "Y" & y
-    value = get_val(key, table, y_year)
+    If y < 2018 Then
+        value = 0
+    Else
+        y_year = "Y" & y
+        value = get_val(key, table, y_year)
+    End If
     If Not value = 0 Then
         tot = tot + value
         cnt = cnt + 1

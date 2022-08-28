@@ -173,7 +173,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   except FileNotFoundError:
     raise FileNotFoundError(f'file not found {workbook}') from None
   if f_fcast is None:
-    f_fcast=get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
+    f_fcast='Y%d' % get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
   logger.info ('First forecast year is: %s',f_fcast)
 
   tables=config['sheets'][target_sheet]['tables']
@@ -231,7 +231,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   test_required_lines(df,workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
 
   if target_sheet=='iande': # adjust for iande, adding columns
-    for y in range(f_fcast,config['end_year']+1): # add columns for future years
+    for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for future years
       df['Y{}'.format(y)]=None
 
   # now replace the hard values with formulas
@@ -269,7 +269,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
         if col_name[1:].isnumeric():
           val=row[col_name]
           if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
-            if int(col_name[1:])<f_fcast: # but for actual items, refer to iande_actl
+            if int(col_name[1:])<int(f_fcast[1:]): # but for actual items, refer to iande_actl
               cl=get_column_letter(1+cix)
               formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
               df.loc[rix,col_name]=formula
@@ -283,7 +283,7 @@ if __name__ == '__main__':
   parser.add_argument('--path','-p',default= 'data/iande.tsv',help='The path and name of the input file')
   parser.add_argument('--sheet','-s',default='iande_actl',help='which sheet - iande or iande_actl')
   parser.add_argument('--force', '-f',action='store_true', default=False, help='Use -f to ignore warning')
-  parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
+  parser.add_argument('--ffy', '-y',help='first forecast year as Ynnnn. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
   iande_actl=read_iande_actl(data_info={'path':args.path})
   table='tbl_'+args.sheet

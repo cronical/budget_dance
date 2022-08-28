@@ -56,6 +56,15 @@
       "console": "integratedTerminal",
       "args": ["-t","tbl_retir_vals","-o","records","-j","data/retir_vals.json"],
       "justMyCode": true
-    }
+    },
+    {
+      "name": "invest_actl_load args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/invest_actl_load.py",
+      "console": "integratedTerminal",
+      "args": ["-w","data/test_wb.xlsm"],
+      "justMyCode": true
+    },
   ]
 }

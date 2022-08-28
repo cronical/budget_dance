@@ -48,9 +48,10 @@ def create(filename,overwrite=False):
   '''
   logger=get_logger(__file__)
   logger.info('current working directory is {}'.format(getcwd()))
-  if not overwrite:
-    logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
-    exit(-1)
+  if exists(filename):
+    if not overwrite:
+      logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
+      exit(-1)
   wb=load_workbook('data/empty_template.xlsm',keep_vba=True)
   wb.save(filename)
   logger.info('initial file saved as {}'.format(filename))

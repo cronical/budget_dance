@@ -25,13 +25,25 @@ The first pass does not rely on the tax forms, those come later - basically the 
 
 ## Copy transfers data from Moneydance
 
-1. Run report in Moneydance (currently called Transfers-to-fcast.
+1. Run report in Moneydance [currently called Transfers-to-fcast](./report_configs.md#transfers-to-fcast) for all actual periods.
 2. Press Save button and choose Tab delimited and save as `data/transfers.tsv`
 3. (If a year has been completed run the Bank balance export procedure)
 4. If `fcast.xlsm` is open, save your work and close the file.
 5. Open a terminal window at the project root.
 6. Run `python transfers_actl_load.py`
 7. Re-open the spreadsheet and save it to force balances to recalc and be stored.
+
+```bash
+> dance/transfers_actl_load.py
+2022-08-19 12:49:34,546 - transfers_actl_load - INFO - loaded dataframe from data/transfers.tsv
+2022-08-19 12:49:34,839 - tables - INFO - Read table tbl_iande_actl from data/fcast.xlsm
+2022-08-19 12:49:34,839 - tables - INFO -   300 rows and 6 columns
+2022-08-19 12:49:35,124 - transfers_actl_load - INFO - loaded workbook from data/fcast.xlsm
+2022-08-19 12:49:35,162 - transfers_actl_load - INFO - First forecast year is: 2022
+2022-08-19 12:49:35,470 - books - INFO - deleted worksheet transfers_actl
+2022-08-19 12:49:35,470 - books - INFO - created worksheet transfers_actl
+2022-08-19 12:49:35,499 - tables - INFO - table tbl_transfers_actl added to transfers_actl
+```
 
 ## Bank balance export procedure
 
@@ -45,12 +57,28 @@ The method used is the difference of progressive balances.  This is done for eac
 
 The Tranfers to Investment Accounts by Year report is saved as `invest_x.tsv`. The Investment Performance report for each year is saved under `invest-p-yyyy.tsv` for each year. These are processed by `invest_actl_load.py`. At each year end:
 
-1. Run `Tranfers to Investment Accounts by Year` and save as `invest_x.tsv`
-2. Run `Investment Performance` report for the year and save under `invest-p-yyyy.tsv`
-3. If `fcast.xlsm` is open, save your work and close the file.
-5. Open a terminal window at the project root.
-6. Run `invest_actl_load.py`
-7. Re-open the spreadsheet and save it to force balances to recalc and be stored.
+1. Run [Tranfers to Investment Accounts by Year](./report_configs.md#tranfers-to-investment-accounts-by-year) and save as `invest_x.tsv`
+1. For each year:
+   2. Run `Investment Performance` report for the year and save under `invest-p-yyyy.tsv`
+   3. If `fcast.xlsm` is open, save your work and close the file.
+   5. Open a terminal window at the project root.
+   6. Run `invest_actl_load.py`
+   7. Re-open the spreadsheet and save it to force balances to recalc and be stored.
+
+```bash
+>dance/invest_actl_load.py 
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - loaded dataframe from data/invest_x.tsv
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - Starting investment actual load
+2022-08-19 13:49:22,824 - tables - INFO - Read table tbl_accounts from data/fcast.xlsm
+2022-08-19 13:49:22,824 - tables - INFO -   27 rows and 10 columns
+2022-08-19 13:49:22,834 - invest_actl_load - INFO - Processing 2018
+2022-08-19 13:49:22,846 - invest_actl_load - INFO - Processing 2019
+2022-08-19 13:49:22,856 - invest_actl_load - INFO - Processing 2020
+2022-08-19 13:49:22,867 - invest_actl_load - INFO - Processing 2021
+2022-08-19 13:49:23,145 - books - INFO - deleted worksheet invest_actl
+2022-08-19 13:49:23,145 - books - INFO - created worksheet invest_actl
+2022-08-19 13:49:23,175 - tables - INFO - table tbl_invest_actl added to invest_actl
+```
 
 ## Validate balances for a year
 

@@ -527,6 +527,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../setup/" class="md-nav__link">
         Setting up the spreadsheet
       </a>
@@ -960,7 +975,7 @@ Many of the tables represent time series where the time is based on years.  The 
 </tbody>
 </table>
 <p>The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that is defined)</p>
-<p>At the bottom there is a summary of account balances by type.</p>
+<p>From an accounting perspective the <code>Rlz Int/Gn</code> consists of short and long term gains combined with income.</p>
 <h3 id="invest-actl">invest-actl</h3>
 <p>The Python program <code>invest-actl-load.py</code> gets the master list of investment accounts from <code>fcast.xlsm</code>.  It then reads the <code>data/invst_*.tsv</code> files and computes the net flows for each account by year.</p>
 <p>The MoneyDance Investment Performance report is named <code>invest-p-YYYY.tsv</code>. There is one for each actual year. The program reads these as well.</p>
@@ -1039,7 +1054,11 @@ Many of the tables represent time series where the time is based on years.  The 
 <p>this_col_name is a VBA function that gets the current column table name.</p>
 <p>The field 'Accum_by' is intended to allow summations using the <code>accum</code> function.  If a value needs more than one tag, create another row with the same data and a different tag.  An example of this 401K deductions, which generate W2 exclusions on one hand and the need to deposit amounts into the 401K account.</p>
 <h3 id="capgn">capgn</h3>
-<p>This is for the purposes of estimating taxes for the current and prior year until tax statements arrive.</p>
+<p>This is for the purposes of </p>
+<ol>
+<li>estimating taxes for the current and prior year until tax statements arrive</li>
+<li>reconciling between balances (which includes realized capital gains) and income (which only includes capital gains arising as dividends, but not from sales of securities).</li>
+</ol>
 <h3 id="taxes">taxes</h3>
 <p>This computes Federal and State income taxes. It requires the data from the tables tab.  For actuals it pulls data mostly from iande-actl.  A few income fields need to come from tax documents. </p>
 <h3 id="tax-est">tax-est</h3>
@@ -1120,13 +1139,13 @@ xfer_to_other</p>
       
       
         
-        <a href="../setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Setting up the spreadsheet" rel="next">
+        <a href="../report_configs/" class="md-footer__link md-footer__link--next" aria-label="Next: Report definitions" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Setting up the spreadsheet
+              Report definitions
             </div>
           </div>
           <div class="md-footer__button md-icon">

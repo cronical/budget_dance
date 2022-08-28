@@ -239,6 +239,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../setup/" class="md-nav__link">
         Setting up the spreadsheet
       </a>
@@ -368,6 +383,14 @@
 <td>Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"</td>
 </tr>
 <tr>
+<td>agg_table</td>
+<td>Function agg_table(tbl_name As String, y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"</td>
+</tr>
+<tr>
 <td>ANN</td>
 <td>Function ANN(account As String, account_owner As String, y_year As String) As Double</td>
 </tr>
@@ -382,6 +405,14 @@
 <tr>
 <td></td>
 <td>Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number</td>
+</tr>
+<tr>
+<td>bal_agg</td>
+<td>Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status. Wild cards are ok as are excel functions like "&lt;&gt;" prepended to the values for strings. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.</td>
 </tr>
 <tr>
 <td>calc_retir</td>
@@ -477,7 +508,7 @@
 </tr>
 <tr>
 <td></td>
-<td>Return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table. For the current year (items that begin with the account name)</td>
+<td>Return the expected lump sum payment for an account based on the prior year's end balance</td>
 </tr>
 <tr>
 <td>MedicarePrem</td>

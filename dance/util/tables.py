@@ -219,7 +219,10 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
             if legend is None: # when no data is provided, there is a row of Nones
               legend=''
             legend=legend.lower()
-            if legend.startswith('rate') or legend.endswith('rate'):
+            fmt_pct=False
+            for kw in ['rate','pct','percent']:
+              fmt_pct=fmt_pct or legend.startswith(kw) or legend.endswith(kw)
+            if fmt_pct:
               ws.cell(row=rix,column=cix).number_format=FORMAT_PERCENTAGE_00
               continue
           # if not overridden use the fin format

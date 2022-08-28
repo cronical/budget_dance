@@ -1,6 +1,5 @@
 '''get annual various local data'''
 import pandas as pd
-from openpyxl.utils import get_column_letter
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
 from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
@@ -42,11 +41,10 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
   if data_info['type']=='json_index': # a json file organized like: {index -> {column -> value}}
     df=pd.read_json(data_info['path'],orient='index')
-    logger.info(f'Read {data_info["path"]}')
+    logger.info('Read {}'.format(data_info['path']))
   if data_info['type']=='json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
     df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
-    logger.info(f'Read {data_info["path"]}')
-    pass
+    logger.info('Read {}'.format(data_info['path']))
   return df,groups
 
 def filter_nz(df,include_zeros):
@@ -273,6 +271,9 @@ def prepare_balance_tab(years,first_forecast,in_df):
     in_df: a dataframe with at least columns: Account, and Current Balance
 
   returns: a dataframe for the balance tab
+
+  work in progress - the forecast items are overwritten based on config.
+  TODO do the same with the actuals and remove this logic, but keep adding columns.
   '''
 
   acct_ref=this_row('AcctName')
@@ -321,7 +322,6 @@ def prepare_balance_tab(years,first_forecast,in_df):
       for vt in val_types:
         raw_formula=[actl_formulas,fcst_formulas][c >= first_forecast][vt]
         yx=years.index(c)
-        this_year_col=get_column_letter(1+len(lead_cols)+yx)
         if vt == 'Start Bal': # only type to use prior year col
           if yx >0:
             prior_year_col='y_offset(this_col_name(),-1)'

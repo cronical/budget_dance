@@ -343,6 +343,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../setup/" class="md-nav__link">
         Setting up the spreadsheet
       </a>
@@ -514,7 +529,7 @@ Use the following command to active the virtual environment: <code>source .venv/
 </ol>
 <h2 id="copy-transfers-data-from-moneydance">Copy transfers data from Moneydance</h2>
 <ol>
-<li>Run report in Moneydance (currently called Transfers-to-fcast.</li>
+<li>Run report in Moneydance <a href="../report_configs/#transfers-to-fcast">currently called Transfers-to-fcast</a> for all actual periods.</li>
 <li>Press Save button and choose Tab delimited and save as <code>data/transfers.tsv</code></li>
 <li>(If a year has been completed run the Bank balance export procedure)</li>
 <li>If <code>fcast.xlsm</code> is open, save your work and close the file.</li>
@@ -522,6 +537,16 @@ Use the following command to active the virtual environment: <code>source .venv/
 <li>Run <code>python transfers_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
+<pre><code class="language-bash">&gt; dance/transfers_actl_load.py
+2022-08-19 12:49:34,546 - transfers_actl_load - INFO - loaded dataframe from data/transfers.tsv
+2022-08-19 12:49:34,839 - tables - INFO - Read table tbl_iande_actl from data/fcast.xlsm
+2022-08-19 12:49:34,839 - tables - INFO -   300 rows and 6 columns
+2022-08-19 12:49:35,124 - transfers_actl_load - INFO - loaded workbook from data/fcast.xlsm
+2022-08-19 12:49:35,162 - transfers_actl_load - INFO - First forecast year is: 2022
+2022-08-19 12:49:35,470 - books - INFO - deleted worksheet transfers_actl
+2022-08-19 12:49:35,470 - books - INFO - created worksheet transfers_actl
+2022-08-19 12:49:35,499 - tables - INFO - table tbl_transfers_actl added to transfers_actl
+</code></pre>
 <h2 id="bank-balance-export-procedure">Bank balance export procedure</h2>
 <p>The method used is the difference of progressive balances.  This is done for each year.  </p>
 <ol>
@@ -532,13 +557,27 @@ Use the following command to active the virtual environment: <code>source .venv/
 <h2 id="investment-actuals">Investment actuals</h2>
 <p>The Tranfers to Investment Accounts by Year report is saved as <code>invest_x.tsv</code>. The Investment Performance report for each year is saved under <code>invest-p-yyyy.tsv</code> for each year. These are processed by <code>invest_actl_load.py</code>. At each year end:</p>
 <ol>
-<li>Run <code>Tranfers to Investment Accounts by Year</code> and save as <code>invest_x.tsv</code></li>
+<li>Run <a href="../report_configs/#tranfers-to-investment-accounts-by-year">Tranfers to Investment Accounts by Year</a> and save as <code>invest_x.tsv</code></li>
+<li>For each year:</li>
 <li>Run <code>Investment Performance</code> report for the year and save under <code>invest-p-yyyy.tsv</code></li>
 <li>If <code>fcast.xlsm</code> is open, save your work and close the file.</li>
 <li>Open a terminal window at the project root.</li>
 <li>Run <code>invest_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
+<pre><code class="language-bash">&gt;dance/invest_actl_load.py 
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - loaded dataframe from data/invest_x.tsv
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - Starting investment actual load
+2022-08-19 13:49:22,824 - tables - INFO - Read table tbl_accounts from data/fcast.xlsm
+2022-08-19 13:49:22,824 - tables - INFO -   27 rows and 10 columns
+2022-08-19 13:49:22,834 - invest_actl_load - INFO - Processing 2018
+2022-08-19 13:49:22,846 - invest_actl_load - INFO - Processing 2019
+2022-08-19 13:49:22,856 - invest_actl_load - INFO - Processing 2020
+2022-08-19 13:49:22,867 - invest_actl_load - INFO - Processing 2021
+2022-08-19 13:49:23,145 - books - INFO - deleted worksheet invest_actl
+2022-08-19 13:49:23,145 - books - INFO - created worksheet invest_actl
+2022-08-19 13:49:23,175 - tables - INFO - table tbl_invest_actl added to invest_actl
+</code></pre>
 <h2 id="validate-balances-for-a-year">Validate balances for a year</h2>
 <p>The routine <code>balance_check.py</code> is available to see how the values from the <code>Account Balances</code> report in Moneydance match to those in <code>fcast.xlsm</code>. </p>
 <ol>

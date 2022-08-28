@@ -57,8 +57,7 @@ This table has six rows for each account.
 
 The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that is defined)
 
-At the bottom there is a summary of account balances by type.
-
+From an accounting perspective the `Rlz Int/Gn` consists of short and long term gains combined with income.
 ### invest-actl
 
 The Python program `invest-actl-load.py` gets the master list of investment accounts from `fcast.xlsm`.  It then reads the `data/invst_*.tsv` files and computes the net flows for each account by year.
@@ -132,7 +131,10 @@ The field 'Accum_by' is intended to allow summations using the `accum` function.
 
 ### capgn
 
- This is for the purposes of estimating taxes for the current and prior year until tax statements arrive.
+This is for the purposes of 
+
+1. estimating taxes for the current and prior year until tax statements arrive
+2. reconciling between balances (which includes realized capital gains) and income (which only includes capital gains arising as dividends, but not from sales of securities).
 
 ### taxes
 
