@@ -195,12 +195,12 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   table_start_col=key_values['start_col']
 
   col_defs=pd.DataFrame(table_info['columns']).set_index('name') # column name is index, attributes are columns
-
+  
   # Place the headings
   for cx,cn in enumerate( df.columns):
     ws.cell(table_start_row,column=table_start_col+cx).value=cn
   # place the values
-  fin_format=BUILTIN_FORMATS[41] #'#,###,##0;(#,###,##0);"-"?'
+  fin_format=BUILTIN_FORMATS[41] #''_(* #,##0_);_(* \\(#,##0\\);_(* "-"_);_(@_)'
   first_field=None #first non-formula field - used to determine if its a rate
   for ix,values in df.iterrows(): # the indexes (starting at zero), and the data values
     for cx,cn in enumerate( df.columns):
@@ -256,7 +256,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
       # use the start of the group to blank out numeric columns
       for cix,cn in enumerate(df.columns):
         if cn[0]=='Y':
-          ws.cell(row=1+table_start_row+grp[1],column=table_start_col+cix).number_format='###'
+          ws.cell(row=grp[1],column=cix).number_format='###'
       ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
 
   # making the table

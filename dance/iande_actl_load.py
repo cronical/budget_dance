@@ -266,23 +266,25 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
   # put in subtotal formulas for the numeric columns
   # the subtotals are aligned with the groups, so do those too
-  #whenever the level goes down from the previous level its a total
+  #whenever the level goes down from the previous level it may be a total
   groups=[] # level, start, end
   last_level=-1
   keys=list(df['Key'])
   for ix,row in df.iterrows():
     level_change= row['level']-last_level
     k=row['Key']# get the key value from the file
-    if level_change <0: #this should be a total line
+    if level_change <0: #this might be a total line
       n=k.find(' - TOTAL') # see if it has the total label
-      assert -1 != n # if not we are in trouble
-      bare = k[:n]# # remove the total label
-      try:
-        # prepare the grouping specs
-        bx=keys.index(bare) # look for this in the keys - should be there
-        groups.append([row['level']+1,bx+3,ix+2])
-      except ValueError as e:
-        raise ValueError(f'{k} not found in keys'.format()) from e
+      # typically it is a total, but in the case of a deeper level in the middle of a tranche of a certain level
+      # it may not be.
+      if n >= 0: # if it has a total label
+        bare = k[:n]# # remove the total label
+        try:
+          # prepare the grouping specs
+          bx=keys.index(bare) # look for this in the keys - should be there
+          groups.append([row['level']+1,bx+3,ix+2])
+        except ValueError as e:
+          raise ValueError(f'{k} not found in keys'.format()) from e
     last_level=row['level']
   del df['level'] # clear out temp field
 
