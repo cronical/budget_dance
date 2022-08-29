@@ -87,7 +87,7 @@ The data definitions are purpose built to support the target table, but there ar
 |source|local to reference local files; remote to pull data over internet. remote to pull data over internet. internal is used to create the table/sheet cross reference.|
 |type|These codes are used by the program select the processing logic to use. [See supported types](#supported-types)|local|
 |path|path relative to project folder|for local sources|
-|group|Specific Moneydance groupings to include|Accounts, Balances|
+|group|Specific Moneydance groupings to include. Moneydance uses these to categorize accounts.  Its things like: Assets, Bank Accounts, Credit Cards...  |Accounts, Balances|
 |no_details_for|For these groupings create rows only at the grouping level, no details. Investments here means to summarize to the investment level and don't carry over the securities.|Accounts|
 |include_zeros|Accounts listed here will be carried over even if the balance is zero|Accounts|
 |tax_free_keys|Mark the accounts that are not subject to current income tax|Accounts|
@@ -108,6 +108,20 @@ The data definitions are purpose built to support the target table, but there ar
 |md_invest_actl|Sets up the investment actual transfers|
 json_index|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.
 json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.
+
+### Inserting Rows for Future Use
+
+The income and expense report in MoneyDance filters out categories that have no transactions.  This leads to a need to insert those rows in the `tbl_iande` and `tbl_iande_actl` tables. For example, future social security payouts should subtotal into retirement income. 
+
+An optional key is used to define these rows. The specification needs to contain the full hiearchy information so that it can be inserted into the right place.  
+
+```yaml
+data: ...
+  hier_insert_paths:
+    - Income: "Income:I:Retirement income:Social Security:SS-G"
+    - Income: "Income:I:Retirement income:Social Security:SS-V"
+```
+Include only those lines that are not headings or totals; those will be constructed and inserted as well as the specified data lines.
 
 ### Forecast Formulas
 
@@ -132,16 +146,16 @@ The account table (and maybe others) needs a way to determine values at build ti
 
 ```yaml
 dyno_fields:
-    - base_field: Account
-      matches:
-        - 401K - GBD - TRV
-        - CHET - Fidelity
-      actions:
-        - target_field: Fcst_source
-          suffix: "- wdraw"
-        - target_field: Fcst_source_tab
-          constant: tbl_aux
-    - base_field: ...
+  - base_field: Account
+    matches:
+      - 401K - GBD - TRV
+      - CHET - Fidelity
+    actions:
+      - target_field: Fcst_source
+        suffix: "- wdraw"
+      - target_field: Fcst_source_tab
+        constant: tbl_aux
+  - base_field: ...
 ```
 
 #### Formula Specifics

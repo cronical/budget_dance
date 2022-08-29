@@ -1,6 +1,5 @@
 '''Utility programs that deal with Excel formulas'''
 import re
-import pandas as pd
 
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it

@@ -7,6 +7,7 @@ import argparse
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
+import pandas as pd
 
 from dance.util.books import col_attrs_for_sheet, set_col_attrs, fresh_sheet
 from dance.util.files import tsv_to_df, read_config
@@ -137,6 +138,60 @@ def read_iande_actl(data_info):
   df.reset_index(drop=True,inplace=True)
   return df
 
+def indent_leaf(path,sep=':',spaces=3):
+  '''Convert a path with separators to show level of the leaf by using spaces
+  args:
+    path - a string with separators
+    sep - the separator to use
+    spaces - the number of spaces for each level
+  
+  returns: string with the leaf from the path preceded by spaces to show the level.
+  '''
+  n=path.count(sep)*spaces
+  result=(' '*n)+path.split(':')[-1]
+  return result
+
+def hier_insert(df,table_info):
+  '''Insert any specified new rows
+  args:
+    df - a dataframe with the Key in a column
+    table_info - a dict which may have key "hier_insert_paths"
+
+  returns: the possibly modified dataframe
+  '''
+  if not 'hier_insert_paths' in table_info['data']:
+    return df
+  for path in table_info['data']['hier_insert_paths']:
+    if path in df['Key'].tolist():
+      continue
+    # determine which subpaths need to be inserted
+    to_insert=[] # headings and the row itself
+    path_parts=path.split(':')
+    for ix,_ in enumerate(path_parts):
+      subpath=':'.join(path_parts[0:ix+1])
+      if subpath in df['Key'].tolist():
+        continue
+      to_insert+=[subpath]
+    totals=to_insert.copy()[:-1]
+    totals.reverse()
+    totals=[t + ' - TOTAL' for t in totals]
+    to_insert+= totals
+    cols=df.columns
+    insert_df=pd.DataFrame({cols[0]:to_insert,
+      cols[1]:[indent_leaf(p) for p in to_insert],
+      'level': [s.count(':') for s in to_insert]})
+    new_df=pd.concat([df,insert_df]).fillna(0)
+    # sort so they are in the right order by sorting on the list of the path path parts
+    sort_key=new_df['Key'].to_list()
+    sort_key=[s.replace('Income','Alpha') for s in sort_key] # sort income before expenses
+    new_df['sortable']=[k.split(':') for k in sort_key]
+    new_df.sort_values('sortable',inplace=True)
+    new_df.reset_index(drop=True,inplace=True)
+    del new_df['sortable']
+    df=new_df.copy()
+  return df
+
+
 def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose=False):
   '''prepare the dataframe for insertion into workbook. Supports both iande and iande_actl.
     Makes checks to ensure nothing of the forecast gets lost due to changed lines.
@@ -161,6 +216,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     '''
 
   valid_sheets=['iande_actl','iande']
+  title_row=2 # TODO allow to be set in config
   if target_sheet not in valid_sheets:
     raise ValueError('tab_target must be iande or iande_actl')
   logger.info('Preparing data for {}'.format(target_sheet))
@@ -206,6 +262,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
     df.loc[ix,'Key']=key
     last_level=lev
 
+  df=hier_insert(df,tables[0]) # insert any specified lines into hierarchy
+
   # put in subtotal formulas for the numeric columns
   # the subtotals are aligned with the groups, so do those too
   #whenever the level goes down from the previous level its a total
@@ -243,15 +301,16 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
         formula='=subtotal(9,{}{}:{}{})'.format(let,group[1],let,group[2])
         df.loc[group[2]-2,[cl]]=formula
 
-  if -1!=k.find('TOTAL INCOME - EXPENSES'): # we are on the last row
+  net_ix=keys.index('TOTAL INCOME - EXPENSES') # find the net line (its should be the last line)
+  if -1!=net_ix:
     group=groups[-1]
-    ix=keys.index('Income - TOTAL')
-    y=keys.index('Expenses - TOTAL')
+    inc_ix=keys.index('Income - TOTAL')+title_row+1 # offset for excel
+    exp_ix=keys.index('Expenses - TOTAL')+title_row+1
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)
-        formula='={}{}-{}{}'.format(let,group[1],let,y+3)
-        df.loc[ix,[cl]]=formula
+        formula='={}{}-{}{}'.format(let,inc_ix,let,exp_ix)
+        df.loc[net_ix,[cl]]=formula
 
   cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
   expected=set(cols_df.name)

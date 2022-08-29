@@ -52,7 +52,7 @@ def dyno_fields(table_info,data):
           value= rw[base_field]+action['suffix']
         data.at[ix,action['target_field']]=value
   return data
-  
+
 
 def refresh_sheets(target_file,overwrite=False):
   '''create or refresh tabs'''
