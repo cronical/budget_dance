@@ -536,6 +536,30 @@ Function PartDSurcharge(year As String, inflation As Variant, Optional magi As V
     PartDSurcharge = MedicarePrem(2, year, inflation, magi)
 End Function
 
+Function percent_year_worked(initials As String) As Double
+'Using the year of the current column and the data in the people table, return a number between 0 and 1
+'indicating the percent of the year worked for the person with initials given
+    Dim result As Double
+    Dim retir_date As Date
+    result = 0
+    retir_date = get_val(initials, "tbl_people", "Retire Date")
+    y_year = this_col_name()
+    y = IntYear(y_year)
+    j1 = DateSerial(y, 1, 1)
+    diff = DateDiff("d", j1, retir_date)
+    dty = 2 + DateDiff("d", j1, DateSerial(y, 12, 31)) 'days this year
+    If diff > dty Then
+        result = 1
+    End If
+    If diff < 0 Then
+        result = 0
+    End If
+    If diff > 0 And diff <= dty Then
+        result = diff / dty
+    End If
+    percent_year_worked = result
+End Function
+
 Function prior_value(line As String) As Variant
 ' Get the prior years' value for this line. Suitable only for year columns.
     Dim prior_col As String
