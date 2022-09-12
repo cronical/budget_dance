@@ -49,7 +49,7 @@ def read_config():
   raises FileNotFoundError
   '''
   logger=get_logger(__file__)
-  fn='dance/data/setup.yaml'
+  fn='data/setup.yaml'
   try:
     with open(fn) as y:
       config=yaml.load(y,yaml.Loader)
