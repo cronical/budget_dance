@@ -280,6 +280,37 @@ Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
+Function ei_withhold(legend As String, ei_template, y_year As String) As Double
+' compute annual social security or medicare withholding for earned income
+' relies on naming conventions
+' ei_template is a template for the line with earned income.  % is replaced by the person indicator, which
+' is the trailing part of the legend.
+' the legend has two parts separated by hyphen.  The first part is the type of withholding
+' which must be either: Medicare or Soc Sec
+' y_year is the column heading such as Y2022
+Dim result As Double, earned As Double
+Dim rate As Variant, cap As Variant
+Dim legend_parts() As String
+Dim typ As String, ei_line As String
+legend_parts = Split(legend, "-")
+typ = Trim(legend_parts(LBound(legend_parts)))
+who = Trim(legend_parts(UBound(legend_parts)))
+
+ei_line = Replace(ei_template, "%", who)
+earned = get_val(ei_line, "tbl_iande", y_year)
+Select Case typ
+Case "Soc Sec":
+    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_year)
+    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_year)
+    result = rate * Application.WorksheetFunction.min(cap, earned)
+Case "Medicare":
+    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_year)
+    result = rate * earned
+End Select
+ei_withhold = result
+
+End Function
+
 Function endbal(acct As String, y_year As String) As Variant
 'compute the end balance for an account for a year
     Dim rate As Variant

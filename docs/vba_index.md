@@ -26,6 +26,8 @@
 ||Testing forced calc of table|
 |d2s|Function d2s(dt As Date) As String|
 |||
+|ei_withhold|Function ei_withhold(legend As String, ei_template, y_year As String) As Double|
+||Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022|
 |endbal|Function endbal(acct As String, y_year As String) As Variant|
 ||Compute the end balance for an account for a year|
 |Fed_Tax_CapGn|Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double|
