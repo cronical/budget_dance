@@ -10,7 +10,7 @@ def table_ref(formula):
   '''
 
   result=formula
-  regex=r'\[(@[ a-z]+)\]'
+  regex=r'\[(@[ a-z0-9]+)\]'
   #regex=r'@[a-z]'
   p=re.compile(regex,re.IGNORECASE)
   for m in p.finditer(result):
