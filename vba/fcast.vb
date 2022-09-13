@@ -958,5 +958,17 @@ ei_withhold = result
 
 End Function
 
+Function nth_word_into(n As Integer, source As String, template As String) As String
+' insert the nth word (first is 0th) from source into the template, replacing %
+Dim words() As String
+
+words = Split(Trim(source), " ")
+result = Replace(template, "%", Trim(words(n)))
+nth_word_into = result
+End Function
+
+Sub test_nth()
+Debug.Print (nth_word_into(0, "fed tax value", "Taxes for %s"))
+End Sub
 
 

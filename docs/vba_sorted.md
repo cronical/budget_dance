@@ -644,6 +644,15 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
     mo_apply = result
 End Function
 
+Function nth_word_into(n As Integer, source As String, template As String) As String
+' insert the nth word (first is 0th) from source into the template, replacing %
+Dim words() As String
+
+words = Split(Trim(source), " ")
+result = Replace(template, "%", Trim(words(n)))
+nth_word_into = result
+End Function
+
 Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
 'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium
 'If the year is not in the table, then the largest year lower than that given will be used
@@ -912,6 +921,10 @@ For i = LBound(test_cases) To UBound(test_cases)
     msg = "Input: year=" & yr & " start/end dates = " & start_date & " " & end_date & "   Output: " & result
     log (msg)
 Next i
+End Sub
+
+Sub test_nth()
+Debug.Print (nth_word_into(0, "fed tax value", "Taxes for %s"))
 End Sub
 
 Sub test_retir_med()
