@@ -277,7 +277,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
     # set range to without the heading
     top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row+1}'
     rng=f'{top_left}:{bot_right}'
-    for cf in table_info['highlights']:
+    for _,cf in table_info['highlights'].items():
       font=fill=border=None
       # ignore unsupported options
       if 'font' in cf:
