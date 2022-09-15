@@ -803,10 +803,25 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     RMD_1 = result
 End Function
 
-Function rolling_avg(table As String, key As String, this_y_year As String, lookback As Integer) As Double
+Function rolling_avg(Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "", Optional lookback As Integer = 3) As Double
 'Look back at previous columns and average the numeric values found there, ignoring non-numerics
+'If not provided, table, key and y_year are taken from the calling cell
 'Return the average
 Dim y_year As String
+Dim point As Range, ws As Worksheet
+
+Set point = Application.caller
+If table = "" Then
+    table = point.ListObject.Name
+End If
+If key = "" Then
+    offset = point.ListObject.ListColumns(1).Range(1, 1).Column - 1
+    Set ws = point.Worksheet
+    key = ws.Cells(point.Row, 1 + offset).value
+End If
+If this_y_year = "" Then
+    this_y_year = this_col_name()
+End If
 this_year = IntYear(this_y_year)
 tot = 0
 cnt = 0
