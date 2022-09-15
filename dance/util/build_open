@@ -4,4 +4,8 @@
 dance/util/vba/extract_vba.py    
 dance/util/vba/sort_vba.py 
 dance/setup/create_wb.py data/test_wb.xlsm -o
+RC=$?
+if [ $RC -ne 0 ]; then
+  exit $RC
+fi
 open data/test_wb.xlsm  

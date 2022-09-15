@@ -92,4 +92,5 @@ if __name__=='__main__':
   parser.add_argument('-o','--overwrite',default=False, action='store_true',help='force overwrite if file already exists')
   args=parser.parse_args()
   create(args.out_file,args.overwrite)
+  exit(0)
   
