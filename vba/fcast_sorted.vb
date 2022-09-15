@@ -82,31 +82,58 @@ Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", O
     agg = agg_val
 End Function
 
-Function agg_table(tbl_name As String, y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
+Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
 ' Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.
 ' Use of this can help avoid the hard coding of addresses into formulas
 ' By default the tag column is "tag" but an alternate can be provided
 ' Other agg_methods are "min" and "max"
+' A second criteria may be provided by extending the by_tag and the tag_col_name as follows:
+'  A delimiter is included in the strings to allow two values to be provided.The delimiter is stile (|)
+'  The there should be exactly 0 or 1 delimiter, andthe by_tag and tag_column_name should agree
     Dim agg_val As Double
-    
     Dim tbl As ListObject
-    Dim point As Range, val_rng As Range, tag_col As Range
-    Set point = Application.caller
+    Dim point As Range, val_rng As Range, tag_rngs() As Range
+    Dim by_tags() As String, tag_col_names() As String, by_tags_v As Variant
     
+    On Error GoTo ErrHandler
+    delim = "|"
+    by_tags = Split(by_tag, delim)
+    tag_col_names = Split(tag_col_name, delim)
+    
+    Set point = Application.caller
     ws_name = ws_for_table_name(tbl_name)
     Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    
-    Set tag_rng = tbl.ListColumns(tag_col_name).Range
     Set val_rng = tbl.ListColumns(y_year).Range
+    ReDim tag_rngs(UBound(by_tags))
+    ReDim by_tags_v(UBound(by_tags))
+    
+
+    For i = LBound(by_tags) To UBound(by_tags)
+        Set tag_rngs(i) = tbl.ListColumns(tag_col_names(i)).Range
+        If IsNumeric(by_tags(i)) Then
+            by_tags_v(i) = CInt(by_tags(i))
+        Else
+            by_tags_v(i) = by_tags(i)
+        End If
+    Next i
+    
     Select Case agg_method
     Case "sum"
-        agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rng, by_tag)
+        Select Case UBound(by_tags)
+        Case 0
+            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0))
+        Case 1
+            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1))
+        End Select
     Case "min"
-        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rng, by_tag)
+        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rngs(0), by_tags(0))
     Case "max"
-        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rng, by_tag)
+        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rngs(0), by_tags(0))
     End Select
     agg_table = agg_val
+    Exit Function
+ErrHandler:
+    log ("[ " & point.address & " ] agg_table: " & Err.Number & " " & Err.Description)
 End Function
 
 Function ANN(account As String, account_owner As String, y_year As String) As Double
@@ -501,7 +528,7 @@ Function linear(count As Integer, Optional minimum = 0) As Double
     progress = "initialized"
     With ws
     ' see how many prior items are available up to the requested number
-        For i = 1 To count + 1
+        For i = 1 To count
             cn = .Cells(hdg_row, point.Column - i).value
             If Not (Left(cn, 1) = "Y" And IsNumeric(Right(cn, 4))) Then
                 Exit For
