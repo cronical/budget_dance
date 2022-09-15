@@ -10,11 +10,16 @@ import pandas as pd
 from dance.util.tables import df_for_table_name
 
 
-def bank_cc_changes():
-  '''Reads the data files available in the data folder and returns a dataframe with the changes in account values
-
+def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
+  '''Reads the bank data files available in the data folder, combines them and produces the net change due to transfers per year.
   Source files are stored as .tsv under the data folder with a name 'bank-bal-<year>'
   The logic is to take the year on year delta (less the interest)
+
+  args:
+    target_file: the workbook that contains the iande sheet.  This is read to get the interest values, which are removed from the result.
+    table_map: a dict to locate the iande sheet when file is being constructed.
+  returns: a dataframe with the changes in account values due to transfers
+
   '''
 
   datadir='./data/'
@@ -52,7 +57,7 @@ def bank_cc_changes():
   # So far we have the change in account value, but part of that comes from bank interest
   # so remove those amounts.
 
-  iande_actl=df_for_table_name('tbl_iande_actl')
+  iande_actl=df_for_table_name('tbl_iande_actl',workbook=target_file,table_map=table_map)
   cols=changes.columns # the year numbers
   for col in cols:
     adj=changes.loc['Bank Accounts',col]-iande_actl.loc['Income:I:Invest income:Int:Bank',col]

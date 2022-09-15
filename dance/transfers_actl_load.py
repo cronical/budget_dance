@@ -19,11 +19,13 @@ from dance.util.logs import get_logger
 
 logger=get_logger(__file__)
 
-def read_transfers_actl(data_info):
+def read_transfers_actl(data_info,target_file='data/fcast.xlsm',table_map=None):
   '''  Read data from files into a dataframe
 
   args:
     data_info: dict that has a value for path used to locate the input file
+    target_file: needed to remove interest from the bank accounts
+    table_map: in case the file is under construction and has not yet been written
 
   returns: dataframe with index = the account key
 
@@ -93,8 +95,8 @@ def read_transfers_actl(data_info):
   summary.loc[summary.index.isin(parents),summary.columns]=np.nan
 
   # bring in the bank data
-  bank_changes=bank_cc_changes()
-  
+  bank_changes=bank_cc_changes(target_file=target_file,table_map=table_map)
+
   #combine the sets
   df =pd.concat([summary,bank_changes])
   df.sort_index(inplace=True)
@@ -241,7 +243,7 @@ if __name__ == '__main__':
   parser.add_argument('--path','-p',default= 'data/transfers.tsv',help='The path and name of the input file')
   parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
-  df=read_transfers_actl(data_info={'path':args.path})
+  df=read_transfers_actl(data_info={'path':args.path},target_file=args.workbook)
   transfers_actl,fold_groups=prepare_transfers_actl(args.workbook,df)
   sheet='transfers_actl'
   table='tbl_'+sheet

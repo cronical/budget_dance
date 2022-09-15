@@ -195,7 +195,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   table_start_col=key_values['start_col']
 
   col_defs=pd.DataFrame(table_info['columns']).set_index('name') # column name is index, attributes are columns
-  
+
   # Place the headings
   for cx,cn in enumerate( df.columns):
     ws.cell(table_start_row,column=table_start_col+cx).value=cn

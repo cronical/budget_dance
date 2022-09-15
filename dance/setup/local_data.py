@@ -35,7 +35,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     df=read_iande_actl(data_info=data_info)
     df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
   if data_info['type']=='md_transfers_actl':
-    df=read_transfers_actl(data_info=data_info)
+    df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
     df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
   if data_info['type']=='md_invest_actl':
     df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
