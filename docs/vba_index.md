@@ -13,7 +13,7 @@
 |agg|Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
 ||Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
 |agg_table|Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
-||Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max". A second criteria may be provided by extending the by_tag and the tag_col_name as follows:. A delimiter is included in the strings to allow two values to be provided.the delimiter is stile (|). The there should be exactly 0 or 1 delimiter, andthe by_tag and tag_column_name should agree|
+||Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max". A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:. A delimiter is included in the strings to allow two values to be provided.the delimiter is stile (|). The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree|
 |ANN|Function ANN(account As String, account_owner As String, y_year As String) As Double|
 ||Deprecated - use annuity instead. Return a year's value for an annuity stream based on the prior year's end balance. Does not properly handle partial years|
 |annuity|Function annuity(account As String, y_year As String) As Double|
@@ -62,6 +62,8 @@
 ||Using the year of the current column and the data in the people table, return a number between 0 and 1. Indicating the percent of the year worked for the person with initials given|
 |prior_value|Function prior_value(line As String) As Variant|
 ||Get the prior years' value for this line. suitable only for year columns.|
+|ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
+||For investment income and expense, compute the ratio to the start balance.. To be run in a cell in the invest_iande_work table.|
 |retir_agg|Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double|
 ||Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "<>" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
 |retir_med|Function retir_med(inits As String, y_year As String) As Double|

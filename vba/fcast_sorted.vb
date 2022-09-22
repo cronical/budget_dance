@@ -87,9 +87,9 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
 ' Use of this can help avoid the hard coding of addresses into formulas
 ' By default the tag column is "tag" but an alternate can be provided
 ' Other agg_methods are "min" and "max"
-' A second criteria may be provided by extending the by_tag and the tag_col_name as follows:
+' A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:
 '  A delimiter is included in the strings to allow two values to be provided.The delimiter is stile (|)
-'  The there should be exactly 0 or 1 delimiter, andthe by_tag and tag_column_name should agree
+'  The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree
     Dim agg_val As Double
     Dim tbl As ListObject
     Dim point As Range, val_rng As Range, tag_rngs() As Range
@@ -124,6 +124,8 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
             agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0))
         Case 1
             agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1))
+        Case 2
+            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1), tag_rngs(2), by_tags_v(2))
         End Select
     Case "min"
         agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rngs(0), by_tags(0))
@@ -727,6 +729,26 @@ Function prior_value(line As String) As Variant
     prior_col = y_offset(this_col_name(), -1)
     value = get_val(line, table, prior_col)
     prior_value = value
+End Function
+
+Function ratio_to_start(account As String, category As String, y_year As String) As Double
+'For investment income and expense, compute the ratio to the start balance.
+'To be run in a cell in the invest_iande_work table.
+    Dim work_table As String, bal_table As String
+    Dim key As Variant
+    Dim start_bal As Double, value As Double, ratio As Double
+    work_table = Application.caller.ListObject.Name
+    bal_table = "tbl_balances"
+    start_bal = get_val("Start Bal" + account, bal_table, y_year)
+    key = account + ":" + category + ":value"
+    value = get_val(key, work_table, y_year)
+    If start_bal = 0 Then
+        ratio = 0
+    Else
+        ratio = value / start_bal
+        ratio = Round(ratio, 4)
+    End If
+    ratio_to_start = ratio
 End Function
 
 Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double

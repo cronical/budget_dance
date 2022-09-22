@@ -57,6 +57,8 @@ This table has six rows for each account.
 
 The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that is defined)
 
+### Investment Income and Expenses
+
 From an accounting perspective the `Rlz Int/Gn` consists of short and long term gains combined with income.
 The realized gains consist of Interest, Dividends and Capital Gains
 Accounts are sheltered or not. For non sheltered accounts additional breakdown is needed.  
@@ -69,11 +71,25 @@ Dividends are further broken down into qualified and non qualified, but this is 
 Alignment is needed between forecast balances and forecast income so that the number balance.
 To generate approximate tax forecasts is needed to have the investment income types broken out.  
 
-Prior versions assumed all income was re-invested.  Proper modeling will also require consideration of re-investment policies.
+Cap Gn (sale)
+Div_reg
+Div_LT
+Div_ST
+Div_TE
+Int_reg
+Int_TE
+Fees
+Tax Pd
 
+#### Reinvestment
 
+Prior versions assumed all income was re-invested.  Proper modeling will also require consideration of re-investment policies. This will be modeled as a re-investment rate at the account level.
+
+#### Tax exemption
 
 Tax exemption is further broken down into federal and state.  It is also implemented on a per security basis - modeling should allow indication of how much of the portfolio is tax exempt for each type by year.
+
+#### Balances
 
 Rows in balances are configured per account.
 Some rows are always required: Start bal, Add/wdraw,  and End bal  
@@ -92,14 +108,61 @@ Int
 CapGn
 UnRlzd
 
-To accomplish this, each account would need a profile, by which to build the rows in balances. The profile includes default value used for all years, which can later be changed.
+To accomplish this, actual usage provides a template by which to build the rows in balances. The profile includes default value used for all years, which can later be changed.
 A naming convention would be used to map these to iande rows.  
 
-Changes to existing categories
-- Drop Int breakout Bkg,bank,other
-- Drop breakout of Commissions & Fees. This implies that reporting on fees by account must be done via an export (its a pivot table off of the `investment-iande` report / extract)
+#### Changes to existing categories
 
-The rlz Int/Gn line is derived from the investment performance report. This report does not break out the income types.  If the accounting is done properly then the breakout for a particular investment account can be achieved via an income/expense report that selects that account. The value of the performance report 'Income' column total is equal to the value of the Investment Income report line Income - TOTAL.
+- ✓ Create X:Investing:Fees
+- ✓ Find and replace the records under X:Misc:Commisions & Fees to X:Investing:Fees 
+- 3 types under Invest Income: CapGn, Div, Int
+- ✓ Create CapGn
+- ✓ Create CapGn:Sale
+- ✓ Rename/Move CapGn - LT as CapGn:Mut LT 
+- ✓ Rename/Move CapGn - ST as CapGn:Mut ST
+- ✓ Rneame/Move SCapGn - LT' as CapGn:Shelt
+- ✓ Find and replace: change 'SCapGn - ST' to '...CapGn:Shelt'
+
+- ✓ Rename Div as Reg
+- ✓ Create new Div under Invest Income
+- ✓ Move Reg under Div
+- ✓ Rename/Move Div Tax-exempt to Div:Tax-exempt
+- ✓ Rename/Move 'Sdiv' to Div:Shelt
+- Find and replace InvestInc:SDiv -> Div:Shelt
+
+- ✓ Create Int:Reg
+- ✓ Find/replace Int:Bkg and Int:Other to Int:reg
+- ✓ Rename/Move Int Tax-exempt to Int:Tax-exempt
+- Rename/Move 'SInterest Income' to Int:Shelt
+- ✓ Creaate Int:Shelt
+- ✓ Find and replace Sint:bank and sint:bkg -> Int:Shelt
+
+- Make the taxes support the last two parts method
+  - Club state and federal together. 
+    - Create: T:Income Tax
+    - Create T:Income Tax:Current Yr and T:Income Tax:Prior Yr
+  - ✓ Rename / Move T:Fed income tx pd to T:Income Tax:Current Yr:Fed
+  - ✓ Drop all the Fed tax pd - legends
+  - ✓ Add WH to payroll for consistency
+  - ✓ Change prior year to Fed Prior Year under T:Income Tax
+  - ✓ Rename/Move State income tax pd to Income Tax:State
+  - ✓ Rename CT and MA to include 'tax'
+  - ✓ Add WH and remove CT Tax - from the state lines
+  - ✓ Move the prior year items to T:Income Tax:Prior Year
+
+- ✓ Find and replace Sheltered:Employer Health Acct contributions to I:Sheltered income:ER health acct contrib:ER HSA contribution - V
+
+- ✓ remove 'SCapGn - ST', S invest income, InvestInc:SInterest Income, 
+  InvestInc:SDiv, Sheltered:InvestInc and what's left under Sheltered
+  X:Misc:Commissions & Fees
+
+- ✓ Clean up a few transactions
+  - ✓ Optum Bank - HSA move interest to :Bank
+  - ✓ Passthru:Pass-IRA-VEC-ML 3 rounding adjustments to misc:asset adj
+
+#### Shortcomings
+
+The rlz Int/Gn line is currently derived from the investment performance report. This report does not break out the income types.  If the accounting is done properly then the breakout for a particular investment account can be achieved via an income/expense report that selects that account. The value of the performance report 'Income' column total is equal to the value of the Investment Income report line Income - TOTAL.
 
 Neither report provides a breakout of income by div/int/capgn by account.
 
@@ -115,15 +178,15 @@ Int Pct/Val  3.77%  16,724
 CapGn Pct/val -0.25%  -1101  
 UnRlz Pct/val -3.97% -16871
 
-Moneydance report: Investment IandE is a configured Transaction Filter that selects just the investment income and expense lines for all accounts. It should select dates over the years that are actuals.  The result is saved into `invest-iande-transactions.tsv`.  
+Moneydance report: Investment IandE is a configured Transaction Filter that selects just the investment income and expense lines for all accounts. It should select dates over the years that are actuals.  The result is saved into `invest-iande.tsv`.  
 
 The values are summarized by investment accounts for each of the categories.  These become the numerators of the actual rates experience for each category for each account.  The denominator is the opening balance of the account. Its imperfect for accounts where money is moved in or out during the year, but it can be used to approxmiate defaul rates for forecast years.
 
 The summarization is done on they Python side at load time.  The ratios are calculated in the spreadsheet. Rates less than a threshhold are rounded to zero.  The average of the previous periods is used to carry the rates into the forecast period.
 
-To support this, a the `Rlzd Int/Gn` line is renamed on the `invest-actl` table to represent capital changes due to sales, only.  This value comes from the investment performance report.
+To support this, a the `Rlzd Int/Gn` line is renamed to `CapGn (sale)` the `invest-actl` table to represent capital changes due to sales, only.  This value comes from the investment performance report.
 
-This is different than those amounts reported on mutual funds - essentially a form of dividend but marked as LT or ST for tax purposes. This value comes from dividend transactions in the account and is exposed via the I and E report.  
+This is different than those amounts reported by mutual funds as capital gains distributions - essentially a form of dividend but marked as LT or ST for tax purposes. This value comes from dividend transactions in the account and is exposed via the I and E report.  
 
 The set of lines that represent income and expenses for each account is added to a new table:`tbl_invest_iande_actl`.  
 
