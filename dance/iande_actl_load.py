@@ -9,11 +9,12 @@ from openpyxl.utils import get_column_letter
 
 import pandas as pd
 
+from dance.ira_distr import ira_distr_summary
 from dance.util.books import col_attrs_for_sheet, set_col_attrs, fresh_sheet
 from dance.util.files import tsv_to_df, read_config
 from dance.util.tables import df_for_table_name, this_row, write_table, get_f_fcast_year,columns_for_table
 from dance.util.logs import get_logger
-from dance.ira_distr import ira_distr_summary
+from dance.util.xl_formulas import actual_formulas,forecast_formulas
 
 logger=get_logger(__file__)
 
@@ -144,7 +145,7 @@ def indent_leaf(path,sep=':',spaces=3):
     path - a string with separators
     sep - the separator to use
     spaces - the number of spaces for each level
-  
+
   returns: string with the leaf from the path preceded by spaces to show the level.
   '''
   n=path.count(sep)*spaces
@@ -291,7 +292,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   test_required_lines(df,workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
 
   if target_sheet=='iande': # adjust for iande, adding columns
-    for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for future years
+    for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
       df['Y{}'.format(y)]=None
 
   # now replace the hard values with formulas
@@ -340,18 +341,23 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande_actl" after doing some checks. ')
-  parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
   parser.add_argument('--path','-p',default= 'data/iande.tsv',help='The path and name of the input file')
   parser.add_argument('--sheet','-s',default='iande_actl',help='which sheet - iande or iande_actl')
   parser.add_argument('--force', '-f',action='store_true', default=False, help='Use -f to ignore warning')
   parser.add_argument('--ffy', '-y',help='first forecast year as Ynnnn. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
-  iande_actl=read_iande_actl(data_info={'path':args.path})
+  config=read_config()
+  ffy=config['first_forecast_year']
+  table_info=config['sheets']['iande']['tables'][0]
+  data=read_iande_actl(data_info={'path':args.path})
   table='tbl_'+args.sheet
-  iande_actl,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=iande_actl,force=args.force,f_fcast=args.ffy)
+  data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast=args.ffy)
+  data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
+  data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
   wkb=fresh_sheet(wkb,args.sheet)
-  wkb= write_table(wkb,target_sheet=args.sheet,df=iande_actl,table_name=table,groups=fold_groups)
+  wkb= write_table(wkb,target_sheet=args.sheet,df=data,table_name=table,groups=fold_groups)
   attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
   wkb=set_col_attrs(wkb,args.sheet,attrs)
   wkb.save(args.workbook)
