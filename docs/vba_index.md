@@ -21,7 +21,7 @@
 |bal_agg|Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double|
 ||Get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status. Wild cards are ok as are excel functions like "<>" prepended to the values for strings. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
 |calc_retir|Sub calc_retir()|
-||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande|
+||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, and current invest_iande_work. Retirement feeds aux,. Aux and invest_iande_work feeds current balances. Iande depends on retirement as well and taxes depend on iande|
 |calc_table|Sub calc_table()|
 ||Testing forced calc of table|
 |d2s|Function d2s(dt As Date) As String|
@@ -30,14 +30,16 @@
 ||Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022|
 |endbal|Function endbal(acct As String, y_year As String) As Variant|
 ||Compute the end balance for an account for a year|
+|extend_iiande|Function extend_iiande(account As String, category As String, y_year As String) As Double|
+||For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row. To be run in a cell in the invest_iande_work table.|
 |Fed_Tax_CapGn|Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double|
 ||Computes the resulting federal tax with capital gains portion at 15%. The input should include qualified dividends|
 |Federal_Tax|Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the federal income tax for a given year and taxable income amount. Gets a result of zero if year not in the table.|
 |gain|Function gain(acct As String, y_year As String, realized As Boolean) As Variant|
 ||For bank accounts and investments, return the realized or unrealized gain for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_actl. For bank account actuals use the row in iande defined by the 'bank_interest' value on the general (state) table|
-|get_val|Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant|
-||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.|
+|get_val|Function get_val(line_key As Variant, tbl_name As String, col_name As String, Optional raise_bad_col = False) As Variant|
+||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.. Bad columns are usually logged, but if the argument raise_bad_col is true then an error is raised.|
 |IntYear|Function IntYear(yval) As Integer|
 ||Strips off the y on the argument (eg y2019) and returns an integer|
 |is_forecast|Function is_forecast(y_year As String) As Boolean|
@@ -63,7 +65,7 @@
 |prior_value|Function prior_value(line As String) As Variant|
 ||Get the prior years' value for this line. suitable only for year columns.|
 |ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
-||For investment income and expense, compute the ratio to the start balance.. To be run in a cell in the invest_iande_work table.|
+||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
 |retir_agg|Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double|
 ||Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "<>" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
 |retir_med|Function retir_med(inits As String, y_year As String) As Double|

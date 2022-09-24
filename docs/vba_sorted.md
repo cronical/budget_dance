@@ -218,23 +218,23 @@ End Function
 
 Sub calc_retir()
 'iterate through the years to calc retirement streams based on balances from prior year
-'prior balance from balances feeds current retirement, which feeds aux, which feeds current balances
+'prior balance from balances feeds current retirement, and current invest_iande_work
+'retirement feeds aux,
+'aux and invest_iande_work feeds current balances
 'iande depends on retirement as well and taxes depend on iande
     Dim rcols As Range, rcell As Range, single_cell As Range
-    Dim tbls(4) As ListObject
-    Dim tbl_names(4) As String
-    Dim ws_names(4) As String
+    Dim tbls() As ListObject
+    Dim tbl_names() As String, ws_names() As String
     Dim msg As String, formula As String
     log ("-----------------------------")
     log ("Entering manual calculation mode.")
     Application.Calculation = xlCalculationManual
-    tbl_names(0) = "tbl_retir_vals"
-    tbl_names(1) = "tbl_aux"
-    tbl_names(2) = "tbl_balances"
-    tbl_names(3) = "tbl_iande"
-    tbl_names(4) = "tbl_taxes"
+    
+    tbl_names = Split("tbl_retir_vals;tbl_aux;tbl_invest_iande_work;tbl_balances;tbl_iande;tbl_taxes", ";")
+    k = UBound(tbl_names)
+    ReDim tbls(k), ws_names(k)
     msg = ""
-    For i = LBound(tbl_names) To UBound(tbl_names)
+    For i = LBound(tbl_names) To k
         ws_names(i) = ws_for_table_name(tbl_names(i))
         Set tbls(i) = ThisWorkbook.Worksheets(ws_names(i)).ListObjects(tbl_names(i))
         If Len(msg) > 0 Then msg = msg & ","
@@ -355,6 +355,21 @@ Function endbal(acct As String, y_year As String) As Variant
 
 End Function
 
+Function extend_iiande(account As String, category As String, y_year As String) As Double
+'For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row
+'To be run in a cell in the invest_iande_work table.
+    Dim work_table As String, bal_table As String
+    Dim key As Variant
+    Dim start_bal As Double, rate As Double, value As Double
+    work_table = Application.caller.ListObject.Name
+    bal_table = "tbl_balances"
+    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1))
+    key = account + ":" + category + ":rate"
+    rate = get_val(key, work_table, y_year)
+    value = rate * start_bal
+    extend_iiande = value
+End Function
+
 Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double
 'computes the resulting federal tax with capital gains portion at 15%
 'the input should include qualified dividends
@@ -444,9 +459,10 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
         
 End Function
 
-Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant
+Function get_val(line_key As Variant, tbl_name As String, col_name As String, Optional raise_bad_col = False) As Variant
 'Fetches a value from a given table (it must be an actual worksheet table
 'If the line is not found in the table, a zero is returned.
+'Bad columns are usually logged, but if the argument raise_bad_col is True then an error is raised.
  
     Dim value As Variant, rng As Variant
     Dim caller As Range
@@ -489,6 +505,10 @@ ErrHandler:
     get_val = 0
     Exit Function
 ErrHandler1:
+    If raise_bad_col = True Then
+        Err.Raise vbObjectError + 1729, , "Bad column: " + col_name
+    
+    End If
     log ("[ " & address & " ] get_val: " & Err.Number & " " & Err.Description)
     log ("Trying to locate column: " & col_name & " in table " & tbl_name)
     log ("line is " & line_key)
@@ -734,14 +754,28 @@ Function prior_value(line As String) As Variant
 End Function
 
 Function ratio_to_start(account As String, category As String, y_year As String) As Double
-'For investment income and expense, compute the ratio to the start balance.
+'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since
+'that should have already been computed.  This allows the table to occur before the balances table in the compute order
 'To be run in a cell in the invest_iande_work table.
     Dim work_table As String, bal_table As String
     Dim key As Variant
     Dim start_bal As Double, value As Double, ratio As Double
     work_table = Application.caller.ListObject.Name
     bal_table = "tbl_balances"
-    start_bal = get_val("Start Bal" + account, bal_table, y_year)
+    On Error GoTo err1
+    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1), True)
+    GoTo continue
+err1:
+    ' If we are on the first period, then the start value should be static and not require a calculation
+    If 1729 = Err.Number - vbObjectError Then
+        log ("Edge reached, using start bal for " + y_year)
+        start_bal = get_val("Start Bal" + account, bal_table, y_year)
+    Else
+        log (Err.Description)
+        ratio_to_start = 0
+        Exit Function
+    End If
+continue:
     key = account + ":" + category + ":value"
     value = get_val(key, work_table, y_year)
     If start_bal = 0 Then
@@ -751,6 +785,7 @@ Function ratio_to_start(account As String, category As String, y_year As String)
         ratio = Round(ratio, 4)
     End If
     ratio_to_start = ratio
+
 End Function
 
 Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double
