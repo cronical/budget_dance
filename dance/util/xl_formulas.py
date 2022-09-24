@@ -19,35 +19,65 @@ def table_ref(formula):
       result=result.replace(g,new)
   return result
 
-
-def forecast_formulas(table_info,data,ffy):
-  '''insert forecast formulas per config
-  The config may give a section called fcst_formulas.
-  If it does it contains the key_field to use to match the key from the rules.
+def apply_formulas(table_info,data,ffy,is_actl):
+  '''insert actual or forecast formulas per config
+  The config may give formula definitions in sections called actl_formulas and/or fcst_formulas.
+  If it exists, *_formulas section contains the key_field to use to match the key from the rules.
   The rules are a list of dictionaries that contain entries for 'key' and 'formula'.
 
   args: table_info portion of the config for this table
   data: a dataframe to modify
   ffy: the first forecast year as Ynnnn
-  '''
+  is_actl: True to apply the actual formulas, False to apply the forecast formulas
 
-  if 'fcst_formulas' not in table_info:
+  returns: the possibly modified dataframe.
+  '''
+  section = ('fcst','actl')[int(is_actl)]  +'_formulas'
+  if section not in table_info:
     return data
-  rules=table_info['fcst_formulas']
+  rules=table_info[section]
   for rule in rules:
     base_field=rule['base_field']
     matches=rule['matches']
     if not isinstance(matches,list):
       matches=[matches]
     for ix, rw in data.loc[data[base_field].isin(matches)].iterrows(): # the rows that match this rule
-      fcst=False
+      selector=is_actl
       for col in rw.index:
         if col == 'Y%d'%ffy:
-          fcst= True
-        if fcst:
-          formula=table_ref(rule['formula'])
-          data.at[ix,col]=formula
+          selector= not selector
+        if selector:
+          if col[0]=='Y' and col[1:].isnumeric():
+            formula=table_ref(rule['formula'])
+            data.at[ix,col]=formula
   return data
+
+def actual_formulas(table_info,data,ffy):
+  '''insert actual formulas per config
+  The config may give a section called actl_formulas.
+  If it exists, actl_formulas contains the key_field to use to match the key from the rules.
+  The rules are a list of dictionaries that contain entries for 'key' and 'formula'.
+
+  args: table_info portion of the config for this table
+  data: a dataframe to modify
+  ffy: the first forecast year as Ynnnn
+  '''
+  data=apply_formulas(table_info,data,ffy,True)
+  return data
+
+def forecast_formulas(table_info,data,ffy):
+  '''insert forecast formulas per config
+  The config may give a section called fcst_formulas.
+  If it exists, fcst_formulas contains the key_field to use to match the key from the rules.
+  The rules are a list of dictionaries that contain entries for 'key' and 'formula'.
+
+  args: table_info portion of the config for this table
+  data: a dataframe to modify
+  ffy: the first forecast year as Ynnnn
+  '''
+  data=apply_formulas(table_info,data,ffy,False)
+  return data
+
 
 def main():
   test='[@AcctName],[@Type],[@Active]'
