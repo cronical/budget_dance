@@ -15,7 +15,7 @@ from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
 from dance.util.tables import first_not_hidden,write_table,columns_for_table
-from dance.util.xl_formulas import forecast_formulas
+from dance.util.xl_formulas import actual_formulas,forecast_formulas
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -167,6 +167,7 @@ def refresh_sheets(target_file,overwrite=False):
                 data=data.reset_index().rename(columns={'index':mismatch[0]})
         data=dyno_fields(table_info,data)# any dynamic field values
         data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
+        data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
         wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
