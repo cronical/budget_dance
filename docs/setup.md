@@ -123,9 +123,11 @@ data: ...
 ```
 Include only those lines that are not headings or totals; those will be constructed and inserted as well as the specified data lines.
 
-### Forecast Formulas
+### Actual and Forecast Formulas
 
-If there is a key `fcst_formulas` under the table| it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
+There are two optional keys to allow formulas to be established for the years section: `actl_formulas` and `fcst_formulas`.  They work the same way but apply to different columns. 
+
+For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 
 ```yaml
 fcst_formulas:
@@ -142,7 +144,7 @@ fcst_formulas:
 
 ### Build-time created fields
 
-The account table (and maybe others) needs a way to determine values at build time. The following may be directly under the table.
+Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
 
 ```yaml
 dyno_fields:
@@ -157,6 +159,12 @@ dyno_fields:
         constant: tbl_aux
   - base_field: ...
 ```
+the `matches` list is a list of values to be matched agains the field. There is a special case if just a single *, meaning all.
+
+The target field should be previously defined, but it is filled in by this logic.  The commands available are:
+- suffix - something added to the matched item
+- constant - a value that is always the same
+- formula - an Excel formula
 
 #### Formula Specifics
 

@@ -9,8 +9,9 @@ from openpyxl import load_workbook
 
 from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
 from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import df_for_table_name, write_table
+from dance.util.tables import df_for_table_name, write_table,columns_for_table,conform_table
 from dance.util.logs import get_logger
+from dance.util.xl_formulas import dyno_fields
 
 logger=get_logger(__file__)
 def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
@@ -110,9 +111,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
       # rework so the rows of 3 value types for each account
       rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains']].transpose().stack().reset_index()
-      map=dict(zip(rows.columns.to_list(),['ValType','AcctName','Y'+fn_year]))
+      map=dict(zip(rows.columns.to_list(),['ValType','Account','Y'+fn_year]))
       rows.rename(columns=map,inplace=True)
-      rows=rows.assign(Key=lambda x: x.ValType + x.AcctName)
+      rows=rows.assign(Key=lambda x: x.ValType + x.Account)
       rows.set_index('Key',inplace=True)
       if file_cnt==0:
         table=rows
@@ -120,25 +121,31 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
         table=table.join(rows[rows.columns.to_list()[-1]])
       file_cnt=file_cnt+1
     # put the data into the spreadsheet
+  wb=load_workbook(filename =workbook)
   table.reset_index(inplace=True) # puts the key back into 1st column
+  col_def=columns_for_table(wb,'invest_actl','tbl_invest_actl',read_config())
+  table=conform_table(table,col_def['name'])
+
   return table
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
-  parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
   parser.add_argument('--path','-p',default= 'invest_x.tsv',help='The path and name of the input file')
   parser.add_argument('--base_path','-b',default= 'data/',help='The base path for the performance reports')
   parser.add_argument('--prefix','-x',default= 'invest-p-',help='The prefix used to locate the performance reports')
 
   args=parser.parse_args()
-  invest_actl=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path':args.base_path + args.path,
-    'file_set':{'base_path':args.base_path,'prefix':args.prefix}})
   sheet='invest_actl'
   table='tbl_'+sheet
+  data=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path':args.base_path + args.path,
+    'file_set':{'base_path':args.base_path,'prefix':args.prefix}})
+  table_info=read_config()['sheets'][sheet]['tables'][0]
+  data=dyno_fields(table_info,data) # get the taxable status
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
   wkb=fresh_sheet(wkb,sheet)
-  wkb= write_table(wkb,target_sheet=sheet,df=invest_actl,table_name=table)
+  wkb= write_table(wkb,target_sheet=sheet,df=data,table_name=table)
   attrs=col_attrs_for_sheet(wkb,sheet,read_config())
   wkb=set_col_attrs(wkb,sheet,attrs)
   wkb.save(args.workbook)

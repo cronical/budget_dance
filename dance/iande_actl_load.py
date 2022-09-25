@@ -333,7 +333,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
           if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
             if int(col_name[1:])<int(f_fcast[1:]): # but for actual items, refer to iande_actl
               cl=get_column_letter(1+cix)
-              formula=f'=get_val({tr},"tbl_iande_actl",{cl}$2)'.format()
+              formula=f'=get_val({tr},"tbl_iande_actl",this_col_name())'.format()
               df.loc[rix,col_name]=formula
       pass
   return df,groups

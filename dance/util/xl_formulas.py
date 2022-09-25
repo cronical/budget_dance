@@ -78,6 +78,39 @@ def forecast_formulas(table_info,data,ffy):
   data=apply_formulas(table_info,data,ffy,False)
   return data
 
+def dyno_fields(table_info,data):
+  '''Apply dynamic field rules to data
+
+  The config may give a section called dyno_fields.
+  If it does it contains rules that allow creation of fields from other fields
+
+  args: table_info portion of the config for this table
+  data: a dataframe to modify
+
+  returns: data, which may have been modified.
+  '''
+  if 'dyno_fields' not in table_info:
+    return data
+  rules=table_info['dyno_fields']
+  for rule in rules:
+    base_field=rule['base_field']
+    matches=rule['matches']
+    if not isinstance(matches,list):
+      matches=[matches]
+    if matches == ['*']: # special case if just a single *, meaning all
+      selector= [True]*data.shape[0]
+    else:
+      selector=data[base_field].isin(matches)
+    for ix, rw in data.loc[selector].iterrows(): # the rows that match this rule
+      for action in rule['actions']:
+        if 'constant' in action:
+          value=action['constant']
+        if 'suffix' in action:
+          value= rw[base_field]+action['suffix']
+        if 'formula' in action:
+          value= table_ref(action['formula'])
+        data.at[ix,action['target_field']]=value
+  return data
 
 def main():
   test='[@AcctName],[@Type],[@Active]'

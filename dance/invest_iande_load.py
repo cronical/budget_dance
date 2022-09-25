@@ -10,9 +10,9 @@ import pandas as pd
 
 from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
 from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import  write_table,this_row,get_f_fcast_year
+from dance.util.tables import  columns_for_table, write_table,this_row,get_f_fcast_year,conform_table
 from dance.util.logs import get_logger
-from dance.util.xl_formulas import actual_formulas,forecast_formulas
+from dance.util.xl_formulas import actual_formulas,forecast_formulas,dyno_fields
 
 logger=get_logger(__file__)
 
@@ -76,7 +76,8 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
 
   for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
     df['Y{}'.format(y)]=None
-  pass
+  col_def=columns_for_table(wb,'invest_iande_work','tbl_invest_iande_work',config)
+  df=conform_table(df,col_def['name'])
   return df
 
 
@@ -92,6 +93,7 @@ if __name__ == '__main__':
   data_info=table_info['data']
   data_info['path']=args.path
   data=read_and_prepare_invest_iande(workbook=args.workbook,data_info=data_info)
+  data=dyno_fields(table_info,data)
   data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
   data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
   sheet='invest_iande_work'

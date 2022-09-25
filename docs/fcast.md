@@ -73,7 +73,9 @@ To generate approximate tax forecasts is needed to have the investment income ty
 
 CapGn:Mut LT  
 CapGn:Mut ST  
-CapGn:Shelt  
+CapGn:Sales    
+CapGn:Shelt-Distr
+CapGn:Shelt-Sales 
 Div:Reg  
 Div:Shelt  
 Div:Tax-exempt  

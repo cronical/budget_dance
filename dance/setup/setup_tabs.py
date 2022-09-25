@@ -15,7 +15,7 @@ from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
 from dance.util.tables import first_not_hidden,write_table,columns_for_table
-from dance.util.xl_formulas import actual_formulas,forecast_formulas
+from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -27,31 +27,6 @@ def include_year(table_info,first_forecast_year,proposed_year):
     return True
   return first_forecast_year > proposed_year
 
-def dyno_fields(table_info,data):
-  '''Apply dynamic field rules to data
-
-  The config may give a section called dyno_fields.
-  If it does it contains rules that allow creation of fields from other fields
-
-  args: table_info portion of the config for this table
-  data: a dataframe to modify
-  '''
-  if 'dyno_fields' not in table_info:
-    return data
-  rules=table_info['dyno_fields']
-  for rule in rules:
-    base_field=rule['base_field']
-    matches=rule['matches']
-    if not isinstance(matches,list):
-      matches=[matches]
-    for ix, rw in data.loc[data[base_field].isin(matches)].iterrows(): # the rows that match this rule
-      for action in rule['actions']:
-        if 'constant' in action:
-          value=action['constant']
-        if 'suffix' in action:
-          value= rw[base_field]+action['suffix']
-        data.at[ix,action['target_field']]=value
-  return data
 
 
 def refresh_sheets(target_file,overwrite=False):
