@@ -43,12 +43,22 @@ def apply_formulas(table_info,data,ffy,is_actl):
       matches=[matches]
     for ix, rw in data.loc[data[base_field].isin(matches)].iterrows(): # the rows that match this rule
       selector=is_actl
+      yix=0 # special handling if first year: allow it to be skipped such as for a start bal, or have its own value.
+      first_item=None
+      if 'first_item'in rule:
+        first_item=rule['first_item']
       for col in rw.index:
         if col == 'Y%d'%ffy:
           selector= not selector
         if selector:
           if col[0]=='Y' and col[1:].isnumeric():
             formula=table_ref(rule['formula'])
+            yix+=1
+            if yix==1:
+              if first_item=='skip':
+                continue
+              if first_item is not None:
+                formula=table_ref(first_item)
             data.at[ix,col]=formula
   return data
 

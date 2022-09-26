@@ -44,6 +44,8 @@
 ||Strips off the y on the argument (eg y2019) and returns an integer|
 |is_forecast|Function is_forecast(y_year As String) As Boolean|
 ||Determine if this year is a forecast year|
+|last_two_parts|Function last_two_parts(cat As String, Optional delim = ":") As String|
+||Take the last two parts of a delimited string and return them as a new string with the delimiter. Missing parts will be set to zero lenght string|
 |linear|Function linear(count As Integer, Optional minimum = 0) As Double|
 ||Use the excel forecast linear function to extrapolate the value based on the prior <count> values on this line.. Will use <count> number of data points if they exist or fewer if that goes before the first year. The minimum is used to prevent values from going below that amount. Suitable only for year columns.. Due to trouble with the listobject function which makes values empty for cells with formulas, a work around is used. To determine the table name from the worksheet name.this should be ok for major tables which correspond by convention.|
 |log|Sub log(txt As String)|

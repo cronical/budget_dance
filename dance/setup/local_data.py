@@ -250,8 +250,7 @@ def prepare_account_tab(data_info, in_df):
   account_names=df.Account.tolist()
   df['Income Txbl']= [ int(not any(y in x for y in tax_free_keys)) for x in account_names]
   df['Active']=(df[['Current Balance']] != 0).astype(int) # default zero accounts to inactive
-  df['Rlz share']=0
-  df['Unrlz share']=1
+  df['Near Mkt Rate']=0
   acct_ref='= '+this_row('Account')
   source_formulas=[ acct_ref,acct_ref + ' & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
   flag=(df.level>0) & (df.Type!='I') & (df.is_total)
@@ -275,8 +274,8 @@ def prepare_balance_tab(years,first_forecast,in_df):
 
   returns: a dataframe for the balance tab
 
-  work in progress - the forecast items are overwritten based on config.
-  TODO do the same with the actuals and remove this logic, but keep adding columns.
+  work in progress - the forecast and actuals items are overwritten based on config.
+  TODO do the remove the formulas from the code
   '''
 
   acct_ref=this_row('AcctName')
@@ -292,14 +291,14 @@ def prepare_balance_tab(years,first_forecast,in_df):
   # the actual and the forecast formulas
   # braces are filled in before inserting into the worksheet
   actl_formulas={
-    'Rate':'=simple_return( %s,{})' % (acct_ref),
+    'Mkt Gn Rate':'=simple_return( %s,{})' % (acct_ref),
     'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
     'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
     'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
     'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
     'End Bal': '=@endbal( %s,{})'  % (acct_ref) }
   fcst_formulas={
-    'Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
+    'Mkt Gn Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
     'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
     'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
     'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
