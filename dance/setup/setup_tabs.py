@@ -10,7 +10,7 @@ from openpyxl.styles import Font
 import pandas as pd
 
 import yaml
-from dance.util.books import col_attrs_for_sheet,set_col_attrs
+from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
@@ -146,6 +146,7 @@ def refresh_sheets(target_file,overwrite=False):
         wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
+        wb=freeze_panes(wb,sheet_name,config)
         # save after each sheet to allow successive sheets to locate earlier sheet data
         wb.save(target_file)
         logger.info('workbook {} saved'.format(target_file))
