@@ -71,4 +71,29 @@ def set_col_attrs(wb,sheet,attrs):
     ws.column_dimensions[get_column_letter(k)].width = v['width']
     ws.column_dimensions[get_column_letter(k)].hidden = v['hidden']
   return wb
-  
+
+def freeze_panes(wb,sheet,config):
+  '''Set a freeze pane point for sheet based on the config.
+  Only operates on the first table of a sheet and only if include_years is True.
+
+  args:
+    wb: the workbook
+    sheet: the name of the worksheet
+    config: the full config as a dict
+
+  returns: a possibly modified workbook
+  '''
+  table_info=config['sheets'][sheet]['tables'][0]
+  if not table_info['include_years']:
+    return wb
+  tr=2
+  if 'title_row' in table_info:
+    tr=table_info['title_row']
+  sc=1
+  if 'start_col' in table_info:
+    sc=table_info['start_col']
+  x=len(table_info['columns'])
+  let=get_column_letter(x+sc)
+  address=let+'{}'.format(1+tr)
+  wb[sheet].freeze_panes=address
+  return wb
