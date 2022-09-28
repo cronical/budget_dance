@@ -24,6 +24,8 @@
 ||Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, and current invest_iande_work. Retirement feeds aux,. Aux and invest_iande_work feeds current balances. Iande depends on retirement as well and taxes depend on iande|
 |calc_table|Sub calc_table()|
 ||Testing forced calc of table|
+|CT_Tax|Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
+||Calculate the ct income tax for a given year and taxable income amount. The so called initial tax calculation only.. Table is not setup exactly like federal - it uses the traditional method not the subraction method.. Gets a result of zero if year not in the table.|
 |d2s|Function d2s(dt As Date) As String|
 |||
 |ei_withhold|Function ei_withhold(legend As String, ei_template, y_year As String) As Double|

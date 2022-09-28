@@ -307,6 +307,41 @@ Sub calc_table()
 
 End Sub
 
+Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double
+'Calculate the CT income tax for a given year and taxable income amount
+'The so called Initial Tax Calculation only.
+'Table is not setup exactly like Federal - it uses the traditional method not the subraction method.
+'gets a result of zero if year not in the table.
+    Dim result As Double
+    Dim tbl_name As String
+    Dim tbl As ListObject
+    Dim lr As ListRow
+    Dim rng As Range
+    Dim yr As Integer
+    Dim ti As Double, rt As Double, base As Double
+    
+    tbl_name = "tbl_ct_tax"
+    ws = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws).ListObjects(tbl_name)
+    result = 0
+    prior = 0
+    For Each lr In tbl.ListRows()
+        Set rng = lr.Range
+        yr = rng.Cells(1, 1).value
+        ti = rng.Cells(1, 2).value
+        rt = rng.Cells(1, 3).value
+        base = rng.Cells(1, 4).value
+        If tax_Year = yr Then
+            If taxable_Income < ti And taxable_Income >= prior Then
+                result = base + (rt * (taxable_Income - prior))
+                result = Round(result, 0)
+            End If
+            prior = ti
+        End If
+    Next lr
+    CT_Tax = result
+End Function
+
 Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
@@ -433,13 +468,25 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
 
             Select Case is_fcst
                 Case True
-                    Select Case realized
-                        Case True
-                            val = agg_table("tbl_invest_iande_work", y_year, acct & "|value", , "Account|Type")
-                        Case False ' Unrlz Gn
-                            open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
-                            rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)
-                            val = open_bal * rate
+                    Select Case account_type
+                        Case "I"
+                            Select Case realized
+                                Case True
+                                    val = agg_table("tbl_invest_iande_work", y_year, acct & "|value", , "Account|Type")
+                                Case False ' Unrlz Gn
+                                    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
+                                    rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)
+                                    val = open_bal * rate
+                            End Select
+                        Case "B"
+                            Select Case realized
+                                Case True
+                                    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
+                                    rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)
+                                    val = open_bal * rate
+                                Case False ' Unrlz Gn
+                                    val = 0
+                            End Select
                     End Select
                 
                 Case False ' actuals
@@ -461,13 +508,11 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
                                 End Select
                     End Select
             End Select
-                
             gain = val
-                
-                
-        Case Else ' return zero if not investment or bank account
+                               
+         Case Else ' return zero if not investment or bank account
             gain = 0
-        End Select
+    End Select
     
 
 
