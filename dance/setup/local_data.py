@@ -31,7 +31,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     df= prepare_account_tab(data_info,df)
   if data_info['type']=='md_bal':
     df=read_balances(data_info,target_file)
-    df=prepare_balance_tab(years,ffy,df)
+    df=prepare_balance_tab(years,df)
   if data_info['type']=='md_iande_actl':
     df=read_iande_actl(data_info=data_info)
     df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
@@ -265,21 +265,18 @@ def prepare_account_tab(data_info, in_df):
   del df['Current Balance']
   return df
 
-def prepare_balance_tab(years,first_forecast,in_df):
+def prepare_balance_tab(years,in_df):
   '''Add in the added fields for the balance worksheet
   args:
     years: iterable with the numeric years to be appended to the columns
-    first_forecast: integer year that is the 1st to use the forecast formulas
-    in_df: a dataframe with at least columns: Account, and Current Balance
+    in_df: a dataframe with at least the Account and Current Balance columns
 
-  returns: a dataframe for the balance tab
+  returns: a dataframe for the balance tab with the years columns set as None.
 
-  work in progress - the forecast and actuals items are overwritten based on config.
-  TODO do the remove the formulas from the code
+  The forecast and actuals items in the years columns are set later based on config.
   '''
 
   acct_ref=this_row('AcctName')
-  key_ref=this_row('Key')
   repeated_formulas={
     'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), acct_ref),
     'Type':'=@get_val({},"tbl_accounts",D$2)'.format(acct_ref),
@@ -288,53 +285,34 @@ def prepare_balance_tab(years,first_forecast,in_df):
   }
   lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active']
 
-  # the actual and the forecast formulas
-  # braces are filled in before inserting into the worksheet
-  actl_formulas={
-    'Mkt Gn Rate':'=simple_return( %s,{})' % (acct_ref),
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
-    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{})'  % (acct_ref) }
-  fcst_formulas={
-    'Mkt Gn Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
-    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{})' % (acct_ref)  }
+  # the actual and the forecast formulas specified in setup.yaml - except for the opening balance
 
-  val_types=actl_formulas.keys()
+  val_types=['Mkt Gn Rate','Start Bal','Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','End Bal']
   r_count=len(val_types)
-  df=pd.DataFrame([])
-  # prepare the data for each account
+  df=pd.DataFrame([]) # accumulate into this
+  
+  # prepare the data for each account 
   for _,row in in_df.iterrows():
-    a_df=pd.DataFrame([])
+    acct_df=pd.DataFrame([])
     for c in lead_cols:
       if c in repeated_formulas:
-        a_df[c]=[repeated_formulas[c]]*r_count
+        acct_df[c]=[repeated_formulas[c]]*r_count
       else:
         if c== 'ValType':
-          a_df[c]=val_types
+          acct_df[c]=val_types
         else:
-          a_df[c]=[row['Account']]*len(val_types)
+          acct_df[c]=[row['Account']]*r_count
     for c in years:
       formulas=[]
       for vt in val_types:
-        raw_formula=[actl_formulas,fcst_formulas][c >= first_forecast][vt]
         yx=years.index(c)
-        if vt == 'Start Bal': # only type to use prior year col
-          if yx >0:
-            prior_year_col='y_offset(this_col_name(),-1)'
-            formula=raw_formula.format(prior_year_col)
-          else: # initial year is the balance from the input
+        formula=None
+        if vt == 'Start Bal': # start bal for 1st year has to be carried in here.
+          if yx == 0:
             formula=float(in_df.loc[in_df.Account == row['Account'],'Current Balance'])
-        else:
-          formula=raw_formula.format('this_col_name()')
         formulas+=[formula]
-      a_df['Y{}'.format(c)]=formulas
-    df=pd.concat([df,a_df],axis=0)
+      acct_df['Y{}'.format(c)]=formulas
+    df=pd.concat([df,acct_df],axis=0)
   df.reset_index(inplace=True,drop='True')
   return df
 
