@@ -138,7 +138,7 @@ Each section consists of a list of rules.  The rules have the following parts:
 |base_field|The name of the column that is used for matching|
 |matches|A list of values by which to match rows. This could match a single row or many rows.|
 |formula|The formula to use for the selected year columns (actual or forecast)
-|first_item|Optional. In some cases the first item of the series needs to be different. If supplied it may be a keyword `skip`. Or it may be a such as a constant or a formula that will be used in the first place.|
+|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
 
 For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 

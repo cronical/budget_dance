@@ -357,20 +357,26 @@ Function ei_withhold(legend As String, ei_template, y_year As String) As Double
 Dim result As Double, earned As Double
 Dim rate As Variant, cap As Variant
 Dim legend_parts() As String
-Dim typ As String, ei_line As String
+Dim typ As String, ei_line As String, y_rate_year As String
+
 legend_parts = Split(legend, "-")
 typ = Trim(legend_parts(LBound(legend_parts)))
 who = Trim(legend_parts(UBound(legend_parts)))
 
 ei_line = Replace(ei_template, "%", who)
 earned = get_val(ei_line, "tbl_iande", y_year)
+ffy = get_val("first_forecast", "tbl_gen_state", "value")
+lay = -1 + IntYear(ffy)
+rate_year = Application.WorksheetFunction.Min(lay, IntYear(y_year))
+y_rate_year = "Y" & CStr(rate_year)
+
 Select Case typ
 Case "Soc Sec":
-    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_year)
-    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_year)
-    result = rate * Application.WorksheetFunction.min(cap, earned)
+    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_rate_year)
+    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_rate_year)
+    result = rate * Application.WorksheetFunction.Min(cap, earned)
 Case "Medicare":
-    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_year)
+    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_rate_year)
     result = rate * earned
 End Select
 ei_withhold = result
@@ -753,11 +759,11 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
         mdy = Split(end_mdy, "/")
         ed = DateSerial(mdy(2), mdy(0) + 1, 1) - 1
     End If
-    ed = Application.WorksheetFunction.min(ed, DateSerial(IntYear(y_year), 12, 31))
+    ed = Application.WorksheetFunction.Min(ed, DateSerial(IntYear(y_year), 12, 31))
     sd = Application.WorksheetFunction.Max(start_date, DateSerial(IntYear(y_year), 1, 1))
     distance = (ed - sd) / (365.25 / 12)
     months = Round(distance, 0)
-    months = Application.WorksheetFunction.min(12, months)
+    months = Application.WorksheetFunction.Min(12, months)
     months = Application.WorksheetFunction.Max(0, months)
     result = months / 12
     mo_apply = result
@@ -931,12 +937,15 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     RMD_1 = result
 End Function
 
-Function rolling_avg(Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "", Optional lookback As Integer = 3) As Double
-'Look back at previous columns and average the numeric values found there, ignoring non-numerics
+Function rolling_avg(Optional max_value As Variant = Null, Optional lookback As Integer = 5, Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "") As Double
+'Look back at previous columns and average the numeric values found there, ignoring items before 2018, but including zeros
+'max_value if provided is used instead of any higher values
+'lookback is defaulted to 5 years
 'If not provided, table, key and y_year are taken from the calling cell
-'Return the average
+'Return the average.  Returns 0 if the count of valid items is 0.
 Dim y_year As String
 Dim point As Range, ws As Worksheet
+Dim value As Variant
 
 Set point = Application.caller
 If table = "" Then
@@ -955,12 +964,15 @@ tot = 0
 cnt = 0
 For y = this_year - lookback To this_year - 1
     If y < 2018 Then
-        value = 0
+        value = Null
     Else
         y_year = "Y" & y
         value = get_val(key, table, y_year)
     End If
-    If Not value = 0 Then
+    If Not IsNull(value) Then
+        If Not IsNull(max_value) Then
+            value = Application.WorksheetFunction.Min(max_value, value)
+        End If
         tot = tot + value
         cnt = cnt + 1
     End If

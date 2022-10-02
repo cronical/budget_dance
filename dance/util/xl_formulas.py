@@ -46,19 +46,27 @@ def apply_formulas(table_info,data,ffy,is_actl):
       yix=0 # special handling if first year: allow it to be skipped such as for a start bal, or have its own value.
       first_item=None
       if 'first_item'in rule:
-        first_item=rule['first_item']
+        first_item=str(rule['first_item'])
+        # it is now always a list
+        if first_item=='skip' or first_item.startswith('='):
+          first_item=[first_item]
+        else:
+          first_item=first_item.split(',')
       for col in rw.index:
         if col == 'Y%d'%ffy:
           selector= not selector
         if selector:
           if col[0]=='Y' and col[1:].isnumeric():
             formula=table_ref(rule['formula'])
+            if first_item is not None:
+              if yix in range(len(first_item)):
+                if first_item[0]=='skip':
+                  continue
+                if yix==0 and first_item[0].startswith('='):
+                  formula=table_ref(first_item[0])
+                else:
+                  formula='='+first_item[yix]
             yix+=1
-            if yix==1:
-              if first_item=='skip':
-                continue
-              if first_item is not None:
-                formula=table_ref(first_item)
             data.at[ix,col]=formula
   return data
 

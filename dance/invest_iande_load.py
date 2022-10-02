@@ -72,8 +72,9 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   rates_df[ys]='=ratio_to_start({},{},this_col_name())'.format(this_row('Account'),this_row('Category')) # the rates formula
   df=pd.concat([vals_df,rates_df])
   df.reset_index(drop=True,inplace=True) # new clean index
-  df.insert(0,column='Key',value=df.Account.map(str)+':'+df.Category.map(str)+':'+df.Type.map(str))
-
+  df.insert(0,column='Key',value=df.Account.map(str)+':'+df.Category.map(str)+':'+df.Type.map(str)) # full key
+  df.insert(1,column='Category_Type',value=df.Category.map(str)+':'+df.Type.map(str)) # to select category rates
+  
   for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
     df['Y{}'.format(y)]=None
   col_def=columns_for_table(wb,'invest_iande_work','tbl_invest_iande_work',config)
