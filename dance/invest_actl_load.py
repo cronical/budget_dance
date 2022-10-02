@@ -22,7 +22,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     data_info: dict that has a value for path used to locate the input file
     table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
 
-  returns: dataframe with 3 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls)
+  returns: dataframe with 5 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains)
 
   raises:
     FileNotFoundError: if the input file does not exist.
