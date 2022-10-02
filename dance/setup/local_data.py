@@ -96,7 +96,7 @@ def read_accounts(data_info):
 
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False)
   logger.info('{} rows read'.format(len(df)))
-  df=df.dropna(how='any',subset='Account') # remove blank rows
+  df.dropna(how='any',subset='Account',inplace=True) # remove blank rows
   df.reset_index(drop=True,inplace=True)
   logger.info('{} non-blank rows'.format(len(df)))
   df['Account']=df['Account'].str.strip()
@@ -219,7 +219,7 @@ def read_accounts(data_info):
     for _,row in df.loc[flag_tot==0].iterrows():
       logger.warning(row['Account'])
 
-  df=df.loc[df.keep]
+  df=df.loc[df.keep].copy()
   df['Type']=[types[x] for x in df.category.tolist()]
   logger.info('Returning {} rows'.format(len(df)))
   return df[['Account','Type','Current Balance','is_total' ,'level']]
@@ -243,7 +243,7 @@ def prepare_account_tab(data_info, in_df):
 
   returns: a dataframe for the accounts tab
   '''
-  df=in_df
+  df=in_df.copy()
   tax_free_keys=[]
   if 'tax_free_keys'in data_info:
     tax_free_keys=data_info['tax_free_keys']

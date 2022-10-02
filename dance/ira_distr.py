@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 '''Process the ira distribution records from Moneydance export'''
+import warnings
 import pandas as pd
-from openpyxl.utils.cell import range_boundaries
 from dance.util.logs import get_logger
-from dance.util.tables import  df_for_table_name_for_update
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 logger=get_logger(__file__)
 
@@ -33,7 +34,7 @@ def ira_distr_summary():
       df[col] = pd.to_datetime(df[col])
   #remove the negatives, which are the transfers out of the IRA account
   #that way the totals will be the sum of the taxes and the postive amount transfered to the bank
-  df=df[df.Amount>0]
+  df=df[df.Amount>0].copy()
 
   # create the year field to allow for pivot
   df['Year']=df['Date'].dt.year
