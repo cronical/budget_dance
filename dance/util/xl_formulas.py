@@ -60,7 +60,8 @@ def apply_formulas(table_info,data,ffy,is_actl):
             formula=table_ref(rule['formula'])
             if first_item is not None:
               if yix in range(len(first_item)):
-                if first_item[0]=='skip':
+                if yix==0 and first_item[0]=='skip':
+                  yix=+1
                   continue
                 if yix==0 and first_item[0].startswith('='):
                   formula=table_ref(first_item[0])
