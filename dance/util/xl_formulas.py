@@ -4,13 +4,14 @@ import re
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it
   to the long form which Excel recognizes exclusively (even though it displays the short form).
+  Does not support spaces in field names
 
   args: formula using the short form such as [@AcctName]
   returns: formula using the long form such as [[#this row],[@AcctName]]
   '''
 
   result=formula
-  regex=r'\[(@[ a-z0-9]+)\]'
+  regex=r'\[(@[ a-z0-9]+)\]' 
   #regex=r'@[a-z]'
   p=re.compile(regex,re.IGNORECASE)
   for m in p.finditer(result):

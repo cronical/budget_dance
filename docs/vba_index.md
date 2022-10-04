@@ -4,8 +4,8 @@
 |---|---|
 |acct_who1|Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String|
 ||Return the first initial of the owner of an account in format type - who - firm|
-|add_wdraw|Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean = False) As Variant|
-||Grab the actual transfers in (positive) our out(negative). Ignoring the optional is_fcst argument - instead: compute it|
+|add_wdraw|Function add_wdraw(acct As String, y_year As String) As Variant|
+||Get the actual or forecast transfers in (positive) our out(negative). Determines whether the year is actual or forecast, in order to determine the source from the accounts table.. For actuals returns the value from the source table.. For forecast, will add realized gains that are not re-invested. If source table is the retirement table, changes the sign.|
 |age_as_of_date|Function age_as_of_date(inits As String, dt As Date) As Double|
 ||Return the age attained by an account owner in a given year|
 |age_of|Function age_of(inits As String, y_year As String) As Integer|
