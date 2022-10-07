@@ -6,6 +6,7 @@ import argparse
 import os
 from dateutil.parser import parse
 from openpyxl import load_workbook
+import pandas as pd
 
 from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
 from dance.util.files import tsv_to_df, read_config
@@ -18,11 +19,12 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   '''  Read investment actual data from files into a dataframe
 
   args:
-    workbook: name of the workbook (to get the accounts data from)
+    workbook: name of the workbook (to get the accounts and fees data from)
     data_info: dict that has a value for path used to locate the input file
     table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
 
   returns: dataframe with 5 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains)
+    The unrealized gain value has the fees removed
 
   raises:
     FileNotFoundError: if the input file does not exist.
@@ -100,10 +102,15 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
       # append the transfers
       df=df.join(xfers[fn_year])
-      df.rename(columns={fn_year:'Transfers'},inplace=True)
+      # get the fees and append as a column
+      iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
+      iiw=iiw.loc[iiw.Category_Type=='Investing:Fees:value']
+      iiw.set_index('Account',drop=True,inplace=True)
+      df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
+      df.rename(columns={fn_year:'Transfers','Y'+fn_year:'Fees'},inplace=True)
       # compute the two gain fields
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
-      df=df.assign(Unrealized=lambda x: x.End - (x.Open+x.Transfers+x.Realized))
+      df=df.assign(Unrealized=lambda x: x.End - (x.Open+x.Transfers+x.Realized+x.Fees))
 
       # use names in spreadsheet
       map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}

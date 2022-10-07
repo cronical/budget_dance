@@ -410,8 +410,9 @@ Function endbal(acct As String, y_year As String) As Variant
     open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
     adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
     rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
+    fees = get_val("Fees" & acct, "tbl_balances", y_year)
     unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
-    val = open_bal + adds + rlzd + unrlzd
+    val = open_bal + adds + rlzd + unrlzd + fees
     endbal = val
 
 End Function
@@ -498,7 +499,7 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
                         Case "I"
                             Select Case realized
                                 Case True
-                                    val = agg_table("tbl_invest_iande_work", y_year, acct & "|value", , "Account|Type")
+                                    val = agg_table("tbl_invest_iande_work", y_year, acct & "|value|I", , "Account|Type|IorE")
                                 Case False ' Unrlz Gn
                                     open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
                                     rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)

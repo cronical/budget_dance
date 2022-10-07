@@ -292,7 +292,7 @@ def prepare_balance_tab(years,in_df):
 
   # the actual and the forecast formulas specified in setup.yaml - except for the opening balance
 
-  val_types=['Mkt Gn Rate','Reinv Rate','Start Bal','Add/Wdraw','Rlz Int/Gn','Reinv Amt','Unrlz Gn/Ls','End Bal']
+  val_types=['Mkt Gn Rate','Reinv Rate','Start Bal','Add/Wdraw','Rlz Int/Gn','Reinv Amt','Fees','Unrlz Gn/Ls','End Bal']
   r_count=len(val_types)
   df=pd.DataFrame([]) # accumulate into this
   
