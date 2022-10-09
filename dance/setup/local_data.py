@@ -2,7 +2,7 @@
 import pandas as pd
 from dance.invest_iande_load import read_and_prepare_invest_iande
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
-from dance.payroll_savings import payroll_savings
+from dance.other_actls import IRA_distr, payroll_savings
 from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.util.files import tsv_to_df
@@ -27,30 +27,35 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     Such as in the case of balances if there is an account not found in the accounts worksheet
     '''
   groups=None
-  if data_info['type']== 'md_acct':
-    df= read_accounts(data_info)
-    df= prepare_account_tab(data_info,df)
-  if data_info['type']=='md_bal':
-    df=read_balances(data_info,target_file)
-    df=prepare_balance_tab(years,df)
-  if data_info['type']=='md_iande_actl':
-    df=read_iande_actl(data_info=data_info)
-    df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
-  if data_info['type']=='md_transfers_actl':
-    df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
-    df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
-  if data_info['type']=='md_invest_iande_work':
-    df=read_and_prepare_invest_iande(workbook=target_file,data_info=data_info)
-  if data_info['type']=='md_invest_actl':
-    df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
-  if data_info['type']=='md_pr_sav':
-    df=payroll_savings()
-  if data_info['type']=='json_index': # a json file organized like: {index -> {column -> value}}
-    df=pd.read_json(data_info['path'],orient='index')
-    logger.info('Read {}'.format(data_info['path']))
-  if data_info['type']=='json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
-    df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
-    logger.info('Read {}'.format(data_info['path']))
+  match data_info['type']:
+    case 'md_acct':
+      df= read_accounts(data_info)
+      df= prepare_account_tab(data_info,df)
+    case 'md_bal':
+      df=read_balances(data_info,target_file)
+      df=prepare_balance_tab(years,df)
+    case 'md_iande_actl':
+      df=read_iande_actl(data_info=data_info)
+      df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
+    case 'md_transfers_actl':
+      df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
+      df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
+    case 'md_invest_iande_work':
+      df=read_and_prepare_invest_iande(workbook=target_file,data_info=data_info)
+    case 'md_invest_actl':
+      df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
+    case 'md_pr_sav':
+      df=payroll_savings()
+    case 'md_ira_distr':
+      df=IRA_distr()
+    case 'json_index': # a json file organized like: {index -> {column -> value}}
+      df=pd.read_json(data_info['path'],orient='index')
+      logger.info('Read {}'.format(data_info['path']))
+    case 'json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
+      df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
+      logger.info('Read {}'.format(data_info['path']))
+    case _:
+      assert False,'Undefined type'
   return df,groups
 
 def filter_nz(df,include_zeros):

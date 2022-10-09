@@ -181,7 +181,9 @@ The solution allows a uniform way of handling the data (at the cost of a bit of 
 
 The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
 
-This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv`file. It is then imported via special handling in `iande_actl_load`, which calls the `ira_distr_summary()` function and merges the data into `IRA-Txbl-Distr` line on the iande_actl table.  From there it flows to the `iande` tab and then to the `taxes` tab.  The value in `iande_actl` may have values for some years (if the distribution comes from an account not tracked by Moneydance.  This can happen with an inherited IRA).
+This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv`file. It is then imported via special handling in `IRA_distr` processes the transactions to create a table `tbl_ira_dist`. The  `IRA-Txbl-Distr` line on the `tbl_iande` pulls from that table.  From there it flows to the `taxes` tab.  
+
+The value in `iande_actl` may have values for some years (if the distribution comes from an account not tracked by Moneydance.  This can happen with an inherited IRA). It should match to what is in the `iande` table. If not then the tags probably have not been set correctly.
 
 ### iande-map
 
