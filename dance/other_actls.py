@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 '''Process the payroll to savings records from Moneydance export (report: 401, HSA, ESP payroll data)'''
+from os.path import exists
 import warnings
 import pandas as pd
 from dance.util.files import tsv_to_df
@@ -8,6 +9,78 @@ from dance.util.logs import get_logger
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 logger=get_logger(__file__)
+
+def sel_inv_transfers():
+  '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
+  Use of passthru can hide the other half of the transaction.
+  This finds the matching transaction in passthru to determine the other side.
+  After that income and expense categories are removed before summing.
+
+  Assumptions:
+    Brokerages must be named starting with BKG
+    Files are tab separated text files named based on the account name without spaces as data/trans_acct.tsv
+    List all accounts that could have transactions - will ignore if no file found.
+
+  arguments: None # TODO pass the file info in
+  returns: dataframe with banks for rows and years for columns
+    positive values indicate amount moved out of bank into savings/investment
+
+  '''
+
+  pass_cats=['Passthru']
+  sel_inv_accts='BKG - JNT - ML,BKG - JNT - Vanguard,BKG - JNT - CP1,BND - GBD - TRY,BND - VEC - TRY,LON - JNT - HED,MUT - JNT - T Rowe Price'.split(',')
+  pass_files=['data/trans_' + cat+'.tsv' for cat in pass_cats]
+  sel_files=['data/trans_' + sia.replace(' ','') +'.tsv' for sia in sel_inv_accts]
+  txt_flds='Account,Check#,Description,Category,Tags,C'.split(',')
+  keep_fields='Account,Date,Description,Category,Amount'.split(',')
+  df_pass=pd.DataFrame()
+  for file in pass_files:
+    df_p=tsv_to_df(file,skiprows=3,string_fields=txt_flds)
+    df_p=df_p.loc[~df_p.Account.isnull()]
+    df_p=df_p.loc[df_p.Account != 'Total']
+    df_p=df_p[keep_fields]
+    df_pass=pd.concat([df_pass,df_p])
+  df_pass=df_pass.reset_index(drop=True)
+  df=pd.DataFrame()
+  for file in sel_files:
+    if exists(file):
+      is_bkg=file.find('BKG')!=-1
+      df_b=tsv_to_df(file,skiprows=3,string_fields=txt_flds,parse_shares=is_bkg)
+      df_b=df_b.loc[~df_b.Account.isnull()]
+      if 'Unit' in df_b.columns:
+        df_b=df_b.loc[df_b.Unit != 'Shares']
+      df_b=df_b.loc[df_b.Account != 'Total']
+      # remove the income and expense items. 
+      df_b=df_b.loc[~df_b['Category'].str[:2].isin(['I:','X:','T:'])]
+      df=pd.concat([df,df_b])
+  df=df.reset_index(drop=True)
+  df=df[keep_fields]
+  df=setup_year(df)
+  # merge_asof almost worked but seems to have a bug yielding nans when a match should have occurred
+  # test=pd.merge_asof(df,df_pass,on='Date',by='Amount')
+  # the following matches on amount the takes the lowest difference between dates
+  for ix,rw in df.loc[df.Category.isin(pass_cats)].iterrows():
+    sel=df_pass.Amount==rw.Amount
+    if sel.sum()!=0:
+      pf=df_pass.loc[sel,['Date','Category']]
+      diff=(pf['Date']-rw.Date).abs()
+      if pd.Timedelta("8 days")>diff.min():
+        # print(diff.min())
+        iy=pf.index[list(diff).index(diff.min())]
+        df.at[ix,'Category']=pf.loc[iy,'Category']
+  # remove the income and expense items. 
+  df=df.loc[~df['Category'].str[:2].isin(['I:','X:','T:'])]
+  # Also remove passthru assuming it occurs because of a split (presumably to income and/or expense items)
+  df=df.loc[df['Category']!='Passthru']
+  sumc= df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum').reset_index()
+  sumc.rename(columns={'Category':'Account'},inplace=True)
+  # drop any securities that are included
+  sumc=sumc.loc[~sumc['Account'].str.contains(':')]
+  # prepare to remove the brokerages
+  bkgs=pd.unique(df.Account)
+  assert sumc.loc[sumc.Account.isin(bkgs)].drop('Account',axis=1).sum().sum()==0,'Brokerage sum is not zero'
+  sumc=sumc.loc[~sumc.Account.isin(bkgs)]
+  return sumc
 
 def payroll_savings():
   '''Get the payroll to savings records from Moneydance export and summarize so data items can be put in spreadsheet
@@ -120,7 +193,6 @@ def hsa_disbursements():
   summary.Account=summary.Account.str.strip()
   return summary
 
-
 def setup_year(df):
   '''Convert the date field and create a year field, returning revised dataframe'''
   df['Year']=df['Date'].dt.year.astype(int)
@@ -130,4 +202,6 @@ def setup_year(df):
 if __name__=='__main__':
   # payroll_savings()
   # IRA_distr()
-  hsa_disbursements()
+  # hsa_disbursements()
+  sel_inv_transfers()
+
