@@ -17,12 +17,12 @@ def sel_inv_transfers():
   After that income and expense categories are removed before summing.
 
   Assumptions:
-    Brokerages must be named starting with BKG
+    Brokerages must be named starting with BKG (to know that shares need to be parsed)
     Files are tab separated text files named based on the account name without spaces as data/trans_acct.tsv
     List all accounts that could have transactions - will ignore if no file found.
 
   arguments: None # TODO pass the file info in
-  returns: dataframe with banks for rows and years for columns
+  returns: dataframe with investment accounts for rows and years for columns
     positive values indicate amount moved out of bank into savings/investment
 
   '''
@@ -51,7 +51,7 @@ def sel_inv_transfers():
         df_b=df_b.loc[df_b.Unit != 'Shares']
       df_b=df_b.loc[df_b.Account != 'Total']
       # remove the income and expense items. 
-      df_b=df_b.loc[~df_b['Category'].str[:2].isin(['I:','X:','T:'])]
+      #df_b=df_b.loc[~df_b['Category'].str[:2].isin(['I:','X:','T:'])]
       df=pd.concat([df,df_b])
   df=df.reset_index(drop=True)
   df=df[keep_fields]
@@ -68,19 +68,22 @@ def sel_inv_transfers():
         # print(diff.min())
         iy=pf.index[list(diff).index(diff.min())]
         df.at[ix,'Category']=pf.loc[iy,'Category']
-  # remove the income and expense items. 
-  df=df.loc[~df['Category'].str[:2].isin(['I:','X:','T:'])]
+  # remove the expense items. 
+  df=df.loc[~df['Category'].str[:2].isin(['X:','T:'])]
+  # and the income unless no reinvestment
+  sel= df['Category'].str[:2].isin(['I:'])
+  sel = sel  & ~ (df.Account=='LON - JNT - HED')
+  df=df.loc[~sel]
   # Also remove passthru assuming it occurs because of a split (presumably to income and/or expense items)
   df=df.loc[df['Category']!='Passthru']
-  sumc= df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum').reset_index()
-  sumc.rename(columns={'Category':'Account'},inplace=True)
-  # drop any securities that are included
-  sumc=sumc.loc[~sumc['Account'].str.contains(':')]
-  # prepare to remove the brokerages
-  bkgs=pd.unique(df.Account)
-  assert sumc.loc[sumc.Account.isin(bkgs)].drop('Account',axis=1).sum().sum()==0,'Brokerage sum is not zero'
-  sumc=sumc.loc[~sumc.Account.isin(bkgs)]
-  return sumc
+  df.fillna(value='',inplace=True) # category has nans
+  sec_start=[a+':' for a in sel_inv_accts]
+  sel=False
+  for beg in sec_start:
+    sel= sel | (df.Category.str.startswith(beg))# remove securities
+  df=df.loc[~sel]
+  suma= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum').reset_index()
+  return suma
 
 def payroll_savings():
   '''Get the payroll to savings records from Moneydance export and summarize so data items can be put in spreadsheet
