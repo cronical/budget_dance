@@ -1,0 +1,109 @@
+start_year: int(min=2011)
+end_year: int(max=2070)
+year_column_width: int()
+first_forecast_year: int()
+zoom_scale: int()
+
+sheet_groups: map(include('sheet_group'),key=str())
+sheets: map(include('sheet'),key=str())
+---
+sheet_group:
+  color: include('color')
+  table_style: str()
+---
+sheet:
+  sheet_group: str()
+  tables: list(include('table'))
+---
+table:
+  name: str()
+  title: str()
+  include_years: bool()
+  columns: list(include('column'))
+  data: include('data',required=False)
+  hidden: list(str(),required=False)
+  title_row: int(required=False)
+  start_col: int(required=False)
+  actual_only: bool(required=False)
+  dyno_fields: list(include('dyno_field'),required=False)
+  highlights: map(include('highlight'),key=str(),required=False)
+  actl_formulas: list(include('row_formula'),required=False)
+  fcst_formulas: list(include('row_formula'),required=False)
+---
+column:
+  name: str()
+  width: int(required=False)
+  horiz: str(required=False)
+  number_format: any(int(),str(),required=False)
+
+---
+data:
+  source: str(matches='[internal|local|remote]')
+  site_code: str(required=False)
+  api_key: str(required=False)
+  parameters: include('parameter',required=False)
+  type: str(required=False)
+  path: str(required=False)
+  group: list(str(),required=False)
+  no_details_for: list(str(),required=False)
+  include_zeros: list(str(),required=False)
+  tax_free_keys: list(str(),required=False)
+  hier_insert_paths: list(str(),required=False)
+  file_set: include('file_set',required=False)
+  sheet: str(required=False)
+  table: include('data_table',required=False)
+  name: str(required=False) # for internal only
+
+---
+parameter:
+  start_year: int()
+  end_year: int()
+  seriesid: list(str())
+---
+file_set:
+  base_path: str()
+  prefix: str()
+---
+dyno_field:
+  base_field: any(str(),list(str()))
+  matches: any(str(),list(str()))
+  actions: list(include('action'))
+---
+action:
+  target_field: str()
+  constant: any(str(),num(),required=False)
+  formula: str(required=False)
+  suffix: str(required=False)
+---
+color: str(matches='[a-fA-F0-9]{6}')
+---
+border:
+  edges: any(include('edge'),list('edge'))
+  style: str(matches='[thin|medium|thick]')
+  color: include('color')
+---
+highlight:
+  formula: str()
+  border: include('border',required=False)
+  fill: include('fill',required=False)
+  font: include('font',required=False)
+  keys: list(str(),required=False)
+---
+fill:
+      bgcolor: include('color')
+---
+font:
+  bold: bool(required=False)
+  color: include('color',required=False)
+---
+edge: str(matches='[left|right|top|bottom]')
+---
+data_table:
+  find_method: str()
+  method_parms: map(str(),key=str())
+---
+row_formula:
+  base_field: str()
+  matches: any(str(),list(str()))
+  first_item: str(required=False)
+  formula: str()
