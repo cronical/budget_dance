@@ -22,7 +22,7 @@ def table_ref(formula):
 
 def apply_formulas(table_info,data,ffy,is_actl):
   '''insert actual or forecast formulas per config
-  The config may give formula definitions in sections called actl_formulas and/or fcst_formulas.
+  The config may give formula definitions in sections called actl_formulas, all_col_formulas and/or fcst_formulas.
   If it exists, *_formulas section contains the key_field to use to match the key from the rules.
   The rules are a list of dictionaries that contain entries for 'key' and 'formula'.
 
@@ -33,10 +33,12 @@ def apply_formulas(table_info,data,ffy,is_actl):
 
   returns: the possibly modified dataframe.
   '''
-  section = ('fcst','actl')[int(is_actl)]  +'_formulas'
-  if section not in table_info:
-    return data
-  rules=table_info[section]
+  sections = ['all_col_formulas']+[('fcst','actl')[int(is_actl)]  +'_formulas']
+  rules=[]
+  for section in sections:
+    if section not in table_info:
+      continue
+    rules+=table_info[section]
   for rule in rules:
     base_field=rule['base_field']
     matches=rule['matches']

@@ -27,8 +27,9 @@ table:
   actual_only: bool(required=False)
   dyno_fields: list(include('dyno_field'),required=False)
   highlights: map(include('highlight'),key=str(),required=False)
-  actl_formulas: list(include('row_formula'),required=False)
-  fcst_formulas: list(include('row_formula'),required=False)
+  actl_formulas: list(include('row_formula'),required=False) # apply only to actuals
+  all_col_formulas: list(include('row_formula'),required=False) # apply to all columns
+  fcst_formulas: list(include('row_formula'),required=False) # apply only to forecast
 ---
 column:
   name: str()
