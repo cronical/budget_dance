@@ -2,7 +2,7 @@
 import pandas as pd
 from dance.invest_iande_load import read_and_prepare_invest_iande
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
-from dance.other_actls import IRA_distr, payroll_savings,hsa_disbursements
+from dance.other_actls import IRA_distr, payroll_savings,hsa_disbursements,sel_inv_transfers
 from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.util.files import tsv_to_df
@@ -50,6 +50,8 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
       df=IRA_distr()
     case 'md_pr_sav':
       df=payroll_savings()
+    case 'md_sel_inv':
+      df=sel_inv_transfers()
     case 'json_index': # a json file organized like: {index -> {column -> value}}
       df=pd.read_json(data_info['path'],orient='index')
       logger.info('Read {}'.format(data_info['path']))

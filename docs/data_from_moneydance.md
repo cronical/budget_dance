@@ -55,7 +55,7 @@ The method used is the difference of progressive balances.  This is done for eac
 
 ## Investment actuals
 
-The Tranfers to Investment Accounts by Year report is saved as `invest_x.tsv`. The Investment Performance report for each year is saved under `invest-p-yyyy.tsv` for each year. These are processed by `invest_actl_load.py`. At each year end:
+The Tranfers to Investment Accounts by Year report is saved as `invest-x.tsv`. The Investment Performance report for each year is saved under `invest-p-yyyy.tsv` for each year. These are processed by `invest_actl_load.py`. At each year end:
 
 1. Run [Tranfers to Investment Accounts by Year](./report_configs.md#tranfers-to-investment-accounts-by-year) and save as `invest_x.tsv`
 1. For each year:
@@ -85,10 +85,10 @@ The Tranfers to Investment Accounts by Year report is saved as `invest_x.tsv`. T
 The routine `balance_check.py` is available to see how the values from the `Account Balances` report in Moneydance match to those in `fcast.xlsm`. 
 
 1. In Moneydance run the `Account Balances` report selecting all accounts. 
-2. Save the report  under the names: `data/yyyy Account Balances.tsv`.
+2. Save the report  under the names: `data/acct-bals-yyyy.tsv`.
 3. If the year has rolled over in the spreadsheet
   - change first_forecast_year in on the tables worksheet.
-3. In a terminal window set current directory to the project root and run `balance_check.py yyyy` where yyyy is the year to check.  You should get a listing that shows the exact matches and the accounts that don't match (and how much they are off).
+3. In a terminal window set current directory to the project root and run `dance/balance_check.py yyyy` where yyyy is the year to check.  You should get a listing that shows the exact matches and the accounts that don't match (and how much they are off).
 
 
 

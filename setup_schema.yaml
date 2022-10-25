@@ -43,7 +43,7 @@ data:
   site_code: str(required=False)
   api_key: str(required=False)
   parameters: include('parameter',required=False)
-  type: str(required=False)
+  type: str(matches='md_(acct|bal|hsa_disb|iande_actl|invest_actl|invest_iande_work|ira_distr|pr_sav|sel_inv|transfers_actl)|json_(index|records)',required=False)
   path: str(required=False)
   group: list(str(),required=False)
   no_details_for: list(str(),required=False)
