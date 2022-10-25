@@ -4,14 +4,16 @@ Update the table 'tbl_invest_actl'
 '''
 import argparse
 import os
+
+import pandas as pd
 from dateutil.parser import parse
 from openpyxl import load_workbook
-import pandas as pd
 
-from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
-from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import df_for_table_name, write_table,columns_for_table,conform_table
+from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
+from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
+from dance.util.tables import (columns_for_table, conform_table,
+                               df_for_table_name, write_table)
 from dance.util.xl_formulas import dyno_fields
 
 logger=get_logger(__file__)
@@ -116,7 +118,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
       df.rename(columns=map,inplace=True)
 
-      # rework so the rows of 3 value types for each account
+      # rework so the rows of 5 value types for each account
       rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains']].transpose().stack().reset_index()
       map=dict(zip(rows.columns.to_list(),['ValType','Account','Y'+fn_year]))
       rows.rename(columns=map,inplace=True)

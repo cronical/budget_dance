@@ -7,10 +7,43 @@
 1. Edit the control file: `dance/setup/setup.yaml`
 1. Run `dance/setup/create_wb.py`
 
-## Reports
+## Conventions
 
-1. The most current Account Balances should be saved as a tab-separated values file. This is used to create the Accounts worksheet.  Its name will be referenced in the `setup.yaml`.  The balances are not used, except that when they are zero, the account will be ignored unless it is specifically mentiond in the `include_zeros` section of the YAML.
-1. Another instance of the Account Balances is used to establish the opening balances on the Balances sheet. This may or may not be the same as the other Account Balances file.  If an earlier file is used, history can be included in the Balances sheet.
+### File types
+
+Set up files are either 
+
+- tab separated values with extension .tsv
+- JSON with extension .json.  These are typically exports from tables defined in Excel. There are two types depending on the 'orientation'.  
+- YAML - used for the setup config definitions
+
+### File locations
+
+Files are in the data folder under the project.  The data folder is not included in the git repository.
+
+### File names
+
+Preferred format uses hyphen not underscores or spaces to separate words. Abbreviations such as IRA and HSA are forced to lowercase, to aid sorting.
+
+## Reports and their files
+
+|Report|Periods|File(s)|Used in config by|Other file use|
+|:--|:--|:--|:--|:--|
+|Account Balances|each year|acct-bals-*yyyy*.tsv|tbl_accounts[^1], tbl_balances[^2]|bank_actl_load.py[^3]|
+|401, HSA, ESP payroll data|full years|payroll_to_savings.tsv|tbl_payroll_savings||
+|HSA - disbursements|full years|hsa-disbursements.tsv|tbl_hsa_disb[^4]||
+|Income & Expense by Year|full years|iande.tsv|tbl_iande,tbl_iande_actl||
+|Investment IandE[^6]|full years|invest-iande.tsv|tbl_invest_iande_work||
+|Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
+|IRA-Distr[^5]|all years|ira-distr.tsv|tbl_ira_distr|
+|Transfers to Investment Accounts by Year|full years|invest-x|tbl_invest_actl|
+|Transfers BKG detailed|full years|data/trans_bkg.tsv|tbl_bank_sel_invest[^8]
+
+
+
+
+
+
 
 ## API key
 
@@ -247,3 +280,21 @@ tax_free_keys:
 - "529"
 - IRA
 ```
+
+
+
+[^1]: The most recent is best so as to contain all current accounts. This is used to create the Accounts worksheet.  The balances are not used, except that when they are zero, the account will be ignored unless it is specifically mentiond in the `include_zeros` section of the YAML.
+
+[^2]:  Another instance of the Account Balances is used to establish the opening balances on the Balances sheet. This may be for a different year.  If an earlier file is used, history can be included in the Balances sheet.
+
+[^3]: All history years must be available in order to compute the flows to/from bank accounts and credit cards.
+
+[^4]: These data are used to compute medical payments made from HSA accounts by year.
+
+[^5]: This is a transaction filter report using the tag `IRA-Txbl-Distr`
+
+[^6]: This is a transaction filter that selects income and expense categories that are required to only apply to investments.
+
+[^7]: Investment actuals requires the transfers file and the performance files. It also depends on the data from the investment expenses to already be in place.
+
+[^8]: This requires that if the Passthru account is used, it must only be used to transfer funds to/from banks.  In other words there is an assumption that it does not mask any movement to/from income or expense items.  Those must be directly in the investment account.

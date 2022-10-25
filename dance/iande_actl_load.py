@@ -4,16 +4,16 @@ Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks.
 '''
 import argparse
 
+import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-import pandas as pd
-
-from dance.util.books import col_attrs_for_sheet, set_col_attrs, fresh_sheet
-from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import df_for_table_name, this_row, write_table, get_f_fcast_year,columns_for_table
+from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
+from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
-from dance.util.xl_formulas import actual_formulas,forecast_formulas
+from dance.util.tables import (columns_for_table, df_for_table_name,
+                               get_f_fcast_year, this_row, write_table)
+from dance.util.xl_formulas import actual_formulas, forecast_formulas
 
 logger=get_logger(__file__)
 

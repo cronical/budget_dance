@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 '''Process the payroll to savings records from Moneydance export (report: 401, HSA, ESP payroll data)'''
-from os.path import exists
 import warnings
+from os.path import exists
+
 import pandas as pd
+
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
 
@@ -10,7 +12,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 logger=get_logger(__file__)
 
-def sel_inv_transfers():
+def sel_inv_transfers_original(): # TODO delete this 
   '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
   Use of passthru can hide the other half of the transaction.
   This finds the matching transaction in passthru to determine the other side.
@@ -64,7 +66,7 @@ def sel_inv_transfers():
     if sel.sum()!=0:
       pf=df_pass.loc[sel,['Date','Category']]
       diff=(pf['Date']-rw.Date).abs()
-      if pd.Timedelta("8 days")>diff.min():
+      if pd.Timedelta('8 days')>diff.min():
         # print(diff.min())
         iy=pf.index[list(diff).index(diff.min())]
         df.at[ix,'Category']=pf.loc[iy,'Category']
@@ -85,11 +87,12 @@ def sel_inv_transfers():
   suma= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum').reset_index()
   return suma
 
-def payroll_savings():
+def payroll_savings(data_info):
   '''Get the payroll to savings records from Moneydance export and summarize so data items can be put in spreadsheet
   These data refer to deductions from payroll together with employer contributions into savings vehicles
 
-  Args: None
+  Args: 
+    data_info: dict that has a value for path used to locate the input file    
   
   Returns: 
     a dataframe that discards the inbound and processes the outbound transfers
@@ -97,7 +100,7 @@ def payroll_savings():
     Only has columns where data exists
   '''
 
-  filename='data/payroll_to_savings.tsv'  # TODO move to argument
+  filename=data_info['path']
   df=pd.read_csv(filename,sep='\t',skiprows=3) 
   df.dropna(how='all',inplace=True) # blank rows
   acct=df[['Target Account']].copy()
@@ -121,12 +124,59 @@ def payroll_savings():
   summary.rename(columns={'Target Account':'Account'},inplace=True)
   summary.Account=summary.Account.str.strip()
   return summary
+def sel_inv_transfers(data_info):
+  '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
+  
+  The single input file is produced as a detailed transfer report in Moneydance
+  It includes investment income and expense categories, selected investment accounts and all banks
 
-def IRA_distr():
+  Does not need to work at transaction level
+
+  Assumptions:
+    If passthru is used, it must only be used to transfer funds to/from banks
+
+  arguments: 
+    data_info a dict with the path to the file
+  returns: dataframe with investment accounts for rows and years for columns
+    positive values indicate amount moved out of bank into savings/investment
+  '''
+  filename=data_info['path']
+  txt_flds=['Target Account',  'Source Account', 'Description', 'Memo']
+  df=tsv_to_df(filename,skiprows=3,string_fields=txt_flds)
+  df=df.loc[~pd.isnull(df[df.columns[:-1]]).all(axis=1)] # blank rows (the reader replaces the null in the amount with zero)
+  labels=pd.isnull(df[df.columns[1:][:-1]]).all(axis=1)
+  stack=[]
+  for ix,row in df.loc[labels].iterrows():
+    ta=row['Target Account'].strip()
+    if ta.startswith('TRANSFERS')| ta.startswith('TOTAL'):
+      continue
+    if ta.endswith('TOTAL'):
+      stack.pop()   
+    else:
+      stack+=[ta]
+      df.at[ix,'Target Account']=':'.join(stack)
+  df['Target Account'].fillna(method='ffill',inplace=True)
+  df=df.loc[~labels]    
+  df=df.rename(columns={'Target Account':'Category','Source Account':'Account'})
+  # remove the expense items in case they are provided
+  df=df.loc[~df['Category'].str[:2].isin(['X:','T:'])]
+  # and the income unless no reinvestment
+  sel= df['Category'].str[:2].isin(['I:'])
+  sel = sel  & ~ (df.Account=='LON - JNT - HED') # TODO generalize
+  df=df.loc[~sel]
+  df=setup_year(df)
+
+  suma= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum').reset_index()
+  return suma
+
+
+
+def IRA_distr(data_info):
   '''Get the IRA distribution records from Moneydance export and summarize so data items can be put in spreadsheet
   These data refer to IRA distributions and the related tax withholding
 
-  Args: None
+  Args: 
+    data_info: dict that has a value for path used to locate the input file    
   
   Returns: 
     a dataframe with categories or accounts as rows and multiple y_year columns
@@ -135,7 +185,7 @@ def IRA_distr():
     Bank accounts and withholder numbers are stated as negatives
     Only has columns where data exists
   '''  
-  filename='data/IRA-Distr.tsv'  # TODO move to argument
+  filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
   df.dropna(how='any',inplace=True) # total and blank rows
   df=setup_year(df)
@@ -168,17 +218,18 @@ def IRA_distr():
   summary.reset_index(drop=True,inplace=True)
   return summary
 
-def hsa_disbursements():
+def hsa_disbursements(data_info):
   '''Get the HSA disbursement records from Moneydance export and summarize so data items can be put in spreadsheet
   These data refer to medical payments made from HSA accounts
 
-  Args: None
+  Args: 
+    data_info: dict that has a value for path used to locate the input file  
   
   Returns: 
     a dataframe with HSA disbursements by year
     Only has columns where data exists
   ''' 
-  filename='data/HSA - disbursements.tsv'# TODO move to argument
+  filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Target Account,Source Account,Description,Memo'.split(','))
   df.dropna(how='all',inplace=True) # blank rows
   acct=df[['Target Account']].copy()
@@ -206,5 +257,5 @@ if __name__=='__main__':
   # payroll_savings()
   # IRA_distr()
   # hsa_disbursements()
-  sel_inv_transfers()
+  sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
 
