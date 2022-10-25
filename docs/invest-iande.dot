@@ -1,0 +1,109 @@
+digraph {
+  graph [
+    label = "Flow of data for investment income & expense"
+    labelloc= t
+    rankdir="TB"
+    splines=curved
+  ]
+  newrank=True
+  # accounts
+  node [shape=house]
+    Banks
+    "Credit Cards"
+  
+  # transactions
+  node [shape=cds] 
+    dividends, interest, fees, sell
+  node [color=red]  # remove these. 
+    "Fed Tax WH", "CT Tax WH"
+  node [color=blue] # add them here
+    "tax WH"
+  node [color=black]
+
+  # data elements
+  node [shape=rect, colorscheme=accent4,style=filled,fillcolor=1]   
+  "Actl Invst I&E", "Net_Xfer", "Paper Gn/Ls", "Ratios","Prior Bal","Fcst Invst I&E"
+  node [shape=rect, colorscheme=accent4,style=filled,fillcolor=2]   
+  "Add/Wdraw","Rlz Int/Gn", "Unrlz Gn/Ls", "End Bal", "Start Bal"
+  node [fillcolor=3]
+    "CapGn - LT", "CapGn - ST","Div","Div - Tax-exempt","Int","Int - Tax-exempt"
+  node [shape=rect,style=normal]
+  pricing
+
+  # files
+  node [shape=cylinder]
+    "invest-iande.tsv"
+    "invest_p_*.tsv" 
+    "data/invst_x.tsv" 
+
+# reports
+  node [shape=invhouse] 
+    "Investment IandE" 
+    "Transfers to Investment\nAccounts by Year" 
+    "Investment\nPerformance" 
+
+  # processing
+  node [shape=ellipse]
+    "invest-actl-load.py"
+    "invest-iande-actl-load.py"  
+
+  {"dividends", interest, fees, "tax WH"} -> "Investment IandE" -> "invest-iande.tsv"
+  {"sell", pricing} -> "Investment\nPerformance" -> "invest_p_*.tsv" 
+  
+  {Banks, "Credit Cards", "Fed Tax WH", "CT Tax WH"}->"Transfers to Investment\nAccounts by Year"
+  "Transfers to Investment\nAccounts by Year" -> "data/invst_x.tsv"
+  {"data/invst_x.tsv"  ,"invest_p_*.tsv"} -> "invest-actl-load.py"
+ 
+  "invest-iande.tsv"->"invest-iande-actl-load.py"  
+
+  node [shape=folder]
+  iie [label="Invest I&E types\nCap Gn (sale)\nDiv_reg\nDiv_LT\nDiv_ST\nDiv_TE\nInt_reg\nInt_TE\nFees\nTax Pd"]
+  
+  
+
+# type - tax treatment
+  edge [style=invis]
+  subgraph cluster_0{label="tbl_invest_work"
+    "Actl Invst I&E"
+    "Net_Xfer" -> "Paper Gn/Ls"
+ 
+    {rank=same Ratios; "Prior Bal"}
+    {Ratios,"Prior Bal"}->"Fcst Invst I&E" [style=dashed,color=blue]
+  }
+
+  subgraph cluster_2{label="tbl_balances (actuals)"
+      "Start Bal"->"Add/Wdraw"->"Rlz Int/Gn" -> "Unrlz Gn/Ls" -> "End Bal"
+  }
+  subgraph cluster_3{label="tbl_iande (fcst)"
+    "CapGn - LT"-> "CapGn - ST"->"Div"->"Div - Tax-exempt"->"Int"->"Int - Tax-exempt"
+  }
+
+  
+
+
+  #{rank=same;  "Div_reg"; "Cap Gn (sale)"; "Int_reg"; "Start Bal"}
+  edge [style=line]
+  compound=True
+
+ 
+  "invest-actl-load.py" -> "Actl Invst I&E" [label="Cap Gn (sale)"]
+  "invest-actl-load.py" -> {"Net_Xfer", "Paper Gn/Ls"}
+  "invest-iande-actl-load.py" -> "Actl Invst I&E"[label="Div*\nInt*\nFees\nTax Pd" ]
+
+  "Actl Invst I&E" -> "Add/Wdraw" [label="Fees\nTax Pd"]
+  "Net_Xfer"-> "Add/Wdraw"
+  "Paper Gn/Ls" -> "Unrlz Gn/Ls"
+  "Actl Invst I&E" -> "Rlz Int/Gn" [label="Div*\nInt*\nCapGn*"]
+  
+ 
+
+  
+  edge [style=dashed, color=blue]
+  #"Cap Gn (sale)" -> "CapGn - ST" # Sales treated as ST 
+  "Fcst Invst I&E" ->"CapGn - ST" [lhead=cluster_3]
+
+  # Numerators and denominator for ratios
+  edge [style=solid, color=red]
+  "Actl Invst I&E" -> Ratios
+  "Start Bal" -> Ratios
+}

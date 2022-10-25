@@ -1,11 +1,13 @@
 '''DataFrame utilities'''
+import warnings
 import yaml
 import pandas as pd
 
 
 from dance.util.logs import get_logger
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True):
+def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Notes'],parse_shares=False):
   '''Grab the data from a Moneydance report and return a Pandas DataFrame.
 
   Typically the file has tab separated fields.
@@ -15,6 +17,8 @@ def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True):
     sep: The field separator, default is tab.
     skiprows: the number of rows to skip at the start of the file.  Default is 0.
     nan_is_zero: whether to fill NaN values with zeros.  Default True.
+    string_fields: a list of fields to consider as strings and not try to convert. Default is ['Notes']
+    parse_shares: If True, move the word Shares from the amount column to a new column, Unit
 
   Returns: A data frame with numbers converted to floats and dates as datetime.
 
@@ -29,13 +33,18 @@ def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True):
     raise
   cols=df.columns
   for col in cols[1:]:
-    if col != 'Date' and col != 'Notes':
+    if col != 'Date' and col not in string_fields:
       if nan_is_zero:
         df.loc[:,col]=df[col].fillna(value='0.00')
-      df.loc[:,col]=df[col].str.replace(r'\$','',regex=True)
       df.loc[:,col]=df[col].str.replace('--','0.00') # occurs in performance report
       df.loc[:,col]=df[col].str.replace('None','0.00') # occurs in performance report
-      df.loc[:,col]=df[col].str.replace(',','').astype(float)
+      # remove punctuation and conver parens to negative
+      df.loc[:,col]=df[col].str.replace(r'[\$,)]','',regex=True)
+      df.loc[:,col]=df[col].str.replace('[(]','-',regex=True)
+      if parse_shares:
+        if col=='Amount':
+          df[[col,'Unit']] = df[col].str.strip(' ').str.split(' ',expand=True)
+      df.loc[:,col]=df[col].astype(float)
     if col == 'Date':
       df[col] = pd.to_datetime(df[col])
 

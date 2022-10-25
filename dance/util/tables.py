@@ -364,3 +364,20 @@ def columns_for_table(wb,sheet,table_name,config):
       hide_these=table_info['hidden']
     df['hidden']= df.name.isin(hide_these)
     return df
+
+def conform_table(df,columns):
+  '''Add any missing table columns and put the columns in the order
+  defined by the config in the table_info.
+  This also removes any extraneous columns.
+
+  args:
+    df: a dataframe which may have missing columns or columns in wrong order
+    columns: a pandas series of column names (such as from the output of columns_for_table)
+
+  returns:
+    a dataframe with exactly the right set of columns in the right order.
+    '''
+  sel=~columns.isin(df.columns)
+  for col in columns.loc[sel]: # create the missing columns
+    df[col]=None
+  return df[columns]# possibly alter the order

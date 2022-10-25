@@ -10,12 +10,12 @@ from openpyxl.styles import Font
 import pandas as pd
 
 import yaml
-from dance.util.books import col_attrs_for_sheet,set_col_attrs
+from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
-from dance.util.tables import first_not_hidden,write_table,columns_for_table
-from dance.util.xl_formulas import forecast_formulas
+from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
+from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -27,31 +27,6 @@ def include_year(table_info,first_forecast_year,proposed_year):
     return True
   return first_forecast_year > proposed_year
 
-def dyno_fields(table_info,data):
-  '''Apply dynamic field rules to data
-
-  The config may give a section called dyno_fields.
-  If it does it contains rules that allow creation of fields from other fields
-
-  args: table_info portion of the config for this table
-  data: a dataframe to modify
-  '''
-  if 'dyno_fields' not in table_info:
-    return data
-  rules=table_info['dyno_fields']
-  for rule in rules:
-    base_field=rule['base_field']
-    matches=rule['matches']
-    if not isinstance(matches,list):
-      matches=[matches]
-    for ix, rw in data.loc[data[base_field].isin(matches)].iterrows(): # the rows that match this rule
-      for action in rule['actions']:
-        if 'constant' in action:
-          value=action['constant']
-        if 'suffix' in action:
-          value= rw[base_field]+action['suffix']
-        data.at[ix,action['target_field']]=value
-  return data
 
 
 def refresh_sheets(target_file,overwrite=False):
@@ -110,12 +85,12 @@ def refresh_sheets(target_file,overwrite=False):
         ws[title_cell].value=table_info['title']
         ws[title_cell].font=Font(name='Calibri',size=16,color='4472C4')
 
-        df=columns_for_table(wb,sheet_name,table_info['name'],config)
-        col_count=df.shape[0]
+        col_def=columns_for_table(wb,sheet_name,table_info['name'],config)
+        col_count=col_def.shape[0]
         groups=None
         # Excel seems to need at least one data row, so a row of blanks if no data is provided
         if 'data' not in table_info:
-          data=pd.DataFrame([[None]*col_count],columns=df.name)
+          data=pd.DataFrame([[None]*col_count],columns=col_def.name)
         else: # if table has a data source add those rows
           assert 'source' in table_info['data']
           data_info=table_info['data']
@@ -156,20 +131,23 @@ def refresh_sheets(target_file,overwrite=False):
           if isinstance(data,dict):
             data=pd.DataFrame.from_dict(data,orient='index')
             data=data.reset_index()
-            data.columns=list(df.name)
+            data.columns=list(col_def.name)
           if isinstance(data,list):
-            data=pd.DataFrame(list,columns=df.name)
+            data=pd.DataFrame(list,columns=col_def.name)
           if isinstance(data,pd.DataFrame):
             # it may be that the 1st column is in the index, so fix that
-            mismatch=list(set(df.name)-set(data.columns))
+            mismatch=list(set(col_def.name)-set(data.columns))
             if len(mismatch)==1:
-              if list(df.name).index(mismatch[0])==0:
+              if list(col_def.name).index(mismatch[0])==0:
                 data=data.reset_index().rename(columns={'index':mismatch[0]})
         data=dyno_fields(table_info,data)# any dynamic field values
+        data=conform_table(data,col_def['name'])
         data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
+        data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
         wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
+        wb=freeze_panes(wb,sheet_name,config)
         # save after each sheet to allow successive sheets to locate earlier sheet data
         wb.save(target_file)
         logger.info('workbook {} saved'.format(target_file))

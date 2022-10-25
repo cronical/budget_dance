@@ -28,17 +28,17 @@ The attributes are:
 | Name            | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | Type            | A=Asset, B=Bank, C=Credit Cards, I=Investment, L=Liability, N=Loans |
-| Income Txbl     | 0 if sheltered, 1 if normal taxes, 2 for muni bonds          |
+| * Income Txbl     | 0 if sheltered, 1 if normal taxes|
 | Active          | 0 if inactive, 1 if active                                   |
-| Rlz share       | between 0 and 1 - factor to apply to income to categorize as realized in forecasts |
-| Unrlz share     | same as above, but for unrealized.  These should add to 1.   |
+| *Rlz share       | between 0 and 1 - factor to apply to income to categorize as realized in forecasts |
+| * Unrlz share     | same as above, but for unrealized.  These should add to 1.   |
 | actl_source     | The line name where to find the actual add/wdraw amount      |
 | actl_source_tab | The table name where to find the actual add/wdraw amount     |
 | fcst_source     | The line name where to find the forecast add/wdraw amount    |
 | fcst_source_tab | The table name where to find the forecast add/wdraw amount   |
 | notes           | Place to indicate special things about the account           |
 
-
+* under revision
 
 ### balances
 
@@ -48,16 +48,98 @@ This table has six rows for each account.
 
 | ValType     | Formula                                                      |
 | ----------- | ------------------------------------------------------------ |
-| Rate        | Used to forecast gains, which are split by the indicators on the account rows.  Computed for historical rows. |
+| * Rate        | Used to forecast gains, which are split by the indicators on the account rows.  Computed for historical rows. |
 | Start Bal   | Previous year's end balance                                  |
 | Add/Wdraw   | Either manual, or some rows will have formulas               |
-| Rlz Int/Gn  | start * rate * split                                         |
+| * Rlz Int/Gn  | start * rate * split                                         |
 | Unrlz Gn/Ls | start * rate * split                                         |
 | End Bal     | Adds the start balance to each of the other change categories. |
 
 The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that is defined)
 
+### Investment Income and Expenses
+
 From an accounting perspective the `Rlz Int/Gn` consists of short and long term gains combined with income.
+The realized gains consist of Interest, Dividends and Capital Gains
+Accounts are sheltered or not. For non sheltered accounts additional breakdown is needed.  
+Dividends - taxable and tax exempt  
+Interest - taxable and tax exempt  
+Capital Gains - short and long term  
+
+Dividends are further broken down into qualified and non qualified, but this is only reported after the year end, so we don't track it on the iande tab.  This means that all dividends are considered non-qualified in forecast years at least by default.
+
+Alignment is needed between forecast balances and forecast income so that the number balance.
+To generate approximate tax forecasts is needed to have the investment income types broken out.  
+
+CapGn:Mut LT  
+CapGn:Mut ST  
+CapGn:Sales    
+CapGn:Shelt:Distr  
+CapGn:Shelt:Sales 
+Div:Reg  
+Div:Shelt  
+Div:Tax-exempt  
+Int:Reg  
+Int:Shelt  
+Int:Tax-exempt  
+
+See [Appendix](./appendix.md#changes-to-existing-categories)
+
+#### Reinvestment
+
+Prior versions assumed all income was re-invested.  Proper modeling will also require consideration of re-investment policies. This will be modeled as a re-investment rate at the account level.
+
+#### Column changes in Accounts
+Add: 
+- Re-investment Rate - the amount re-invested, the remainder is transfered to the primary bank (new item in General State)
+Remove: 
+- Rlz share
+- Unrlz share
+
+#### Tax exemption
+
+Tax exemption is in reality further broken down into federal and state.  In theory it should be implemented on a per security basis.  But it only matters for taxation so it is handled by custome lines on the taxes sheet by year.
+
+#### Balances
+
+Rows in balances are mostly the same. The plethora of income types are handed on a [new table](#table-iande-invest-work). 
+
+The rlz Int/Gn line is currently derived from the investment performance report. This report does not break out the income types.  If the accounting is done properly then the breakout for a particular investment account can be achieved via an income/expense report that selects that account. The value of the performance report 'Income' column total is equal to the value of the Investment Income report line Income - TOTAL.
+
+Neither report provides a breakout of income by div/int/capgn by account.
+
+For actual periods, it is possible to see if these totals balance. For forecast periods the values could be derived from rates or otherwise estimated on a per account basis, then summed one way for the balances and another way for the iande tab.  A new table could support this or it could be done directly on the balances table.
+
+Example: Brokerage with muni funds
+
+Div Pct/Val  0  0  
+Int Pct/Val  3.77%  16,724  
+CapGn Pct/val -0.25%  -1101  
+UnRlz Pct/val -3.97% -16871
+
+The `invest-actl` table field `Gains` represent capital changes due to sales, only.  This value comes from the investment performance report.
+
+This is different than those amounts reported by mutual funds as capital gains distributions - essentially a form of dividend but marked as LT or ST for tax purposes. This value comes from dividend transactions in the account and is exposed via the I and E report.  
+
+#### Table iande invest work
+
+The set of lines that represent income and expenses for each account is added to a new table:`tbl_invest_iande_actl`.  
+
+The actuals derive from a Moneydance report: Investment IandE, which is a configured Transaction Filter that selects just the investment income and expense lines for all accounts. It should select dates over the years that are actuals.  The result is saved into `invest-iande.tsv`.  
+
+The values are summarized by investment accounts for each of the categories.  These become the numerators of the actual rates experience for each category for each account.  The denominator is the opening balance of the account. Its imperfect for accounts where money is moved in or out during the year, but it is adequate for its use of setting default rates for forecast years.
+
+The summarization is done on they Python side at load time.  The ratios are calculated in the spreadsheet. Rates are rounded to 1 basis point (.01%).  The rolling average of the previous periods is used to carry the rates into the forecast period.
+
+The balances table is also modified to replace the `Rlzd Int/Gn` with the same lines as needed for each account. This allows the `iande` forecast for these lines to be calculated as the sum across all accounts for the line for forecast periods.  For actual periods those values will derive directly from the Moneydance report (and they had better be the same).
+
+The existing rate line no longer has the same meaning or usage.  It will be used only for unrealized gains and as such will be renamed to `Mkt Gn Rate`.
+
+New rows will exist for each type of income or expense according to a naming convention, which aligns with the Moneydance category names, to facilitate mapping.  These rows will be paired with other rows with ` rate` appended to hold the ratio to the `start bal` in the case of actuals.  These rate  rows that are extended into the forecast period where they are used to compute forecasts for each of the income/expense types.
+
+
+
+
 ### invest-actl
 
 The Python program `invest-actl-load.py` gets the master list of investment accounts from `fcast.xlsm`.  It then reads the `data/invst_*.tsv` files and computes the net flows for each account by year.
@@ -99,7 +181,9 @@ The solution allows a uniform way of handling the data (at the cost of a bit of 
 
 The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
 
-This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv`file. It is then imported via special handling in `iande_actl_load`, which calls the `ira_distr_summary()` function and merges the data into `IRA-Txbl-Distr` line on the iande_actl table.  From there it flows to the `iande` tab and then to the `taxes` tab.  The value in `iande_actl` may have values for some years (if the distribution comes from an account not tracked by Moneydance.  This can happen with an inherited IRA).
+This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv`file. It is then imported via special handling in `IRA_distr` processes the transactions to create a table `tbl_ira_dist`. The  `IRA-Txbl-Distr` line on the `tbl_iande` pulls from that table.  From there it flows to the `taxes` tab.  
+
+The value in `iande_actl` may have values for some years (if the distribution comes from an account not tracked by Moneydance.  This can happen with an inherited IRA). It should match to what is in the `iande` table. If not then the tags probably have not been set correctly.
 
 ### iande-map
 

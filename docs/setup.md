@@ -22,7 +22,7 @@ bls: 7b50d7a727104578b1ac86bc27caff3f
 
 ## The setup control file
 
-The control file is `dance/setup/setup.yaml`.
+The control file is `dance/data/setup.yaml`.
 
 ### Global Settings
 
@@ -68,21 +68,25 @@ By convention all the table names start with `tbl_`.
 
 The table definition consists of various fields, some of which are optional and/or defaulted.
 
-|Item|Purpose|Required?|Default|
-|:--|:---|---|---|
-|title|The title that is place above the table in Excel|Y||
-|include_years|True if there is a time series for the years|N|False|
-|columns|A list of the column definitions (name and width) that are included before the time seriex|Y||
-|hidden|A list of columns to hide|N|Show every column
-|data|definitions where to get the data for the initial load|N|Don't load data|
-|title_row|When there is more than one table, locate this table on the sheet|N|2
-|start_col|The first column of the table on the sheet (A=1,B=2...)|N|1|
+|Item|Purpose|Default|
+|:--|:---|---|
+|**title**|The title that is place above the table in Excel||
+|**columns**|A list of the column definitions (name and width) that are included before the time |
+|title_row|When there is more than one table, locate this table on the sheet|2
+|start_col|The first column of the table on the sheet (A=1,B=2...)|1|
+|include_years|True if there is a time series for the years|False|
+|hidden|A list of columns to hide|Show every column
+|data|definitions where to get the data for the initial load|Don't load data|
+|[actl_formulas](#actual-and-forecast-formulas) |Specify formulas for actuals.|
+|[fcst_formulas](#actual-and-forecast-formulas)|Specify formulas for forecast periods.|
+|highlights|Specify Excel conditional formatting|
+|[dyno_fields](#build-time-created-fields)|a way to determine values at build time|
 
-### Data definitions
+#### Data definitions
 
 The data definitions are purpose built to support the target table, but there are some elements that are common.  Some data definitions are closely related, so, to prevent duplication, the yaml reference/override notation is used (& and *).  
 
-|Item|Purpose|Used for|
+|Item|Purpose|Use context|
 |:--|:---|---|
 |source|local to reference local files; remote to pull data over internet. remote to pull data over internet. internal is used to create the table/sheet cross reference.|
 |type|These codes are used by the program select the processing logic to use. [See supported types](#supported-types)|local|
@@ -96,8 +100,9 @@ The data definitions are purpose built to support the target table, but there ar
 |table|Defines how to locate a table in HTML|remote|
 |table.find_method|caption - only supported method|remote|
 |table.method_parameters|parameters for the method, specifically the text to search for in the caption.|remote|
+|[hier_insert_paths](#inserting-rows-for-future-use) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande|
 
-#### Supported Types
+##### Supported Types
 
 |Type|Purpose|
 |:--|:---|
@@ -109,7 +114,7 @@ The data definitions are purpose built to support the target table, but there ar
 json_index|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.
 json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.
 
-### Inserting Rows for Future Use
+##### Inserting Rows for Future Use
 
 The income and expense report in MoneyDance filters out categories that have no transactions.  This leads to a need to insert those rows in the `tbl_iande` and `tbl_iande_actl` tables. For example, future social security payouts should subtotal into retirement income. 
 
@@ -123,9 +128,19 @@ data: ...
 ```
 Include only those lines that are not headings or totals; those will be constructed and inserted as well as the specified data lines.
 
-### Forecast Formulas
+#### Actual and Forecast Formulas
 
-If there is a key `fcst_formulas` under the table| it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
+There are two optional keys to allow formulas to be established for the years section: `actl_formulas` and `fcst_formulas`.  They work the same way but apply to different columns. 
+
+Each section consists of a list of rules.  The rules have the following parts:
+|Key word|Description|
+|---|---|
+|base_field|The name of the column that is used for matching|
+|matches|A list of values by which to match rows. This could match a single row or many rows.|
+|formula|The formula to use for the selected year columns (actual or forecast)
+|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
+
+For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 
 ```yaml
 fcst_formulas:
@@ -140,9 +155,9 @@ fcst_formulas:
   - base_field: ...
 ```
 
-### Build-time created fields
+#### Build-time created fields
 
-The account table (and maybe others) needs a way to determine values at build time. The following may be directly under the table.
+Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
 
 ```yaml
 dyno_fields:
@@ -157,14 +172,35 @@ dyno_fields:
         constant: tbl_aux
   - base_field: ...
 ```
+the `matches` list is a list of values to be matched agains the field. There is a special case if just a single *, meaning all.
 
-#### Formula Specifics
+The target field should be previously defined, but it is filled in by this logic.  The commands available are:
+- suffix - something added to the matched item
+- constant - a value that is always the same
+- formula - an Excel formula
+
+##### Formula Specifics
 
 - Always start the formula with a leading equals sign.
 - Constants are fine, but remember to use the leading equals sign
 - Structured table references are supported and recommended.  
 - Refer to this column with the VBA function `this_col_name()`
 - Many VBA functions are designed to be used in formulas
+
+#### Highlights
+
+For example the following puts a line between the actual and forecast periods. The anchor, (ampersand) allows other tables to use the same by using `*past_future`
+
+```yaml
+  highlights: 
+    present: &past_future
+      formula: =A$2=get_val("first_forecast","tbl_gen_state","Value") # ref is to heading row
+      border:
+        edges: 
+        - left
+        style: thin
+        color: B50000
+```
 
 ### Specific Sheets & Tables
 

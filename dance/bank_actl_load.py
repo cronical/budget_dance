@@ -1,18 +1,20 @@
 #! /usr/bin/env python
 '''Converts extracts from Moneydance bank and credit card balances to a dataframe of changes
 
-Source files are stored as .tsv under the data folder with a name 'bank-bal-<year>'
+Source files are stored as .tsv under the data folder with a name 'acct-bals-<year>'
 The logic is to take the year on year delta (less the interest)
 '''
-
 import os
+
 import pandas as pd
+
+from dance.util.files import read_config
 from dance.util.tables import df_for_table_name
 
 
 def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
-  '''Reads the bank data files available in the data folder, combines them and produces the net change due to transfers per year.
-  Source files are stored as .tsv under the data folder with a name 'bank-bal-<year>'
+  '''Reads the account data files available in the data folder, combines them and produces the net change due to transfers per year.
+  Source files are stored as .tsv under the data folder with a name 'acct-bal-<year>'
   The logic is to take the year on year delta (less the interest)
 
   args:
@@ -21,7 +23,7 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
   returns: a dataframe with the changes in account values due to transfers
 
   '''
-
+  ffy=read_config()['first_forecast_year']
   datadir='./data/'
   files=os.listdir(datadir)
   files.sort()
@@ -31,9 +33,11 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
   rows=['Bank Accounts','Credit Cards']
   inrows=[rows[x] + tot for x in range(0,len(rows))]
   for file_name in files:
-    if file_name.find('bank-bal') == 0:
+    if file_name.startswith('acct-bal'):
       #grab the year from the file name
       y_year = 'Y' + file_name.split('.')[0].split('-')[-1]
+      if ffy <= int(y_year[1:]): # only up to the configured first forecast year less one
+        continue
       df=pd.read_csv(datadir+file_name,sep='\t',skiprows=3)
       # move the account to the index
       df.set_index('Account',inplace=True)
@@ -45,8 +49,9 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
       data[0].append(df.loc[inrows[0],column])
       data[1].append(df.loc[inrows[1],column])
       cols.append(y_year)
-  balances=pd.DataFrame(data,index=rows,columns=cols)
 
+  balances=pd.DataFrame(data,index=rows,columns=cols)
+  
   changes=pd.DataFrame(index=rows)
 
   for cix,col_name in enumerate(cols):

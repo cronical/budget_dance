@@ -36,9 +36,9 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
 ' Use of this can help avoid the hard coding of addresses into formulas
 ' By default the tag column is "tag" but an alternate can be provided
 ' Other agg_methods are "min" and "max"
-' A second criteria may be provided by extending the by_tag and the tag_col_name as follows:
+' A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:
 '  A delimiter is included in the strings to allow two values to be provided.The delimiter is stile (|)
-'  The there should be exactly 0 or 1 delimiter, andthe by_tag and tag_column_name should agree
+'  The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree
     Dim agg_val As Double
     Dim tbl As ListObject
     Dim point As Range, val_rng As Range, tag_rngs() As Range
@@ -57,14 +57,14 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
     ReDim by_tags_v(UBound(by_tags))
     
 
-    For i = LBound(by_tags) To UBound(by_tags)
-        Set tag_rngs(i) = tbl.ListColumns(tag_col_names(i)).Range
-        If IsNumeric(by_tags(i)) Then
-            by_tags_v(i) = CInt(by_tags(i))
+    For I = LBound(by_tags) To UBound(by_tags)
+        Set tag_rngs(I) = tbl.ListColumns(tag_col_names(I)).Range
+        If IsNumeric(by_tags(I)) Then
+            by_tags_v(I) = CInt(by_tags(I))
         Else
-            by_tags_v(i) = by_tags(i)
+            by_tags_v(I) = by_tags(I)
         End If
-    Next i
+    Next I
     
     Select Case agg_method
     Case "sum"
@@ -73,6 +73,8 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
             agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0))
         Case 1
             agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1))
+        Case 2
+            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1), tag_rngs(2), by_tags_v(2))
         End Select
     Case "min"
         agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rngs(0), by_tags(0))
@@ -173,30 +175,30 @@ End Sub
 
 Sub calc_retir()
 'iterate through the years to calc retirement streams based on balances from prior year
-'prior balance from balances feeds current retirement, which feeds aux, which feeds current balances
+'prior balance from balances feeds current retirement, and current invest_iande_work
+'retirement feeds aux,
+'aux and invest_iande_work feeds current balances
 'iande depends on retirement as well and taxes depend on iande
     Dim rcols As Range, rcell As Range, single_cell As Range
-    Dim tbls(4) As ListObject
-    Dim tbl_names(4) As String
-    Dim ws_names(4) As String
+    Dim tbls() As ListObject
+    Dim tbl_names() As String, ws_names() As String
     Dim msg As String, formula As String
     log ("-----------------------------")
     log ("Entering manual calculation mode.")
     Application.Calculation = xlCalculationManual
-    tbl_names(0) = "tbl_retir_vals"
-    tbl_names(1) = "tbl_aux"
-    tbl_names(2) = "tbl_balances"
-    tbl_names(3) = "tbl_iande"
-    tbl_names(4) = "tbl_taxes"
+    
+    tbl_names = Split("tbl_retir_vals;tbl_aux;tbl_invest_iande_work;tbl_balances;tbl_iande;tbl_taxes", ";")
+    k = UBound(tbl_names)
+    ReDim tbls(k), ws_names(k)
     msg = ""
-    For i = LBound(tbl_names) To UBound(tbl_names)
-        ws_names(i) = ws_for_table_name(tbl_names(i))
-        Set tbls(i) = ThisWorkbook.Worksheets(ws_names(i)).ListObjects(tbl_names(i))
+    For I = LBound(tbl_names) To k
+        ws_names(I) = ws_for_table_name(tbl_names(I))
+        Set tbls(I) = ThisWorkbook.Worksheets(ws_names(I)).ListObjects(tbl_names(I))
         If Len(msg) > 0 Then msg = msg & ","
-        If i = UBound(tbl_names) Then msg = msg & " and "
-        msg = msg & ws_names(i)
+        If I = UBound(tbl_names) Then msg = msg & " and "
+        msg = msg & ws_names(I)
         
-    Next i
+    Next I
     
     Set rcols = tbls(0).HeaderRowRange
     Set col = tbls(0).ListColumns("yearly")
@@ -207,9 +209,9 @@ Sub calc_retir()
     For Each rcell In rcols
         If InStr(rcell.value, "Y20") = 1 Then
             log ("Calculating for " & rcell.value)
-            For i = LBound(tbls) To UBound(tbls)
-                Set col = tbls(i).ListColumns(rcell.value)
-                t_name = tbls(i).Name
+            For I = LBound(tbls) To UBound(tbls)
+                Set col = tbls(I).ListColumns(rcell.value)
+                t_name = tbls(I).Name
                 Application.StatusBar = rcell.value & ":" & t_name
                 log ("  " & t_name & " - Range " & col.Range.address)
                 If dbg Then
@@ -227,7 +229,7 @@ Sub calc_retir()
                     col.Range.Dirty
                     col.Range.Calculate
                 End If
-            Next i
+            Next I
 
          End If
     Next rcell
@@ -292,11 +294,11 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
         mdy = Split(end_mdy, "/")
         ed = DateSerial(mdy(2), mdy(0) + 1, 1) - 1
     End If
-    ed = Application.WorksheetFunction.min(ed, DateSerial(IntYear(y_year), 12, 31))
+    ed = Application.WorksheetFunction.Min(ed, DateSerial(IntYear(y_year), 12, 31))
     sd = Application.WorksheetFunction.Max(start_date, DateSerial(IntYear(y_year), 1, 1))
     distance = (ed - sd) / (365.25 / 12)
     months = Round(distance, 0)
-    months = Application.WorksheetFunction.min(12, months)
+    months = Application.WorksheetFunction.Min(12, months)
     months = Application.WorksheetFunction.Max(0, months)
     result = months / 12
     mo_apply = result
@@ -314,8 +316,8 @@ Array(3, 2022, 2025, 9, 2025), _
 Array(3, 2022, 2022, 8, 2022) _
 )
 log ("mo_apply tests")
-For i = LBound(test_cases) To UBound(test_cases)
-    test_case = test_cases(i)
+For I = LBound(test_cases) To UBound(test_cases)
+    test_case = test_cases(I)
     start_date = DateSerial(test_case(1), test_case(0), 1)
 
     yr = "Y" & test_case(2)
@@ -328,7 +330,7 @@ For i = LBound(test_cases) To UBound(test_cases)
     End If
     msg = "Input: year=" & yr & " start/end dates = " & start_date & " " & end_date & "   Output: " & result
     log (msg)
-Next i
+Next I
 End Sub
 
 
@@ -419,6 +421,43 @@ Function sort_tax_table()
        .Apply
     End With
 End Function
+Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double
+'Calculate the CT income tax for a given year and taxable income amount
+'The so called Initial Tax Calculation only.
+'Table is not setup exactly like Federal - it uses the traditional method not the subraction method.
+'gets a result of zero if year not in the table.
+    Dim result As Double
+    Dim tbl_name As String
+    Dim tbl As ListObject
+    Dim lr As ListRow
+    Dim rng As Range
+    Dim yr As Integer
+    Dim ti As Double, rt As Double, base As Double
+    
+    tbl_name = "tbl_ct_tax"
+    ws = ws_for_table_name(tbl_name)
+    Set tbl = ThisWorkbook.Worksheets(ws).ListObjects(tbl_name)
+    result = 0
+    prior = 0
+    For Each lr In tbl.ListRows()
+        Set rng = lr.Range
+        yr = rng.Cells(1, 1).value
+        ti = rng.Cells(1, 2).value
+        rt = rng.Cells(1, 3).value
+        base = rng.Cells(1, 4).value
+        If tax_Year = yr Then
+            If taxable_Income < ti And taxable_Income >= prior Then
+                result = base + (rt * (taxable_Income - prior))
+                result = Round(result, 0)
+            End If
+            prior = ti
+        End If
+    Next lr
+    CT_Tax = result
+End Function
+
+
+
 Function ws_for_table_name(tbl_name As String) As String
     ' find out what worksheet the named table occurs on
     With ThisWorkbook.Worksheets("utility")
@@ -437,9 +476,10 @@ Sub test_get_val()
     Debug.Print (get_val("End BalReal Estate", "tbl_balances", "Y2019"))
 
  End Sub
- Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant
+ Function get_val(line_key As Variant, tbl_name As String, col_name As String, Optional raise_bad_col = False) As Variant
  'Fetches a value from a given table (it must be an actual worksheet table
  'If the line is not found in the table, a zero is returned.
+ 'Bad columns are usually logged, but if the argument raise_bad_col is True then an error is raised.
  
     Dim value As Variant, rng As Variant
     Dim caller As Range
@@ -482,18 +522,30 @@ ErrHandler:
     get_val = 0
     Exit Function
 ErrHandler1:
+    If raise_bad_col = True Then
+        Err.Raise vbObjectError + 1729, , "Bad column: " + col_name
+    
+    End If
     log ("[ " & address & " ] get_val: " & Err.Number & " " & Err.Description)
     log ("Trying to locate column: " & col_name & " in table " & tbl_name)
     log ("line is " & line_key)
 End Function
-Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean = False) As Variant
-'grab the actual transfers in (positive) our out(negative)
-'ignoring the optional is_fcst argument - instead: compute it
+Function add_wdraw(acct As String, y_year As String) As Variant
+ 'Get the actual or forecast transfers in (positive) our out(negative)
+'Determines whether the year is actual or forecast, in order to determine the source from the Accounts table.
+'For actuals returns the value from the source table.
+'For forecast, will add realized gains that are not re-invested
+'If source table is the retirement table, changes the sign.
+
     Dim line As String, tbl As String, prefix As String
+    Dim rlz As Double, reinv As Double, wdraw As Double
+    Dim no_distr_plan As Integer
+    
     is_fcst = is_forecast(y_year)
     prefix = "Actl"
     If is_fcst Then prefix = "Fcst"
-    add_wdraw = 0
+    value = 0
+    
     acct_type = get_val(acct, "tbl_accounts", "Type")
     tbl = get_val(acct, "tbl_accounts", prefix & "_source_tab")
     
@@ -503,14 +555,26 @@ Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean
         sign = -1
     End If
     
-    
     line = get_val(acct, "tbl_accounts", prefix & "_source")
+    
     If ("I" = acct_type) And Not is_fcst Then line = "add/wdraw" & line ' complete key for investment actuals
     
     If line <> "zero" Then  ' keyword to enable forecasting of zeros
         value = get_val(line, tbl, y_year)
-        add_wdraw = value * sign
+        value = value * sign
     End If
+    
+    If "I" = acct_type Then 'determine amount to withdraw based on reinv rate
+        If is_fcst Then
+            rlz = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
+            no_distr_plan = get_val(acct, "tbl_accounts", "No Distr Plan")
+            reinv = Round(no_distr_plan * rlz * get_val("Reinv Rate" & acct, "tbl_balances", y_year), 0)
+            wdraw = -Round(rlz - reinv)
+            value = value + wdraw
+        End If
+    End If
+    
+    add_wdraw = value
 End Function
 Function is_forecast(y_year As String) As Boolean
     'determine if this year is a forecast year
@@ -530,39 +594,83 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
     Dim col_name As String
     Dim interest_row As String
         
-    gain = 0 ' return zero if not investment or bank account
     account_type = get_val(acct, "tbl_accounts", "Type")
-    If Not ((account_type = "I") Or (account_type = "B")) Then
-        Exit Function
-    End If
-    If realized Then
-        col_name = "Rlz share"
-        prefix = "Rlz Int/Gn"
-    Else
-        col_name = "Unrlz share"
-        prefix = "Unrlz Gn/Ls"
-    End If
-    is_fcst = is_forecast(y_year)
-    If is_fcst Then
-        open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
-        rate = get_val("Rate" & acct, "tbl_balances", y_year)
-        alloc = get_val(acct, "tbl_accounts", col_name)
-        val = open_bal * rate * alloc
-    Else ' actuals
-        If account_type = "I" Then
-            val = get_val(prefix & acct, "tbl_invest_actl", y_year)
-        Else 'banks
-            If realized Then
-                interest_row = get_val("bank_interest", "tbl_gen_state", "value")
-                val = get_val(interest_row, "tbl_iande", y_year)
-            Else ' banks never have unrealized
-                val = 0
-            End If
-        End If
-    End If
-    gain = val
-        
+    
+    Select Case account_type
+        Case "I", "B"
+            is_fcst = is_forecast(y_year)
+
+            Select Case is_fcst
+                Case True
+                    Select Case account_type
+                        Case "I"
+                            Select Case realized
+                                Case True
+                                    val = agg_table("tbl_invest_iande_work", y_year, acct & "|value|I", , "Account|Type|IorE")
+                                Case False ' Unrlz Gn
+                                    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
+                                    rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)
+                                    val = open_bal * rate
+                            End Select
+                        Case "B"
+                            Select Case realized
+                                Case True
+                                    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
+                                    rate = get_val("Mkt Gn Rate" & acct, "tbl_balances", y_year)
+                                    val = open_bal * rate
+                                Case False ' Unrlz Gn
+                                    val = 0
+                            End Select
+                    End Select
+                
+                Case False ' actuals
+                    Select Case account_type
+                        Case "I"
+                            Select Case realized
+                                Case True
+                                    val = get_val("Rlz Int/Gn" & acct, "tbl_invest_actl", y_year)
+                                Case False
+                                    val = get_val("Unrlz Gn/Ls" & acct, "tbl_invest_actl", y_year)
+                            End Select
+                        Case "B" 'banks
+                                Select Case realized
+                                    Case True
+                                        interest_row = get_val("bank_interest", "tbl_gen_state", "value")
+                                        val = get_val(interest_row, "tbl_iande", y_year)
+                                    Case False ' banks never have unrealized
+                                    val = 0
+                                End Select
+                    End Select
+            End Select
+            gain = val
+                               
+         Case Else ' return zero if not investment or bank account
+            gain = 0
+    End Select
+            
 End Function
+
+Function invest_fees(acct As String, y_year As String) As Variant
+    'For investments, return the fees for an account for a year for actual or forecast
+    'Other types of accounts return zero.
+    ' for investments actuals, use the values from invest_iande_work
+    Dim val As Variant
+        
+    account_type = get_val(acct, "tbl_accounts", "Type")
+    
+    Select Case account_type
+        Case "I"
+            val = get_val(acct & ":Investing:Fees:value", "tbl_invest_iande_work", y_year)
+            invest_fees = val
+                               
+         Case Else ' return zero if not investment or bank account
+            invest_fees = 0
+    End Select
+    
+End Function
+
+
+
 Function endbal(acct As String, y_year As String) As Variant
 'compute the end balance for an account for a year
     Dim rate As Variant
@@ -570,8 +678,9 @@ Function endbal(acct As String, y_year As String) As Variant
     open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
     adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
     rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
+    fees = get_val("Fees" & acct, "tbl_balances", y_year)
     unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
-    val = open_bal + adds + rlzd + unrlzd
+    val = open_bal + adds + rlzd + unrlzd + fees
     endbal = val
 
 End Function
@@ -702,13 +811,13 @@ Dim infl As Variant
 Dim magi As Variant
 test_cases() = Array(Array(2021, 1#, 10000), Array(2022, 1#, 182001), Array(2022, 1#, 400000), Array(2023, 1.02, 75000))
 log ("Part B tests")
-For i = LBound(test_cases) To UBound(test_cases)
-    yr = "Y" & test_cases(i)(0)
-    magi = test_cases(i)(2)
-    infl = test_cases(i)(1)
+For I = LBound(test_cases) To UBound(test_cases)
+    yr = "Y" & test_cases(I)(0)
+    magi = test_cases(I)(2)
+    infl = test_cases(I)(1)
     partB = PartBPrem(yr, infl, magi)
     partD = PartDSurcharge(yr, infl, magi)
-    msg = "Input: year=" & test_cases(i)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
+    msg = "Input: year=" & test_cases(I)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
     log (msg)
 Next
 
@@ -753,9 +862,9 @@ Dim test_cases() As Variant
 Dim yr As String, who As String, result As Double
 test_cases() = Array(Array("GBD", "Y2022"), Array("VEC", "Y2026"))
 log ("retir_med tests")
-For i = LBound(test_cases) To UBound(test_cases)
-    who = test_cases(i)(0)
-    yr = test_cases(i)(1)
+For I = LBound(test_cases) To UBound(test_cases)
+    who = test_cases(I)(0)
+    yr = test_cases(I)(1)
     result = retir_med(who, yr)
     msg = "Input: year=" & yr & " who=" & who & "   Output: " & result
     log (msg)
@@ -782,12 +891,15 @@ End If
 simple_return = result
 End Function
 
-Function rolling_avg(Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "", Optional lookback As Integer = 3) As Double
-'Look back at previous columns and average the numeric values found there, ignoring non-numerics
+Function rolling_avg(Optional max_value As Variant = Null, Optional lookback As Integer = 5, Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "") As Double
+'Look back at previous columns and average the numeric values found there, ignoring items before 2018, but including zeros
+'max_value if provided is used instead of any higher values
+'lookback is defaulted to 5 years
 'If not provided, table, key and y_year are taken from the calling cell
-'Return the average
+'Return the average.  Returns 0 if the count of valid items is 0.
 Dim y_year As String
 Dim point As Range, ws As Worksheet
+Dim value As Variant
 
 Set point = Application.caller
 If table = "" Then
@@ -806,12 +918,15 @@ tot = 0
 cnt = 0
 For y = this_year - lookback To this_year - 1
     If y < 2018 Then
-        value = 0
+        value = Null
     Else
         y_year = "Y" & y
         value = get_val(key, table, y_year)
     End If
-    If Not value = 0 Then
+    If Not IsNull(value) Then
+        If Not IsNull(max_value) Then
+            value = Application.WorksheetFunction.Min(max_value, value)
+        End If
         tot = tot + value
         cnt = cnt + 1
     End If
@@ -905,13 +1020,13 @@ Function linear(count As Integer, Optional minimum = 0) As Double
     progress = "initialized"
     With ws
     ' see how many prior items are available up to the requested number
-        For i = 1 To count
-            cn = .Cells(hdg_row, point.Column - i).value
+        For I = 1 To count
+            cn = .Cells(hdg_row, point.Column - I).value
             If Not (Left(cn, 1) = "Y" And IsNumeric(Right(cn, 4))) Then
                 Exit For
             End If
-        Next i
-        count = i - 1
+        Next I
+        count = I - 1
         progress = "count set: " & count
     ' Construct the exising dependent (y) values
         y_year = .Cells(hdg_row, point.Column).value
@@ -930,11 +1045,11 @@ Function linear(count As Integer, Optional minimum = 0) As Double
     any_empty = False
     ReDim ys1(UBound(ys, 2) - 1) ' redim forces origin to, so the one dimension versions start there
     ReDim xs1(UBound(xs, 2) - 1)
-    For i = LBound(xs, 2) To UBound(xs, 2) 'years as numbers
-        xs1(i - 1) = CDbl(IntYear(xs(1, i)))
-        ys1(i - 1) = ys(1, i)
-        any_empty = any_empty Or IsEmpty(ys1(i - 1))
-    Next i
+    For I = LBound(xs, 2) To UBound(xs, 2) 'years as numbers
+        xs1(I - 1) = CDbl(IntYear(xs(1, I)))
+        ys1(I - 1) = ys(1, I)
+        any_empty = any_empty Or IsEmpty(ys1(I - 1))
+    Next I
     progress = "values formatted"
     
     'When workbook is initially loaded Excel does not have knowledge of dependencies hidden in this function
@@ -962,9 +1077,9 @@ ErrHandler:
     log ("Error: " & Err.Number)
     log (Err.Description)
     If progress = "values formatted" Then
-        For i = LBound(xs1) To UBound(xs1)
-        log ("" & xs1(i) & ": " & ys1(i))
-        Next i
+        For I = LBound(xs1) To UBound(xs1)
+        log ("" & xs1(I) & ": " & ys1(I))
+        Next I
     End If
     
 End Function
@@ -980,20 +1095,26 @@ Function ei_withhold(legend As String, ei_template, y_year As String) As Double
 Dim result As Double, earned As Double
 Dim rate As Variant, cap As Variant
 Dim legend_parts() As String
-Dim typ As String, ei_line As String
+Dim typ As String, ei_line As String, y_rate_year As String
+
 legend_parts = Split(legend, "-")
 typ = Trim(legend_parts(LBound(legend_parts)))
 who = Trim(legend_parts(UBound(legend_parts)))
 
 ei_line = Replace(ei_template, "%", who)
 earned = get_val(ei_line, "tbl_iande", y_year)
+ffy = get_val("first_forecast", "tbl_gen_state", "value")
+lay = -1 + IntYear(ffy)
+rate_year = Application.WorksheetFunction.Min(lay, IntYear(y_year))
+y_rate_year = "Y" & CStr(rate_year)
+
 Select Case typ
 Case "Soc Sec":
-    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_year)
-    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_year)
-    result = rate * Application.WorksheetFunction.min(cap, earned)
+    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_rate_year)
+    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_rate_year)
+    result = rate * Application.WorksheetFunction.Min(cap, earned)
 Case "Medicare":
-    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_year)
+    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_rate_year)
     result = rate * earned
 End Select
 ei_withhold = result
@@ -1012,5 +1133,66 @@ End Function
 Sub test_nth()
 Debug.Print (nth_word_into(0, "fed tax value", "Taxes for %s"))
 End Sub
+
+Function ratio_to_start(account As String, category As String, y_year As String) As Double
+    'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since
+    'that should have already been computed.  This allows the table to occur before the balances table in the compute order
+    'To be run in a cell in the invest_iande_work table.
+    Dim work_table As String, bal_table As String
+    Dim key As Variant
+    Dim start_bal As Double, value As Double, ratio As Double
+    work_table = Application.caller.ListObject.Name
+    bal_table = "tbl_balances"
+    On Error GoTo err1
+    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1), True)
+    GoTo continue
+err1:
+    ' If we are on the first period, then the start value should be static and not require a calculation
+    If 1729 = Err.Number - vbObjectError Then
+        start_bal = get_val("Start Bal" + account, bal_table, y_year)
+    Else
+        log (Err.Description)
+        ratio_to_start = 0
+        Exit Function
+    End If
+continue:
+    key = account + ":" + category + ":value"
+    value = get_val(key, work_table, y_year)
+    If start_bal = 0 Then
+        ratio = 0
+    Else
+        ratio = value / start_bal
+        ratio = Round(ratio, 4)
+    End If
+    ratio_to_start = ratio
+
+End Function
+
+
+Function extend_iiande(account As String, category As String, y_year As String) As Double
+    'For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row
+    'To be run in a cell in the invest_iande_work table.
+    Dim work_table As String, bal_table As String
+    Dim key As Variant
+    Dim start_bal As Double, rate As Double, value As Double
+    work_table = Application.caller.ListObject.Name
+    bal_table = "tbl_balances"
+    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1))
+    key = account + ":" + category + ":rate"
+    rate = get_val(key, work_table, y_year)
+    value = rate * start_bal
+    extend_iiande = value
+End Function
+
+Function last_two_parts(cat As String, Optional delim = ":") As String
+    'take the last two parts of a delimited string and return them as a new string with the delimiter
+    'missing parts will be set to zero lenght string
+    Dim arr() As String
+    arr = Split("::" + cat, delim)
+    k = UBound(arr)
+    r = arr(k - 1) + ":" + arr(k)
+    last_two_parts = r
+End Function
+
 
 

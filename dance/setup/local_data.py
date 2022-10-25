@@ -1,6 +1,8 @@
 '''get annual various local data'''
 import pandas as pd
+from dance.invest_iande_load import read_and_prepare_invest_iande
 from dance.iande_actl_load import read_iande_actl, prepare_iande_actl
+from dance.other_actls import IRA_distr, payroll_savings,hsa_disbursements,sel_inv_transfers
 from dance.transfers_actl_load import read_transfers_actl, prepare_transfers_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.util.files import tsv_to_df
@@ -25,26 +27,39 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     Such as in the case of balances if there is an account not found in the accounts worksheet
     '''
   groups=None
-  if data_info['type']== 'md_acct':
-    df= read_accounts(data_info)
-    df= prepare_account_tab(data_info,df)
-  if data_info['type']=='md_bal':
-    df=read_balances(data_info,target_file)
-    df=prepare_balance_tab(years,ffy,df)
-  if data_info['type']=='md_iande_actl':
-    df=read_iande_actl(data_info=data_info)
-    df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
-  if data_info['type']=='md_transfers_actl':
-    df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
-    df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
-  if data_info['type']=='md_invest_actl':
-    df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
-  if data_info['type']=='json_index': # a json file organized like: {index -> {column -> value}}
-    df=pd.read_json(data_info['path'],orient='index')
-    logger.info('Read {}'.format(data_info['path']))
-  if data_info['type']=='json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
-    df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
-    logger.info('Read {}'.format(data_info['path']))
+  match data_info['type']:
+    case 'md_acct':
+      df= read_accounts(data_info)
+      df= prepare_account_tab(data_info,df)
+    case 'md_bal':
+      df=read_balances(data_info,target_file)
+      df=prepare_balance_tab(years,df)
+    case 'md_iande_actl':
+      df=read_iande_actl(data_info=data_info)
+      df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
+    case 'md_transfers_actl':
+      df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
+      df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
+    case 'md_invest_iande_work':
+      df=read_and_prepare_invest_iande(workbook=target_file,data_info=data_info)
+    case 'md_invest_actl':
+      df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
+    case 'md_hsa_disb':
+      df=hsa_disbursements()
+    case 'md_ira_distr':
+      df=IRA_distr()
+    case 'md_pr_sav':
+      df=payroll_savings()
+    case 'md_sel_inv':
+      df=sel_inv_transfers()
+    case 'json_index': # a json file organized like: {index -> {column -> value}}
+      df=pd.read_json(data_info['path'],orient='index')
+      logger.info('Read {}'.format(data_info['path']))
+    case 'json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
+      df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
+      logger.info('Read {}'.format(data_info['path']))
+    case _:
+      assert False,'Undefined type'
   return df,groups
 
 def filter_nz(df,include_zeros):
@@ -93,7 +108,7 @@ def read_accounts(data_info):
 
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False)
   logger.info('{} rows read'.format(len(df)))
-  df=df.dropna(how='any',subset='Account') # remove blank rows
+  df.dropna(how='any',subset='Account',inplace=True) # remove blank rows
   df.reset_index(drop=True,inplace=True)
   logger.info('{} non-blank rows'.format(len(df)))
   df['Account']=df['Account'].str.strip()
@@ -216,7 +231,7 @@ def read_accounts(data_info):
     for _,row in df.loc[flag_tot==0].iterrows():
       logger.warning(row['Account'])
 
-  df=df.loc[df.keep]
+  df=df.loc[df.keep].copy()
   df['Type']=[types[x] for x in df.category.tolist()]
   logger.info('Returning {} rows'.format(len(df)))
   return df[['Account','Type','Current Balance','is_total' ,'level']]
@@ -240,15 +255,14 @@ def prepare_account_tab(data_info, in_df):
 
   returns: a dataframe for the accounts tab
   '''
-  df=in_df
+  df=in_df.copy()
   tax_free_keys=[]
   if 'tax_free_keys'in data_info:
     tax_free_keys=data_info['tax_free_keys']
   account_names=df.Account.tolist()
   df['Income Txbl']= [ int(not any(y in x for y in tax_free_keys)) for x in account_names]
   df['Active']=(df[['Current Balance']] != 0).astype(int) # default zero accounts to inactive
-  df['Rlz share']=0
-  df['Unrlz share']=1
+  df['Near Mkt Rate']=0
   acct_ref='= '+this_row('Account')
   source_formulas=[ acct_ref,acct_ref + ' & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
   flag=(df.level>0) & (df.Type!='I') & (df.is_total)
@@ -263,76 +277,56 @@ def prepare_account_tab(data_info, in_df):
   del df['Current Balance']
   return df
 
-def prepare_balance_tab(years,first_forecast,in_df):
+def prepare_balance_tab(years,in_df):
   '''Add in the added fields for the balance worksheet
   args:
     years: iterable with the numeric years to be appended to the columns
-    first_forecast: integer year that is the 1st to use the forecast formulas
-    in_df: a dataframe with at least columns: Account, and Current Balance
+    in_df: a dataframe with at least the Account and Current Balance columns
 
-  returns: a dataframe for the balance tab
+  returns: a dataframe for the balance tab with the years columns set as None.
 
-  work in progress - the forecast items are overwritten based on config.
-  TODO do the same with the actuals and remove this logic, but keep adding columns.
+  The forecast and actuals items in the years columns are set later based on config.
   '''
 
   acct_ref=this_row('AcctName')
-  key_ref=this_row('Key')
+  # TODO move repeated formulas to setup.yaml
   repeated_formulas={
     'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), acct_ref),
     'Type':'=@get_val({},"tbl_accounts",D$2)'.format(acct_ref),
     'Income Txbl': '=@get_val( {},"tbl_accounts",E$2)'.format(acct_ref),
-    'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(acct_ref)
+    'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(acct_ref),
+    'No Distr Plan': '=@get_val( {},"tbl_accounts",G$2)'.format(acct_ref)
   }
-  lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active']
+  lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active','No Distr Plan','Reinv Rate']
 
-  # the actual and the forecast formulas
-  # braces are filled in before inserting into the worksheet
-  actl_formulas={
-    'Rate':'=simple_return( %s,{})' % (acct_ref),
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
-    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{})'  % (acct_ref) }
-  fcst_formulas={
-    'Rate':'=rolling_avg("tbl_balances", %s,{},3)' % key_ref,
-    'Start Bal':'=get_val("End Bal" &  %s,"tbl_balances",{})' % (acct_ref),
-    'Add/Wdraw':'=add_wdraw( %s,{})' % (acct_ref),
-    'Rlz Int/Gn':'=@gain( %s,{},TRUE)' % (acct_ref),
-    'Unrlz Gn/Ls':'=@gain( %s,{},FALSE)' % (acct_ref),
-    'End Bal': '=@endbal( %s,{})' % (acct_ref)  }
+  # the actual and the forecast formulas specified in setup.yaml - except for the opening balance
 
-  val_types=actl_formulas.keys()
+  val_types=['Mkt Gn Rate','Reinv Rate','Start Bal','Add/Wdraw','Rlz Int/Gn','Reinv Amt','Fees','Unrlz Gn/Ls','End Bal']
   r_count=len(val_types)
-  df=pd.DataFrame([])
-  # prepare the data for each account
+  df=pd.DataFrame([]) # accumulate into this
+  
+  # prepare the data for each account 
   for _,row in in_df.iterrows():
-    a_df=pd.DataFrame([])
+    acct_df=pd.DataFrame([])
     for c in lead_cols:
       if c in repeated_formulas:
-        a_df[c]=[repeated_formulas[c]]*r_count
+        acct_df[c]=[repeated_formulas[c]]*r_count
       else:
         if c== 'ValType':
-          a_df[c]=val_types
+          acct_df[c]=val_types
         else:
-          a_df[c]=[row['Account']]*len(val_types)
+          acct_df[c]=[row['Account']]*r_count
     for c in years:
       formulas=[]
       for vt in val_types:
-        raw_formula=[actl_formulas,fcst_formulas][c >= first_forecast][vt]
         yx=years.index(c)
-        if vt == 'Start Bal': # only type to use prior year col
-          if yx >0:
-            prior_year_col='y_offset(this_col_name(),-1)'
-            formula=raw_formula.format(prior_year_col)
-          else: # initial year is the balance from the input
+        formula=None
+        if vt == 'Start Bal': # start bal for 1st year has to be carried in here.
+          if yx == 0:
             formula=float(in_df.loc[in_df.Account == row['Account'],'Current Balance'])
-        else:
-          formula=raw_formula.format('this_col_name()')
         formulas+=[formula]
-      a_df['Y{}'.format(c)]=formulas
-    df=pd.concat([df,a_df],axis=0)
+      acct_df['Y{}'.format(c)]=formulas
+    df=pd.concat([df,acct_df],axis=0)
   df.reset_index(inplace=True,drop='True')
   return df
 
