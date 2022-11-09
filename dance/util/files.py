@@ -1,10 +1,11 @@
 '''DataFrame utilities'''
 import warnings
-import yaml
-import pandas as pd
 
+import pandas as pd
+import yaml
 
 from dance.util.logs import get_logger
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Notes'],parse_shares=False):
