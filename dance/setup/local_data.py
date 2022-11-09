@@ -5,7 +5,7 @@ from dance.iande_actl_load import prepare_iande_actl, read_iande_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.invest_iande_load import read_and_prepare_invest_iande
 from dance.other_actls import (IRA_distr, hsa_disbursements, payroll_savings,
-                               sel_inv_transfers)
+                               sel_inv_transfers, five_29_distr)
 from dance.transfers_actl_load import (prepare_transfers_actl,
                                        read_transfers_actl)
 from dance.util.files import tsv_to_df
@@ -32,6 +32,8 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     '''
   groups=None
   match data_info['type']:
+    case 'md_529_distr':
+      df=five_29_distr(data_info=data_info)
     case 'md_acct':
       df= read_accounts(data_info)
       df= prepare_account_tab(data_info,df)
@@ -352,3 +354,9 @@ def read_gen_state(config):
   df=pd.read_json(path,orient='index')
   gen_state=df.to_dict(orient='index')
   return gen_state
+
+
+
+if __name__=='__main__':
+  pass
+  # put testing stuff here
