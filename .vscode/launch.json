@@ -66,5 +66,13 @@
       "args": ["-w","data/test_wb.xlsm"],
       "justMyCode": true
     },
-  ]
+    {
+      "name": "match_retro args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/util/match_retro.py",
+      "console": "integratedTerminal",
+      "args": ["/Users/george/Downloads/transfers_detailed.txt"],
+      "justMyCode": true
+    },  ]
 }
