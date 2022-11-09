@@ -24,8 +24,9 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
 
   '''
   ffy=read_config()['first_forecast_year']
-  datadir='./data/'
+  datadir='./data/acct-bals/'# TODO remove hard coded location
   files=os.listdir(datadir)
+  files=list(set(files)-set(['.DS_Store']))
   files.sort()
   data=[[],[]]
   cols=[]
@@ -33,22 +34,21 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
   rows=['Bank Accounts','Credit Cards']
   inrows=[rows[x] + tot for x in range(0,len(rows))]
   for file_name in files:
-    if file_name.startswith('acct-bal'):
-      #grab the year from the file name
-      y_year = 'Y' + file_name.split('.')[0].split('-')[-1]
-      if ffy <= int(y_year[1:]): # only up to the configured first forecast year less one
-        continue
-      df=pd.read_csv(datadir+file_name,sep='\t',skiprows=3)
-      # move the account to the index
-      df.set_index('Account',inplace=True)
-      #only remaining column is our data
-      column = df.columns[0]
-      df.loc[:,column]=df[column].str.replace(r'\$','',regex=True)
-      df.loc[:,column]=df[column].str.replace(',','').astype(float)
+    #grab the year from the file name
+    y_year = 'Y' + file_name.split('.')[0]
+    if ffy <= int(y_year[1:]): # only up to the configured first forecast year less one
+      continue
+    df=pd.read_csv(datadir+file_name,sep='\t',skiprows=3)
+    # move the account to the index
+    df.set_index('Account',inplace=True)
+    #only remaining column is our data
+    column = df.columns[0]
+    df.loc[:,column]=df[column].str.replace(r'\$','',regex=True)
+    df.loc[:,column]=df[column].str.replace(',','').astype(float)
 
-      data[0].append(df.loc[inrows[0],column])
-      data[1].append(df.loc[inrows[1],column])
-      cols.append(y_year)
+    data[0].append(df.loc[inrows[0],column])
+    data[1].append(df.loc[inrows[1],column])
+    cols.append(y_year)
 
   balances=pd.DataFrame(data,index=rows,columns=cols)
   
