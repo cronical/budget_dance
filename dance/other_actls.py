@@ -143,7 +143,7 @@ def sel_inv_transfers(data_info):
   filename=data_info['path']
   txt_flds=['Target Account',  'Source Account', 'Description', 'Memo']
   df=tsv_to_df(filename,skiprows=3,string_fields=txt_flds)
-  df=df.loc[~pd.isnull(df[df.columns[:-1]]).all(axis=1)] # blank rows (the reader replaces the null in the amount with zero)
+  df=df.loc[~pd.isnull(df[df.columns[:-1]]).all(axis=1)].copy() # blank rows (the reader replaces the null in the amount with zero)
   labels=pd.isnull(df[df.columns[1:][:-1]]).all(axis=1)
   stack=[]
   for ix,row in df.loc[labels].iterrows():
@@ -169,6 +169,28 @@ def sel_inv_transfers(data_info):
   suma= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum').reset_index()
   return suma
 
+def five_29_distr(data_info):
+  '''Get the 529 plan distribution records from Moneydance export and summarize so data items can be put in spreadsheet
+  These data refer to 529 distributions
+
+  Args: 
+    data_info: dict that has a value for path used to locate the input file    
+  
+  Returns: 
+    a dataframe with 529 accounts as rows and multiple y_year columns
+    positives are amount distributed
+    Only has columns where data exists
+  '''
+  filename=data_info['path']
+  df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
+  sel=df.Account.str.startswith('CHET') | df.Account.str.startswith('529')
+  df=df.loc[sel].copy()
+  df.Amount=-df.Amount
+  df=setup_year(df)
+  summary=df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
+  summary.fillna(value=0,inplace=True)
+  summary=summary.reset_index()    
+  return summary
 
 
 def IRA_distr(data_info):
@@ -220,7 +242,8 @@ def IRA_distr(data_info):
 
 def hsa_disbursements(data_info):
   '''Get the HSA disbursement records from Moneydance export and summarize so data items can be put in spreadsheet
-  These data refer to medical payments made from HSA accounts
+  These data refer to medical payments made from HSA accounts.  
+  Positive values indicate disbursements.  
 
   Args: 
     data_info: dict that has a value for path used to locate the input file  
@@ -236,26 +259,24 @@ def hsa_disbursements(data_info):
   acct.fillna(method= 'ffill',inplace=True)#propogate accounts
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
-  dropthese=['EXCESS CONTRIBUTION','INCENTIVE AWARD','INVESTMENT PURCHASE','Investment Purchase','INDIVIDUAL CONTR','EMPLOYER CONTR','HSA Video Credit','PARTIC CONTR','TRV - GBD']
-  rgx='(' + '|'.join(dropthese) + ')'
-  sel=~ df['Description'].str.contains(rgx,regex=True)
-  df=df.loc[sel]
   df=setup_year(df)  # create the year field to allow for pivot
-  summary= df.pivot_table(index='Target Account',values='Amount',columns='Year',aggfunc='sum')
+  summary= df.pivot_table(index='Source Account',values='Amount',columns='Year',aggfunc='sum')
   summary=summary.reset_index()
-  summary.rename(columns={'Target Account':'Account'},inplace=True)
+  summary.rename(columns={'Source Account':'Account'},inplace=True)
   summary.Account=summary.Account.str.strip()
+  summary=pd.concat([summary.Account,-summary.drop('Account',axis=1)],axis=1)
   return summary
 
 def setup_year(df):
   '''Convert the date field and create a year field, returning revised dataframe'''
-  df['Year']=df['Date'].dt.year.astype(int)
-  df['Year'] = df['Year'].apply('Y{}'.format)
+  df=df.copy()
+  df.loc[:,'Year']=df['Date'].dt.year.astype(int)
+  df.loc[:,'Year'] = df['Year'].apply('Y{}'.format)
   return df
 
 if __name__=='__main__':
   # payroll_savings()
   # IRA_distr()
-  # hsa_disbursements()
-  sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
-
+  hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
+  #sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
+  #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
