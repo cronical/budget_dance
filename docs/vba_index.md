@@ -45,7 +45,7 @@
 |IntYear|Function IntYear(yval) As Integer|
 ||Strips off the y on the argument (eg y2019) and returns an integer|
 |invest_fees|Function invest_fees(acct As String, y_year As String) As Variant|
-||For investments, return the fees for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_iande_work|
+||For investments, return the account fees for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_iande_work|
 |is_forecast|Function is_forecast(y_year As String) As Boolean|
 ||Determine if this year is a forecast year|
 |last_two_parts|Function last_two_parts(cat As String, Optional delim = ":") As String|

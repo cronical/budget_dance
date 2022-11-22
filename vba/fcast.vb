@@ -651,7 +651,7 @@ Function gain(acct As String, y_year As String, realized As Boolean) As Variant
 End Function
 
 Function invest_fees(acct As String, y_year As String) As Variant
-    'For investments, return the fees for an account for a year for actual or forecast
+    'For investments, return the account fees for an account for a year for actual or forecast
     'Other types of accounts return zero.
     ' for investments actuals, use the values from invest_iande_work
     Dim val As Variant
@@ -660,7 +660,8 @@ Function invest_fees(acct As String, y_year As String) As Variant
     
     Select Case account_type
         Case "I"
-            val = get_val(acct & ":Investing:Fees:value", "tbl_invest_iande_work", y_year)
+            val = get_val(acct & ":Investing:Account Fees:value", "tbl_invest_iande_work", y_year)
+            val = val + get_val(acct & ":Investing:Action Fees:value", "tbl_invest_iande_work", y_year)
             invest_fees = val
                                
          Case Else ' return zero if not investment or bank account
