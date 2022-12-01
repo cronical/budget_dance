@@ -25,7 +25,7 @@ To make more manageable, the files that have a version each year are placed in s
 
 A listing of the files can be had with 
 
-`tree -P '*.tsv' --prune data/`
+`tree -PD '*.tsv' --prune data/`
 
 ### File names
 
