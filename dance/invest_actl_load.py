@@ -45,6 +45,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
 
   returns: dataframe with 5 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains)
+    The add/wdraw value is principal transfered, so interest payments have been removed if they are not reinvested.
     The unrealized gain value has the fees removed
 
   raises:
@@ -61,6 +62,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   accounts=df_for_table_name(table_name='tbl_accounts',workbook=workbook,table_map=table_map)
   accounts=accounts[accounts.Type == 'I']
 
+  # get the investment income in order to handle interest received from loans we hold
+  invest_iande=df_for_table_name(table_name='tbl_invest_iande_work',workbook=workbook,table_map=table_map)
+
   # get the output of the Moneydance investment transfers report
   try:
     df=tsv_to_df (xfer_file,skiprows=3)
@@ -73,9 +77,26 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   df=df.mul(-1)# fix the sign
   df.index=df.index.str.strip() # remove leading spaces
   df=df.loc[:,df.columns !='Total'] # drop the total column
+  cols=df.columns.to_list()
+  map=dict(zip(cols,['Y'+a for a in cols]))
+  df.rename(columns=map,inplace=True)
+  y_columns=df.columns
 
-  # join these and keep only the data columns using the accounts list as the master
-  xfers=accounts.join(df)[df.columns.to_list()]
+  #adjust for loan interest received
+  lir_data=[]
+  lir_index=[]
+  for account,row in accounts.loc[accounts['Reinv Rate']<1].iterrows():
+    sel=(invest_iande.Account==account) & (invest_iande.Category.str.contains('Int:')) & (invest_iande.Type=='value')
+    interest=invest_iande.loc[sel,y_columns].sum(axis=0).astype(float)
+    adj= round(interest * (1-row['Reinv Rate']),2)
+    adjusted= df.loc[account] + adj
+    df.loc[account]=adjusted
+    lir_data+=[adj.to_list()]
+    lir_index+=[account]
+  lir_df=pd.DataFrame(data=lir_data,index=lir_index,columns=y_columns)
+    
+  # join the accounts and transfers and keep only the data columns using the accounts list as the master
+  xfers=accounts.join(df)[y_columns]
   xfers.fillna(0, inplace=True) # replace the NaN's (where no transfers occurred) with zeros
 
   # get the performance reports' data
@@ -129,13 +150,19 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       df.fillna(value=0,inplace=True) # zero out the perf values for accts in master not perf
 
       # append the transfers
-      df=df.join(xfers[fn_year])
+      df=df.join(xfers['Y'+fn_year])
+      df.rename(columns={'Y'+fn_year:'Transfers'},inplace=True)
+
       # get the fees and append as a column
       iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
       iiw=iiw.loc[iiw.Category_Type=='Investing:Account Fees:value']
       iiw.set_index('Account',drop=True,inplace=True)
       df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
-      df.rename(columns={'Return Amount': 'Return_Amount',fn_year:'Transfers','Y'+fn_year:'Fees'},inplace=True)
+      df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
+
+      # put the loan interest received in a column
+      df=df.join(lir_df['Y'+fn_year],how='left').fillna(value=0)
+      df.rename(columns={'Y'+fn_year:'LIR'},inplace=True)
 
       # get the pending re-investments from the Merrill IRA
       retro=['IRA - VEC - ML'] # the pending only makes sense for accounts where the outgoing $ comes back as securities - i.e. this Merrill account
@@ -144,6 +171,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       pbals.set_index('Account',inplace=True)# same index for the join
       pbals.rename({'Current Balance':'Pending'},axis=1,inplace=True)# convenient column name
       df=df.join(pbals,how='left').fillna(value=0) # df now has pending column
+
       if prior_pbals is not None:
         df=df.join(prior_pbals,how='left').fillna(value=0) # df now has prior column
       else:
@@ -156,7 +184,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
       df=df.assign(Unrealized=lambda x: (x.Return_Amount+x.Fees- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug so fees are included
 
-      df['Check']=df.Open + df.Transfers + df.Realized + df.Unrealized 
+      df['Check']=df.Open + df.Transfers + df.Realized + df.Unrealized - df.LIR
       df['Delta']=df.End - df.Check
       valid= (df.End-df.Check).abs() < .001
       if ~valid.all():
@@ -177,6 +205,10 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
         assert False
       else:
         logger.info('Investment balance checks OK for {}'.format(file_name))
+      
+      # remove the loan interest received column
+      df.drop(columns='LIR',inplace=True)
+
       # use names in spreadsheet
       map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
       df.rename(columns=map,inplace=True)

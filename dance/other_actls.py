@@ -108,10 +108,10 @@ def payroll_savings(data_info):
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
   df['Amount']=df.Amount.astype(float)
-  sel=~ (df.Amount > 0) | df.Description.str.contains('return of excess')
-  df=df.loc[sel].copy() # remove the transfers in (except for any return of excess)
+  sel= (df.Amount > 0) | df.Description.str.contains('return of excess') # remove payments but not return of excess
+  df=df.loc[~ sel].copy() # remove the transfers in (except for any return of excess)
+  df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() # remove transfer from devenir to fidelity
   df.Amount = - df.Amount # change sign
-
   # remove refunds to hsa
   sel = ~ df.Description.str.contains('ADJ') 
   df=df.loc[sel].copy()
@@ -215,28 +215,28 @@ def IRA_distr(data_info):
   summary.fillna(value=0,inplace=True)
   summary=summary.reset_index()
   summary=summary.loc[~summary.Category.str.startswith('IRA')]
-  distr_sel=summary.Category.str.endswith('IRA-Txbl-Distr')
+  distr_sel=summary.Category.str.endswith('IRA-Txbl-Distr')# just the row with the category.  Only the inherited RMD is in this.
   distr_cat='Income:'+summary.loc[distr_sel,'Category'].squeeze()
-  ofid_cat='Expenses:Y:Outside Flows:IRA Distr'
+  ext_rmd_cat='Expenses:Y:Outside Flows:Inherit:RMD'
   tx=summary.Category.str.endswith('IRA WH')
   wh=summary.loc[tx].copy()
   wh['Category']='Expenses:'+wh['Category']
-  distr=summary.drop('Category',axis=1).loc[~tx]
-  # compute the distribution from the bank portion and the witholding portion for distributions that are sourced from an account in MD
-  banks= distr.loc[~distr_sel].sum()
-  borw=banks+wh.drop('Category',axis=1).sum()
-  distr=distr.loc[distr_sel].sum()
-  distr2=-borw.drop([c for c in banks.index if banks[c]==0])
-  distr.update(distr2)
-  distr=pd.concat([pd.Series(data=[distr_cat],index=['Category']),distr])
+  distr=summary.drop('Category',axis=1).loc[~tx] # without the tax rows
+  # for distributions that are sourced from an account in MD:
+  # compute the total distribution from the bank portion and the witholding portion 
+  banks= distr.loc[~distr_sel].sum() # the sum of the various banks
+  borw=banks+wh.drop('Category',axis=1).sum() # add in the withholding
+  distr=distr.loc[distr_sel].sum() # the inherited RMD
+  distr2=-borw.drop([c for c in banks.index if banks[c]==0]) # the columns that have non-inherited RMDs
+  distr.update(distr2)# merge the inherited and non-inherited together
+  ext_rmd=(banks==0).astype(int)*distr
+  ext_rmd=pd.concat([pd.Series(data=[ext_rmd_cat],index=['Category']),ext_rmd])
+  distr=pd.concat([pd.Series(data=[distr_cat],index=['Category']),distr])# a new df with just the gross distribution
   banks=pd.concat([pd.Series(data=['Bank Accounts'],index=['Category']),banks])
   distr=pd.DataFrame(distr).T
   banks=pd.DataFrame(banks).T
-  summary=pd.concat([distr,banks,wh])
-  ofid=summary.drop('Category',axis=1).sum()
-  ofid=pd.concat([pd.Series(data=[ofid_cat],index=['Category']),ofid])
-  ofid=pd.DataFrame(ofid).T 
-  summary=pd.concat([summary,ofid])
+  ext_rmd=pd.DataFrame(ext_rmd).T 
+  summary=pd.concat([distr,banks,wh,ext_rmd])
   summary.reset_index(drop=True,inplace=True)
   return summary
 
@@ -266,6 +266,23 @@ def hsa_disbursements(data_info):
   summary.Account=summary.Account.str.strip()
   summary=pd.concat([summary.Account,-summary.drop('Account',axis=1)],axis=1)
   return summary
+def med_liab_pmts(data_info):
+  '''Get how the medical liabilities were paid for by year
+    Args: 
+    data_info: dict that has a value for path used to locate the input file  
+  
+  Returns: 
+    a dataframe with sources accounts for rows and years for columns
+  '''
+  filename=data_info['path']
+  df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
+  df.drop(columns=['Check#','Tags','C'],inplace=True)
+  df.dropna(how='any',inplace=True) # blank rows & total
+  df=setup_year(df)  # create the year field to allow for pivot
+  summary= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
+  summary.fillna(value=0,inplace=True)
+  summary=summary.reset_index()
+  pass
 
 def setup_year(df):
   '''Convert the date field and create a year field, returning revised dataframe'''
@@ -275,8 +292,9 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
-  # payroll_savings()
-  # IRA_distr()
-  hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
-  #sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
+  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'})
+  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
+  sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
+  # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
