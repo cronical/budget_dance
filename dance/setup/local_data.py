@@ -60,10 +60,10 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
       df=sel_inv_transfers(data_info=data_info)
     case 'json_index': # a json file organized like: {index -> {column -> value}}
       df=pd.read_json(data_info['path'],orient='index')
-      logger.info('Read {}'.format(data_info['path']))
+      logger.debug('Read {}'.format(data_info['path']))
     case 'json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
       df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
-      logger.info('Read {}'.format(data_info['path']))
+      logger.debug('Read {}'.format(data_info['path']))
     case _:
       assert False,'Undefined type'
   return df,groups
@@ -188,7 +188,7 @@ def read_accounts(data_info):
 
     if sum(sel)==4:# first resolve potential name conflict between category and sub-account total
       # by removing the category instance of the name
-      logger.info('naming conflict identified on name: {}'.format(acct_key))
+      logger.warning('naming conflict identified on name: {}'.format(acct_key))
       sa=(df.loc[sel,'level']==0) # flag the category total line
       sal=list(sa.values)
       df.loc[sa.index[0],'is_heading']=True
@@ -227,9 +227,9 @@ def read_accounts(data_info):
         df.loc[[end],'rollup']=nzr
         df.loc[[end],'keep']=nzr
 
-  logger.info('Rows counts for each type of disposition:')
+  logger.debug('Rows counts for each type of disposition:')
   for col in dispo:
-    logger.info('{}: {}'.format(col,df[col].sum(axis=0)))
+    logger.debug('{}: {}'.format(col,df[col].sum(axis=0)))
 
   flag_tot=df[['is_heading','rollup','zero_rule','by_total','no_detail','extra_totals']].sum(axis=1)
   if flag_tot.min()==0:

@@ -123,7 +123,7 @@ def refresh_sheets(target_file,overwrite=False):
                 logger.error('call for remote data but api key name {} does not exist in {}'.format(key_name,fn))
                 quit()
               data_info['api_key']=api_keys[key_name]
-              logger.info('API key retrieved from private data')
+              logger.debug('API key retrieved from private data')
             data=remote_data.request(data_info)
             logger.debug('pulled data from remote')
           if source=='local':

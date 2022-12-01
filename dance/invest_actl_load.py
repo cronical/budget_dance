@@ -112,7 +112,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       #grab the year from the file name
       fn_year = file_name.split('.')[0].split('-')[-1]
       perf_file=datadir+file_name
-      logger.info('Processing %s',fn_year)
+      logger.debug('Processing %s',fn_year)
       #read the internal date and check it.
 
       
