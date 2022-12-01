@@ -125,7 +125,7 @@ def refresh_sheets(target_file,overwrite=False):
               data_info['api_key']=api_keys[key_name]
               logger.info('API key retrieved from private data')
             data=remote_data.request(data_info)
-            logger.info('pulled data from remote')
+            logger.debug('pulled data from remote')
           if source=='local':
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map)
           if isinstance(data,dict):

@@ -202,11 +202,19 @@ def IRA_distr(data_info):
   
   Returns: 
     a dataframe with categories or accounts as rows and multiple y_year columns
-    Categories are the income distribution category (as positive)
+    Categories are 
+      the income distribution category (as positive)
+      the expense (withholding) categories (as negative)
     The only account is 'Bank Accounts'
-    Bank accounts and withholder numbers are stated as negatives
+    Bank accounts and withholding numbers are stated as negatives
     Only has columns where data exists
-  '''  
+
+  Raises: ValueError if final-rmd and a normal distribution occur in same year.
+          It logically could but the current setup does not support it.
+  '''
+  final_cat='Income:I:Retirement income:IRA:Final-RMD'
+  norm_distr_cat='Income:I:Retirement income:IRA:Normal-Distr'
+  
   filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
   df.dropna(how='any',inplace=True) # total and blank rows
@@ -215,28 +223,34 @@ def IRA_distr(data_info):
   summary.fillna(value=0,inplace=True)
   summary=summary.reset_index()
   summary=summary.loc[~summary.Category.str.startswith('IRA')]
-  distr_sel=summary.Category.str.endswith('IRA-Txbl-Distr')# just the row with the category.  Only the inherited RMD is in this.
-  distr_cat='Income:'+summary.loc[distr_sel,'Category'].squeeze()
-  ext_rmd_cat='Expenses:Y:Outside Flows:Inherit:RMD'
-  tx=summary.Category.str.endswith('IRA WH')
-  wh=summary.loc[tx].copy()
+
+  tax_sel=summary.Category.str.endswith('IRA WH') # flag the taxes paid
+  wh=summary.loc[tax_sel].copy()
   wh['Category']='Expenses:'+wh['Category']
-  distr=summary.drop('Category',axis=1).loc[~tx] # without the tax rows
-  # for distributions that are sourced from an account in MD:
-  # compute the total distribution from the bank portion and the witholding portion 
-  banks= distr.loc[~distr_sel].sum() # the sum of the various banks
-  borw=banks+wh.drop('Category',axis=1).sum() # add in the withholding
-  distr=distr.loc[distr_sel].sum() # the inherited RMD
-  distr2=-borw.drop([c for c in banks.index if banks[c]==0]) # the columns that have non-inherited RMDs
-  distr.update(distr2)# merge the inherited and non-inherited together
-  ext_rmd=(banks==0).astype(int)*distr
-  ext_rmd=pd.concat([pd.Series(data=[ext_rmd_cat],index=['Category']),ext_rmd])
-  distr=pd.concat([pd.Series(data=[distr_cat],index=['Category']),distr])# a new df with just the gross distribution
-  banks=pd.concat([pd.Series(data=['Bank Accounts'],index=['Category']),banks])
-  distr=pd.DataFrame(distr).T
-  banks=pd.DataFrame(banks).T
-  ext_rmd=pd.DataFrame(ext_rmd).T 
-  summary=pd.concat([distr,banks,wh,ext_rmd])
+
+  # just the row with any final RMD as a Series
+  final_sel=summary.Category.str.contains(':'.join(final_cat.split(':')[1:]))
+  final_rmd=summary.drop(columns='Category').loc[final_sel].sum(axis=0) # The gross amount
+
+  # Distributions that are sourced from an account in MD
+  #  are in one of the rows that are not withholding or the final RMD category
+  #  These should be accounts like bank accounts or brokerage accounts and the sign will be reversed 
+  
+  #  compute the total normal distribution by adding the taxes back in
+  net_norm_distr=summary.drop(columns='Category').loc[~(final_sel | tax_sel) ].sum(axis=0).mul(-1) # The net as positive
+
+  # Both is not supported.  If this ever happens you will need to re-work how the taxes are handled
+  if not ((final_rmd != 0) != (net_norm_distr!=0)).all(): # Either or both
+    raise ValueError('Final-RMD and Normal IRA distributions occur in same year.')
+
+  gross_norm_distr=net_norm_distr-(net_norm_distr!=0)*+wh.drop(columns='Category').sum(axis=0)
+  gross_norm_distr=pd.concat([pd.Series(data=[norm_distr_cat],index=['Category']),gross_norm_distr])
+
+  final_rmd=pd.concat([pd.Series(data=[final_cat],index=['Category']),final_rmd])# 
+  final_rmd=pd.DataFrame(final_rmd).T
+  gross_norm_distr=pd.DataFrame(gross_norm_distr).T
+  summary=pd.concat([final_rmd,gross_norm_distr,wh])
+  summary.fillna(0,inplace=True)
   summary.reset_index(drop=True,inplace=True)
   return summary
 
@@ -292,9 +306,9 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
-  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'})
-  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
-  sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
+  #sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})

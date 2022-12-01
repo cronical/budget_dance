@@ -65,8 +65,8 @@ def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=Fals
     table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
   except (FileNotFoundError,KeyError):
     raise ValueError('workbook({}), worksheet({}) or internal structures not available'.format(workbook,table_name)) from None
-  logger.info('Read table {} from {}'.format(table_name,workbook))
-  logger.info('  {} rows and {} columns'.format(table.shape[0],table.shape[1]))
+  logger.debug('Read table {} from {}'.format(table_name,workbook))
+  logger.debug('  {} rows and {} columns'.format(table.shape[0],table.shape[1]))
   return table
 
 def df_for_table_name_for_update(table_name=None):
