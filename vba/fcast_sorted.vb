@@ -407,10 +407,10 @@ Function endbal(acct As String, y_year As String) As Variant
     Dim val As Variant
     open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
     adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
-    rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
+    reinv = get_val("Reinv Amt" & acct, "tbl_balances", y_year)
     fees = get_val("Fees" & acct, "tbl_balances", y_year)
     unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
-    val = open_bal + adds + rlzd + unrlzd + fees
+    val = open_bal + adds + reinv + unrlzd + fees
     endbal = val
 
 End Function
@@ -897,6 +897,17 @@ continue:
     End If
     ratio_to_start = ratio
 
+End Function
+
+Function reinv_amt(acct_name As String, y_year As String) As Double
+'compute the reinvestment amount for an account and year.
+'since fees are going to be removed add them back in here.
+    Dim amt, rlz, rate, fees As Double
+    rlz = get_val("Rlz Int/Gn" & acct_name, "tbl_balances", y_year)
+    rate = get_val("Reinv Rate" & acct_name, "tbl_balances", y_year)
+    fees = get_val("Fees" & acct_name, "tbl_balances", y_year)
+    amt = Round(rlz * rate, 2) - fees
+    reinv_amt = amt
 End Function
 
 Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double
