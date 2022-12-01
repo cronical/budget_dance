@@ -113,10 +113,10 @@ def read_accounts(data_info):
   g_totals=[g+' - Total' for g in groups]
 
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False)
-  logger.info('{} rows read'.format(len(df)))
+  logger.debug('{} rows read'.format(len(df)))
   df.dropna(how='any',subset='Account',inplace=True) # remove blank rows
   df.reset_index(drop=True,inplace=True)
-  logger.info('{} non-blank rows'.format(len(df)))
+  logger.debug('{} non-blank rows'.format(len(df)))
   df['Account']=df['Account'].str.strip()
 
   # establish category for each row
@@ -146,15 +146,15 @@ def read_accounts(data_info):
   # set the extra totals flag
   xt=[x+ ' - Total'for x in no_details_for]+['Total']
   df.loc[df['Account'].isin(xt),'extra_totals']=True
-  logger.info('{} rows marked as extraneous totals'.format(len(xt)))
+  logger.debug('{} rows marked as extraneous totals'.format(len(xt)))
 
   tot_rows=df['Account'].str.contains(' - Total') # all the total rows on the report
-  logger.info('{} totals identified'.format(tot_rows.sum()))
+  logger.debug('{} totals identified'.format(tot_rows.sum()))
 
   # flag the investment total rows except total for all investments.
   i_tots=tot_rows & (df['category']=='Investment Accounts') & (df['Account'] !='Investment Accounts - Total')
   i_totals=df.loc[i_tots,'Account'].tolist()
-  logger.info('{} investment accounts identified'.format(len(i_totals)))
+  logger.debug('{} investment accounts identified'.format(len(i_totals)))
 
   # establish the account level by use of the headings and totals
   df['level_change']=0
@@ -171,7 +171,7 @@ def read_accounts(data_info):
         df.loc[ix,'is_total']=True
   df['level']=df['level_change'].cumsum(axis=0)
   del df['level_change']
-  logger.info('assigned account hierarchy levels. Max level is {}'.format(df.level.max(axis=0)))
+  logger.debug('assigned account hierarchy levels. Max level is {}'.format(df.level.max(axis=0)))
 
   #remove the suffix from totals
   df.loc[tot_rows,'Account']=df.Account.apply(no_suffix)
@@ -193,7 +193,7 @@ def read_accounts(data_info):
       sal=list(sa.values)
       df.loc[sa.index[0],'is_heading']=True
       df.loc[sa.index[-1],'extra_totals']=True # mark disposition of the one we will ignore
-      logger.info('ignoring the one at level {}'.format(df.loc[sa.index[-1],'level']))
+      logger.debug('ignoring the one at level {}'.format(df.loc[sa.index[-1],'level']))
       sal=sal[len(sa)//2:len(sa)]# the 2nd half of the list.
       sal=list(reversed(sal))+sal # reflect across the midpoint so as to also mark the header
       sel.loc[sa[sal].index]=False # turn them off
@@ -239,7 +239,7 @@ def read_accounts(data_info):
 
   df=df.loc[df.keep].copy()
   df['Type']=[types[x] for x in df.category.tolist()]
-  logger.info('Returning {} rows'.format(len(df)))
+  logger.debug('Returning {} rows'.format(len(df)))
   return df[['Account','Type','Current Balance','is_total' ,'level']]
 
 def read_balances(data_info,target_file):

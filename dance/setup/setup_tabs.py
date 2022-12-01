@@ -62,7 +62,7 @@ def refresh_sheets(target_file,overwrite=False):
         existing=True
       except ValueError:
         ws=wb.create_sheet(sheet_name)
-        logger.info('sheet {} added'.format(sheet_name))
+        logger.debug('sheet {} added'.format(sheet_name))
       ws.sheet_properties.tabColor= color
       if existing:
         if not overwrite:
@@ -150,7 +150,7 @@ def refresh_sheets(target_file,overwrite=False):
         wb=freeze_panes(wb,sheet_name,config)
         # save after each sheet to allow successive sheets to locate earlier sheet data
         wb.save(target_file)
-        logger.info('workbook {} saved'.format(target_file))
+        logger.debug('workbook {} saved'.format(target_file))
         table_map[table_info['name']]=sheet_name
       ws.sheet_view.zoomScale=config['zoom_scale']
 

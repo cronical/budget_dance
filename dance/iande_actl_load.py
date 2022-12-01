@@ -38,8 +38,8 @@ def test_required_lines(df,workbook,forecast_start_year,initialize_iande=False,f
   try:
     iande=df_for_table_name(table_name='tbl_iande',workbook=workbook)
   except ValueError as err:
-    logger.info(str(err))
-    logger.info('Unable to check required lines')
+    logger.warning(str(err))
+    logger.warning('Unable to check required lines')
     return
   iande.insert(loc=0,column='Key',value=iande.index) # it comes with the key as the index
   iande.reset_index(drop=True,inplace=True)
