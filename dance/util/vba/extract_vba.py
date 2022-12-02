@@ -12,7 +12,7 @@ from dance.util.logs import get_logger
 def main():
   '''Pulls out certain components from the Excel file'''
   logger=get_logger(__file__)
-  logger.info('current working directory is %s',os.getcwd())
+  logger.debug('current working directory is %s',os.getcwd())
 
   with zipfile.ZipFile('data/fcast.xlsm', 'r') as z:
     z.extractall('./tmp/')
@@ -29,7 +29,7 @@ def main():
     filename=src.split(os.path.sep)[-1]
     dst='./vba/'+filename
     copy2(src,dst)
-    logger.info('copied vba project to %s',dst)
+    logger.debug('copied vba project to %s',dst)
 
     if 'vbaProject.bin' in src:
       cmd='unar -q -o tmp/ '+src
@@ -51,13 +51,13 @@ def main():
   filename='./vba/fcast.vb'
   with open(filename,'w') as f:
     f.write(vba)
-  logger.info('wrote %d characters to %s',len(vba), filename)
+  logger.info('VBA extracted. Wrote %d characters to %s',len(vba), filename)
 
   #cleanup
   tmp='./tmp'
   rmtree(tmp)
   os.mkdir(tmp)
-  logger.info('cleaned up %s',tmp)
+  logger.debug('cleaned up %s',tmp)
 
 if __name__=='__main__':
   main()

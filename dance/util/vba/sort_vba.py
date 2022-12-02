@@ -54,7 +54,7 @@ def process(input,output,index_file,sorted_file):
     if in_header:
       header+=[line]
 
-  logger.info('read {} header rows and {} functions or subs'.format(len(header),len(code_bits)))
+  logger.debug('read {} header rows and {} functions or subs'.format(len(header),len(code_bits)))
   # put in alpha order by code item name
   sorted_code_bits={key: val for key, val in sorted(code_bits.items(), key = lambda ele: ele[0].lower())}
 
