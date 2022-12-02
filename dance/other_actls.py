@@ -108,7 +108,7 @@ def payroll_savings(data_info):
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
   df['Amount']=df.Amount.astype(float)
-  sel= (df.Amount > 0) | df.Description.str.contains('return of excess') # remove payments but not return of excess
+  sel= (df.Amount > 0) != (df.Description.str.contains('return of excess')) # remove payments but not return of excess
   df=df.loc[~ sel].copy() # remove the transfers in (except for any return of excess)
   df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() # remove transfer from devenir to fidelity
   df.Amount = - df.Amount # change sign
@@ -306,8 +306,8 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
-  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
-  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
   #sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
