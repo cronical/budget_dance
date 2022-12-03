@@ -128,9 +128,9 @@ def sel_inv_transfers(data_info):
   '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
   
   The single input file is produced as a detailed transfer report in Moneydance
-  It includes investment income and expense categories, selected investment accounts and all banks
-
-  Does not need to work at transaction level
+  It includes selected investment accounts, all banks.
+  The input also includes investment income and expense categories, which are only used for accounts where 
+  no reinvestment policy is in place (currently hardcoded)
 
   Assumptions:
     If passthru is used, it must only be used to transfer funds to/from banks
@@ -306,9 +306,9 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
-  payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
-  #sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
+  sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
