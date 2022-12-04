@@ -832,12 +832,10 @@ End Function
 
 Function reinv_amt(acct_name As String, y_year As String) As Double
 'compute the reinvestment amount for an account and year.
-'since fees are going to be removed add them back in here.
     Dim amt, rlz, rate, fees As Double
     rlz = get_val("Rlz Int/Gn" & acct_name, "tbl_balances", y_year)
     rate = get_val("Reinv Rate" & acct_name, "tbl_balances", y_year)
-    fees = get_val("Fees" & acct_name, "tbl_balances", y_year)
-    amt = Round(rlz * rate, 2) - fees
+    amt = Round(rlz * rate, 2)
     reinv_amt = amt
 End Function
 

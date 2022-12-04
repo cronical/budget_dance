@@ -73,7 +73,7 @@
 |ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
 ||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
 |reinv_amt|Function reinv_amt(acct_name As String, y_year As String) As Double|
-||Compute the reinvestment amount for an account and year.. Since fees are going to be removed add them back in here.|
+||Compute the reinvestment amount for an account and year.|
 |retir_agg|Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double|
 ||Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "<>" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
 |retir_med|Function retir_med(inits As String, y_year As String) As Double|
