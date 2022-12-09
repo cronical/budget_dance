@@ -108,6 +108,9 @@ def payroll_savings(data_info):
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
   df['Amount']=df.Amount.astype(float)
+  col = 'Date'
+  df[col] = pd.to_datetime(df[col])
+  df=setup_year(df)  # create the year field to allow for pivot
   sel= (df.Amount > 0) != (df.Description.str.upper().str.contains('EXCESS')) # remove payments but not return of excess
   df=df.loc[~ sel].copy() # remove the transfers in (except for any return of excess)
   df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() # remove transfer from devenir to fidelity
@@ -115,10 +118,7 @@ def payroll_savings(data_info):
   # remove refunds to hsa
   sel = ~ df.Description.str.contains('ADJ') 
   df=df.loc[sel].copy()
-  col = 'Date'
-  df[col] = pd.to_datetime(df[col])
 
-  df=setup_year(df)  # create the year field to allow for pivot
   summary= df.pivot_table(index='Target Account',values='Amount',columns='Year',aggfunc='sum')
   summary=summary.reset_index()
   summary.rename(columns={'Target Account':'Account'},inplace=True)
@@ -213,7 +213,7 @@ def IRA_distr(data_info):
           It logically could but the current setup does not support it.
   '''
   final_cat='Income:I:Retirement income:IRA:Final-RMD'
-  norm_distr_cat='Income:I:Retirement income:IRA:Normal-Distr'
+  norm_distr_cat='Income:J:Distributions:IRA:Normal-Distr'
   
   filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
@@ -274,6 +274,10 @@ def hsa_disbursements(data_info):
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
   df=setup_year(df)  # create the year field to allow for pivot
+
+  sel = ~ df.Description.str.upper().str.contains('EXCESS') # remove return of excess records
+  df=df.loc[sel]
+
   summary= df.pivot_table(index='Source Account',values='Amount',columns='Year',aggfunc='sum')
   summary=summary.reset_index()
   summary.rename(columns={'Source Account':'Account'},inplace=True)
@@ -307,9 +311,9 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
-  payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
-  # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
+  hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
   # sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
-  #five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
+  # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
