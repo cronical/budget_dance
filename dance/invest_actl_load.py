@@ -44,9 +44,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     data_info: dict that has a value for path used to locate the input file
     table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
 
-  returns: dataframe with 5 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains)
+  returns: dataframe with 6 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains, Fees)
     The add/wdraw value is principal transfered, so interest payments have been removed if they are not reinvested.
-    The unrealized gain value has the fees removed
+    The unrealized gain value does not have the fees removed
 
   raises:
     FileNotFoundError: if the input file does not exist.
@@ -182,9 +182,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
       # compute the two gain fields
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
-      df=df.assign(Unrealized=lambda x: (x.Return_Amount+x.Fees- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug so fees are included
+      df=df.assign(Unrealized=lambda x: (x.Return_Amount- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug (does not include fees)
 
-      df['Check']=df.Open + df.Transfers + df.Realized + df.Unrealized - df.LIR
+      df['Check']=(df.Open + df.Transfers + df.Realized + df.Unrealized +df.Fees - df.LIR).round(2)
       df['Delta']=df.End - df.Check
       valid= (df.End-df.Check).abs() < .001
       if ~valid.all():
@@ -204,6 +204,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
         ...''')
         assert False
       else:
+        print(df)
         logger.info('Investment balance checks OK for {}'.format(file_name))
       
       # remove the loan interest received column
@@ -213,8 +214,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
       df.rename(columns=map,inplace=True)
 
-      # rework so the rows of 5 value types for each account
-      rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains']].transpose().stack().reset_index()
+      # rework so the rows of 6 value types for each account
+      rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains','Fees']].transpose().stack().reset_index()
       map=dict(zip(rows.columns.to_list(),['ValType','Account','Y'+fn_year]))
       rows.rename(columns=map,inplace=True)
       rows=rows.assign(Key=lambda x: x.ValType + x.Account)
