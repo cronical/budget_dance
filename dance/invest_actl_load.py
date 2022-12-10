@@ -155,8 +155,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
       # get the fees and append as a column
       iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
-      iiw=iiw.loc[iiw.Category_Type=='Investing:Account Fees:value']
-      iiw.set_index('Account',drop=True,inplace=True)
+      iiw=iiw.loc[iiw.Category_Type.isin(['Investing:Account Fees:value'])]#,'Investing:Action Fees:value'
+      iiw=iiw.reset_index().pivot_table(index='Account',values='Y'+fn_year,aggfunc='sum')# add both type of fees together
       df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
       df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
 
@@ -182,6 +182,10 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
       # compute the two gain fields
       df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
+
+      # Note: the gains includes the fees associated with each sale as part of the cost basis
+      # And, is believed to include the same on the buy side.
+
       df=df.assign(Unrealized=lambda x: (x.Return_Amount- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug (does not include fees)
 
       df['Check']=(df.Open + df.Transfers + df.Realized + df.Unrealized +df.Fees - df.LIR).round(2)

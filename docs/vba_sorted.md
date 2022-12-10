@@ -615,7 +615,8 @@ Function invest_fees(acct As String, y_year As String) As Variant
     Select Case account_type
         Case "I"
             val = get_val(acct & ":Investing:Account Fees:value", "tbl_invest_iande_work", y_year)
-            val = val + get_val(acct & ":Investing:Action Fees:value", "tbl_invest_iande_work", y_year)
+            'Do not include action fees since those are included as part of the realized gain
+            'val = val + get_val(acct & ":Investing:Action Fees:value", "tbl_invest_iande_work", y_year)
             invest_fees = val
                                
          Case Else ' return zero if not investment or bank account

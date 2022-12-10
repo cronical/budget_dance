@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''Tools for verifying the result of setup and hunting down problems'''
 import pandas as pd
 from dance.util.tables import df_for_table_name
