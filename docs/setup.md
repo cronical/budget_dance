@@ -131,7 +131,10 @@ The data definitions are purpose built to support the target table, but there ar
 |:--|:---|---|
 |source|local to reference local files; remote to pull data over internet. remote to pull data over internet. internal is used to create the table/sheet cross reference.|
 |type|These codes are used by the program select the processing logic to use. [See supported types](#supported-types)|local|
-|path|path relative to project folder|for local sources|
+|path|path relative to project folder|for local sources, the path and name of the primary input file|
+|file_set|for items that require additional files, the set of files is further defined|
+|- base_path| A folder name with the trailing slash|
+|- prefix| Further select files with a prefix|
 |group|Specific Moneydance groupings to include. Moneydance uses these to categorize accounts.  Its things like: Assets, Bank Accounts, Credit Cards...  |Accounts, Balances|
 |no_details_for|For these groupings create rows only at the grouping level, no details. Investments here means to summarize to the investment level and don't carry over the securities.|Accounts|
 |include_zeros|Accounts listed here will be carried over even if the balance is zero|Accounts|

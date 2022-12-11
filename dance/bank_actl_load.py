@@ -12,20 +12,21 @@ from dance.util.files import read_config
 from dance.util.tables import df_for_table_name
 
 
-def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
+def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
   '''Reads the account data files available in the data folder, combines them and produces the net change due to transfers per year.
   Source files are stored as .tsv under the data folder with a name 'acct-bal-<year>'
   The logic is to take the year on year delta (less the interest)
 
   args:
+    data_info: dictionary containing the base_path
     target_file: the workbook that contains the iande sheet.  This is read to get the interest values, which are removed from the result.
     table_map: a dict to locate the iande sheet when file is being constructed.
   returns: a dataframe with the changes in account values due to transfers
 
   '''
   ffy=read_config()['first_forecast_year']
-  datadir='./data/acct-bals/'# TODO remove hard coded location
-  files=os.listdir(datadir)
+  base_path=data_info['file_set']['base_path']
+  files=os.listdir(base_path)
   files=list(set(files)-set(['.DS_Store']))
   files.sort()
   data=[[],[]]
@@ -38,7 +39,7 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
     y_year = 'Y' + file_name.split('.')[0]
     if ffy <= int(y_year[1:]): # only up to the configured first forecast year less one
       continue
-    df=pd.read_csv(datadir+file_name,sep='\t',skiprows=3)
+    df=pd.read_csv(base_path+file_name,sep='\t',skiprows=3)
     # move the account to the index
     df.set_index('Account',inplace=True)
     #only remaining column is our data
@@ -75,7 +76,7 @@ def bank_cc_changes(target_file='data/fcast.xlsm',table_map=None):
 
 def main():
   '''If called from the command line prints result'''
-  changes= bank_cc_changes()
+  changes= bank_cc_changes(data_info={'file_set':{'base_path':'./data/acct-bals/'}})
   print(changes)
 
 if __name__ == '__main__':

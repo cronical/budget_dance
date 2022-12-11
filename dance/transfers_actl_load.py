@@ -95,7 +95,7 @@ def read_transfers_actl(data_info,target_file='data/fcast.xlsm',table_map=None):
   summary.loc[summary.index.isin(parents),summary.columns]=np.nan
 
   # bring in the bank data
-  bank_changes=bank_cc_changes(target_file=target_file,table_map=table_map)
+  bank_changes=bank_cc_changes(data_info=data_info,target_file=target_file,table_map=table_map)
 
   #combine the sets
   df =pd.concat([summary,bank_changes])
