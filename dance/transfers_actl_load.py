@@ -157,7 +157,7 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   gr_df=pd.DataFrame([],columns=df.columns) # a new dataframe with the groups and subtotals
   for ky in keys:
     # if the key or any of its parts an exact match to one of the parents then we defer writing it
-    if any([x==ky for x in parents]): #  TODO all([x in parents for x in ky.split(':')]) :
+    if any([x==ky for x in parents]): 
       heir.append(ky)# the key and the subtotal count
       stot.append(0)
     else:
