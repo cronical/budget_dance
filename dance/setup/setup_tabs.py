@@ -73,10 +73,11 @@ def refresh_sheets(target_file,overwrite=False):
           ws=wb.create_sheet(sheet_name)
           logger.info('sheet {} deleted and recreated'.format(sheet_name))
 
+      table_location=1 # add to this for each subsequent table
       for table_info in sheet_info['tables']:
 
         #take specified or default items
-        key_values={'title_row':1,'start_col':1,'include_years':False}
+        key_values={'title_row':table_location,'start_col':1,'include_years':False}
         for k in key_values:
           if k in table_info:
             key_values[k]=table_info[k]
@@ -126,8 +127,9 @@ def refresh_sheets(target_file,overwrite=False):
               logger.debug('API key retrieved from private data')
             data=remote_data.request(data_info)
             logger.debug('pulled data from remote')
-          if source=='local':
-            data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map)
+          if source=='local': 
+            data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map,
+            title_row=table_info.get('title_row',1))
           if isinstance(data,dict):
             data=pd.DataFrame.from_dict(data,orient='index')
             data=data.reset_index()
@@ -144,7 +146,7 @@ def refresh_sheets(target_file,overwrite=False):
         data=conform_table(data,col_def['name'])
         data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
         data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
-        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups)
+        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups,title_row=key_values['title_row'])
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
         wb=freeze_panes(wb,sheet_name,config)
@@ -152,6 +154,7 @@ def refresh_sheets(target_file,overwrite=False):
         wb.save(target_file)
         logger.debug('workbook {} saved'.format(target_file))
         table_map[table_info['name']]=sheet_name
+        table_location += 3+data.shape[0]
       ws.sheet_view.zoomScale=config['zoom_scale']
 
   wb.save(filename=target_file)

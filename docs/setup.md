@@ -113,7 +113,7 @@ The table definition consists of various fields, some of which are optional and/
 |:--|:---|---|
 |**title**|The title that is place above the table in Excel||
 |**columns**|A list of the column definitions (name and width) that are included before the time |
-|title_row|When there is more than one table, locate this table on the sheet|2
+|title_row|When there is more than one table, locates this table on the sheet. If tables are spread horizontally, then subsequent tables will need an entry.|1 for the first table, then automatically places a space before the next table.
 |start_col|The first column of the table on the sheet (A=1,B=2...)|1|
 |include_years|True if there is a time series for the years|False|
 |hidden|A list of columns to hide|Show every column

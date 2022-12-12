@@ -14,7 +14,7 @@ from dance.util.tables import this_row
 
 logger=get_logger(__file__)
 
-def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
+def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,title_row=1):
   '''Read data and prepare datafor various tabs and prepare it for insertion into the workbook.
   Uses the type value in data_info to determine what to do.
 
@@ -24,6 +24,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
     ffy: first forecast year as integer
     target_file: supports the case when there is a need to look at previously written worksheets
     table_map: a dict mapping tables to worksheets, if it has not already been stored in the target file.
+    title_row: Optional. The row number in Excel for the title row (needed to compute subtotals). Default 2.
 
   returns: dataframe with columns specific to the type and groups (which may be None)
 
@@ -42,7 +43,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None):
       df=prepare_balance_tab(years,df)
     case 'md_iande_actl':
       df=read_iande_actl(data_info=data_info)
-      df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df)
+      df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df,title_row=title_row)
     case 'md_transfers_actl':
       df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
       df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)

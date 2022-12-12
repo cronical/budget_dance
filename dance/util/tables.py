@@ -151,7 +151,7 @@ def first_not_hidden(table_info):
       continue
     return col_no+1
 
-def write_table(wb,target_sheet,table_name,df,groups=None):
+def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
   '''Write the dataframe to the worksheet, including the columns,
   add folding based on groups if given, format numbers, and make into a table.
   Reads the config file to determine some values.
@@ -162,6 +162,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
     table_name: the name of the table to write into the target_sheet
     df: The prepared dataframe that has the correct columns
     groups: a list of 3 element lists, each representing a grouping. The elements are level, start, end
+    title_row: to alllow for stacking of multiple tables on a sheet. 
+      If provided will be override config value, default None
 
   returns: the workbook
 
@@ -185,6 +187,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None):
   for k in key_values:   #take specified or default items
     if k in table_info:
       key_values[k]=table_info[k]
+  if title_row is not None:
+    key_values['title_row']=title_row
 
   title_cell=f'{get_column_letter((key_values["start_col"]-1)+first_not_hidden(table_info))}{key_values["title_row"]}'
 

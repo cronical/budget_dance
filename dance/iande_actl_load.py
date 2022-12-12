@@ -184,7 +184,7 @@ def hier_insert(df,table_info):
   return df
 
 
-def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose=False):
+def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_row=1,verbose=False):
   '''prepare the dataframe for insertion into workbook. Supports both iande and iande_actl.
     Makes checks to ensure nothing of the forecast gets lost due to changed lines.
     Checks can be overridden by a flag.
@@ -196,6 +196,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
       df: the dataframe that has basic clean up already done
       force: Optional. True to override warning. Default False
       f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
+      title_row: Optional. The row number in Excel for the title row (needed to compute subtotals). Default 1.
       verbose: True to report out all the lines that are in actl but not in iande. default False.
 
     returns:
@@ -207,8 +208,10 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
       IndexError: if columns expected and received from data source do not match
     '''
 
+  if title_row!=1:
+    raise NotImplementedError('Title row must be 1 for iande and iande_actl for now.')
   valid_sheets=['iande_actl','iande']
-  title_row=2 # TODO allow to be set in config
+  heading_row=1+title_row
   if target_sheet not in valid_sheets:
     raise ValueError('tab_target must be iande or iande_actl')
   logger.info('Preparing data for {}'.format(target_sheet))
@@ -274,7 +277,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
         try:
           # prepare the grouping specs
           bx=keys.index(bare) # look for this in the keys - should be there
-          groups.append([row['level']+1,bx+3,ix+2])
+          groups.append([row['level']+1,bx+3,ix+2]) # 3 accounts for 1 to change origin, 1 header row, 1 title row
         except ValueError as e:
           raise ValueError(f'{k} not found in keys'.format()) from e
     last_level=row['level']
@@ -298,8 +301,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,verbose
   net_ix=keys.index('TOTAL INCOME - EXPENSES') # find the net line (its should be the last line)
   if -1!=net_ix:
     group=groups[-1]
-    inc_ix=keys.index('Income - TOTAL')+title_row+1 # offset for excel
-    exp_ix=keys.index('Expenses - TOTAL')+title_row+1
+    inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
+    exp_ix=keys.index('Expenses - TOTAL')+heading_row+1
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)
