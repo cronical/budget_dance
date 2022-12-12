@@ -25,7 +25,7 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
 
   '''
   ffy=read_config()['first_forecast_year']
-  base_path=data_info['file_set']['base_path']
+  base_path=data_info['file_sets']['balances']
   files=os.listdir(base_path)
   files=list(set(files)-set(['.DS_Store']))
   files.sort()
@@ -76,7 +76,7 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
 
 def main():
   '''If called from the command line prints result'''
-  changes= bank_cc_changes(data_info={'file_set':{'base_path':'./data/acct-bals/'}})
+  changes= bank_cc_changes(data_info={'file_sets':{'balances':'./data/acct-bals/'}})
   print(changes)
 
 if __name__ == '__main__':

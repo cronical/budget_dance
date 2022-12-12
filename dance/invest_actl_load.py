@@ -55,8 +55,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   logger.info('Starting investment actual load')
 
   xfer_file=data_info['path']
-  perf_file_prefix=data_info['file_set']['prefix']
-  datadir=data_info['file_set']['base_path']
+  perf_files_dir=data_info['file_sets']['performance']
+  bals_files_dir=data_info['file_sets']['balances']
 
   # get the account list
   accounts=df_for_table_name(table_name='tbl_accounts',workbook=workbook,table_map=table_map)
@@ -100,7 +100,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   xfers.fillna(0, inplace=True) # replace the NaN's (where no transfers occurred) with zeros
 
   # get the performance reports' data
-  files=os.listdir(datadir)
+  files=os.listdir(perf_files_dir)
   files.sort()
   file_cnt=0
   string_fields='Account,Security,Action,Unnamed: 8'.split(',')
@@ -108,128 +108,126 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   for file_name in files:
     if file_name=='.DS_Store': # MacOS finder leaves this around if you look at the folder.
       continue
-    if perf_file_prefix is None or file_name.startswith(perf_file_prefix):
-      #grab the year from the file name
-      fn_year = file_name.split('.')[0].split('-')[-1]
-      perf_file=datadir+file_name
-      logger.debug('Processing %s',fn_year)
-      #read the internal date and check it.
+    
+    fn_year = file_name.split('.')[0].split('-')[-1] #grab the year from the file name
+    perf_file=perf_files_dir+file_name
+    logger.debug('Processing %s',fn_year)
+    #read the internal date and check it.
 
-      
-      # now work with the performance data for a year
-      df=tsv_to_df (perf_file,skiprows=3,string_fields=string_fields)
-      # first check to see if the year is valid and its a full year
-      orig=[df.columns[x] for x in [1,5]]
-      open_close=[parse(x)for x in orig]
-      ys=[x.year for x in open_close]
-      assert ys[0]==ys[1], 'Report covers more than one year'
-      assert 1+(open_close[1]-open_close[0]).days in [365,366], 'Not a full year'
-      assert ys[0]==int(fn_year), 'File name year does not equal internal year'
-      # change to 'Open' and 'End'
-      map={orig[0]:'Open',orig[1]:'End'}
-      df.rename(columns=map,inplace=True)
+    # now work with the performance data for a year
+    df=tsv_to_df (perf_file,skiprows=3,string_fields=string_fields)
+    # first check to see if the year is valid and its a full year
+    orig=[df.columns[x] for x in [1,5]]
+    open_close=[parse(x)for x in orig]
+    ys=[x.year for x in open_close]
+    assert ys[0]==ys[1], 'Report covers more than one year'
+    assert 1+(open_close[1]-open_close[0]).days in [365,366], 'Not a full year'
+    assert ys[0]==int(fn_year), 'File name year does not equal internal year'
+    # change to 'Open' and 'End'
+    map={orig[0]:'Open',orig[1]:'End'}
+    df.rename(columns=map,inplace=True)
 
-      #get the rows in order
-      df.loc[:,'Security']=df['Security'].fillna(value='')
-      df=df.loc[df.Security.str.startswith('Total:')] # throw away the securities, just keep the accounts
-      df=df.loc[df.Security != 'Total: '] # remove grand total
-      df.loc[:,'Security']=df['Security'].str.replace('Total: ','') # just the account names
+    #get the rows in order
+    df.loc[:,'Security']=df['Security'].fillna(value='')
+    df=df.loc[df.Security.str.startswith('Total:')] # throw away the securities, just keep the accounts
+    df=df.loc[df.Security != 'Total: '] # remove grand total
+    df.loc[:,'Security']=df['Security'].str.replace('Total: ','') # just the account names
 
-      # prepare for joins with common index
-      df.set_index('Security',inplace=True)
-      found=[x in accounts.index.to_list() for x in df.index.to_list()]
-      if not all(found):
+    # prepare for joins with common index
+    df.set_index('Security',inplace=True)
+    found=[x in accounts.index.to_list() for x in df.index.to_list()]
+    if not all(found):
 
-        print('Not all accounts for %s are in master. Missing:'%fn_year)
-        for a in [x for x in df.index.to_list() if x not in accounts.index.to_list()]:
-          print('  %s'%a)
-        assert all(found)
-      df=df.drop(['Buys','Sales','Return %','Annual % (ROI)'],axis=1)# drop some columns we don't care about
-      # all master accts, and all performance columns
-      df=accounts.join(df)[df.columns]
-      df.fillna(value=0,inplace=True) # zero out the perf values for accts in master not perf
+      print('Not all accounts for %s are in master. Missing:'%fn_year)
+      for a in [x for x in df.index.to_list() if x not in accounts.index.to_list()]:
+        print('  %s'%a)
+      assert all(found)
+    df=df.drop(['Buys','Sales','Return %','Annual % (ROI)'],axis=1)# drop some columns we don't care about
+    # all master accts, and all performance columns
+    df=accounts.join(df)[df.columns]
+    df.fillna(value=0,inplace=True) # zero out the perf values for accts in master not perf
 
-      # append the transfers
-      df=df.join(xfers['Y'+fn_year])
-      df.rename(columns={'Y'+fn_year:'Transfers'},inplace=True)
+    # append the transfers
+    df=df.join(xfers['Y'+fn_year])
+    df.rename(columns={'Y'+fn_year:'Transfers'},inplace=True)
 
-      # get the fees and append as a column
-      iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
-      iiw=iiw.loc[iiw.Category_Type.isin(['Investing:Account Fees:value'])]#,'Investing:Action Fees:value'
-      iiw=iiw.reset_index().pivot_table(index='Account',values='Y'+fn_year,aggfunc='sum')# add both type of fees together
-      df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
-      df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
+    # get the fees and append as a column
+    iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
+    iiw=iiw.loc[iiw.Category_Type.isin(['Investing:Account Fees:value'])]#,'Investing:Action Fees:value'
+    iiw=iiw.reset_index().pivot_table(index='Account',values='Y'+fn_year,aggfunc='sum')# add both type of fees together
+    df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
+    df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
 
-      # put the loan interest received in a column
-      df=df.join(lir_df['Y'+fn_year],how='left').fillna(value=0)
-      df.rename(columns={'Y'+fn_year:'LIR'},inplace=True)
+    # put the loan interest received in a column
+    df=df.join(lir_df['Y'+fn_year],how='left').fillna(value=0)
+    df.rename(columns={'Y'+fn_year:'LIR'},inplace=True)
 
-      # get the pending re-investments from the Merrill IRA
-      retro=['IRA - VEC - ML'] # the pending only makes sense for accounts where the outgoing $ comes back as securities - i.e. this Merrill account
-      pbals=read_passthru_accts({'path':'./data/acct-bals/'+file_name}) # TODO locate path via config.
-      pbals=pbals.loc[pbals.Account.isin(retro)].copy()
-      pbals.set_index('Account',inplace=True)# same index for the join
-      pbals.rename({'Current Balance':'Pending'},axis=1,inplace=True)# convenient column name
-      df=df.join(pbals,how='left').fillna(value=0) # df now has pending column
+    # get the pending re-investments from the Merrill IRA
+    retro=['IRA - VEC - ML'] # the pending only makes sense for accounts where the outgoing $ comes back as securities - i.e. this Merrill account
+    pbals=read_passthru_accts({'path':bals_files_dir+file_name}) 
+    pbals=pbals.loc[pbals.Account.isin(retro)].copy()
+    pbals.set_index('Account',inplace=True)# same index for the join
+    pbals.rename({'Current Balance':'Pending'},axis=1,inplace=True)# convenient column name
+    df=df.join(pbals,how='left').fillna(value=0) # df now has pending column
 
-      if prior_pbals is not None:
-        df=df.join(prior_pbals,how='left').fillna(value=0) # df now has prior column
-      else:
-        df['Prior']=0
-      prior_pbals=pbals.copy() # for next year
-      prior_pbals.rename({'Pending':'Prior'},axis=1,inplace=True)# convenient column name
-      
+    if prior_pbals is not None:
+      df=df.join(prior_pbals,how='left').fillna(value=0) # df now has prior column
+    else:
+      df['Prior']=0
+    prior_pbals=pbals.copy() # for next year
+    prior_pbals.rename({'Pending':'Prior'},axis=1,inplace=True)# convenient column name
+    
 
-      # compute the two gain fields
-      df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
+    # compute the two gain fields
+    df=df.assign(Realized=lambda x: x.Income + x.Gains) # compute the realized gains
 
-      # Note: the gains includes the fees associated with each sale as part of the cost basis
-      # And, is believed to include the same on the buy side.
+    # Note: the gains includes the fees associated with each sale as part of the cost basis
+    # And, is believed to include the same on the buy side.
 
-      df=df.assign(Unrealized=lambda x: (x.Return_Amount- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug (does not include fees)
+    df=df.assign(Unrealized=lambda x: (x.Return_Amount- (df.Pending - df.Prior)) - x.Realized)# unrealized is a plug (does not include fees)
 
-      df['Check']=(df.Open + df.Transfers + df.Realized + df.Unrealized +df.Fees - df.LIR).round(2)
-      df['Delta']=df.End - df.Check
-      valid= (df.End-df.Check).abs() < .001
-      if ~valid.all():
-        logger.error('We have a problem getting the end balances. File = {}'.format(file_name))
-        print(df.loc[~valid])
-        print('''
-        Things to look at
-        - Merrill (IRA) reinvestment rounding problems - off by 1 or 2 cents.
-          - Export Transfers, Detailed report and run dance.util.match_retro.py to locate
-        - Unit prices - not same precision 
-          - At price history don't take the printed unit value - recalculate as ratio for 12/31/yy price on items that are off
-        - Income items not marked as MiscInc 
-          - such as interest being coded as xfr
-          - remember to re-run/save performance report
-        - Transfers that do not pass through a bank (or items in the transfers report used to generate the invest_x.tsv file)
-        - The Transfers, Detailed report for just the account and year can be helpful.
-        ...''')
-        assert False
-      else:
-        print(df)
-        logger.info('Investment balance checks OK for {}'.format(file_name))
-      
-      # remove the loan interest received column
-      df.drop(columns='LIR',inplace=True)
+    df['Check']=(df.Open + df.Transfers + df.Realized + df.Unrealized +df.Fees - df.LIR).round(2)
+    df['Delta']=df.End - df.Check
+    valid= (df.End-df.Check).abs() < .001
+    if ~valid.all():
+      logger.error('We have a problem getting the end balances. File = {}'.format(file_name))
+      print(df.loc[~valid])
+      print('''
+      Things to look at
+      - Merrill (IRA) reinvestment rounding problems - off by 1 or 2 cents.
+        - Export Transfers, Detailed report and run dance.util.match_retro.py to locate
+      - Unit prices - not same precision 
+        - At price history don't take the printed unit value - recalculate as ratio for 12/31/yy price on items that are off
+      - Income items not marked as MiscInc 
+        - such as interest being coded as xfr
+        - remember to re-run/save performance report
+      - Transfers that do not pass through a bank (or items in the transfers report used to generate the invest_x.tsv file)
+      - The Transfers, Detailed report for just the account and year can be helpful.
+      ...''')
+      assert False
+    else:
+      print(df)
+      logger.info('Investment balance checks OK for {}'.format(file_name))
+    
+    # remove the loan interest received column
+    df.drop(columns='LIR',inplace=True)
 
-      # use names in spreadsheet
-      map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
-      df.rename(columns=map,inplace=True)
+    # use names in spreadsheet
+    map={'Transfers':'Add/Wdraw','Realized':'Rlz Int/Gn','Unrealized':'Unrlz Gn/Ls'}
+    df.rename(columns=map,inplace=True)
 
-      # rework so the rows of 6 value types for each account
-      rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains','Fees']].transpose().stack().reset_index()
-      map=dict(zip(rows.columns.to_list(),['ValType','Account','Y'+fn_year]))
-      rows.rename(columns=map,inplace=True)
-      rows=rows.assign(Key=lambda x: x.ValType + x.Account)
-      rows.set_index('Key',inplace=True)
-      if file_cnt==0:
-        table=rows
-      else:
-        table=table.join(rows[rows.columns.to_list()[-1]])
-      file_cnt=file_cnt+1
-    # put the data into the spreadsheet
+    # rework so the rows of 6 value types for each account
+    rows=df[['Add/Wdraw','Rlz Int/Gn','Unrlz Gn/Ls','Income','Gains','Fees']].transpose().stack().reset_index()
+    map=dict(zip(rows.columns.to_list(),['ValType','Account','Y'+fn_year]))
+    rows.rename(columns=map,inplace=True)
+    rows=rows.assign(Key=lambda x: x.ValType + x.Account)
+    rows.set_index('Key',inplace=True)
+    if file_cnt==0:
+      table=rows
+    else:
+      table=table.join(rows[rows.columns.to_list()[-1]])
+    file_cnt=file_cnt+1
+  # put the data into the spreadsheet
   wb=load_workbook(filename =workbook)
   table.reset_index(inplace=True) # puts the key back into 1st column
   col_def=columns_for_table(wb,'invest_actl','tbl_invest_actl',read_config())
@@ -298,25 +296,22 @@ def parse_share_info(share_info):
   return result
 
 if __name__ == '__main__':
-  if False:
-    get_cap_gains(data_info={'path':'data/cap-gains.tsv'})
-  else:
-    parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
-    parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
-    parser.add_argument('--path','-p',default= 'data/invest-x.tsv',help='The path and name of the input file')
-    parser.add_argument('--base_path','-b',default= 'data/invest-p/',help='The base path for the performance reports')
-    parser.add_argument('--prefix','-x',help='The prefix used to locate the performance reports')
+  parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
+  parser.add_argument('--path','-p',default= 'data/invest-x.tsv',help='The path and name of the input file')
+  parser.add_argument('--base_path','-b',default= 'data/invest-p/',help='The base path for the performance reports')
+  parser.add_argument('--prefix','-x',help='The prefix used to locate the performance reports')
 
-    args=parser.parse_args()
-    sheet='invest_actl'
-    table='tbl_'+sheet
-    data=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path': os.getcwd()+'/'+args.path,
-      'file_set':{'base_path':args.base_path,'prefix':args.prefix}})
-    table_info=read_config()['sheets'][sheet]['tables'][0]
-    data=dyno_fields(table_info,data) # get the taxable status
-    wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
-    wkb=fresh_sheet(wkb,sheet)
-    wkb= write_table(wkb,target_sheet=sheet,df=data,table_name=table)
-    attrs=col_attrs_for_sheet(wkb,sheet,read_config())
-    wkb=set_col_attrs(wkb,sheet,attrs)
-    wkb.save(args.workbook)
+  args=parser.parse_args()
+  sheet='invest_actl'
+  table='tbl_'+sheet
+  data=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path': os.getcwd()+'/'+args.path,
+    'file_sets':{'balances':args.base_path,'prefix':args.prefix}})
+  table_info=read_config()['sheets'][sheet]['tables'][0]
+  data=dyno_fields(table_info,data) # get the taxable status
+  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb=fresh_sheet(wkb,sheet)
+  wkb= write_table(wkb,target_sheet=sheet,df=data,table_name=table)
+  attrs=col_attrs_for_sheet(wkb,sheet,read_config())
+  wkb=set_col_attrs(wkb,sheet,attrs)
+  wkb.save(args.workbook)
