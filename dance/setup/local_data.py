@@ -58,7 +58,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'md_pr_sav':
       df=payroll_savings(data_info=data_info)
     case 'md_sel_inv':
-      df=sel_inv_transfers(data_info=data_info)
+      df=sel_inv_transfers(data_info=data_info,workbook=target_file,table_map=table_map)
     case 'json_index': # a json file organized like: {index -> {column -> value}}
       df=pd.read_json(data_info['path'],orient='index')
       logger.debug('Read {}'.format(data_info['path']))

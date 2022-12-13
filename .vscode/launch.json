@@ -74,5 +74,15 @@
       "console": "integratedTerminal",
       "args": ["/Users/george/Downloads/transfers_detailed.txt"],
       "justMyCode": true
-    },  ]
+    },  
+    {
+      "name": "balance_check args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/balance_check.py",
+      "console": "integratedTerminal",
+      "args": ["-w","data/test_wb.xlsm" ,"2018"],
+      "justMyCode": true
+    },
+  ]
 }

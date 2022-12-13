@@ -51,4 +51,6 @@ def verify(workbook='data/test_wb.xlsm'):
 
 
 if __name__=='__main__':
+  print('''This requires that the workbook has been opened by Excel and saved.
+  In order to populate the results of the Excel calculations.''')
   verify()

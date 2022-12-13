@@ -7,6 +7,7 @@ import pandas as pd
 
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
+from dance.util.tables import df_for_table_name
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -51,7 +52,7 @@ def payroll_savings(data_info):
   summary.Account=summary.Account.str.strip()
   return summary
 
-def sel_inv_transfers(data_info):
+def sel_inv_transfers(data_info,workbook=None,table_map=None):
   '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
   
   The single input file is produced as a detailed transfer report in Moneydance
@@ -64,6 +65,9 @@ def sel_inv_transfers(data_info):
 
   arguments: 
     data_info a dict with the path to the file
+    workbook: the name of the workbook where we will find the account information.
+    table_map: the dict that points to the sheet for the accounts table.
+
   returns: dataframe with investment accounts for rows and years for columns
     positive values indicate amount moved out of bank into savings/investment
   '''
@@ -88,8 +92,11 @@ def sel_inv_transfers(data_info):
   # remove the expense items in case they are provided
   df=df.loc[~df['Category'].str[:2].isin(['X:','T:'])]
   # and the income unless no reinvestment
+  # but to do that we'll need the reinv rate from accounts
+  accounts=df_for_table_name(table_name='tbl_accounts',workbook=workbook,data_only=True,table_map=table_map)
+  no_reinv=accounts.loc[accounts['Reinv Rate']==0].index.to_list()
   sel= df['Category'].str[:2].isin(['I:'])
-  sel = sel  & ~ (df.Account=='LON - JNT - HED') # TODO generalize
+  sel = sel  & ~ (df.Account.isin(no_reinv)) 
   df=df.loc[~sel]
   df=setup_year(df)
 
