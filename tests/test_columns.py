@@ -82,15 +82,20 @@ def test_one_table(bad_wb,std_config):
 
 def test_multi_table_flat(bad_wb,std_config):
   attrs=col_attrs_for_sheet(bad_wb,'tax_tables',std_config)
-  expected={1:{'width':8, 'hidden': False},2:{'width':14, 'hidden': False},3:{'width':14, 'hidden': False},4:{'width':14, 'hidden': False},
-  6:{'width':14, 'hidden': False},7:{'width':18, 'hidden': False},9:{'width':14, 'hidden': False},10:{'width':18, 'hidden': False}}
+  expected={
+    1: {'width': 8, 'hidden': False}, 2: {'width': 14, 'hidden': False}, 3: {'width': 14, 'hidden': False}, 4: {'width': 14, 'hidden': False},
+    6: {'width': 8, 'hidden': False}, 7: {'width': 14, 'hidden': False}, 8: {'width': 14, 'hidden': False}, 9: {'width': 14, 'hidden': False},
+    11: {'width': 14, 'hidden': False}, 12: {'width': 18, 'hidden': False},
+    14: {'width': 14, 'hidden': False}, 15: {'width': 18, 'hidden': False}}
   assert attrs==expected
 
 def test_multi_table_overlap(bad_wb,std_config):
   attrs=col_attrs_for_sheet(bad_wb,'gen_tables',std_config)
-  expected={1:{'width':18, 'hidden': False},2:{'width':18, 'hidden': False},3:{'width':18, 'hidden': False},4:{'width':18, 'hidden': False},
-  5:{'width':18, 'hidden': False},6:{'width':18, 'hidden': False},7:{'width':18, 'hidden': False},8:{'width':18, 'hidden': False},
-  9:{'width':18, 'hidden': False},10:{'width':18, 'hidden': False},11:{'width':40, 'hidden': False},12:{'width':18, 'hidden': False}}
+  expected={
+    1: {'width': 10, 'hidden': False}, 2: {'width': 20, 'hidden': False}, 3: {'width': 20, 'hidden': False}, 4: {'width': 20, 'hidden': False},
+    5: {'width': 12, 'hidden': False}, 6: {'width': 12, 'hidden': False}, 7: {'width': 12, 'hidden': False}, 8: {'width': 12, 'hidden': False}, 
+    9: {'width': 12, 'hidden': False}, 10: {'width': 18, 'hidden': False}, 11: {'width': 18, 'hidden': False}, 12: {'width': 30, 'hidden': False}
+  }
   assert attrs==expected
 
 def test_all_years(bad_wb,std_config):

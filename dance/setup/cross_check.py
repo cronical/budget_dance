@@ -3,21 +3,37 @@
 import pandas as pd
 from dance.util.tables import df_for_table_name
 
-def show_test(expected,found):
-  '''compare expected and found for columns showing which items vary
-  expected and found are of type pd.Series with a name.
-  '''
-  df=pd.DataFrame([expected,found]).T
-  cols=df.columns
-  print('\nComparison of '+' & '.join(cols))
-  df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
-  sel= df.delta ==0
-  print(df)
-  print ('%d out of %d pass'%(sel.sum(),len(sel)))
+class Tester:
+  def __init__(self):
+    self.count=0
+  def __str__(self):
+    return f'a tester. {self.count} tests run'
+
+  def run_test(self,expected,found):
+    '''compare expected and found for columns showing which items vary
+    expected and found are of type pd.Series with a name.
+    '''
+    df=pd.DataFrame([expected,found]).T
+    cols=df.columns
+    df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
+    sel= df.delta ==0
+    msg='%d '+' == '.join(cols)
+    self.count += 1
+    msg=msg % self.count 
+    msg+=' --> %d out of %d pass'%(sel.sum(),len(sel))
+    print (msg)
+    if sel.sum()!=len(sel):
+      df=df.loc[~ sel]
+      df.columns=['Expected','Found','Difference']
+      df.index=df.index.str.replace('Y','...Y')
+      print(df)
+      print('')
 
 
 def verify(workbook='data/test_wb.xlsm'):
   '''Various checks'''
+  tester=Tester()
+  print('================================ TESTS =================================')
   iande_actl=df_for_table_name('tbl_iande_actl',workbook=workbook,data_only=True)
   cols=iande_actl.columns
   y_cols=cols.drop('Account')
@@ -29,13 +45,13 @@ def verify(workbook='data/test_wb.xlsm'):
   invest_income=iande.loc['Income:I:Invest income - TOTAL',y_cols]
   invest_income_from_bal=balances.loc[balances.ValType=='Rlz Int/Gn',y_cols].sum()
   invest_income_from_bal.name='Sum of Rlz Int/Gn from balances'
-  show_test(invest_income,invest_income_from_bal)
+  tester.run_test(invest_income,invest_income_from_bal)
 
   # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
   reinv_from_bal=balances.loc[balances.ValType=='Reinv Amt',y_cols].sum()
   reinv_from_bal.name='Sum of reinv amt on balances'
   reinv_removed=iande.loc['Expenses:Y:Invest:Reinv',y_cols]
-  show_test(reinv_from_bal,reinv_removed)
+  tester.run_test(reinv_from_bal,reinv_removed)
 
   # HSA
   hsas=balances.loc[balances.AcctName.str.startswith('HSA'),'AcctName'].unique()
@@ -45,12 +61,13 @@ def verify(workbook='data/test_wb.xlsm'):
     disb=iande.loc['Income:J:Distributions:HSA:'+hsa,y_cols]
     found=prs-disb
     found.name='P/R savings less distrib'
-    show_test(aw,found)
+    tester.run_test(aw,found)
 
   pass
 
 
 if __name__=='__main__':
-  print('''This requires that the workbook has been opened by Excel and saved.
-  In order to populate the results of the Excel calculations.''')
+  '''
+  This requires that the workbook has been opened by Excel and saved.
+  In order to populate the results of the Excel calculations.'''
   verify()

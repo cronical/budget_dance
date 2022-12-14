@@ -8,4 +8,11 @@ RC=$?
 if [ $RC -ne 0 ]; then
   exit $RC
 fi
-open data/test_wb.xlsm  
+# original: open data/test_wb.xlsm  
+# use script to open and save, avoiding timeout
+# this allows Excel to compute the formulas
+osascript ./dance/util/excel_save.scpt
+#
+# tests
+#
+dance/setup/cross_check.py
