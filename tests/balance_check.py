@@ -10,19 +10,19 @@ and prints out how closely the values match
 import argparse
 
 import os
-import pandas as pd
 
 from dance.util.files import tsv_to_df,read_config
 from dance.util.tables import df_for_table_name
+from tests.helpers import actual_years, align,  get_row_set, stack_as
+
 
 def md_balances(workbook='data/test_wb.xlsm'):
   '''Get the moneydance actual balances from the balance files that match to the accounts
 
   returns: a DataFrame with the index as the account name.
   '''
-  config=read_config()
-  years=range(config['start_year'],config['first_forecast_year'])
-  base_path=config['sheets']['transfers_actl']['tables'][0]['data']['file_sets']['balances']
+  years,_=actual_years()
+  base_path=read_config()['sheets']['transfers_actl']['tables'][0]['data']['file_sets']['balances']
   files=list(set(os.listdir(base_path))-set(['.DS_Store']))
   files.sort()
   df=df_for_table_name('tbl_accounts',workbook=workbook)
@@ -52,22 +52,13 @@ def balance_test_pairs(workbook):
   index is (Account,Year)
   '''
   md_bal=md_balances(workbook) 
+  md_bal=stack_as(md_bal,'Balance tsv files')
 
-  w_table=df_for_table_name(table_name='tbl_balances',data_only=True,workbook=workbook)
-  w_bal=w_table.loc[w_table['ValType'].str.contains('End Bal')] # only the end balances
-  cols=['AcctName']+list(md_bal.columns)# only the account name and the actual years
-  w_bal=w_bal[cols]
-  w_bal.set_index('AcctName',inplace=True)
-  w_bal=w_bal.round(decimals=2)
+  w_bal=get_row_set(workbook=workbook,table_name='tbl_balances',filter_on='ValType',in_list=['End Bal'],index_on='AcctName')
+  w_bal=stack_as(w_bal,'Balances[EndBal]')
 
-  md_bal=pd.DataFrame(md_bal.stack())
-  md_bal.rename(columns={0:'Balance tsv files'},inplace=True)
-  w_bal=pd.DataFrame(w_bal.stack())
-  w_bal.rename(columns={0:'Balances[EndBal]'},inplace=True)
-  for df in md_bal,w_bal:
-    df.index.set_names(['Account','Year'],inplace=True)
-  joined_bal=md_bal.join(w_bal,how='outer')
-  joined_bal.fillna(0, inplace=True)
+  joined_bal=align([md_bal,w_bal])
+
   return joined_bal
 
 if __name__ == '__main__':
@@ -80,4 +71,3 @@ if __name__ == '__main__':
   zeros=df.diff(axis=1)[df.columns[1]]==0
   msg='%d out of %d balances matched'%(zeros.sum(),len(zeros))
   print(msg)
-  

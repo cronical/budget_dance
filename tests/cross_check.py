@@ -4,8 +4,9 @@
   This requires that the workbook has been opened by Excel and saved.
   In order to populate the results of the Excel calculations.'''
 import pandas as pd
-from dance.util.tables import df_for_table_name
+
 from tests.balance_check import balance_test_pairs
+from tests.helpers import get_row_set
 
 class Tester:
   '''Does the comparisons and keeps track of counts'''
@@ -54,12 +55,29 @@ def heading(label,punc):
 
 def results(test_group,tester):
   punc='-'
-  count,success=tester.get_stats()[test_group]
+  stats=tester.get_stats()
+  if test_group=='*':
+    test_group='All tests'
+    punc='='
+    count=success=0
+    for tg in stats:
+      c,s=stats[tg]
+      count+=c
+      success+=s
+  else:
+    count,success=stats[test_group]
   msg=  test_group+ ': %d out of %d (%.2f %%)'%(success,count,100*success/count)
   n=(72-len(msg))//2
   msg= (punc*n)+' '+msg +' '+(punc*n)+'\n'
   print(msg)
 
+def legend(table_name,filter,agg=None):
+  '''return a usable legend constructed from the table name and filter'''
+  legend='_'.join(table_name.split('_')[1:])
+  legend+='[%s]'%filter
+  if agg is not None:
+    legend += '.%s()'%agg
+  return legend
 
 def verify(workbook='data/test_wb.xlsm'):
   '''Various checks'''
@@ -67,34 +85,42 @@ def verify(workbook='data/test_wb.xlsm'):
   test_group='cross-check'
   heading('TESTS','=')
   heading(test_group,'-')
-  iande_actl=df_for_table_name('tbl_iande_actl',workbook=workbook,data_only=True)
-  cols=iande_actl.columns
-  y_cols=cols.drop('Account')
-  iande=df_for_table_name('tbl_iande',workbook=workbook,data_only=True)[cols].fillna(0).round(2)
-  balances=df_for_table_name('tbl_balances',workbook=workbook,data_only=True)
-  bal_cols=balances.columns[:3].append(y_cols)
-  balances=balances[bal_cols].round(2) # avoid scientific notation
 
-  invest_income=iande.loc['Income:I:Invest income - TOTAL',y_cols]
-  invest_income_from_bal=balances.loc[balances.ValType=='Rlz Int/Gn',y_cols].sum()
-  invest_income_from_bal.name='Sum of Rlz Int/Gn from balances'
-  tester.run_test(test_group,invest_income,invest_income_from_bal)
+  # expenses X and T on iande match iande_actl
+  lines= ['Expenses:X - TOTAL','Expenses:T - TOTAL']
+  for line in lines:
+    table,filter,agg=('tbl_iande_actl',line,None)
+    expected=get_row_set(workbook,'tbl_iande_actl','index','index',contains=filter).squeeze()
+    expected.name=legend(table,filter,agg)
+    table,filter,agg=('tbl_iande',line,None)
+    found=get_row_set(workbook,table,'index','index',in_list=[filter]).squeeze()
+    found.name=legend(table,filter,agg)
+    tester.run_test(test_group,expected,found)
+
+
+  # investment gains on i and e match rlz int/gn on balances
+  expected=get_row_set(workbook,'tbl_iande','index','index',contains='Income:I:Invest income - TOTAL').squeeze()
+  table,filter,agg=('tbl_balances','Rlz Int/Gn','sum')
+  found=get_row_set(workbook,table,'ValType','AcctName',in_list=[filter]).sum()
+  found.name=legend(table,filter,agg)
+  tester.run_test(test_group,expected,found)
 
   # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
-  reinv_from_bal=balances.loc[balances.ValType=='Reinv Amt',y_cols].sum()
-  reinv_from_bal.name='Sum of reinv amt on balances'
-  reinv_removed=iande.loc['Expenses:Y:Invest:Reinv',y_cols]
-  tester.run_test(test_group,reinv_from_bal,reinv_removed)
+  expected=get_row_set(workbook,'tbl_iande','index','index',contains='Expenses:Y:Invest:Reinv').squeeze()
+  table,filter,agg=('tbl_balances','Reinv Amt','sum')
+  found=get_row_set(workbook,table,'ValType','AcctName',in_list=[filter]).sum()
+  found.name=legend(table,filter,agg)
+  tester.run_test(test_group,expected,found)
 
-  # HSA
-  hsas=balances.loc[balances.AcctName.str.startswith('HSA'),'AcctName'].unique()
+  # HSA - compare add/wdraw balances with P/R savings less distrib
+  aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
+  hsas=aw.loc[aw.index.str.startswith('HSA')].index.unique()
   for hsa in hsas:
-    aw=balances.loc['Add/Wdraw'+hsa,y_cols]
-    prs=iande.loc['Expenses:Y:Payroll Savings:'+hsa,y_cols]
-    disb=iande.loc['Income:J:Distributions:HSA:'+hsa,y_cols]
-    found=prs-disb
-    found.name='P/R savings less distrib'
-    tester.run_test(test_group,aw,found)
+    expected=aw.loc[hsa]
+    table,filter,agg=('tbl_iande',hsa,'diff')
+    found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
+    found.name=legend(table,filter,agg)
+    tester.run_test(test_group,expected,found)
 
   results(test_group=test_group,tester=tester)
 
@@ -106,8 +132,7 @@ def verify(workbook='data/test_wb.xlsm'):
   tester.run_test(test_group,df[cols[0]],df[cols[1]])
   results(test_group=test_group,tester=tester)
 
-  heading('END TESTS','=')
-
+  results(test_group='*',tester=tester)
 
 if __name__=='__main__':
 
