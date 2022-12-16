@@ -78,6 +78,35 @@ def legend(table_name,filter,agg=None):
   if agg is not None:
     legend += '.%s()'%agg
   return legend
+def row_to_row(workbook,test_group,tester,table_lines):
+  '''
+  Helper to test that two single rows match OR
+  if the filter gets more than one row, the sum of those rows is used.
+  The lines are text to match on the index of each table.
+
+    args: workbook
+          test_group
+          tester
+          table_lines: a dict with table names as key and lines as values. 
+          The first item in the dict is the expected value 
+          The line may be a string - which will use a contains filter
+          The line may be a list - which will use the in_list filter
+  '''
+  values=[]
+  agg=None
+  for table,line in table_lines.items():
+    if isinstance(line,str):
+      df=get_row_set(workbook,table,'index','index',contains=line)
+    if isinstance(line,list):
+      df=get_row_set(workbook,table,'index','index',in_list=line)
+    if df.shape[0] > 1:
+      series=df.sum(axis=0)
+      agg='sum'
+    else:
+      series=df.squeeze()
+    series.name=legend(table,line,agg)
+    values.append(series)
+  tester.run_test(test_group,values[0],values[1])
 
 def verify(workbook='data/test_wb.xlsm'):
   '''Various checks'''
@@ -86,31 +115,40 @@ def verify(workbook='data/test_wb.xlsm'):
   heading('TESTS','=')
   heading(test_group,'-')
 
-  # expenses X and T on iande match iande_actl
-  lines= ['Expenses:X - TOTAL','Expenses:T - TOTAL']
+  # Income, expenses totals on iande match iande_actl
+  lines= ['Income:I - TOTAL','Expenses:X - TOTAL','Expenses:T - TOTAL']
   for line in lines:
-    table,filter,agg=('tbl_iande_actl',line,None)
-    expected=get_row_set(workbook,'tbl_iande_actl','index','index',contains=filter).squeeze()
-    expected.name=legend(table,filter,agg)
-    table,filter,agg=('tbl_iande',line,None)
-    found=get_row_set(workbook,table,'index','index',in_list=[filter]).squeeze()
-    found.name=legend(table,filter,agg)
-    tester.run_test(test_group,expected,found)
+    row_to_row(workbook,test_group,tester,{'tbl_iande_actl':line,'tbl_iande':line})
 
+  # cap gains
+  test_lines={
+  'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
+  'tbl_invest_actl':'Gains'}
+  row_to_row(workbook,test_group,tester,test_lines)
+
+  # IRA distributions
+  test_lines={
+    'tbl_retir_vals':'IRA - ',
+    'tbl_iande':'Income:J:Distributions:IRA - TOTAL'}
+  row_to_row(workbook,test_group,tester,test_lines)
+ 
+  # Pensions
+  test_lines={
+    'tbl_retir_vals':'DB - ',
+    'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
+  row_to_row(workbook,test_group,tester,test_lines)
 
   # investment gains on i and e match rlz int/gn on balances
-  expected=get_row_set(workbook,'tbl_iande','index','index',contains='Income:I:Invest income - TOTAL').squeeze()
-  table,filter,agg=('tbl_balances','Rlz Int/Gn','sum')
-  found=get_row_set(workbook,table,'ValType','AcctName',in_list=[filter]).sum()
-  found.name=legend(table,filter,agg)
-  tester.run_test(test_group,expected,found)
+  test_lines={
+    'tbl_iande':'Income:I:Invest income - TOTAL',
+    'tbl_balances':'Rlz Int/Gn'}
+  row_to_row(workbook,test_group,tester,test_lines)
 
-  # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
-  expected=get_row_set(workbook,'tbl_iande','index','index',contains='Expenses:Y:Invest:Reinv').squeeze()
-  table,filter,agg=('tbl_balances','Reinv Amt','sum')
-  found=get_row_set(workbook,table,'ValType','AcctName',in_list=[filter]).sum()
-  found.name=legend(table,filter,agg)
-  tester.run_test(test_group,expected,found)
+# reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
+  test_lines={
+  'tbl_iande':'Expenses:Y:Invest:Reinv',
+  'tbl_balances':'Reinv Amt'}
+  row_to_row(workbook,test_group,tester,test_lines)
 
   # HSA - compare add/wdraw balances with P/R savings less distrib
   aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
@@ -123,16 +161,30 @@ def verify(workbook='data/test_wb.xlsm'):
     tester.run_test(test_group,expected,found)
 
   results(test_group=test_group,tester=tester)
+  # ========================================
 
   test_group='balances'
   heading(test_group,'-')
 
+  # computed balances match exported balances
   df=balance_test_pairs('data/test_wb.xlsm')
   cols=df.columns
   tester.run_test(test_group,df[cols[0]],df[cols[1]])
   results(test_group=test_group,tester=tester)
+  # ========================================
+  test_group='cash flow'
+  heading(test_group,'-')
 
+  # zero out
+  table,line=('tbl_iande','TOTAL INCOME - EXPENSES')
+  found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
+  found.name=legend(table,line)
+  zeros=found * 0
+  zeros.name='zeros'
+  tester.run_test(test_group,zeros,found)
+  # =========================================
   results(test_group='*',tester=tester)
+
 
 if __name__=='__main__':
 
