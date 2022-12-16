@@ -3,6 +3,7 @@
 
   This requires that the workbook has been opened by Excel and saved.
   In order to populate the results of the Excel calculations.'''
+import argparse
 import pandas as pd
 
 from tests.balance_check import balance_test_pairs
@@ -108,84 +109,109 @@ def row_to_row(workbook,test_group,tester,table_lines):
     values.append(series)
   tester.run_test(test_group,values[0],values[1])
 
-def verify(workbook='data/test_wb.xlsm'):
+def verify(workbook='data/test_wb.xlsm',test_group='*'):
   '''Various checks'''
+  test_groups='cross_check,balances,cash_flow,taxes'.split(',')
+  if test_group!='*':
+    test_groups=[test_group]
+
   tester=Tester()
-  test_group='cross-check'
   heading('TESTS','=')
-  heading(test_group,'-')
 
-  # Income, expenses totals on iande match iande_actl
-  lines= ['Income:I - TOTAL','Expenses:X - TOTAL','Expenses:T - TOTAL']
-  for line in lines:
-    row_to_row(workbook,test_group,tester,{'tbl_iande_actl':line,'tbl_iande':line})
+  # =========================================
+  test_group='cross_check'
+  if test_group in test_groups:
+    heading(test_group,'-')
 
-  # cap gains
-  test_lines={
-  'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
-  'tbl_invest_actl':'Gains'}
-  row_to_row(workbook,test_group,tester,test_lines)
+    # Income, expenses totals on iande match iande_actl
+    lines= ['Income:I - TOTAL','Expenses:X - TOTAL','Expenses:T - TOTAL']
+    for line in lines:
+      row_to_row(workbook,test_group,tester,{'tbl_iande_actl':line,'tbl_iande':line})
 
-  # IRA distributions
-  test_lines={
-    'tbl_retir_vals':'IRA - ',
-    'tbl_iande':'Income:J:Distributions:IRA - TOTAL'}
-  row_to_row(workbook,test_group,tester,test_lines)
- 
-  # Pensions
-  test_lines={
-    'tbl_retir_vals':'DB - ',
-    'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
-  row_to_row(workbook,test_group,tester,test_lines)
+    # cap gains
+    test_lines={
+    'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
+    'tbl_invest_actl':'Gains'}
+    row_to_row(workbook,test_group,tester,test_lines)
 
-  # investment gains on i and e match rlz int/gn on balances
-  test_lines={
-    'tbl_iande':'Income:I:Invest income - TOTAL',
-    'tbl_balances':'Rlz Int/Gn'}
-  row_to_row(workbook,test_group,tester,test_lines)
+    # IRA distributions
+    test_lines={
+      'tbl_retir_vals':'IRA - ',
+      'tbl_iande':'Income:J:Distributions:IRA - TOTAL'}
+    row_to_row(workbook,test_group,tester,test_lines)
+  
+    # Pensions
+    test_lines={
+      'tbl_retir_vals':'DB - ',
+      'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
+    row_to_row(workbook,test_group,tester,test_lines)
 
-# reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
-  test_lines={
-  'tbl_iande':'Expenses:Y:Invest:Reinv',
-  'tbl_balances':'Reinv Amt'}
-  row_to_row(workbook,test_group,tester,test_lines)
+    # investment gains on i and e match rlz int/gn on balances
+    test_lines={
+      'tbl_iande':'Income:I:Invest income - TOTAL',
+      'tbl_balances':'Rlz Int/Gn'}
+    row_to_row(workbook,test_group,tester,test_lines)
 
-  # HSA - compare add/wdraw balances with P/R savings less distrib
-  aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
-  hsas=aw.loc[aw.index.str.startswith('HSA')].index.unique()
-  for hsa in hsas:
-    expected=aw.loc[hsa]
-    table,filter,agg=('tbl_iande',hsa,'diff')
-    found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
-    found.name=legend(table,filter,agg)
-    tester.run_test(test_group,expected,found)
+  # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
+    test_lines={
+    'tbl_iande':'Expenses:Y:Invest:Reinv',
+    'tbl_balances':'Reinv Amt'}
+    row_to_row(workbook,test_group,tester,test_lines)
 
-  results(test_group=test_group,tester=tester)
+    # HSA - compare add/wdraw balances with P/R savings less distrib
+    aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
+    hsas=aw.loc[aw.index.str.startswith('HSA')].index.unique()
+    for hsa in hsas:
+      expected=aw.loc[hsa]
+      table,filter,agg=('tbl_iande',hsa,'diff')
+      found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
+      found.name=legend(table,filter,agg)
+      tester.run_test(test_group,expected,found)
+
+    results(test_group=test_group,tester=tester)
   # ========================================
 
   test_group='balances'
-  heading(test_group,'-')
+  if test_group in test_groups:
+    heading(test_group,'-')
 
-  # computed balances match exported balances
-  df=balance_test_pairs('data/test_wb.xlsm')
-  cols=df.columns
-  tester.run_test(test_group,df[cols[0]],df[cols[1]])
-  results(test_group=test_group,tester=tester)
-  # ========================================
-  test_group='cash flow'
-  heading(test_group,'-')
+    # computed balances match exported balances
+    df=balance_test_pairs('data/test_wb.xlsm')
+    cols=df.columns
+    tester.run_test(test_group,df[cols[0]],df[cols[1]])
+    results(test_group=test_group,tester=tester)
+    # ========================================
+  test_group='cash_flow'
+  if test_group in test_groups:
+    heading(test_group,'-')
+    # zero out
+    table,line=('tbl_iande','TOTAL INCOME - EXPENSES')
+    found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
+    found.name=legend(table,line)
+    zeros=found * 0
+    zeros.name='zeros'
+    tester.run_test(test_group,zeros,found)
+ # ========================================
+  test_group='taxes'
+  if test_group in test_groups:
+    heading(test_group,'-')
 
-  # zero out
-  table,line=('tbl_iande','TOTAL INCOME - EXPENSES')
-  found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
-  found.name=legend(table,line)
-  zeros=found * 0
-  zeros.name='zeros'
-  tester.run_test(test_group,zeros,found)
+    table,line=('tbl_taxes','Wages, etc')
+    found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
+    found.name=legend(table,line)
+    idx=found.index
+    expected=pd.Series([337252,233238,286036,293591],index=idx,name='expected')
+    tester.run_test(test_group,expected,found)
+
   # =========================================
   results(test_group='*',tester=tester)
 
 
 if __name__=='__main__':
-
-  verify()
+  # execute only if run as a script
+  parser = argparse.ArgumentParser(description ='This program runs functional tests \
+    by test group (or all).')
+  parser.add_argument('-workbook',default='data/test_wb.xlsm',help='provide an alternative workbook')
+  parser.add_argument('-group',default='*',help='specify a single test group or * for all')
+  args=parser.parse_args()
+  verify(workbook=args.workbook,test_group=args.group)
