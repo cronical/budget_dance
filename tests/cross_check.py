@@ -200,7 +200,7 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
     found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
     found.name=legend(table,line)
     idx=found.index
-    expected=pd.Series([337252,233238,286036,293591],index=idx,name='expected')
+    expected=pd.Series([269496,233238,286036,293591],index=idx,name='expected')
     tester.run_test(test_group,expected,found)
 
   # =========================================
