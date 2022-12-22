@@ -4,6 +4,7 @@
   This requires that the workbook has been opened by Excel and saved.
   In order to populate the results of the Excel calculations.'''
 import argparse
+import json
 import pandas as pd
 
 from tests.balance_check import balance_test_pairs
@@ -20,9 +21,10 @@ class Tester:
     '''Get a dictionary of stats'''
     return self.stats
 
-  def run_test(self,test_group,expected,found):
+  def run_test(self,test_group,expected,found,tolerance=0):
     '''under the heading of a test_group, compare expected and found for columns showing which items vary
     expected and found are of type pd.Series with a name.
+    By default look for exact match, but if tolerance provided then the difference should be less than or equal to the tolerance.
     '''
     if test_group in self.stats:
       group_stat=self.stats[test_group]
@@ -32,7 +34,7 @@ class Tester:
     df=pd.DataFrame([expected,found]).T
     cols=df.columns
     df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
-    zeros= df.delta ==0
+    zeros= df.delta.abs() <=tolerance
     msg='%d '+' == '.join(cols)
     self.test_count += 1
     group_stat[0]+=len(zeros)
@@ -79,6 +81,23 @@ def legend(table_name,filter,agg=None):
   if agg is not None:
     legend += '.%s()'%agg
   return legend
+
+def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=0):
+  '''
+    args: workbook
+          test_group
+          tester
+          table: table name
+          row_name: matches first column of table
+          row_values: a list of values
+          tolerance
+  '''
+  found=get_row_set(workbook,table,'index','index',contains=row_name).squeeze()
+  found.name=legend(table,row_name)
+  idx=found.index
+  expected=pd.Series(row_values,index=idx,name='expected')
+  tester.run_test(test_group,expected,found,tolerance)
+
 def row_to_row(workbook,test_group,tester,table_lines):
   '''
   Helper to test that two single rows match OR
@@ -195,13 +214,12 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
   test_group='taxes'
   if test_group in test_groups:
     heading(test_group,'-')
-
-    table,line=('tbl_taxes','Wages, etc')
-    found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
-    found.name=legend(table,line)
-    idx=found.index
-    expected=pd.Series([269496,233238,286036,293591],index=idx,name='expected')
-    tester.run_test(test_group,expected,found)
+    table='tbl_taxes'
+    with open('data/known_test_values.json') as f:
+      ktv=json.load(f)
+    for key,values in ktv[table].items():
+      row_to_value(workbook=workbook,table=table,
+      test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1)
 
   # =========================================
   results(test_group='*',tester=tester)
@@ -212,6 +230,6 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description ='This program runs functional tests \
     by test group (or all).')
   parser.add_argument('-workbook',default='data/test_wb.xlsm',help='provide an alternative workbook')
-  parser.add_argument('-group',default='*',help='specify a single test group or * for all')
+  parser.add_argument('-group',default='taxes',help='specify a single test group or * for all')
   args=parser.parse_args()
   verify(workbook=args.workbook,test_group=args.group)

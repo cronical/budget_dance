@@ -3,7 +3,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.formatting import Rule
 from openpyxl.styles import Font, Alignment, PatternFill, Side,Border
-from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00
+from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00,FORMAT_NUMBER
 from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.utils import get_column_letter
 import openpyxl.utils.cell
@@ -11,6 +11,8 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from dance.util.logs import get_logger
 from dance.util.files import read_config
+
+agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
 
 logger=get_logger(__file__)
 
@@ -218,19 +220,20 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
         cix=table_start_col+cx
         ws.cell(row=rix,column=cix).value=values[cn]
         if cn.startswith('Y')and cn[1:].isnumeric(): # formats for Y columns
+          # by default use the fin format
+          ws.cell(row=rix ,column=cix).number_format=fin_format
+          # determine if it should be overwritten
           if first_field is not None:
             legend=values[first_field]
             if legend is None: # when no data is provided, there is a row of Nones
               legend=''
-            legend=legend.lower()
-            fmt_pct=False
-            for kw in ['rate','pct','percent']:
-              fmt_pct=fmt_pct or legend.startswith(kw) or legend.endswith(kw)
-            if fmt_pct:
-              ws.cell(row=rix,column=cix).number_format=FORMAT_PERCENTAGE_00
-              continue
-          # if not overridden use the fin format
-          ws.cell(row=rix ,column=cix).number_format=fin_format
+            legend=legend.split(':')[-1].strip().lower()
+            special_fmt=None # determine if percentage or integer (0, or 1)
+            for kw,fmt in {'rate':0,'pct':0,'percent':0,'tax table':1}.items():
+              if legend.startswith(kw) or legend.endswith(kw):
+                special_fmt=(FORMAT_PERCENTAGE_00,FORMAT_NUMBER)[fmt]
+                ws.cell(row=rix,column=cix).number_format=special_fmt
+                break
 
         else: # the non year columns
           if 'horiz' in col_defs.columns:

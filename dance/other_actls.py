@@ -52,6 +52,20 @@ def payroll_savings(data_info):
   summary.Account=summary.Account.str.strip()
   return summary
 
+def roth_contributions(data_info):
+  '''Get the roth contributions'''
+  filename=data_info['path']
+  df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
+  df.drop(columns=['Check#','Tags','C'],inplace=True)
+  df.dropna(how='any',inplace=True) # blank rows & total
+  df=setup_year(df)  # create the year field to allow for pivot
+  summary= df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum')
+  summary.fillna(value=0,inplace=True)
+  summary=-summary.loc[summary.index.str.startswith('401K')]
+  summary=summary.reset_index()
+  summary.rename(columns={'Category':'Account'},inplace=True)
+  return summary
+
 def sel_inv_transfers(data_info,workbook=None,table_map=None):
   '''Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.
   
@@ -245,8 +259,9 @@ def setup_year(df):
 
 if __name__=='__main__':
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
-  hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
+  # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
   # sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})

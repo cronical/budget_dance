@@ -5,9 +5,10 @@ from dance.iande_actl_load import prepare_iande_actl, read_iande_actl
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.invest_iande_load import read_and_prepare_invest_iande
 from dance.other_actls import (IRA_distr, hsa_disbursements, payroll_savings,
-                               sel_inv_transfers, five_29_distr)
+                               sel_inv_transfers, five_29_distr,roth_contributions)
 from dance.transfers_actl_load import (prepare_transfers_actl,
                                        read_transfers_actl)
+from dance.taxes_load import prepare_taxes                                       
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
 from dance.util.tables import this_row
@@ -65,6 +66,10 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'json_records': # a json file organized like: [{column -> value}, … , {column -> value}]
       df=pd.read_json(data_info['path'],orient='records',convert_dates=['Start Date'])
       logger.debug('Read {}'.format(data_info['path']))
+    case 'tax_template':
+      df,groups=prepare_taxes(data_info=data_info,workbook=target_file)
+    case 'md_roth':
+      df=roth_contributions(data_info=data_info)  
     case _:
       assert False,'Undefined type'
   return df,groups

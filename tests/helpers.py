@@ -42,7 +42,7 @@ def get_row_set(workbook,table_name,filter_on,index_on,in_list=None,starts_with=
   if starts_with is not None:
     sel=filter_values.str.startswith(starts_with)
   if contains is not None:
-    sel=filter_values.str.contains(contains)
+    sel=filter_values.str.contains(contains,regex=False)
   df=df.loc[sel]
   if index_on!='index':
     df.set_index(index_on,inplace=True)

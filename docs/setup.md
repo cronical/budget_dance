@@ -43,6 +43,7 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 |Investment IandE[^7]|full years|invest-iande.tsv|tbl_invest_iande_work||
 |Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
 |IRA-Distr[^6]|all years|ira-distr.tsv|tbl_ira_distr|
+|Roth-contributions|all years|roth_contributions.tsv|tbl_roth_contributions|
 |Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 |Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
 |Transfers BKG detailed|full years|data/trans_bkg.tsv|tbl_bank_sel_invest[^10]
@@ -154,7 +155,8 @@ The data definitions are purpose built to support the target table, but there ar
 |md_transfers_actl|Sets up the non-investment actual transfers|
 |md_invest_actl|Sets up the investment actual transfers|
 json_index|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.
-json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.
+json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.|
+|tax_template|Prepares the taxes worksheet|
 
 ##### Inserting Rows for Future Use
 
