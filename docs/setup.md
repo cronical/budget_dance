@@ -33,20 +33,22 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 
 ## Reports and their files
 
+(Case sensitive sort to match Moneydance)
+
 |Report|Periods|File(s)|Used in config by|Other file use|
 |:--|:--|:--|:--|:--|
-|Account Balances|each year|acct-bals-*yyyy*.tsv|tbl_accounts[^1], tbl_balances[^2]|bank_actl_load.py[^3]|
-|529-Distr[^4]|all years|529-distr.tsv|tbl_529_distr||
 |401, HSA, ESP payroll data|full years|payroll_to_savings.tsv|tbl_payroll_savings||
-|HSA - disbursements|full years|hsa-disbursements.tsv|tbl_hsa_disb[^5]||
+|529-Distr[^4]|all years|529-distr.tsv|tbl_529_distr||
+|Account Balances|each year|acct-bals-*yyyy*.tsv|tbl_accounts[^1], tbl_balances[^2]|bank_actl_load.py[^3]|
+|HSA - disbursements - 2|full years|hsa-disbursements.tsv|tbl_hsa_disb[^5]||
+|IRA-Distr[^6]|all years|ira-distr.tsv|tbl_ira_distr|
 |Income & Expense by Year|full years|iande.tsv|tbl_iande,tbl_iande_actl||
 |Investment IandE[^7]|full years|invest-iande.tsv|tbl_invest_iande_work||
 |Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
-|IRA-Distr[^6]|all years|ira-distr.tsv|tbl_ira_distr|
-|Roth-contributions|all years|roth_contributions.tsv|tbl_roth_contributions|
-|Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
-|Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
+|Roth-contributions2|all years|roth_contributions.tsv|tbl_roth_contributions|
 |Transfers BKG detailed|full years|data/trans_bkg.tsv|tbl_bank_sel_invest[^10]
+|Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
+|Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 
 
 
@@ -162,7 +164,7 @@ json_records|Imports entire table previously exported via `dance/util/extract_ta
 
 The income and expense report in MoneyDance filters out categories that have no transactions.  This leads to a need to insert those rows in the `tbl_iande` and `tbl_iande_actl` tables. For example, future social security payouts should subtotal into retirement income. 
 
-An optional key is used to define these rows. The specification needs to contain the full hiearchy information so that it can be inserted into the right place.  
+An optional key is used to define these rows. The specification needs to contain the full hiearchy information so that it can be inserted into the right place.  At run time these are checked against the existing items and added only if not already there.
 
 ```yaml
 data: ...
