@@ -95,7 +95,10 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
   found=get_row_set(workbook,table,'index','index',in_list=[row_name]).squeeze()
   found.name=legend(table,row_name)
   idx=found.index
-  expected=pd.Series(row_values,index=idx,name='expected')
+  # set all values as zero then fill them in.  this allows test set to not (yet) have the right length.
+  expected=pd.Series(0*idx.shape[0],index=idx,name='expected')
+  for x,v in enumerate(row_values):
+    expected[x]=v
   tester.run_test(test_group,expected,found,tolerance)
 
 def row_to_row(workbook,test_group,tester,table_lines):
