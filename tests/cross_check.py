@@ -92,7 +92,7 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
           row_values: a list of values
           tolerance
   '''
-  found=get_row_set(workbook,table,'index','index',contains=row_name).squeeze()
+  found=get_row_set(workbook,table,'index','index',in_list=[row_name]).squeeze()
   found.name=legend(table,row_name)
   idx=found.index
   expected=pd.Series(row_values,index=idx,name='expected')
