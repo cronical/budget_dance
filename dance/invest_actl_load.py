@@ -206,7 +206,6 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       ...''')
       assert False
     else:
-      print(df)
       logger.info('Investment balance checks OK for {}'.format(file_name))
     
     # remove the loan interest received column
