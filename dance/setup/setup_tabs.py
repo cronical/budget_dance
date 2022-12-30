@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
 import pandas as pd
+from numpy import nan
 
 import yaml
 from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
@@ -137,11 +138,17 @@ def refresh_sheets(target_file,overwrite=False):
           if isinstance(data,list):
             data=pd.DataFrame(list,columns=col_def.name)
           if isinstance(data,pd.DataFrame):
-            # it may be that the 1st column is in the index, so fix that
+            # it may be that the 1st column is in the index,
+            # and/or there may be a new year 
+            # so fix that
             mismatch=list(set(col_def.name)-set(data.columns))
-            if len(mismatch)==1:
-              if list(col_def.name).index(mismatch[0])==0:
-                data=data.reset_index().rename(columns={'index':mismatch[0]})
+            data.reset_index(inplace=True)
+            for missing in mismatch:
+              col_no=list(col_def.name).index(missing)
+              if col_no==0:
+                data=data.rename(columns={'index':missing})
+              else:
+                data[missing]=nan
         data=dyno_fields(table_info,data)# any dynamic field values
         data=conform_table(data,col_def['name'])
         data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
