@@ -159,13 +159,20 @@ def IRA_distr(data_info):
   Raises: ValueError if final-rmd and a normal distribution occur in same year.
           It logically could but the current setup does not support it.
   '''
-  final_cat='Income:I:Retirement income:IRA:Final-RMD'
-  norm_distr_cat='Income:J:Distributions:IRA:Normal-Distr'
+  distr_base_cat='Income:J:Distributions:IRA:'
   
   filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
   df.dropna(how='any',inplace=True) # total and blank rows
   df=setup_year(df)
+
+  # amounts taken from each IRA - this is gross, i.e. prior to taking out taxes
+  by_ira=df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
+  by_ira=by_ira.loc[by_ira.index.str.startswith('IRA')].mul(-1)
+  by_ira.reset_index(inplace=True)
+  by_ira['Category']=distr_base_cat+by_ira.Account.astype(str)
+  by_ira=by_ira.drop(columns='Account')
+
   summary=df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum')
   summary.fillna(value=0,inplace=True)
   summary=summary.reset_index()
@@ -175,28 +182,7 @@ def IRA_distr(data_info):
   wh=summary.loc[tax_sel].copy()
   wh['Category']='Expenses:'+wh['Category']
 
-  # just the row with any final RMD as a Series
-  final_sel=summary.Category.str.contains(':'.join(final_cat.split(':')[1:]))
-  final_rmd=summary.drop(columns='Category').loc[final_sel].sum(axis=0) # The gross amount
-
-  # Distributions that are sourced from an account in MD
-  #  are in one of the rows that are not withholding or the final RMD category
-  #  These should be accounts like bank accounts or brokerage accounts and the sign will be reversed 
-  
-  #  compute the total normal distribution by adding the taxes back in
-  net_norm_distr=summary.drop(columns='Category').loc[~(final_sel | tax_sel) ].sum(axis=0).mul(-1) # The net as positive
-
-  # Both is not supported.  If this ever happens you will need to re-work how the taxes are handled
-  if not ((final_rmd != 0) != (net_norm_distr!=0)).all(): # Either or both
-    raise ValueError('Final-RMD and Normal IRA distributions occur in same year.')
-
-  gross_norm_distr=net_norm_distr-(net_norm_distr!=0)*+wh.drop(columns='Category').sum(axis=0)
-  gross_norm_distr=pd.concat([pd.Series(data=[norm_distr_cat],index=['Category']),gross_norm_distr])
-
-  final_rmd=pd.concat([pd.Series(data=[final_cat],index=['Category']),final_rmd])# 
-  final_rmd=pd.DataFrame(final_rmd).T
-  gross_norm_distr=pd.DataFrame(gross_norm_distr).T
-  summary=pd.concat([final_rmd,gross_norm_distr,wh])
+  summary=pd.concat([by_ira,wh])
   summary.fillna(0,inplace=True)
   summary.reset_index(drop=True,inplace=True)
   return summary
@@ -259,8 +245,8 @@ def setup_year(df):
 
 if __name__=='__main__':
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
-  roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
-  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
+  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
   # sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
