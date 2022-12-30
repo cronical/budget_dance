@@ -82,7 +82,7 @@ def legend(table_name,filter,agg=None):
     legend += '.%s()'%agg
   return legend
 
-def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=0):
+def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=0,ignore=[]):
   '''
     args: workbook
           test_group
@@ -91,6 +91,7 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
           row_name: matches first column of table
           row_values: a list of values
           tolerance
+          ignore - list of Yyears to ignore
   '''
   found=get_row_set(workbook,table,'index','index',in_list=[row_name]).squeeze()
   found.name=legend(table,row_name)
@@ -99,6 +100,8 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
   expected=pd.Series(0*idx.shape[0],index=idx,name='expected')
   for x,v in enumerate(row_values):
     expected[x]=v
+  expected.drop(labels=ignore,inplace=True)
+  found.drop(labels=ignore,inplace=True)
   tester.run_test(test_group,expected,found,tolerance)
 
 def row_to_row(workbook,test_group,tester,table_lines):
@@ -220,11 +223,16 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
   if test_group in test_groups:
     heading(test_group,'-')
     table='tbl_taxes'
+    ignore=[]
     with open('data/known_test_values.json') as f:
       ktv=json.load(f)
     for key,values in ktv[table].items():
+      if key.lower().startswith('ignore'):
+        ignore=values
+        print(f'IGNORING: {ignore}')
+        continue
       row_to_value(workbook=workbook,table=table,
-      test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1)
+      test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1,ignore=ignore)
 
   # =========================================
   results(test_group='*',tester=tester)
