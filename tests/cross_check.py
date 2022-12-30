@@ -21,7 +21,7 @@ class Tester:
     '''Get a dictionary of stats'''
     return self.stats
 
-  def run_test(self,test_group,expected,found,tolerance=0):
+  def run_test(self,test_group,expected,found,tolerance=0.5):
     '''under the heading of a test_group, compare expected and found for columns showing which items vary
     expected and found are of type pd.Series with a name.
     By default look for exact match, but if tolerance provided then the difference should be less than or equal to the tolerance.
@@ -210,9 +210,11 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
     table,line=('tbl_iande','TOTAL INCOME - EXPENSES')
     found=get_row_set(workbook,table,'index','index',contains=line).squeeze()
     found.name=legend(table,line)
-    zeros=found * 0
-    zeros.name='zeros'
-    tester.run_test(test_group,zeros,found)
+    expected=found * 0
+    expected[0]=-42.06
+    expected[1]=42.06
+    expected.name='expected'
+    tester.run_test(test_group,expected,found)
  # ========================================
   test_group='taxes'
   if test_group in test_groups:
@@ -233,6 +235,6 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description ='This program runs functional tests \
     by test group (or all).')
   parser.add_argument('-workbook',default='data/test_wb.xlsm',help='provide an alternative workbook')
-  parser.add_argument('-group',default='taxes',help='specify a single test group or * for all')
+  parser.add_argument('-group',default='*',help='specify a single test group or * for all')
   args=parser.parse_args()
   verify(workbook=args.workbook,test_group=args.group)
