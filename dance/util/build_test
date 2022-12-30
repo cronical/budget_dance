@@ -15,4 +15,4 @@ osascript ./dance/util/excel_save.scpt
 #
 # tests
 #
-tests/cross_check.py -g taxes
+tests/cross_check.py
