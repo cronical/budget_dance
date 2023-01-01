@@ -244,10 +244,12 @@ def setup_year(df):
   return df
 
 if __name__=='__main__':
+  pass
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
-  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
   # sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
+  
