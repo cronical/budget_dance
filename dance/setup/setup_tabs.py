@@ -37,12 +37,12 @@ def refresh_sheets(target_file,overwrite=False):
   years=range(config['start_year'],1+config['end_year'])
   wb=load_workbook(filename = target_file,keep_vba=True)
   sheets=wb.sheetnames
-  logger.info('{} existing sheets in {}'.format(len(sheets),target_file))
+  logger.debug('{} existing sheets in {}'.format(len(sheets),target_file))
 
   for default_name in 'Sheet','Sheet1','Sheet2','Sheet3':
     if default_name in sheets:
       del wb[default_name]
-      logger.info('Removed "{}"'.format(default_name))
+      logger.debug('Removed "{}"'.format(default_name))
 
   table_map={} # build list of tables and which sheet they are on
   ffy=config['first_forecast_year']
@@ -72,7 +72,7 @@ def refresh_sheets(target_file,overwrite=False):
         else:
           del wb[sheet_name]
           ws=wb.create_sheet(sheet_name)
-          logger.info('sheet {} deleted and recreated'.format(sheet_name))
+          logger.debug('sheet {} deleted and recreated'.format(sheet_name))
 
       table_location=1 # add to this for each subsequent table
       for table_info in sheet_info['tables']:
