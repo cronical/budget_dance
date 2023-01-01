@@ -11,12 +11,15 @@ def table_ref(formula):
   '''
 
   result=formula
-  regex=r'\[(@[ a-z0-9]+)\]' 
+  regex=r'(\[@\[?[ a-z0-9]+\]?\])' # the inner escaped brackets allow for fields that have spaces in their names 
   #regex=r'@[a-z]'
   p=re.compile(regex,re.IGNORECASE)
   for m in p.finditer(result):
     for g in m.groups():
-      new='[#This Row],[{}]'.format(g[1:])
+      h=str(g)
+      for punc in '@[]':
+        h=h.replace(punc,'')
+      new='[[#This Row],[{}]]'.format(h)
       result=result.replace(g,new)
   return result
 
