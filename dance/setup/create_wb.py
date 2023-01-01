@@ -47,18 +47,18 @@ def create(filename,overwrite=False):
   This manouever appears to leave the VBA project consistent with the other components of the spreadsheet.
   '''
   logger=get_logger(__file__)
-  logger.info('current working directory is {}'.format(getcwd()))
+  logger.debug('current working directory is {}'.format(getcwd()))
   if exists(filename):
     if not overwrite:
       logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
       exit(-1)
   wb=load_workbook('data/empty_template.xlsm',keep_vba=True)
   wb.save(filename)
-  logger.info('initial file saved as {}'.format(filename))
+  logger.debug('initial file saved as {}'.format(filename))
 
 
 
-  logger.info('starting copy of vba')
+  logger.debug('starting copy of vba')
   if exists('./tmp'):
     rmtree('./tmp')
   with zipfile.ZipFile(filename, 'r') as z:
@@ -72,15 +72,15 @@ def create(filename,overwrite=False):
   for dst in to_copy:
     src='./vba/'+dst.split(sep)[-1]
     copy2(src,dst)
-    logger.info('copied {} to {}'.format(src,dst))
+    logger.debug('copied {} to {}'.format(src,dst))
 
   zip_up(filename,'tmp')
-  logger.info('re-wrote {}'.format(filename))
+  logger.info('Initialized {} with vba'.format(filename))
   #cleanup
   tmp='./tmp'
   rmtree(tmp)
   mkdir(tmp)
-  logger.info('cleaned up {}'.format(tmp))
+  logger.debug('cleaned up {}'.format(tmp))
 
   refresh_sheets(filename,overwrite)
 
