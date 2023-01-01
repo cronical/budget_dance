@@ -34,7 +34,7 @@ def test_required_lines(df,workbook,forecast_start_year,initialize_iande=False,f
     ValueError: when removing non-zero forecast lines without the -f (force) flag
 
   '''
-  logger.info('Testing required lines')
+  logger.debug('Testing required lines')
   try:
     iande=df_for_table_name(table_name='tbl_iande',workbook=workbook)
   except ValueError as err:
@@ -70,7 +70,7 @@ def test_required_lines(df,workbook,forecast_start_year,initialize_iande=False,f
     else:
       logger.info('But we are only updating iande_actl, it does not matter.')
   else:
-    logger.info('All forecast items are included in input file.')
+    logger.debug('All forecast items are included in input file.')
 
   # now report any new lines
   all_lines=set(iande.index)
@@ -214,18 +214,18 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   heading_row=1+title_row
   if target_sheet not in valid_sheets:
     raise ValueError('tab_target must be iande or iande_actl')
-  logger.info('Preparing data for {}'.format(target_sheet))
+  logger.debug('Preparing data for {}'.format(target_sheet))
   initialize_iande=target_sheet=='iande'
   # get the workbook from file
   try:
     wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
-    logger.info('loaded workbook from {}'.format(workbook))
+    logger.debug('loaded workbook from {}'.format(workbook))
     config=read_config()
   except FileNotFoundError:
     raise FileNotFoundError(f'file not found {workbook}') from None
   if f_fcast is None:
     f_fcast='Y%d' % get_f_fcast_year(wb,config) # get the first forecast year from the general state table or config as available
-  logger.info ('First forecast year is: %s',f_fcast)
+  logger.debug ('First forecast year is: %s',f_fcast)
 
   tables=config['sheets'][target_sheet]['tables']
   assert len(tables)==1,'not exactly one table defined'
