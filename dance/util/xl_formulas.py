@@ -4,23 +4,18 @@ import re
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it
   to the long form which Excel recognizes exclusively (even though it displays the short form).
-  Does not support spaces in field names
+  Supports spaces in field names
 
-  args: formula using the short form such as [@AcctName]
-  returns: formula using the long form such as [[#this row],[@AcctName]]
+  args: formula using the short form such as [@AcctName] or tbl_name[column_name]
+  returns: formula using the long forms such as [[#this row],[@AcctName]]
   '''
 
+  regex_row=r'\[@\[?([ A-Za-z0-9]+)\]?\]' 
+  # the inner escaped brackets allow for fields that have spaces in their names 
+  # the @ indicates - it refers to this row
+  # otherwise its the whole column, which seems to work fine without convering to the [[#Data],[column]] form.   
   result=formula
-  regex=r'(\[@\[?[ a-z0-9]+\]?\])' # the inner escaped brackets allow for fields that have spaces in their names 
-  #regex=r'@[a-z]'
-  p=re.compile(regex,re.IGNORECASE)
-  for m in p.finditer(result):
-    for g in m.groups():
-      h=str(g)
-      for punc in '@[]':
-        h=h.replace(punc,'')
-      new='[[#This Row],[{}]]'.format(h)
-      result=result.replace(g,new)
+  result=re.sub(regex_row,r'[[#This Row],[\1]]',result)
   return result
 
 def apply_formulas(table_info,data,ffy,is_actl):
