@@ -1,4 +1,5 @@
 '''Utilities dealing with worksheet tables.'''
+import re
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.formatting import Rule
@@ -65,8 +66,8 @@ def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=Fals
     ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
     ws=wb[ws_name]
     table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-  except (FileNotFoundError,KeyError):
-    raise ValueError('workbook({}), worksheet({}) or internal structures not available'.format(workbook,table_name)) from None
+  except (FileNotFoundError,KeyError) as error:
+    raise ValueError('workbook({}), worksheet({}) or internal structures not available'.format(workbook,table_name)) from error
   logger.debug('Read table {} from {}'.format(table_name,workbook))
   logger.debug('  {} rows and {} columns'.format(table.shape[0],table.shape[1]))
   return table
@@ -153,6 +154,15 @@ def first_not_hidden(table_info):
       continue
     return col_no+1
 
+def is_formula(value):
+  '''Returns true if the value is a formula'''
+  result=False
+  if value is not None:
+    if isinstance(value,str):
+      if value.startswith('='):
+        result=True
+  return result
+
 def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
   '''Write the dataframe to the worksheet, including the columns,
   add folding based on groups if given, format numbers, and make into a table.
@@ -212,14 +222,23 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
     for cx,cn in enumerate( df.columns):
       if cn in values:
         if first_field is None: # pick this field if its not a formula
-          if values[cn] is not None:
-            if isinstance(values[cn],str):
-              if not values[cn].startswith('='):
-                first_field=cn
+          if not is_formula(values[cn]):
+            first_field=cn
         rix=ix+table_start_row+1
         cix=table_start_col+cx
-        ws.cell(row=rix,column=cix).value=values[cn]
-        if cn.startswith('Y')and cn[1:].isnumeric(): # formats for Y columns
+        ws.cell(row=rix,column=cix).value=values[cn] # set the value or formula
+
+        # provision for dynamic arrays to be included in formulas - notify excel
+        if is_formula(values[cn]):
+          regex_column=r'[A-Za-z_]+(\[\[?[ A-Za-z0-9]+\]?\])'
+          pattern=re.compile(regex_column)
+          matches=pattern.findall(values[cn]) 
+          if len(matches): # looks like a dynamic formula
+            address=get_column_letter(cix)+str(rix)
+            ws.formula_attributes[address]={'t':'array','ref': address}
+
+        # formats for Y columns  
+        if cn.startswith('Y')and cn[1:].isnumeric(): 
           # by default use the fin format
           ws.cell(row=rix ,column=cix).number_format=fin_format
           # determine if it should be overwritten
