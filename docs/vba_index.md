@@ -74,10 +74,6 @@
 ||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
 |reinv_amt|Function reinv_amt(acct_name As String, y_year As String) As Double|
 ||Compute the reinvestment amount for an account and year.|
-|retir_agg|Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double|
-||Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "<>" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.|
-|retir_med|Function retir_med(inits As String, y_year As String) As Double|
-||Return the forecast medical expenses including premium and deductible for person with initials init given a year|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
@@ -99,8 +95,6 @@
 |test_mo_apply|Sub test_mo_apply()|
 |||
 |test_nth|Sub test_nth()|
-|||
-|test_retir_med|Sub test_retir_med()|
 |||
 |test_sort|Sub test_sort()|
 |||

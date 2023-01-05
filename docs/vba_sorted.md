@@ -761,7 +761,7 @@ Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, O
     yr = IntYear(year)
     If magi = -1 Then
         magi_yr = y_offset(year, -2)
-        magi = get_val("Adjusted Gross", "tbl_taxes", magi_yr)
+        magi = get_val("Adjusted Gross - TOTAL", "tbl_taxes", magi_yr)
     End If
     magi = Application.WorksheetFunction.Max(1, magi)
     tbl_name = "tbl_part_b"
@@ -909,38 +909,6 @@ Function reinv_amt(acct_name As String, y_year As String) As Double
     rate = get_val("Reinv Rate" & acct_name, "tbl_balances", y_year)
     amt = Round(rlz * rate, 2)
     reinv_amt = amt
-End Function
-
-Function retir_agg(y_year As String, typ As String, Optional who As String = "*", Optional firm As String = "*", Optional election As String = "*") As Double
-'get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.
-'wild cards are OK as are Excel functions like "<>" prependedto the values.  For instance "MEDIC*" for type gets all medical assuming rows coded that way
-'NOTE all the criteria fields must have values - suggest using NA if there is no value such as for an election.
-
-    Dim this_year As Integer, tbl_name As String
-    Dim result As Double
-    Dim tbl As ListObject, crit_col1 As ListColumn, crit_col2 As ListColumn, val_col As ListColumn
-    Dim criteria1 As String, criteria2 As String
-    
-    tbl_name = "tbl_retir_vals"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set crit_col1 = tbl.ListColumns("Type")
-    Set crit_col2 = tbl.ListColumns("Who")
-    Set crit_col3 = tbl.ListColumns("Firm")
-    Set crit_col4 = tbl.ListColumns("Election")
-    Set val_col = tbl.ListColumns(y_year)
-    result = Application.WorksheetFunction.SumIfs(val_col.Range, _
-        crit_col1.Range, typ, _
-        crit_col2.Range, who, _
-        crit_col3.Range, firm, _
-        crit_col4.Range, election)
-    retir_agg = result
-
-End Function
-
-Function retir_med(inits As String, y_year As String) As Double
-'return the forecast medical expenses including premium and deductible for person with initials init given a year
-    retir_med = retir_agg(y_year, "MEDIC*", inits)
 End Function
 
 Function retir_parm(code As String, who As String) As Variant
@@ -1153,22 +1121,6 @@ End Sub
 
 Sub test_nth()
 Debug.Print (nth_word_into(0, "fed tax value", "Taxes for %s"))
-End Sub
-
-Sub test_retir_med()
-Dim test_cases() As Variant
-Dim yr As String, who As String, result As Double
-test_cases() = Array(Array("GBD", "Y2022"), Array("VEC", "Y2026"))
-log ("retir_med tests")
-For I = LBound(test_cases) To UBound(test_cases)
-    who = test_cases(I)(0)
-    yr = test_cases(I)(1)
-    result = retir_med(who, yr)
-    msg = "Input: year=" & yr & " who=" & who & "   Output: " & result
-    log (msg)
-Next
-
-
 End Sub
 
 Sub test_sort()
