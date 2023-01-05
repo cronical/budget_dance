@@ -54,7 +54,7 @@
       "request": "launch",
       "program": "dance/util/extract_table.py",
       "console": "integratedTerminal",
-      "args": ["-t","tbl_retir_vals","-o","records","-j","data/retir_vals.json"],
+      "args": ["-w","data/test_wb.xlsm","-t","tbl_medicare","-o","records","-j","data/medicare.json"],
       "justMyCode": true
     },
     {
