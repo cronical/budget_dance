@@ -46,7 +46,7 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 |Investment IandE[^7]|full years|invest-iande.tsv|tbl_invest_iande_work||
 |Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
 |Roth-contributions2|all years|roth_contributions.tsv|tbl_roth_contributions|
-|Transfers BKG detailed|full years|data/trans_bkg.tsv|tbl_bank_sel_invest[^10]
+|Transfers BKG detailed|full years|trans_bkg.tsv|tbl_bank_sel_invest[^10]
 |Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
 |Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 
