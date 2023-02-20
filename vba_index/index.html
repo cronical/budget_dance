@@ -225,7 +225,22 @@
   
     <li class="md-nav__item">
       <a href="../fcast/" class="md-nav__link">
-        Design and use of fcast.xlsm
+        Design of fcast.xlsm
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
       </a>
     </li>
   
@@ -286,6 +301,21 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../worksheets/" class="md-nav__link">
+        Worksheets
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -337,11 +367,11 @@
 </tr>
 <tr>
 <td>add_wdraw</td>
-<td>Function add_wdraw(acct As String, y_year As String, Optional is_fcst As Boolean = False) As Variant</td>
+<td>Function add_wdraw(acct As String, y_year As String) As Variant</td>
 </tr>
 <tr>
 <td></td>
-<td>Grab the actual transfers in (positive) our out(negative). Ignoring the optional is_fcst argument - instead: compute it</td>
+<td>Get the actual or forecast transfers in (positive) our out(negative). Determines whether the year is actual or forecast, in order to determine the source from the accounts table.. For actuals returns the value from the source table.. For forecast, will add realized gains that are not re-invested. If source table is the retirement table, changes the sign.</td>
 </tr>
 <tr>
 <td>age_as_of_date</td>
@@ -368,6 +398,14 @@
 <td>Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"</td>
 </tr>
 <tr>
+<td>agg_table</td>
+<td>Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max". A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:. A delimiter is included in the strings to allow two values to be provided.the delimiter is stile (</td>
+</tr>
+<tr>
 <td>ANN</td>
 <td>Function ANN(account As String, account_owner As String, y_year As String) As Double</td>
 </tr>
@@ -384,12 +422,20 @@
 <td>Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number</td>
 </tr>
 <tr>
+<td>bal_agg</td>
+<td>Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status. Wild cards are ok as are excel functions like "&lt;&gt;" prepended to the values for strings. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.</td>
+</tr>
+<tr>
 <td>calc_retir</td>
 <td>Sub calc_retir()</td>
 </tr>
 <tr>
 <td></td>
-<td>Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, which feeds aux, which feeds current balances. Iande depends on retirement as well and taxes depend on iande</td>
+<td>Iterate through the years to calc retirement streams based on balances from prior year. Prior balance from balances feeds current retirement, and current invest_iande_work. Retirement feeds aux,. Aux and invest_iande_work feeds current balances. Iande depends on retirement as well and taxes depend on iande</td>
 </tr>
 <tr>
 <td>calc_table</td>
@@ -400,6 +446,14 @@
 <td>Testing forced calc of table</td>
 </tr>
 <tr>
+<td>CT_Tax</td>
+<td>Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Calculate the ct income tax for a given year and taxable income amount. The so called initial tax calculation only.. Table is not setup exactly like federal - it uses the traditional method not the subraction method.. Gets a result of zero if year not in the table.</td>
+</tr>
+<tr>
 <td>d2s</td>
 <td>Function d2s(dt As Date) As String</td>
 </tr>
@@ -408,12 +462,28 @@
 <td></td>
 </tr>
 <tr>
+<td>ei_withhold</td>
+<td>Function ei_withhold(legend As String, ei_template, y_year As String) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022</td>
+</tr>
+<tr>
 <td>endbal</td>
 <td>Function endbal(acct As String, y_year As String) As Variant</td>
 </tr>
 <tr>
 <td></td>
 <td>Compute the end balance for an account for a year</td>
+</tr>
+<tr>
+<td>extend_iiande</td>
+<td>Function extend_iiande(account As String, category As String, y_year As String) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row. To be run in a cell in the invest_iande_work table.</td>
 </tr>
 <tr>
 <td>Fed_Tax_CapGn</td>
@@ -441,11 +511,11 @@
 </tr>
 <tr>
 <td>get_val</td>
-<td>Function get_val(line_key As Variant, tbl_name As String, col_name As String) As Variant</td>
+<td>Function get_val(line_key As Variant, tbl_name As String, col_name As String, Optional raise_bad_col = False) As Variant</td>
 </tr>
 <tr>
 <td></td>
-<td>Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.</td>
+<td>Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.. Bad columns are usually logged, but if the argument raise_bad_col is true then an error is raised.</td>
 </tr>
 <tr>
 <td>IntYear</td>
@@ -456,12 +526,36 @@
 <td>Strips off the y on the argument (eg y2019) and returns an integer</td>
 </tr>
 <tr>
+<td>invest_fees</td>
+<td>Function invest_fees(acct As String, y_year As String) As Variant</td>
+</tr>
+<tr>
+<td></td>
+<td>For investments, return the account fees for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_iande_work</td>
+</tr>
+<tr>
 <td>is_forecast</td>
 <td>Function is_forecast(y_year As String) As Boolean</td>
 </tr>
 <tr>
 <td></td>
 <td>Determine if this year is a forecast year</td>
+</tr>
+<tr>
+<td>last_two_parts</td>
+<td>Function last_two_parts(cat As String, Optional delim = ":") As String</td>
+</tr>
+<tr>
+<td></td>
+<td>Take the last two parts of a delimited string and return them as a new string with the delimiter. Missing parts will be set to zero lenght string</td>
+</tr>
+<tr>
+<td>linear</td>
+<td>Function linear(count As Integer, Optional minimum = 0) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Use the excel forecast linear function to extrapolate the value based on the prior <count> values on this line.. Will use <count> number of data points if they exist or fewer if that goes before the first year. The minimum is used to prevent values from going below that amount. Suitable only for year columns.. Due to trouble with the listobject function which makes values empty for cells with formulas, a work around is used. To determine the table name from the worksheet name.this should be ok for major tables which correspond by convention.</td>
 </tr>
 <tr>
 <td>log</td>
@@ -477,7 +571,7 @@
 </tr>
 <tr>
 <td></td>
-<td>Return the expected lump sum payment for an account based on the prior year's end balance + any items in the aux table. For the current year (items that begin with the account name)</td>
+<td>Return the expected lump sum payment for an account based on the prior year's end balance</td>
 </tr>
 <tr>
 <td>MedicarePrem</td>
@@ -496,6 +590,14 @@
 <td>Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.</td>
 </tr>
 <tr>
+<td>nth_word_into</td>
+<td>Function nth_word_into(n As Integer, source As String, template As String) As String</td>
+</tr>
+<tr>
+<td></td>
+<td>Insert the nth word (first is 0th) from source into the template, replacing %</td>
+</tr>
+<tr>
 <td>PartBPrem</td>
 <td>Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant</td>
 </tr>
@@ -512,6 +614,14 @@
 <td>Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly</td>
 </tr>
 <tr>
+<td>percent_year_worked</td>
+<td>Function percent_year_worked(initials As String) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Using the year of the current column and the data in the people table, return a number between 0 and 1. Indicating the percent of the year worked for the person with initials given</td>
+</tr>
+<tr>
 <td>prior_value</td>
 <td>Function prior_value(line As String) As Variant</td>
 </tr>
@@ -520,20 +630,20 @@
 <td>Get the prior years' value for this line. suitable only for year columns.</td>
 </tr>
 <tr>
-<td>retir_agg</td>
-<td>Function retir_agg(y_year As String, typ As String, Optional who As String = "<em>", Optional firm As String = "</em>", Optional election As String = "*") As Double</td>
+<td>ratio_to_start</td>
+<td>Function ratio_to_start(account As String, category As String, y_year As String) As Double</td>
 </tr>
 <tr>
 <td></td>
-<td>Get the sum of values from the retirement table for a year and type, optionally further qualified by who, firm and/or election.. Wild cards are ok as are excel functions like "&lt;&gt;" prependedto the values.  for instance "medic*" for type gets all medical assuming rows coded that way. Note all the criteria fields must have values - suggest using na if there is no value such as for an election.</td>
+<td>For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.</td>
 </tr>
 <tr>
-<td>retir_med</td>
-<td>Function retir_med(inits As String, y_year As String) As Double</td>
+<td>reinv_amt</td>
+<td>Function reinv_amt(acct_name As String, y_year As String) As Double</td>
 </tr>
 <tr>
 <td></td>
-<td>Return the forecast medical expenses including premium and deductible for person with initials init given a year</td>
+<td>Compute the reinvestment amount for an account and year.</td>
 </tr>
 <tr>
 <td>retir_parm</td>
@@ -553,11 +663,11 @@
 </tr>
 <tr>
 <td>rolling_avg</td>
-<td>Function rolling_avg(table As String, key As String, this_y_year As String, lookback As Integer) As Double</td>
+<td>Function rolling_avg(Optional max_value As Variant = Null, Optional lookback As Integer = 5, Optional table As String = "", Optional key As String = "", Optional this_y_year As String = "") As Double</td>
 </tr>
 <tr>
 <td></td>
-<td>Look back at previous columns and average the numeric values found there, ignoring non-numerics. Return the average</td>
+<td>Look back at previous columns and average the numeric values found there, ignoring items before 2018, but including zeros. Max_value if provided is used instead of any higher values. Lookback is defaulted to 5 years. If not provided, table, key and y_year are taken from the calling cell. Return the average.  returns 0 if the count of valid items is 0.</td>
 </tr>
 <tr>
 <td>simple_return</td>
@@ -616,8 +726,8 @@
 <td></td>
 </tr>
 <tr>
-<td>test_retir_med</td>
-<td>Sub test_retir_med()</td>
+<td>test_nth</td>
+<td>Sub test_nth()</td>
 </tr>
 <tr>
 <td></td>

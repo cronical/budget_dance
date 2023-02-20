@@ -1,0 +1,75 @@
+digraph {
+  graph [
+    label = "Forecast periods data flows\n\nAll current year unless ending in _py"
+    labelloc= t
+    rankdir="LR"
+  ]
+
+  subgraph cluster_0{
+    label=balances
+    acct_bal_py 
+    acct_add_wdraw
+    acct_bal
+    acct_rate
+    acct_rlzd
+  }
+
+  subgraph cluster_1{
+    label=retir_vals
+    annuity 
+    rmd
+    db_ann
+    ss
+    hsa
+    medicare
+    med_oth
+  }
+
+  subgraph cluster_2{
+    label=iande
+    IRA_txbl_distr 
+    pension
+    SS_income
+    int_inc
+    int_inc_te
+    tax_pmts
+    expenses
+    net_inc
+  }
+
+  subgraph cluster_3{
+    label=aux
+    acct_wdraw ->  acct_aw 
+    model_tax_pmts
+    model_hsa_disb
+  }
+
+  subgraph cluster_4{
+    label=taxes
+    adj_gross -> {fed_inc_tax st_inc_tax}
+    fed_owe
+    st_owe
+    
+  }
+
+  acct_bal_py -> annuity -> IRA_txbl_distr
+  acct_bal_py -> acct_bal
+  rmd -> IRA_txbl_distr
+
+  annuity -> {acct_wdraw acct_add_wdraw}
+  rmd -> acct_add_wdraw
+  acct_aw-> acct_add_wdraw ->  acct_bal
+  db_ann->pension
+  ss -> SS_income
+
+  {acct_rate acct_bal} -> acct_rlzd
+  acct_rlzd -> {int_inc int_inc_te}
+  {IRA_txbl_distr pension SS_income int_inc int_inc_te} -> adj_gross
+  {IRA_txbl_distr pension SS_income int_inc int_inc_te expenses}->net_inc
+  {tax_pmts fed_inc_tax} -> fed_owe
+  model_tax_pmts -> tax_pmts
+  {tax_pmts st_inc_tax}-> st_owe
+  model_hsa_disb -> hsa
+  med_oth->expenses
+  net_inc ->acct_bal
+  }

@@ -241,6 +241,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#changes-to-existing-categories" class="md-nav__link">
+    Changes to existing categories
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -273,7 +280,22 @@
   
     <li class="md-nav__item">
       <a href="../fcast/" class="md-nav__link">
-        Design and use of fcast.xlsm
+        Design of fcast.xlsm
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
       </a>
     </li>
   
@@ -324,6 +346,21 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../worksheets/" class="md-nav__link">
+        Worksheets
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -360,6 +397,13 @@
         <li class="md-nav__item">
   <a href="#worksheets-removed-that-were-previously-on-long-term-plan" class="md-nav__link">
     Worksheets removed that were previously on long-term-plan.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-to-existing-categories" class="md-nav__link">
+    Changes to existing categories
   </a>
   
 </li>
@@ -408,6 +452,72 @@
 <li>InvestAct (-&gt;invest_actl)</li>
 <li>InvestXfersAct (-&gt;invest_actl)</li>
 <li>OtherAct (-&gt;other-x)</li>
+</ul>
+<h2 id="changes-to-existing-categories">Changes to existing categories</h2>
+<p>The following changes were made to enable the invest iande enhancements.</p>
+<ul>
+<li>✓ Create X:Investing:Fees</li>
+<li>✓ Find and replace the records under X:Misc:Commisions &amp; Fees to X:Investing:Fees </li>
+<li>3 types under Invest Income: CapGn, Div, Int</li>
+<li>✓ Create CapGn</li>
+<li>✓ Create CapGn:Sale</li>
+<li>✓ Rename/Move CapGn - LT as CapGn:Mut LT </li>
+<li>✓ Rename/Move CapGn - ST as CapGn:Mut ST</li>
+<li>✓ Rneame/Move SCapGn - LT' as CapGn:Shelt</li>
+<li>
+<p>✓ Find and replace: change 'SCapGn - ST' to '...CapGn:Shelt'</p>
+</li>
+<li>
+<p>✓ Rename Div as Reg</p>
+</li>
+<li>✓ Create new Div under Invest Income</li>
+<li>✓ Move Reg under Div</li>
+<li>✓ Rename/Move Div Tax-exempt to Div:Tax-exempt</li>
+<li>✓ Rename/Move 'Sdiv' to Div:Shelt</li>
+<li>
+<p>Find and replace InvestInc:SDiv -&gt; Div:Shelt</p>
+</li>
+<li>
+<p>✓ Create Int:Reg</p>
+</li>
+<li>✓ Find/replace Int:Bkg and Int:Other to Int:reg</li>
+<li>✓ Rename/Move Int Tax-exempt to Int:Tax-exempt</li>
+<li>Rename/Move 'SInterest Income' to Int:Shelt</li>
+<li>✓ Creaate Int:Shelt</li>
+<li>
+<p>✓ Find and replace Sint:bank and sint:bkg -&gt; Int:Shelt</p>
+</li>
+<li>
+<p>Make the taxes support the last two parts method</p>
+</li>
+<li>Club state and federal together. <ul>
+<li>Create: T:Income Tax</li>
+<li>Create T:Income Tax:Current Yr and T:Income Tax:Prior Yr</li>
+</ul>
+</li>
+<li>✓ Rename / Move T:Fed income tx pd to T:Income Tax:Current Yr:Fed</li>
+<li>✓ Drop all the Fed tax pd - legends</li>
+<li>✓ Add WH to payroll for consistency</li>
+<li>✓ Change prior year to Fed Prior Year under T:Income Tax</li>
+<li>✓ Rename/Move State income tax pd to Income Tax:State</li>
+<li>✓ Rename CT and MA to include 'tax'</li>
+<li>✓ Add WH and remove CT Tax - from the state lines</li>
+<li>
+<p>✓ Move the prior year items to T:Income Tax:Prior Year</p>
+</li>
+<li>
+<p>✓ Find and replace Sheltered:Employer Health Acct contributions to I:Sheltered income:ER health acct contrib:ER HSA contribution - V</p>
+</li>
+<li>
+<p>✓ remove 'SCapGn - ST', S invest income, InvestInc:SInterest Income, 
+  InvestInc:SDiv, Sheltered:InvestInc and what's left under Sheltered
+  X:Misc:Commissions &amp; Fees</p>
+</li>
+<li>
+<p>✓ Clean up a few transactions</p>
+</li>
+<li>✓ Optum Bank - HSA move interest to :Bank</li>
+<li>✓ Passthru:Pass-IRA-VEC-ML 3 rounding adjustments to misc:asset adj</li>
 </ul>
 
               

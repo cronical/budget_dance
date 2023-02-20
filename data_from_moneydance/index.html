@@ -310,6 +310,26 @@
     Accounting
   </a>
   
+    <nav class="md-nav" aria-label="Accounting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#investments" class="md-nav__link">
+    Investments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-assets" class="md-nav__link">
+    Other Assets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -329,7 +349,22 @@
   
     <li class="md-nav__item">
       <a href="../fcast/" class="md-nav__link">
-        Design and use of fcast.xlsm
+        Design of fcast.xlsm
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        Report definitions
       </a>
     </li>
   
@@ -375,6 +410,21 @@
     <li class="md-nav__item">
       <a href="../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../worksheets/" class="md-nav__link">
+        Worksheets
       </a>
     </li>
   
@@ -474,6 +524,26 @@
     Accounting
   </a>
   
+    <nav class="md-nav" aria-label="Accounting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#investments" class="md-nav__link">
+    Investments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-assets" class="md-nav__link">
+    Other Assets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -514,7 +584,7 @@ Use the following command to active the virtual environment: <code>source .venv/
 </ol>
 <h2 id="copy-transfers-data-from-moneydance">Copy transfers data from Moneydance</h2>
 <ol>
-<li>Run report in Moneydance (currently called Transfers-to-fcast.</li>
+<li>Run report in Moneydance <a href="../report_configs/#transfers-to-fcast">currently called Transfers-to-fcast</a> for all actual periods.</li>
 <li>Press Save button and choose Tab delimited and save as <code>data/transfers.tsv</code></li>
 <li>(If a year has been completed run the Bank balance export procedure)</li>
 <li>If <code>fcast.xlsm</code> is open, save your work and close the file.</li>
@@ -522,6 +592,16 @@ Use the following command to active the virtual environment: <code>source .venv/
 <li>Run <code>python transfers_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
+<pre><code class="language-bash">&gt; dance/transfers_actl_load.py
+2022-08-19 12:49:34,546 - transfers_actl_load - INFO - loaded dataframe from data/transfers.tsv
+2022-08-19 12:49:34,839 - tables - INFO - Read table tbl_iande_actl from data/fcast.xlsm
+2022-08-19 12:49:34,839 - tables - INFO -   300 rows and 6 columns
+2022-08-19 12:49:35,124 - transfers_actl_load - INFO - loaded workbook from data/fcast.xlsm
+2022-08-19 12:49:35,162 - transfers_actl_load - INFO - First forecast year is: 2022
+2022-08-19 12:49:35,470 - books - INFO - deleted worksheet transfers_actl
+2022-08-19 12:49:35,470 - books - INFO - created worksheet transfers_actl
+2022-08-19 12:49:35,499 - tables - INFO - table tbl_transfers_actl added to transfers_actl
+</code></pre>
 <h2 id="bank-balance-export-procedure">Bank balance export procedure</h2>
 <p>The method used is the difference of progressive balances.  This is done for each year.  </p>
 <ol>
@@ -530,23 +610,37 @@ Use the following command to active the virtual environment: <code>source .venv/
 <li>These files are consumed by the <code>transfers_actl_load.py</code> routine.</li>
 </ol>
 <h2 id="investment-actuals">Investment actuals</h2>
-<p>The Tranfers to Investment Accounts by Year report is saved as <code>invest_x.tsv</code>. The Investment Performance report for each year is saved under <code>invest-p-yyyy.tsv</code> for each year. These are processed by <code>invest_actl_load.py</code>. At each year end:</p>
+<p>The Tranfers to Investment Accounts by Year report is saved as <code>invest-x.tsv</code>. The Investment Performance report for each year is saved under <code>invest-p-yyyy.tsv</code> for each year. These are processed by <code>invest_actl_load.py</code>. At each year end:</p>
 <ol>
-<li>Run <code>Tranfers to Investment Accounts by Year</code> and save as <code>invest_x.tsv</code></li>
+<li>Run <a href="../report_configs/#tranfers-to-investment-accounts-by-year">Tranfers to Investment Accounts by Year</a> and save as <code>invest_x.tsv</code></li>
+<li>For each year:</li>
 <li>Run <code>Investment Performance</code> report for the year and save under <code>invest-p-yyyy.tsv</code></li>
 <li>If <code>fcast.xlsm</code> is open, save your work and close the file.</li>
 <li>Open a terminal window at the project root.</li>
 <li>Run <code>invest_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
+<pre><code class="language-bash">&gt;dance/invest_actl_load.py 
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - loaded dataframe from data/invest_x.tsv
+2022-08-19 13:49:22,563 - invest_actl_load - INFO - Starting investment actual load
+2022-08-19 13:49:22,824 - tables - INFO - Read table tbl_accounts from data/fcast.xlsm
+2022-08-19 13:49:22,824 - tables - INFO -   27 rows and 10 columns
+2022-08-19 13:49:22,834 - invest_actl_load - INFO - Processing 2018
+2022-08-19 13:49:22,846 - invest_actl_load - INFO - Processing 2019
+2022-08-19 13:49:22,856 - invest_actl_load - INFO - Processing 2020
+2022-08-19 13:49:22,867 - invest_actl_load - INFO - Processing 2021
+2022-08-19 13:49:23,145 - books - INFO - deleted worksheet invest_actl
+2022-08-19 13:49:23,145 - books - INFO - created worksheet invest_actl
+2022-08-19 13:49:23,175 - tables - INFO - table tbl_invest_actl added to invest_actl
+</code></pre>
 <h2 id="validate-balances-for-a-year">Validate balances for a year</h2>
 <p>The routine <code>balance_check.py</code> is available to see how the values from the <code>Account Balances</code> report in Moneydance match to those in <code>fcast.xlsm</code>. </p>
 <ol>
 <li>In Moneydance run the <code>Account Balances</code> report selecting all accounts. </li>
-<li>Save the report  under the names: <code>data/yyyy Account Balances.tsv</code>.</li>
+<li>Save the report  under the names: <code>data/acct-bals-yyyy.tsv</code>.</li>
 <li>If the year has rolled over in the spreadsheet</li>
 <li>change first_forecast_year in on the tables worksheet.</li>
-<li>In a terminal window set current directory to the project root and run <code>balance_check.py yyyy</code> where yyyy is the year to check.  You should get a listing that shows the exact matches and the accounts that don't match (and how much they are off).</li>
+<li>In a terminal window set current directory to the project root and run <code>dance/balance_check.py yyyy</code> where yyyy is the year to check.  You should get a listing that shows the exact matches and the accounts that don't match (and how much they are off).</li>
 </ol>
 <h2 id="add-an-account">Add an account</h2>
 <ol>
@@ -620,7 +714,14 @@ where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is
 <li>The following should be refreshed: tbl_transfers_actl by running the procedure</li>
 </ol>
 <h2 id="accounting">Accounting</h2>
-<p>The computation of balances depends on the ability to determine the changes to the accounts.  The "Other Asset" account has several sub-accounts, including receivables from a few parties.  The method of determining the transfers depends is to use the <code>transfers-to-fcast</code> memorized report.  Some of the sub-accounts in Other Asset have transactions using expense categories.  To support this the memorized report includes all expenses in the criteria.  This correctly gathers the amounts such as depreciation for cars and payments made against some expense category (on our behalf).  The set of a target accounts configured in this report includes all investment, loan, asset and liability accounts.   Whenever there is a transfer between these accounts, this method essentially cancels out that values, which can lead to wrong balances.  Such transactions should be routed throught the <code>Passthru</code> bank account to avoid this problem.</p>
+<p>The computation of balances depends on the ability to determine the changes to the accounts.  </p>
+<h3 id="investments">Investments</h3>
+<p>The performance report provides opening and closing balances, income, gains and something called "Return Amount". It does not indicate unrealized gains per se.  The "Return Amount" is essentially a plug to get to the ending balance.  Note - income needs to be marked MiscInc (not transfer to the income category)</p>
+<p>Gains are essentially realized gains. Fees for purchases and/or sales of securities are included as part of the cost basis.  Other fees, that occur outside of the purchase or sale transaction are not included - such things as commissions, other account fees, and others. </p>
+<p>The other fees are rolled into the plug field (Return Amount), along with unrealized gains. It is better to include them in the Gains and therefore the 'Rlz Int/Gn' value in the spreadsheet. Thus when an account is closed, there will be no unrealized gains. </p>
+<p>To do this the investment fees need two categories.  Investing:Action Fees, Investing:Account Fees.  Only the account fee is selected in the Investment IandE report.  This allows the loading of investment actuals to add the account fees to the gains.  It also means that the transaction fees are not used to forecast future fees.  This is reasonable since they are by nature not asset based and the forecast method uses percentage of assets.</p>
+<h3 id="other-assets">Other Assets</h3>
+<p>The "Other Asset" account has several sub-accounts, including receivables from a few parties.  The method of determining the transfers depends is to use the <code>transfers-to-fcast</code> memorized report.  Some of the sub-accounts in Other Asset have transactions using expense categories.  To support this the memorized report includes all expenses in the criteria.  This correctly gathers the amounts such as depreciation for cars and payments made against some expense category (on our behalf).  The set of a target accounts configured in this report includes all investment, loan, asset and liability accounts.   Whenever there is a transfer between these accounts, this method essentially cancels out that values, which can lead to wrong balances.  Such transactions should be routed throught the <code>Passthru</code> bank account to avoid this problem.</p>
 
               
             </article>
@@ -652,13 +753,13 @@ where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is
       
       
         
-        <a href="../fcast/" class="md-footer__link md-footer__link--next" aria-label="Next: Design and use of fcast.xlsm" rel="next">
+        <a href="../fcast/" class="md-footer__link md-footer__link--next" aria-label="Next: Design of fcast.xlsm" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Design and use of fcast.xlsm
+              Design of fcast.xlsm
             </div>
           </div>
           <div class="md-footer__button md-icon">
