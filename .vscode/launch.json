@@ -84,5 +84,14 @@
       "args": ["-w","data/test_wb.xlsm" ,"2018"],
       "justMyCode": true
     },
+    {
+      "name": "retire_load args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/retire_load.py",
+      "console": "integratedTerminal",
+      "args": ["m","-p","data/retire_medical_template.tsv"],
+      "justMyCode": true
+    },
   ]
 }
