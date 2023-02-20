@@ -9,7 +9,7 @@ from dance.other_actls import (IRA_distr, hsa_disbursements, payroll_savings,
 from dance.transfers_actl_load import (prepare_transfers_actl,
                                        read_transfers_actl)
 from dance.taxes_load import prepare_taxes
-from dance.retire_load import prepare_retire                                     
+from dance.retire_load import prepare_retire, prepare_retire_medical                                     
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
 from dance.util.tables import this_row
@@ -72,7 +72,9 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'md_roth':
       df=roth_contributions(data_info=data_info)
     case 'retire_template':
-      df=prepare_retire(data_info=data_info)  
+      df=prepare_retire(data_info=data_info)
+    case 'retire_medical_template':
+      df=prepare_retire_medical(data_info=data_info)    
     case _:
       assert False,'Undefined type'
   return df,groups
