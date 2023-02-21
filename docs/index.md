@@ -18,5 +18,3 @@ The [spreadsheet](fcast.md)
 [Visual Basic](vba_index.md)
 
 [Getting Started](setup.md)
-
-[Appendix](appendix.md)
