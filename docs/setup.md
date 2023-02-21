@@ -50,12 +50,6 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 |Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
 |Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 
-
-
-
-
-
-
 ## API key
 
 The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:

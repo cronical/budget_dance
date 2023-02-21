@@ -5,8 +5,4 @@
 .venv/**
 data/**
 private/**
-docs/build/_sources/**
-docs/build/_static/**
-docs/build/generated/**
-docs/build/.doctrees/**
-docs/source/generated/**
+site/**

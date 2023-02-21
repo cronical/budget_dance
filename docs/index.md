@@ -1,11 +1,22 @@
 # Tools to map accounting data to long term plans
 
-The accounting system is Moneydance.  The long term planning is via Excel, including some VBA.  These are tied together with some Python code.
+The accounting system is Moneydance.  The long term planning is via Excel.
 
-[Spreadsheet](fcast.md)
+This spreadsheet extends the family's historical financials into the future.  It allows for modeling and planning for 
 
-[Getting Started](setup.md)
+- Income and expenses (combined with cash flow)
+- Accounts balances and transfers (including investments)
+- Working life and retirement phases
+- Federal and state income taxes. The tax calculator is far from general.
+
+The spreadsheet is built by Python programs.  Actual data is based on data exported from Moneydance.
+
+The [spreadsheet](fcast.md)
+
+[Python is the glue](./python.md)
 
 [Visual Basic](vba_index.md)
+
+[Getting Started](setup.md)
 
 [Appendix](appendix.md)

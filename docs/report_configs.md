@@ -1,4 +1,6 @@
-# Report definitions
+# Moneydance report definitions
+
+This page is intended to document the reports which are used to generate the actual data.
 
 ## Transfers-to-fcast
 
