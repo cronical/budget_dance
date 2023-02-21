@@ -64,7 +64,6 @@ def refresh_sheets(target_file,overwrite=False):
       except ValueError:
         ws=wb.create_sheet(sheet_name)
         logger.debug('sheet {} added'.format(sheet_name))
-      ws.sheet_properties.tabColor= color
       if existing:
         if not overwrite:
           logger.info('Sheet {} already exists, so not initializing'.format(sheet_name))
@@ -73,7 +72,7 @@ def refresh_sheets(target_file,overwrite=False):
           del wb[sheet_name]
           ws=wb.create_sheet(sheet_name)
           logger.debug('sheet {} deleted and recreated'.format(sheet_name))
-
+      ws.sheet_properties.tabColor= color
       table_location=1 # add to this for each subsequent table
       for table_info in sheet_info['tables']:
 
