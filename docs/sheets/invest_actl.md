@@ -1,4 +1,4 @@
-## invest_actl
+# invest_actl
 
 The Python program `invest-actl-load.py` gets the master list of investment accounts from `fcast.xlsm`.  It then reads the `data/invst_*.tsv` files and computes the net flows for each account by year.
 

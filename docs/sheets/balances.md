@@ -1,4 +1,4 @@
-## balances
+# balances
 
 The following fields are looked up from the account page: Type, Income Txbl, and Active.
 
@@ -17,7 +17,7 @@ This table has the following rows for each account.
 
 The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that needs to be defined).
 
-### Rlz Int/Gn line 
+## Rlz Int/Gn line 
 
 For actuals, this value derives from the investment performance report via the [invest_actl worksheet](#invest-actl).
 

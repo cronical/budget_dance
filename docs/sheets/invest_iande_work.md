@@ -1,4 +1,4 @@
-## invest_iande_work
+# invest_iande_work
 
 This sheet refers to Income and Expenses that relate to investments. The upper left quadrant of the sheet refers to actual values for several categories. These are converted to ratios in the lower left quadrant, so that forecasts can be derived. 
 

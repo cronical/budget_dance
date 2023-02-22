@@ -1,8 +1,8 @@
-## retirement
+# retirement
 
 Plans out income streams and post-retirement medical expenses.  This affects both the balances and the iande tabs.
 
-Retirement medical are modeled here.   Deductibles and copays are in 'other'. These values are posted as totals in the premium lines of IANDE and are meant to represent all net medical expenses.
+## Retirement Income Plan
 
 | Name            | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
@@ -16,3 +16,6 @@ Retirement medical are modeled here.   Deductibles and copays are in 'other'. Th
 |Anny Rate|The rate used for the annuity|
 |Yearly|For non-annuity ongoing values (pensions), yearly amount.|
 
+## Retirement Medical
+
+Retirement medical values are modeled here.   

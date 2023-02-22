@@ -1,4 +1,4 @@
-## accounts
+# accounts
 
 This worksheet lists the tracked accounts and their attributes. Some of these accounts are real accounts at financial institutions.  Others summarize sets of assets or liabilities. One account is designated as the sweep account.
 

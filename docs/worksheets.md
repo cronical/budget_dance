@@ -1,7 +1,5 @@
-# Worksheet
+# Worksheets
 
-# Worksheet overview
-  
   The worksheets are grouped together with colored tabs.  The groups are as follows:
   
 |Group|Sheet|Purpose|
@@ -24,7 +22,7 @@
 |taxes|
 ||[taxes](sheets/taxes.md)|computes Federal and State income taxes.|
 ||[capgn](sheets/cap_gain.md)|estimating taxes for the current and prior year until tax statements arrive|
-||[tax_tables](sheets/tax_tables.md)|
+||[tax_tables](sheets/tax_tables.md)|Selected federal and state tax tables.  Required mininum distribution tables.
 |tables|
 ||[gen_tables](./sheets/gen_tables.md)|state tax information, Medicare Part B premiums, inflation, and a general state mangement|
 ||[utility](./sheets/utility.md)|Used by VBA functions to locate tables.
