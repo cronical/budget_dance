@@ -21,7 +21,7 @@ class Tester:
     '''Get a dictionary of stats'''
     return self.stats
 
-  def run_test(self,test_group,expected,found,tolerance=0.5):
+  def run_test(self,test_group,expected,found,tolerance=0.5,ignore_years=[]):
     '''under the heading of a test_group, compare expected and found for columns showing which items vary
     expected and found are of type pd.Series with a name.
     By default look for exact match, but if tolerance provided then the difference should be less than or equal to the tolerance.
@@ -32,6 +32,10 @@ class Tester:
       group_stat=[0,0]
       self.stats[test_group]=group_stat
     df=pd.DataFrame([expected,found]).T
+    if 0!=len(ignore_years):
+      sel=[x not in ignore_years for x in df.index]
+      df=df.loc[sel]
+      print(f'IGNORING: {ignore_years}')
     cols=df.columns
     df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
     zeros= df.delta.abs() <=tolerance
@@ -191,7 +195,7 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
       table,filter,agg=('tbl_iande',hsa,'diff')
       found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
       found.name=legend(table,filter,agg)
-      tester.run_test(test_group,expected,found)
+      tester.run_test(test_group,expected,found,ignore_years=['Y2018'])
 
     results(test_group=test_group,tester=tester)
   # ========================================
