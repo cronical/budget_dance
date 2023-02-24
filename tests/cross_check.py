@@ -7,6 +7,7 @@ import argparse
 import json
 import pandas as pd
 
+from dance.util.tables import df_for_table_name
 from tests.balance_check import balance_test_pairs
 from tests.helpers import get_row_set
 
@@ -32,10 +33,11 @@ class Tester:
       group_stat=[0,0]
       self.stats[test_group]=group_stat
     df=pd.DataFrame([expected,found]).T
+    ignore_msg=''
     if 0!=len(ignore_years):
       sel=[x not in ignore_years for x in df.index]
       df=df.loc[sel]
-      print(f'IGNORING: {ignore_years}')
+      ignore_msg=f' (IGNORING: {ignore_years})'
     cols=df.columns
     df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
     zeros= df.delta.abs() <=tolerance
@@ -45,7 +47,7 @@ class Tester:
     group_stat[1]+=zeros.sum()
     msg=msg % self.test_count 
     msg+=' --> %d out of %d pass'%(zeros.sum(),len(zeros))
-    print (msg)
+    print (msg+ignore_msg)
     if zeros.sum()!=len(zeros):
       df=df.loc[~ zeros]
       df.columns=['Expected','Found','Difference']
@@ -108,10 +110,11 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
   found.drop(labels=ignore,inplace=True)
   tester.run_test(test_group,expected,found,tolerance)
 
-def row_to_row(workbook,test_group,tester,table_lines):
+def row_to_row(workbook,test_group,tester,table_lines,factors=None):
   '''
   Helper to test that two single rows match OR
-  if the filter gets more than one row, the sum of those rows is used.
+  if the filter gets more than one row, the sum of those rows (times the factor) is used.
+  (the purpose of the factor is to allow for subtraction in the case of two lines)
   The lines are text to match on the index of each table.
 
     args: workbook
@@ -121,16 +124,23 @@ def row_to_row(workbook,test_group,tester,table_lines):
           The first item in the dict is the expected value 
           The line may be a string - which will use a contains filter
           The line may be a list - which will use the in_list filter
+          factor - a factor for each of expected and found. Its length should be the same as the number of rows to be selected.
   '''
   values=[]
   agg=None
+  if factors is None:
+    mult_by=[1,1]
+  else:
+    mult_by=factors.copy()
+
   for table,line in table_lines.items():
+    factor=mult_by.pop(0)
     if isinstance(line,str):
       df=get_row_set(workbook,table,'index','index',contains=line)
     if isinstance(line,list):
       df=get_row_set(workbook,table,'index','index',in_list=line)
     if df.shape[0] > 1:
-      series=df.sum(axis=0)
+      series=df.multiply(factor,axis=0).sum(axis=0)
       agg='sum'
     else:
       series=df.squeeze()
@@ -175,11 +185,29 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
       'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
     row_to_row(workbook,test_group,tester,test_lines)
 
-    # investment gains on i and e match rlz int/gn on balances
+    # bank interest
     test_lines={
-      'tbl_iande':'Income:I:Invest income - TOTAL',
-      'tbl_balances':'Rlz Int/Gn'}
+      'tbl_balances':'Rlz Int/GnBank Accounts',
+      'tbl_iande': 'Income:I:Invest income:Int:Bank'
+    }
     row_to_row(workbook,test_group,tester,test_lines)
+
+    # non bank interest
+    df=df_for_table_name(table_name='tbl_invest_actl',data_only=True,workbook=workbook)
+    sel=(df.ValType=='Income' ) & (df.Acct_txbl==0)
+    keys=df.loc[sel].index.to_list()
+    test_lines={
+      'tbl_invest_actl': keys,
+      'tbl_iande': ['Income:I:Invest income:Int:Shelt','Income:I:Invest income:Div:Shelt','Income:I:Invest income:CapGn:Shelt:Distr']
+    }
+    row_to_row(workbook,test_group,tester,test_lines)
+
+
+    # investment gains less accrued interest paid on i and e match rlz int/gn on balances
+    test_lines={
+      'tbl_iande':['Income:I:Invest income - TOTAL','Expenses:X:Investing:Non-Tax Muni Accrued Int Paid'],
+      'tbl_balances':'Rlz Int/Gn'}
+    row_to_row(workbook,test_group,tester,test_lines,factors=[[1,-1],1])
 
   # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
     test_lines={
@@ -191,11 +219,14 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
     aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
     hsas=aw.loc[aw.index.str.startswith('HSA')].index.unique()
     for hsa in hsas:
+      ignore=[]
+      if 'Devenir' in hsa or 'GBD - Fidelity' in hsa:
+        ignore=['Y2018']
       expected=aw.loc[hsa]
       table,filter,agg=('tbl_iande',hsa,'diff')
       found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
       found.name=legend(table,filter,agg)
-      tester.run_test(test_group,expected,found,ignore_years=['Y2018'])
+      tester.run_test(test_group,expected,found,ignore_years=ignore)
 
     results(test_group=test_group,tester=tester)
   # ========================================
