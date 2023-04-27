@@ -3,6 +3,7 @@
 Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks.
 '''
 import argparse
+import datetime
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -13,7 +14,7 @@ from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
 from dance.util.tables import (columns_for_table, df_for_table_name,
                                get_f_fcast_year, this_row, write_table)
-from dance.util.xl_formulas import actual_formulas, forecast_formulas
+from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref
 
 logger=get_logger(__file__)
 
@@ -119,16 +120,19 @@ def read_iande_actl(data_info):
   df.fillna(0, inplace=True) # replace the NaN's with zeros
   df.query('Account!=0',inplace=True) # remove blank rows
   df.Account=df.Account.apply(indent_other)
+  if 'Total' in df.columns:
+    del df['Total']
+  df.reset_index(drop=True,inplace=True)
+  return df
 
-  # change the year columns to Y+year format
+def y_year(df):
+  '''change the year columns to Y+year format'''
   for cn in df.columns.values.tolist():
     if cn.isnumeric():
       n=int(cn)
       nn = 'Y{}'.format(n)
-      df.rename(columns={cn:nn},inplace=True)
-
-  df.reset_index(drop=True,inplace=True)
-  return df
+      df.rename(columns={cn:nn},inplace=True) 
+  return df 
 
 def indent_leaf(path,sep=':',spaces=3):
   '''Convert a path with separators to show level of the leaf by using spaces
@@ -142,6 +146,60 @@ def indent_leaf(path,sep=':',spaces=3):
   n=path.count(sep)*spaces
   result=(' '*n)+path.split(':')[-1]
   return result
+
+def nest_by_cat(df):
+  '''create key of nested category names
+   determines level of each row in the category hierarchy
+   returns df with key and level columns'''
+  df.insert(loc=0,column='Key',value=df.Account.str.lstrip()) # used to define level
+  #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
+  df['level']=((df.Account.str.len() - df.Key.str.len()))/3 # each level is indented 3 more spaces
+  df['level']=[int(x) for x in df.level.tolist()]
+
+  df['Key']=None # build up the keys by including parents
+  last_level=-1
+  pathparts=[]
+  pathpart=None
+  for ix,row in df[['level','Account']].iterrows():
+    lev=row['level']
+    if lev > last_level and pathpart is not None:
+      pathparts.append(pathpart)
+    if lev < last_level:
+      pathparts=pathparts[:-1]
+    pathpart=row['Account'].strip()
+    a=pathparts.copy()
+    a.append(pathpart)
+    key=':'.join(a)
+    df.loc[ix,'Key']=key
+    last_level=lev
+  return df
+
+def identify_groups(df):
+  '''identify groups where folding and subtotals occur
+  Whenever the level goes down from the previous level it may be a total.
+  Typically it is a total, but in the case of a deeper level in the middle of a tranche of a certain level
+  it may not be.
+
+  returns list of triples of group info: level, start, end
+  '''
+  groups=[] 
+  last_level=-1
+  keys=list(df['Key'])
+  for ix,row in df.iterrows():
+    level_change= row['level']-last_level
+    k=row['Key']# get the key value from the file
+    if level_change <0: #this might be a total line
+      n=k.find(' - TOTAL') # see if it has the total label
+      if n >= 0: # if it has a total label
+        bare = k[:n]# # remove the total label
+        try:
+          # prepare the grouping specs
+          bx=keys.index(bare) # look for this in the keys - should be there
+          groups.append([row['level']+1,bx+3,ix+2]) # 3 accounts for 1 to change origin, 1 header row, 1 title row
+        except ValueError as e:
+          raise ValueError(f'{k} not found in keys'.format()) from e
+    last_level=row['level']
+  return groups
 
 def hier_insert(df,table_info):
   '''Insert any specified new rows
@@ -183,6 +241,29 @@ def hier_insert(df,table_info):
     df=new_df.copy()
   return df
 
+def subtotal_formulas(df,groups,heading_row):  
+  '''On subtotal rows replace the existing (hard) values with formulas
+  if its not a total just let the value stay there
+  '''
+  for group in groups:
+    for cx,cl in enumerate(df.columns):
+      if str(cl).startswith('Y'):
+        let=get_column_letter(cx+1)
+        formula='=subtotal(9,{}{}:{}{})'.format(let,group[1],let,group[2])
+        df.loc[group[2]-2,[cl]]=formula
+
+  keys=df.Key.tolist()
+  net_ix=keys.index('TOTAL INCOME - EXPENSES') # find the net line (its should be the last line)
+  if -1!=net_ix:
+    group=groups[-1]
+    inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
+    exp_ix=keys.index('Expenses - TOTAL')+heading_row+1
+    for cx,cl in enumerate(df.columns):
+      if str(cl).startswith('Y'):
+        let=get_column_letter(cx+1)
+        formula='={}{}-{}{}'.format(let,inc_ix,let,exp_ix)
+        df.loc[net_ix,[cl]]=formula
+  return df
 
 def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_row=1,verbose=False):
   '''prepare the dataframe for insertion into workbook. Supports both iande and iande_actl.
@@ -210,12 +291,11 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
   if title_row!=1:
     raise NotImplementedError('Title row must be 1 for iande and iande_actl for now.')
-  valid_sheets=['iande_actl','iande']
+  valid_sheets=['iande_actl','iande','current']
   heading_row=1+title_row
   if target_sheet not in valid_sheets:
-    raise ValueError('tab_target must be iande or iande_actl')
+    raise ValueError('tab_target must be one of: %s'%', '.join(valid_sheets))
   logger.debug('Preparing data for {}'.format(target_sheet))
-  initialize_iande=target_sheet=='iande'
   # get the workbook from file
   try:
     wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
@@ -231,105 +311,54 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   assert len(tables)==1,'not exactly one table defined'
   tab_tgt=tables[0]['name']
 
-  # creating key of nested category names
-  # determine level of each row in the category hierarchy
-  # hold the flat view in the key column for now
-  df.insert(loc=0,column='Key',value=df.Account.str.lstrip()) # used to define level
-  #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
-  df.rename(columns={'Total':'level'},inplace=True)
-  df['level']=((df.Account.str.len() - df.Key.str.len()))/3 # each level is indented 3 more spaces
-  df['level']=[int(x) for x in df.level.tolist()]
-
-  df['Key']=None # build up the keys by including parents
-  last_level=-1
-  pathparts=[]
-  pathpart=None
-  for ix,row in df[['level','Account']].iterrows():
-    lev=row['level']
-    if lev > last_level and pathpart is not None:
-      pathparts.append(pathpart)
-    if lev < last_level:
-      pathparts=pathparts[:-1]
-    pathpart=row['Account'].strip()
-    a=pathparts.copy()
-    a.append(pathpart)
-    key=':'.join(a)
-    df.loc[ix,'Key']=key
-    last_level=lev
-
+  df=nest_by_cat(df) # creates key and level fields
   df=hier_insert(df,tables[0]) # insert any specified lines into hierarchy
-
-  # put in subtotal formulas for the numeric columns
-  # the subtotals are aligned with the groups, so do those too
-  #whenever the level goes down from the previous level it may be a total
-  groups=[] # level, start, end
-  last_level=-1
-  keys=list(df['Key'])
-  for ix,row in df.iterrows():
-    level_change= row['level']-last_level
-    k=row['Key']# get the key value from the file
-    if level_change <0: #this might be a total line
-      n=k.find(' - TOTAL') # see if it has the total label
-      # typically it is a total, but in the case of a deeper level in the middle of a tranche of a certain level
-      # it may not be.
-      if n >= 0: # if it has a total label
-        bare = k[:n]# # remove the total label
-        try:
-          # prepare the grouping specs
-          bx=keys.index(bare) # look for this in the keys - should be there
-          groups.append([row['level']+1,bx+3,ix+2]) # 3 accounts for 1 to change origin, 1 header row, 1 title row
-        except ValueError as e:
-          raise ValueError(f'{k} not found in keys'.format()) from e
-    last_level=row['level']
+  groups=identify_groups(df)
   del df['level'] # clear out temp field
 
-  test_required_lines(df,workbook,f_fcast,initialize_iande=initialize_iande,force=force,verbose=verbose) # raises error if not good.
+  expected_cols=set(columns_for_table(wb,target_sheet,tab_tgt,config).name)
 
-  if target_sheet=='iande': # adjust for iande, adding columns
-    for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
-      df['Y{}'.format(y)]=None
+  match target_sheet:
+    case 'iande':
+      test_required_lines(df,workbook,f_fcast,initialize_iande=True,force=force,verbose=verbose) # raises error if not good.
+      # adjust for iande, adding columns
+      for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
+        df['Y{}'.format(y)]=None
+      #use formulas to pull non-totals from iande_actl
+      tr=this_row('Key') # syntax to refer to key on this row inside of Excel
+      for rix,row in df.iterrows():
+        for cix,col_name in enumerate(df.columns):
+          if col_name[1:].isnumeric():
+            val=row[col_name]
+            if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
+              if int(col_name[1:])<int(f_fcast[1:]): # but for actual items, refer to iande_actl
+                cl=get_column_letter(1+cix)
+                formula=f'=get_val({tr},"tbl_iande_actl",this_col_name())'.format()
+                df.loc[rix,col_name]=formula
+    case 'iande_actl':
+      test_required_lines(df,workbook,f_fcast,initialize_iande=False,force=force,verbose=verbose) # raises error if not good.
+    case 'current':
+      as_of=df.columns[-1]
+      as_of_datetime=pd.to_datetime(as_of.split(' - ')[-1])
+      assert as_of_datetime.year==int(f_fcast[1:]),'YTD file is not for first forecast year'
+      yymmdd='%4d%02d%02d'%(as_of_datetime.year,as_of_datetime.month,as_of_datetime.day)
+      df.rename(columns={as_of:yymmdd},inplace=True)
+      expected_cols= (expected_cols-set(['YTD']))|set(['Y'+yymmdd]) 
+      df['Factor']=None
+      formula='=IF(ISBLANK([@Factor]),"",[@Y%s]*[@Factor])'%yymmdd
+      df['Projected']=table_ref(formula)
+    
 
-  # now replace the hard values with formulas
-  # if its not a total just let the value stay there
-  for group in groups:
-    for cx,cl in enumerate(df.columns):
-      if cl.startswith('Y'):
-        let=get_column_letter(cx+1)
-        formula='=subtotal(9,{}{}:{}{})'.format(let,group[1],let,group[2])
-        df.loc[group[2]-2,[cl]]=formula
+  df=y_year(df)  
+  df=subtotal_formulas(df,groups,heading_row)
 
-  net_ix=keys.index('TOTAL INCOME - EXPENSES') # find the net line (its should be the last line)
-  if -1!=net_ix:
-    group=groups[-1]
-    inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
-    exp_ix=keys.index('Expenses - TOTAL')+heading_row+1
-    for cx,cl in enumerate(df.columns):
-      if cl.startswith('Y'):
-        let=get_column_letter(cx+1)
-        formula='={}{}-{}{}'.format(let,inc_ix,let,exp_ix)
-        df.loc[net_ix,[cl]]=formula
-
-  cols_df=columns_for_table(wb,target_sheet,tab_tgt,config)
-  expected=set(cols_df.name)
-  data_has=set(df.columns)
-  if data_has != expected:
+  data_has_cols=set(df.columns)
+  if data_has_cols != expected_cols:
     msg='Columns expect does not match data source for {}'.format(tab_tgt)
     logger.error(msg)
-    logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected-data_has,data_has-expected))
+    logger.error('Extra expected columns: {}, Extra received columns: {}'.format(expected_cols-data_has_cols,data_has_cols-expected_cols))
     raise IndexError(msg)
 
-  if target_sheet=='iande': # adjust for iande, using formulas to pull non-totals from iande_actl
-    tr=this_row('Key') # syntax to refer to key on this row inside of Excel
-    for rix,row in df.iterrows():
-      for cix,col_name in enumerate(df.columns):
-        if col_name[1:].isnumeric():
-          val=row[col_name]
-          if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
-            if int(col_name[1:])<int(f_fcast[1:]): # but for actual items, refer to iande_actl
-              cl=get_column_letter(1+cix)
-              formula=f'=get_val({tr},"tbl_iande_actl",this_col_name())'.format()
-              df.loc[rix,col_name]=formula
-      pass
   return df,groups
 
 
