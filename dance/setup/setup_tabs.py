@@ -139,7 +139,7 @@ def refresh_sheets(target_file,overwrite=False):
           if isinstance(data,pd.DataFrame):
             # special case for YTD which gets as_of_date as new column heading 
             if 'YTD' in col_def.name.tolist():
-              col_def.loc[col_def.name=='YTD',['name']]=data.columns[2]
+              col_def.loc[col_def.name=='YTD',['name']]=data.columns[3] #TODO  remove hardcoded 3
             # it may be that the 1st column is in the index,
             # and/or there may be a new year 
             # so fix that

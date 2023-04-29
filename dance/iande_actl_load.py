@@ -150,7 +150,8 @@ def indent_leaf(path,sep=':',spaces=3):
 def nest_by_cat(df):
   '''create key of nested category names
    determines level of each row in the category hierarchy
-   returns df with key and level columns'''
+   and whether the row is a leaf node
+   returns df with key, is_leaf and level columns'''
   df.insert(loc=0,column='Key',value=df.Account.str.lstrip()) # used to define level
   #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
   df['level']=((df.Account.str.len() - df.Key.str.len()))/3 # each level is indented 3 more spaces
@@ -172,6 +173,14 @@ def nest_by_cat(df):
     key=':'.join(a)
     df.loc[ix,'Key']=key
     last_level=lev
+  return df
+
+def is_leaf(df):
+  '''add a field, is_leaf, to a dataframe by marking leaf nodes with 1, other wise 0'''
+  df.insert(loc=1,column='is_leaf',value=0) 
+  sel= df.level >= df.level.shift(periods=-1,fill_value=0)
+  sel = sel & ~ df.Key.str.endswith('TOTAL')
+  df.loc[sel,'is_leaf']=1
   return df
 
 def identify_groups(df):
@@ -311,8 +320,9 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   assert len(tables)==1,'not exactly one table defined'
   tab_tgt=tables[0]['name']
 
-  df=nest_by_cat(df) # creates key and level fields
+  df=nest_by_cat(df) # creates key, leaf and level fields
   df=hier_insert(df,tables[0]) # insert any specified lines into hierarchy
+  df=is_leaf(df)# mark rows that are leaves of the category tree
   groups=identify_groups(df)
   del df['level'] # clear out temp field
 
@@ -320,6 +330,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
   match target_sheet:
     case 'iande':
+      del df['is_leaf'] # clear out temp field
       test_required_lines(df,workbook,f_fcast,initialize_iande=True,force=force,verbose=verbose) # raises error if not good.
       # adjust for iande, adding columns
       for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
@@ -336,6 +347,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
                 formula=f'=get_val({tr},"tbl_iande_actl",this_col_name())'.format()
                 df.loc[rix,col_name]=formula
     case 'iande_actl':
+      del df['is_leaf'] # clear out temp field
       test_required_lines(df,workbook,f_fcast,initialize_iande=False,force=force,verbose=verbose) # raises error if not good.
     case 'current':
       as_of=df.columns[-1]
@@ -346,7 +358,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
       expected_cols= (expected_cols-set(['YTD']))|set(['Y'+yymmdd]) 
       df['Factor']=None
       formula='=IF(ISBLANK([@Factor]),"",[@Y%s]*[@Factor])'%yymmdd
-      df['Projected']=table_ref(formula)
+      df['Year']=table_ref(formula)
     
 
   df=y_year(df)  

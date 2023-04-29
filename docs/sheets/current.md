@@ -12,6 +12,6 @@ Like `iande` it has two leading columns.
 |Account|The last portion of the key, indented by two spaces for each level|
 |YTD|The year to data data which has been imported. The column name is replaced by the as of date in the form Yyyyymmdd|
 |Factor|A number by which to multiply the year to date value to get the full year.  For instance use 1 if the year to date value is final.  A blank means the value won't be transferred to `iande`, so the modeled value will be retained.|
-|Projected|The product of YTD and Factor, or blank if not re-projected.|
+|Year|The product of YTD and Factor, or blank if not re-projected.|
 
 The rows are handled like iande with groups, totals and hierarchical inserts.

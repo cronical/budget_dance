@@ -93,5 +93,14 @@
       "args": ["m","-p","data/retire_medical_template.tsv"],
       "justMyCode": true
     },
+    {
+      "name": "ytd args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/ytd.py",
+      "console": "integratedTerminal",
+      "args": ["-l","-f","-w","data/test_wb.xlsm" ],
+      "justMyCode": true
+    },    
   ]
 }
