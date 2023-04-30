@@ -3,6 +3,7 @@
 May be modified to add new tabs and re-run.  Unless overwrite is selected, does not replace or delete any tabs, only adds them
 '''
 import argparse
+from json import JSONDecodeError 
 from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
@@ -125,8 +126,13 @@ def refresh_sheets(target_file,overwrite=False):
                 quit()
               data_info['api_key']=api_keys[key_name]
               logger.debug('API key retrieved from private data')
-            data=remote_data.request(data_info)
-            logger.debug('pulled data from remote')
+            try:
+              data=remote_data.request(data_info)
+              logger.debug('pulled data from remote')
+            except JSONDecodeError :
+              logger.error('Remote data not available, possible maintenance window')
+              data={1970:	5.60}
+
           if source=='local': 
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map,
             title_row=table_info.get('title_row',1))

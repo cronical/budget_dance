@@ -1,4 +1,5 @@
-'''get annual various remote data'''
+'''get annual various remote data
+raises JSON decode error if site is unavailable'''
 import requests
 import json
 from math import ceil, floor
@@ -30,7 +31,11 @@ def request(data_info):
       data = json.dumps(parameters)
       url=urls[data_info['site_code']]
       p = requests.post(url, data=data, headers=headers)
-      json_data = json.loads(p.text)
+      try:
+        json_data = json.loads(p.text)
+      except json.JSONDecodeError as e:
+        raise e
+
       for row in json_data['Results']['series'][0]['data']:
         if row['period']=='M12':
           year=row['year']
