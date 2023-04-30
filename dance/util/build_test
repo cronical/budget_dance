@@ -8,6 +8,8 @@ RC=$?
 if [ $RC -ne 0 ]; then
   exit $RC
 fi
+# pull in the ytd reprojections
+dance/ytd.py -l -f
 # original: open data/test_wb.xlsm  
 # use script to open and save, avoiding timeout
 # this allows Excel to compute the formulas

@@ -99,7 +99,7 @@
       "request": "launch",
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
-      "args": ["-l","-f","-w","data/test_wb.xlsm" ],
+      "args": ["-l","-f" ],
       "justMyCode": true
     },    
   ]

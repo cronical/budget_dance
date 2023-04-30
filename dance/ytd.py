@@ -33,10 +33,10 @@ if __name__ == '__main__':
     wb=load_workbook(filename = args.workbook,keep_vba=True)
     with open (args.path,encoding='utf-8')as f:
       df=pd.read_json(json.load(f),orient='index').T
-      ytd_fld=df.columns[0]
-      df['Year']=df[ytd_fld]*df['Factor'] # recompute reprojected year, in case the excel calc has not yet run.
-      row_offset=3 # 1 to change origin, 1 for title, 1 for heading
-      col_offset=2 # 1 to change origin, 1 since key is in the index not a field
+    ytd_fld=df.columns[0]
+    df['Year']=df[ytd_fld]*df['Factor'] # recompute reprojected year, in case the excel calc has not yet run.
+    row_offset=3 # 1 to change origin, 1 for title, 1 for heading
+    col_offset=2 # 1 to change origin, 1 since key is in the index not a field
   for control in (
     {'select':args.load,'tab':'current','field':'Factor','target':'Factor'},
     {'select':args.forward,'tab':'iande','field':'Year','target':'Y%04d'%ffy}
