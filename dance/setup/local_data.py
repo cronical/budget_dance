@@ -46,7 +46,6 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'md_iande_actl':
       df=read_iande_actl(data_info=data_info)
       df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df,title_row=title_row)
-      pass
     case 'md_transfers_actl':
       df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
       df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)

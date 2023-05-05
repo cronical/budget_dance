@@ -356,8 +356,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
       yymmdd='%4d%02d%02d'%(as_of_datetime.year,as_of_datetime.month,as_of_datetime.day)
       df.rename(columns={as_of:yymmdd},inplace=True)
       expected_cols= (expected_cols-set(['YTD']))|set(['Y'+yymmdd]) 
-      df['Factor']=None
-      formula='=IF(ISBLANK([@Factor]),"",[@Y%s]*[@Factor])'%yymmdd
+      df[['Factor','Add']]=None
+      formula='=IF(AND(ISBLANK([@Factor]),ISBLANK(@Add)),"",([@Y%s]*[@Factor])+[@Add])'%yymmdd
       df['Year']=table_ref(formula)
     
 
@@ -375,19 +375,22 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande_actl" after doing some checks. ')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
-  parser.add_argument('--path','-p',default= 'data/iande.tsv',help='The path and name of the input file')
-  parser.add_argument('--sheet','-s',default='iande_actl',help='which sheet - iande or iande_actl')
-  parser.add_argument('--force', '-f',action='store_true', default=False, help='Use -f to ignore warning')
-  parser.add_argument('--ffy', '-y',help='first forecast year as Ynnnn. Must be provided if workbook does not have value. Default None.')
+  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande_actl" or "current" after doing some checks. ')
+  parser.add_argument('-s','--sheet',choices=['iande_actl','current'],default='iande_actl',help='which sheet - iande_actl or current')
+  parser.add_argument('-p','--path',default= None,help='The path and name of the input file. If not given will use "data/iande.tsv" or "data/iande_ytd.tsv" depending on sheet')
+  parser.add_argument('-w','--workbook',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
+  parser.add_argument('-f','--force', action='store_true', default=False, help='Use -f to ignore warning')
+  
   args=parser.parse_args()
+  path=args.path
+  if path is None:
+    path={'iande_actl':'data/iande.tsv','current':'data/iande_ytd.tsv'}[args.sheet]
   config=read_config()
   ffy=config['first_forecast_year']
-  table_info=config['sheets']['iande']['tables'][0]
-  data=read_iande_actl(data_info={'path':args.path})
+  table_info=config['sheets'][args.sheet]['tables'][0]
+  data=read_iande_actl(data_info={'path':path})
   table='tbl_'+args.sheet
-  data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast=args.ffy)
+  data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast='Y%04d'%ffy)
   data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
   data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
