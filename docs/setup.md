@@ -43,6 +43,7 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 |HSA - disbursements - 2|full years|hsa-disbursements.tsv|tbl_hsa_disb[^5]||
 |IRA-Distr[^6]|all years|ira-distr.tsv|tbl_ira_distr|
 |Income & Expense by Year|full years|iande.tsv|tbl_iande,tbl_iande_actl||
+|Income & Expense YTD|Current year to date|iande_ytd.tsv|tbl_current||
 |Investment IandE[^7]|full years|invest-iande.tsv|tbl_invest_iande_work||
 |Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
 |Roth-contributions2|all years|roth_contributions.tsv|tbl_roth_contributions|

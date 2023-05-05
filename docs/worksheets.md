@@ -10,7 +10,7 @@
 |income-expense|
 ||[iande](sheets/iande.md)|Income and expenses (and cash flow) for both actuals and forecast periods.
 ||[aux](sheets/aux.md)|A place for side calculations.|
-||[current](sheets/current.md)|During the year, this sheet gathers the year to date data and allows user to forecast total year for selected lines. These then can be copied into iande.|
+||[current](sheets/current.md)|During the year, this sheet gathers the year-to-date data and allows user to forecast total year for selected lines. These then can be copied into iande.|
 ||[invest_iande_work](sheets/invest_iande_work.md)|Income and Expenses that relate to investments.|
 |retirement|
 ||[retirement](sheets/retirement.md)|Retirement income streams and retirement medical expense streams|
