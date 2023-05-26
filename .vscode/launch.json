@@ -4,6 +4,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "Python: Current File",
       "type": "python",
@@ -100,6 +101,24 @@
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
       "args": ["-l","-f" ],
+      "justMyCode": true
+    },    
+    {
+      "name": "tests",
+      "type": "python",
+      "request": "launch",
+      "program": "tests/cross_check.py",
+      "console": "integratedTerminal",
+      "args": ["-g","balances" ],
+      "justMyCode": true
+    },    
+    {
+      "name": "transfers_actl_load",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/transfers_actl_load.py",
+      "console": "integratedTerminal",
+      "args": ["-w","data/test_wb.xlsm" ],
       "justMyCode": true
     },    
   ]
