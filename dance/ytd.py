@@ -35,22 +35,30 @@ if __name__ == '__main__':
     wb=load_workbook(filename = args.workbook,keep_vba=True)
     with open (args.path,encoding='utf-8')as f:
       df=pd.read_json(f,orient='index')
-    ytd_fld=df.columns[0]
-    df['Year']=df[ytd_fld]*df['Factor']+df['Add'] # recompute reprojected year, in case the excel calc has not yet run.
+
     row_offset=3 # 1 to change origin, 1 for title, 1 for heading
     col_offset=2 # 1 to change origin, 1 since key is in the index not a field
+
+  tgt_year='Y%04d'%ffy
   for control in (
-    {'select':args.load,'tab':'current','fields':['Factor','Add'],'targets':['Factor','Add']},
-    {'select':args.forward,'tab':'iande','fields':['Year'],'targets':['Y%04d'%ffy]}
+    {'select':args.load,'tab':'current','sources':['Factor','Add'],'targets':['Factor','Add']},
+    {'select':args.forward,'tab':'iande','sources':['Year'],'targets':[tgt_year]}
     ):
-    src_tgt=list(zip(control['fields'],control['targets']))
+    src_tgt=list(zip(control['sources'],control['targets']))
     if control['select']:
-      ws=wb[control['tab']]
-      tgt_df=df_for_table_name('tbl_'+control['tab'],args.workbook,data_only=True)
+      tab=control['tab']
+      ws=wb[tab]
+      tgt_df=df_for_table_name('tbl_'+tab,args.workbook,data_only=True)
       idx = tgt_df.index.to_list() # key is in index
       for ix,values in df.iterrows():
         for src,tgt in src_tgt:
-          cx=tgt_df.columns.to_list().index(tgt)
-          ws.cell(row=row_offset+idx.index(ix),column=col_offset+cx).value=values[src]
+          cx=col_offset+tgt_df.columns.to_list().index(tgt)
+          rx=row_offset+idx.index(ix)
+          val=values[src]
+          ws.cell(row=rx,column=cx).value=val
+        if tab=='current':
+          # recompute reprojected year, in case the excel calc has not yet run.
+          yx=col_offset+list(tgt_df.columns.str.startswith('Y')).index(True) # locate the ytd date column in the latest tsv
+          df.at[ix,'Year']=ws.cell(row=rx,column=yx).value*values['Factor']+values['Add'] 
       wb.save(args.workbook)
       logger.info('Wrote %d %s values into table tbl_%s'%(df.shape[0],', '.join(control['targets']),control['tab']))
