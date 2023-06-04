@@ -10,7 +10,7 @@ The attributes are:
 | Type            | A=Asset, B=Bank, C=Credit Cards, I=Investment, L=Liability, N=Loans |
 | Income Txbl     | 0 if sheltered, 1 if normal taxes|
 | Active          | 0 if inactive, 1 if active                                   |
-| No Distr Plan| 0 if there is a distribution plan, 1 otherwise, blank for n/a|
+| No Distr Plan| 0 if there is a distribution plan, 1 otherwise|
 | Near Mkt Rate| Rate to use to override the first forecast year computed rate|
 | Rate Cap | Rate used to cap computed rates|
 | Reinv Rate| Amount used to initialize the `Reinv Rate` row on the balances table|

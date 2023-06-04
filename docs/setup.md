@@ -110,7 +110,7 @@ The table definition consists of various fields, some of which are optional and/
 |Item|Purpose|Default|
 |:--|:---|---|
 |**title**|The title that is place above the table in Excel||
-|**columns**|A list of the column definitions (name and width) that are included before the time |
+|**columns**|A list of the column definitions (see [below](#column-definitions)) that are included in the table|
 |title_row|When there is more than one table, locates this table on the sheet. If tables are spread horizontally, then subsequent tables will need an entry.|1 for the first table, then automatically places a space before the next table.
 |start_col|The first column of the table on the sheet (A=1,B=2...)|1|
 |include_years|True if there is a time series for the years|False|
@@ -120,6 +120,18 @@ The table definition consists of various fields, some of which are optional and/
 |[fcst_formulas](#actual-and-forecast-formulas)|Specify formulas for forecast periods.|
 |highlights|Specify Excel conditional formatting|
 |[dyno_fields](#build-time-created-fields)|a way to determine values at build time|
+
+#### Column definitions
+
+The following support column definitions
+
+|Item|Purpose|Default|
+|:--|:---|---|
+|name|the column heading|
+|width|optional width used to set column width in spreadsheet|width of previous column|
+|horiz|optional indicator of horizontal alignment such as "center"
+|number_format|number from [openpyxl chart](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html) |
+
 
 #### Data definitions
 
