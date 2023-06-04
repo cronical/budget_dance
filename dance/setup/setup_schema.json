@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://argus.com/budget/dance/setup/setup_schema.json",
+  "title": "Budget Dance Setup",
+  "description": "Validates setup.yaml",
+  "type": "object",
+  "properties": {
+    "start_year": {
+      "type": "integer",
+      "exclusiveMinimum": 2010
+    },
+    "end_year": {
+      "type": "integer",
+      "exclusiveMaximum": 2070
+    },
+    "year_column_width": {
+      "type": "integer",
+      "exclusiveMaximum": 70
+    },
+    "first_forecast_year": {
+      "type": "integer",
+      "exclusiveMinimum": 2010,
+      "exclusiveMaximum": 2070
+    },
+    "zoom_scale": {
+      "type": "integer",
+      "exclusiveMinimum": 39,
+      "exclusiveMaximum": 301
+    },
+    "sheet_groups": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "$ref": "#/$defs/color"
+          },
+          "table_style": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "color",
+          "table_style"
+        ]
+      }
+    },
+    "sheets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "sheet_group": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/table"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "start_year",
+    "end_year",
+    "first_forecast_year"
+  ],
+  "$defs": {
+    "action": {
+      "type": "object",
+      "properties": {
+        "target_field": {"type": "string"},
+        "constant": {"type":["string","number"]},
+        "formula": {"type": "string"},
+        "suffix": {"type": "string"}
+      },
+      "required":["target_field"]
+    },
+    "border":{
+      "type": "object",
+      "properties": {
+        "edges": {"type":"array","items":{"$ref":"edge"}},
+        "style": {"type":"string","enum":["thin","medium","thick"]},
+        "color": {"$ref": "#/$defs/color"}
+      },
+      "required":["edges","style","color"]
+    },
+    "color": {
+      "type": "string",
+      "pattern": "[a-fA-F0-9]{6}"
+    },
+    "column": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "horiz": {
+          "type": "string",
+          "enum": [
+            "center",
+            "left",
+            "right"
+          ]
+        },
+        "number_format": {
+          "type": "integer",
+          "exclusiveMinimum": -1,
+          "exclusiveMaximum": 49
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "edge":{"type":"string","enum":["left","right","top","bottom"]},
+    "file_set": {
+      "type": "object",
+      "properties": {
+        "base_path": {
+          "type": "string"
+        },
+        "prefix": {
+          "type": "string"
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "source": {"type":"string","enum":["internal","local","remote"]},
+        "site_code": {"type":"string"},
+        "api_key": {"type":"string"},
+        "parameters": {"$ref":"#/$defs/parameter"},
+        "type": {
+          "type":"string",
+          "enum":["json_index","json_records","md_529_distr","md_acct","md_bal","md_hsa_disb","md_iande_actl",
+            "md_invest_actl","md_invest_iande_work","md_ira_distr","md_pr_sav","md_roth","md_sel_inv","md_transfers_actl",
+            "retire_template","retire_medical_template","tax_template"]},
+        "path": {"type":"string"},
+        "group": {"type":"array","items":{"type":"string"}},
+        "no_details_for": {"type":"array","items":{"type":"string"}},
+        "include_zeros": {"type":"array","items":{"type":"string"}},
+        "tax_free_keys": {"type":"array","items":{"type":"string"}},
+        "hier_insert_paths": {"type":"array","items":{"type":"string"}},
+        "file_set": {"$ref":"#/$defs/file_set"},
+        "sheet": {"type":"string"},
+        "table": {"$ref":"#/$defs/data_table"},
+        "name": {"type":"string"}
+      },
+      "required":["source"]
+    },
+    "data_table": {
+      "type": "object",
+      "properties": {
+        "find_method": {
+          "type": "string"
+        },
+        "method_parms": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dyno_field":{
+      "type": "object",
+      "properties":{
+        "base_field": {"type":["string","array"]},
+        "matches": {"type":["string","array"]},
+        "actions": {"type":"array","items":{"$ref":"#/$defs/action"}}        
+      },
+      "required":["base_field","matches","actions"]    
+    },
+    "fill":{
+      "type": "object",
+      "properties":{
+        "bgcolor":{"$ref":"#/$defs/color"}
+      },
+      "required":["bgcolor"]      
+    },
+    "font":{
+      "type": "object",
+      "properties":{
+        "bold":{"type":"boolean"},
+        "color":{"$ref":"#/$defs/color"}
+      }      
+    },
+    "highlight":{
+      "type": "object",
+      "properties":{
+        "formula":{"type":"string"},
+        "border": {"$ref":"#/$defs/border"},
+        "fill":{"$ref":"#/$defs/fill"},
+        "font":{"$ref":"#/$defs/font"},
+        "keys":{"type":"array","items":{"type":"string"}}
+      },
+      "required":["formula"]
+    },
+    "parameter": {
+      "type": "object",
+      "properties": {
+        "start_year": {"type": "integer" },
+        "end_year": {"type": "integer"},
+        "seriesid": {"type": "array","items": {"type": "string"}
+        }
+      }
+    },
+    "row_formula":{
+      "type": "object",
+      "properties": {
+        "base_field": {"type":"string"},
+        "matches": {"type":["string","array"]},
+        "first_item": {"type":"string"},
+        "formula": {"type":"string"}       
+      },
+      "required":["base_field","matches","formula"]      
+    },
+    "sheet": {
+      "type": "object",
+      "properties": {
+        "sheet_group": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/table"
+          }
+        }
+      },
+      "required": [
+        "sheet_group",
+        "tables"
+      ]
+    },
+    "table": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "include_years": {
+          "type": "boolean"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "column": {
+              "$ref": "#/$defs/column"
+            }
+          }
+        },
+        "data":{"$ref":"#/$defs/data"},
+        "hidden": {"type":"array","items":{"type":"string"}},
+        "title_row":{"type":"integer"},
+        "start_col":{"type":"integer"},
+        "actual_only":{"type":"boolean"},
+        "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}}
+      },
+      "required":["name","title","include_years","columns"]
+    }
+  }
+}
