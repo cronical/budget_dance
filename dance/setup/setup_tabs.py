@@ -176,7 +176,7 @@ def refresh_sheets(target_file,overwrite=False):
   logger.info('workbook {} saved'.format(target_file))
 
 if __name__=='__main__':
-    # execute only if run as a script
+  # execute only if run as a script
   parser = argparse.ArgumentParser(description ='set tabs the given workbook')
   parser.add_argument('target_file', help='provide the name of the output file')
   args=parser.parse_args()
