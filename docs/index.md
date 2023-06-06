@@ -13,6 +13,8 @@ The spreadsheet is built by Python programs.  Actual data is based on data expor
 
 [Spreadsheet](spreadsheet.md)
 
+[Operations](operations.md)
+
 [Python is the glue](./python.md)
 
 [Visual Basic](vba_index.md)

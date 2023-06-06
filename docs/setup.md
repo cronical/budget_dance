@@ -5,8 +5,9 @@
 1. Prepare data  
     1. Save certain reports from Moneydance to the `data` folder.
     1. Prepare other imput files as json or tsv
-1. Acquire a registration key for the bureau of labor statistics (for inflation data)
-1. Edit the control file: `dance/setup/setup.yaml`
+1. [Acquire a registration key](#api-key) for the bureau of labor statistics (for inflation data)
+1. Edit the [control file](#the-setup-control-file) as described below.
+1. Validate the file against the schema.  I use VS Code extension `YAML Language Support by Red Hat`
 1. Run `dance/setup/create_wb.py`
 
 ## Conventions
@@ -60,14 +61,14 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 
 ### JSON input files
 
-The following files can be prepared from an existing worksheet with the `dance/util/extract_table.py` utility, or they can be created manually. They are named according to the table that they support. 
+The following files can be prepared from an existing worksheet with the [`dance/util/extract_table.py` utility](./operations.md#extract-table), or they can be created manually. They are named according to the table that they support. 
 
 |File|Orientation|
 |:--|:--|
 |aux.json|records
 |ct_tax_rates.json|records|
 |fed_tax_rates.json|records|
-|gen_state.json|
+|gen_state.json|index|
 |manual_actl.json|index|
 |mcare_opt.json|records|
 |part_b.json|records|
@@ -75,6 +76,42 @@ The following files can be prepared from an existing worksheet with the `dance/u
 |people.json|index|
 |social_security.json|records|
 |state_tax_facts.json|index|
+
+### Orientation
+
+Orientation of `index` is used when the first field is a unique key.  For example `gen_state.json` might contain:
+
+```json
+{
+  ...
+  "ss_fed_wh": {
+    "Value": 0.22,
+    "Comment": "can be 7, 10, 12 or 22 see form W4-V as decimal"
+  },
+  "distr_fed_wh": {
+    "Value": 0.2,
+    "Comment": "Fed withholding used for pension & IRA distributions"
+  },...
+}
+```
+
+When there is no key the orientation of `records` is used. For example `fed_tax_rates.json` might start with
+
+```json
+[
+  {
+    "Year": 2022,
+    "Range": 0,
+    "Rate": 0.1,
+    "Subtract": 0.0
+  },
+  {
+    "Year": 2022,
+    "Range": 20549,
+    "Rate": 0.12,
+    "Subtract": 410.88
+  },...
+  ```
 
 ### JSON files with testing values
 
@@ -89,7 +126,7 @@ The following files can be prepared from an existing worksheet with the `dance/u
 
 ## API key
 
-The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
+The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free; they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
 
 ```yaml
 bls: 7b50d7a727104578b1ac86bc27caff3f
@@ -97,7 +134,11 @@ bls: 7b50d7a727104578b1ac86bc27caff3f
 
 ## The setup control file
 
-The control file is `.data/setup.yaml`.
+The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
+
+```
+# yaml-language-server: $schema=../dance/setup/setup_schema.json
+```
 
 ### Global Settings
 
