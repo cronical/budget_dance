@@ -1,12 +1,16 @@
-# Design of fcast.xlsm
+# Design of the spreadsheet
+
+By convention we call the spreadsheet `fcast.xlsm`.
+
+The spreadsheet is based mostly on a set of Excel tables. 
+
+As tables do not work well with dynamic arrays in Excel, filtered data sets may also be stored outside of tables.
 
 ## Tables
 
-The spreadsheet is based entirely on a set of Excel tables.
-
 Many of the tables represent time series where the time is based on years.  The data elements are typically financial values associated with a year.  For instance, the balances table tracks how balances change year by year.
 
-The time sequence columns are labeled with 'Y' + year.    The meaning of the column data depends on the state of the system.  To the left of the first forecast year, data is considered actual, while to the right it is forecast.  In the following example, the red line marks the transition from actual to forecast.
+The time series columns are labeled with 'Y' + year.    The meaning of the time series data depends on the state of the system.  To the left of the first forecast year, data is considered actual, while to the right it is forecast.  In the following example, the red line marks the transition from actual to forecast.
 
 ![Income and Expense time series](./images/timeseries.png)
 

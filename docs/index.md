@@ -11,7 +11,7 @@ This spreadsheet extends the family's historical financials into the future.  It
 
 The spreadsheet is built by Python programs.  Actual data is based on data exported from Moneydance.
 
-[Spreadsheet](fcast.md)
+[Spreadsheet](spreadsheet.md)
 
 [Python is the glue](./python.md)
 

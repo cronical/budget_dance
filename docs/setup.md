@@ -2,7 +2,9 @@
 
 ## Summary of steps
 
-1. Save certain reports from Moneydance to the `data` folder.
+1. Prepare data  
+    1. Save certain reports from Moneydance to the `data` folder.
+    1. Prepare other imput files as json or tsv
 1. Acquire a registration key for the bureau of labor statistics (for inflation data)
 1. Edit the control file: `dance/setup/setup.yaml`
 1. Run `dance/setup/create_wb.py`
@@ -25,13 +27,16 @@ To make more manageable, the files that have a version each year are placed in s
 
 A listing of the files can be had with 
 
-`tree -PD '*.tsv' --prune data/`
+```bash
+tree -PD '*.tsv' --prune data/
+tree -PD '*.json' --prune data/
+```
 
 ### File names
 
 Preferred format uses hyphen not underscores or spaces to separate words. Abbreviations such as IRA and HSA are forced to lowercase, to aid sorting.
 
-## Reports and their files
+## Moneydance reports and their files
 
 (Case sensitive sort to match Moneydance)
 
@@ -51,6 +56,37 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 |Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
 |Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 
+## Other data files
+
+### JSON input files
+
+The following files can be prepared from an existing worksheet with the `dance/util/extract_table.py` utility, or they can be created manually. They are named according to the table that they support. 
+
+|File|Orientation|
+|:--|:--|
+|aux.json|records
+|ct_tax_rates.json|records|
+|fed_tax_rates.json|records|
+|gen_state.json|
+|manual_actl.json|index|
+|mcare_opt.json|records|
+|part_b.json|records|
+|pension_facts.json|index|
+|people.json|index|
+|social_security.json|records|
+|state_tax_facts.json|index|
+
+### JSON files with testing values
+
+- known_test_values.json
+
+### Template tsv files
+
+- retire_medical_template.tsv
+- retire_template.tsv
+- taxes_template.tsv
+
+
 ## API key
 
 The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
@@ -61,7 +97,7 @@ bls: 7b50d7a727104578b1ac86bc27caff3f
 
 ## The setup control file
 
-The control file is `dance/data/setup.yaml`.
+The control file is `.data/setup.yaml`.
 
 ### Global Settings
 
