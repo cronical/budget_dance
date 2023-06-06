@@ -66,8 +66,41 @@ retire_load.py
 
 ### Taxes
 
-bracket_fix.py
-taxes_load.py
+#### New year - new tax rates
+
+Pull the IRS data as a .csv file. Use `bracket_fix.py` to transform into the correct format.
+
+For example:
+
+```zsh
+dance/bracket_fix.py data/2022_tax_brackets_irs.csv 
+0,0.10,0
+20549.0,0.12,410.8800000000001
+83550.0,0.22,8766.0
+178150.0,0.24,12329.0
+340100.0,0.32,39537.0
+431900.0,0.35,52494.0
+647850.0,0.37,65451.0
+Copy the above numbers into the table and add the year
+```
+
+#### Rebuild the taxes table
+
+NOT CURRENTLY WRITING THE TABLE INTO THE SHEET
+
+```zsh
+dance/taxes_load.py -h      
+usage: taxes_load.py [-h] [--workbook WORKBOOK] [--path PATH]
+
+Prepares the taxes table from the input template
+
+options:
+  -h, --help            show this help message and exit
+  --workbook WORKBOOK, -w WORKBOOK
+                        Target workbook
+  --path PATH, -p PATH  The path and name of the input file
+```
+
 
 ### Transfers
 
