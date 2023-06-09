@@ -84,6 +84,7 @@ The table definition consists of various fields, some of which are optional and/
 |[fcst_formulas](#actual-and-forecast-formulas)|Specify formulas for forecast periods.|
 |highlights|Specify Excel conditional formatting|
 |[dyno_fields](#build-time-created-fields)|a way to determine values at build time|
+|[edit_checks](#edit-checks)|Sets data validation in Excel for table columns|
 
 #### Column definitions
 
@@ -218,6 +219,20 @@ For example the following puts a line between the actual and forecast periods. T
         style: thin
         color: B50000
 ```
+
+#### Edit Checks
+
+This provides a way to use a dynamic array filter in Excel to create a data validation list (a drop down menu) for a set of columns.
+
+```yaml
+      edit_checks:
+        - for_columns:
+            - From_Account
+            - To_Account
+          formula: =SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)*(tbl_accounts[No Distr Plan]=1)))          
+```
+The formula will be placed to the right of the table and the a data validation will reference it for each of the columns.  In this example the active accounts with no distribution plan will be displayed as the drop down choices for the to listed columns.
+
 
 ### Specific Sheets & Tables
 

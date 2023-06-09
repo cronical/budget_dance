@@ -95,12 +95,8 @@
     "column": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "width": {
-          "type": "integer"
-        },
+        "name": {"type": "string"},
+        "width": {"type": "integer"},
         "horiz": {
           "type": "string",
           "enum": [
@@ -180,6 +176,13 @@
         "actions": {"type":"array","items":{"$ref":"#/$defs/action"}}        
       },
       "required":["base_field","matches","actions"]    
+    },
+    "edit_check":{
+      "type":"object",
+      "properties":{
+        "for_columns":{"type":"array","items":{"type":"string"}},
+        "formula": {"type": "string"}
+      }
     },
     "fill":{
       "type": "object",
@@ -268,7 +271,8 @@
         "title_row":{"type":"integer"},
         "start_col":{"type":"integer"},
         "actual_only":{"type":"boolean"},
-        "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}}
+        "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}},
+        "edit_checks":{"type":"array","items":{"$ref":"#$defs/edit_check"}}
       },
       "required":["name","title","include_years","columns"]
     }

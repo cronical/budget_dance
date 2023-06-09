@@ -161,7 +161,10 @@ def refresh_sheets(target_file,overwrite=False):
         data=conform_table(data,col_def['name'])
         data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
         data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
-        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups,title_row=key_values['title_row'])
+        edit_checks=None
+        if 'edit_checks' in table_info:
+          edit_checks=table_info['edit_checks']
+        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups,title_row=key_values['title_row'],edit_checks=edit_checks)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
         wb=freeze_panes(wb,sheet_name,config)

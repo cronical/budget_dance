@@ -8,10 +8,13 @@ from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00,FORMAT_
 from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.utils import get_column_letter
 import openpyxl.utils.cell
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.formula import ArrayFormula
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from dance.util.logs import get_logger
 from dance.util.files import read_config
+
 
 agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
 
@@ -163,9 +166,11 @@ def is_formula(value):
         result=True
   return result
 
-def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
-  '''Write the dataframe to the worksheet, including the columns,
-  add folding based on groups if given, format numbers, and make into a table.
+def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_checks=None):
+  '''
+  Write the dataframe to the worksheet as a table, formatting numbers
+  If groups provided, create folding based on groups.
+  If edit_checks are provided, insert the formula into cells to the right on the 1st data row of the table
   Reads the config file to determine some values.
 
   args:
@@ -174,8 +179,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
     table_name: the name of the table to write into the target_sheet
     df: The prepared dataframe that has the correct columns
     groups: a list of 3 element lists, each representing a grouping. The elements are level, start, end
-    title_row: to alllow for stacking of multiple tables on a sheet. 
-      If provided will be override config value, default None
+    title_row: to allow for stacking of multiple tables on a sheet. If provided it will override the config value, default None
+    edit_checks: a list of edit checks which each contain a list of "for_columns" and the formula.
 
   returns: the workbook
 
@@ -226,16 +231,18 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
             first_field=cn
         rix=ix+table_start_row+1
         cix=table_start_col+cx
-        ws.cell(row=rix,column=cix).value=values[cn] # set the value or formula
 
-        # provision for dynamic arrays to be included in formulas - notify excel
-        if is_formula(values[cn]):
+        if not is_formula(values[cn]):
+          ws.cell(row=rix,column=cix).value=values[cn] # set the value
+        else: # its a formula, determine if it is an array formula by looking for table column headers with brackets
           regex_column=r'[A-Za-z_]+(\[\[?[ A-Za-z0-9]+\]?\])'
           pattern=re.compile(regex_column)
           matches=pattern.findall(values[cn]) 
           if len(matches): # looks like a dynamic formula
             address=get_column_letter(cix)+str(rix)
-            ws.formula_attributes[address]={'t':'array','ref': address}
+            ws[address] = ArrayFormula(address,values[cn]) # assume that the formula collapses to a single value
+          else:
+            ws.cell(row=rix,column=cix).value=values[cn] # set the formula like a regular value  
 
         # formats for Y columns  
         if cn.startswith('Y')and cn[1:].isnumeric(): 
@@ -285,8 +292,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
           ws.cell(row=grp[1],column=cix).number_format='###'
       ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
 
-  # making the table
 
+  # making the table
   top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row}'
   bot_right=f'{get_column_letter((key_values["start_col"]-1)+df.shape[1])}{table_start_row+df.shape[0]}'
   rng=f'{top_left}:{bot_right}'
@@ -297,6 +304,49 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None):
   tab.tableStyleInfo = TableStyleInfo(name=table_style,  showRowStripes=True)
   ws.add_table(tab)
   logger.info('table {} added to {}'.format(table_info['name'],target_sheet))
+
+   # apply the edit checks, if any
+  if edit_checks is not None:
+    ws.data_validations.dataValidation.clear() # remove prior items
+    base_col=(key_values["start_col"]-1)+df.shape[1]
+    for ecx,edit_check in enumerate(edit_checks):
+      ws_col=base_col+2*(ecx+1) # get coordinates where the formula will go
+      ws_row=table_start_row+1
+      ws.cell(row=ws_row-1,column=ws_col).value=f'CHOICES-{ecx}'
+      formula=edit_check['formula']
+      formula=formula.replace('FILTER','_xlfn._xlws.FILTER')
+      # starting in openpyxl 3.1 there is array formula support - CSE style only, not dynamic
+      # the caller must know how many cells will be contained
+      source = f'{get_column_letter(ws_col)}{ws_row}' 
+      address="F3:F32" # TODO hard coded for testing
+      ws[source]=ArrayFormula(address,formula)
+      pass
+
+      # TODO remove the following 3.0.10 code which was attempting this
+      
+      #ws.cell(row=ws_row,column=ws_col).value=formula
+      # address=get_column_letter(ws_col)+str(ws_row)
+      # we need to get the number of cells in order to inform Excel
+      # first make sure there is exactly one table referred to
+      #pat=re.compile('tbl_[a-zA-Z0-9]+')
+      #matches=pat.findall(formula)
+      #assert 1!=len(set(matches)),'Formula does not refer to exactly one table'
+      #pat=re.compile('(\([\w=\[\] ]+\))') # require criteria to be in parens
+      #matches=pat.findall(formula) # each item is a string starting and ending with parens
+      #for phrase in matches:
+      #  phrase=phrase[1:][:-1]
+      
+      #ws.formula_attributes['F3']={'t':'array','ref': address}
+      
+      # the trailing # is for excel to know to reference the entire dynamic array
+      dv = DataValidation(type="list", formula1="={source}#", allow_blank=True) 
+      for tbl_col in edit_check['for_columns']: # apply to the columns specified
+          col_let=get_column_letter((key_values['start_col'])+list(df.columns).index(tbl_col))
+          row_refs=[table_start_row+1,table_start_row+df.shape[0]]
+          cells='%s%d:%s%d'%(col_let,row_refs[0],col_let,row_refs[1])
+          dv.add(cells)
+      #ws.add_data_validation(dv)
+
 
   # add conditional formatting if any
   if 'highlights' in table_info:
