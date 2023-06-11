@@ -138,12 +138,14 @@ def filter_parser(formula):
   '''crude method to parse filter formula to be used to determine number of rows in the result
   
   Converts a formula of a excel dynamic array FILTER, possibly wrapped with a SORT to a list.
-  The items on the even indices are 3 element lists - the last two which may be None:
+  Returns the table name, field name selected, and the list:
+    The items on the even indices are 3 element lists - the last two which may be None:
     field, a comparison operator, and compare to value
   Items on the odd indicies are of length 1, inhabited by a join symbol (and/or)
   
   This is quite limited and is intended to provide only a work around for openpyxl's lack of dynamic array support.
   For filters with more than one criteria, use parentheses around each criteria.
+
   
   '''
 
@@ -152,6 +154,7 @@ def filter_parser(formula):
   table_pat=re.compile('tbl_[a-zA-Z0-9]+')
   matches=table_pat.findall(formula)
   assert 1==len(set(matches)),'Formula does not refer to exactly one table'
+  table_name=matches[0]
 
   tok=Tokenizer(formula)
   toks=[]
@@ -166,6 +169,8 @@ def filter_parser(formula):
 
   result=[]
   in_filter=False
+  after_comma=False
+  display_field=None
   for i in df.phrase_nums.unique():
     phrase_parsed=[None,None,None]
     phrase=df.loc[df.phrase_nums==i]
@@ -179,11 +184,16 @@ def filter_parser(formula):
             result.append(phrase_parsed)
           if row.type == 'FUNC':
             in_filter=False # assume no functions internal to FILTER
+      if row.type == 'SEP':
+        after_comma=True
       if row.type=='OPERAND':
         if row.subtype=='RANGE':
           matches=field_pat.search(row.value)
           field=matches.group(1)
-          phrase_parsed[0]=field
+          if after_comma:
+            phrase_parsed[0]=field
+          else:
+            display_field=field
         else:
           val=row.value
           if row.subtype=='NUMBER':
@@ -196,7 +206,7 @@ def filter_parser(formula):
           phrase_parsed[1]=row.value
         else:
           result.append([row.value]) # this is the and or or (+ or *)
-  return result
+  return table_name, display_field, result
 
 def test_filter_parser():
   cases=[
@@ -214,8 +224,8 @@ def test_filter_parser():
 
   for formula in cases:
     print(formula)
-    r=filter_parser(formula)
-    print(r)
+    table,field,parsed=filter_parser(formula)
+    print(table,field,parsed)
     print ("")
 
 def eval_criteria(criteria,ref_df):
