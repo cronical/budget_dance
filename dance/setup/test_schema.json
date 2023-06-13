@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://argus.com/budget/dance/setup/test_schema.json",
+  "title": "Place to explore",
+  "type": "object",
+  "properties": {
+    "form": {
+      "type": "object",
+      "oneOf":[
+          {"type":"object","properties":{
+            "shared": {"type": "string"},
+            "name": {"type": "string"},
+            "type": {"type": "string"}
+          },
+          "required":["name","type","shared"],
+          "additionalProperties":false
+        },
+          {"type":"object","properties":{
+            "shared": {"type": "string"},
+            "nom": {"type": "string"},
+            "font": {"type": "string"}
+          },
+          "required":["nom","font","shared"],
+          "additionalProperties":false
+        }  
+      ]  
+    }
+  },
+  "required":["form"],
+  "additionalProperties":false,
+  "$defs":{
+    "match_criteria":{
+      "type":"object",
+      "properties":{
+        "type": "array",
+        "items": {
+          "type":"object",
+          "properties":{
+            "formula": {"type":"string"},
+            "first_item": {"type":"string"},
+            "selection": {
+              "type": "array","items":{
+                "type":"object",
+                "properties":{
+                  "field": {"type":"string"},
+                  "compare_with": {"type":"string"},
+                  "compare_to": {"type": ["string","number"]}
+                },
+                "required": ["field","compare_with","compare_to","formula"],
+                "additionalProperties": false        
+              } 
+            }
+          }
+        }
+      }
+    },
+    "match_list":{
+      "type": "object",
+      "properties": {
+        "base_field": {"type":"string"},
+        "matches": {"type":["string","array"]},
+        "first_item": {"type":"string"},
+        "formula": {"type":"string"} 
+      },
+      "required": ["base_field","matches","formula"],
+      "additionalProperties": false           
+    },
+    "row_formula":{
+      "type": "object",
+      "properties": {
+        "oneOf":[
+          {"$ref" :  "#/$defs/match_list"},
+          {"$ref" :  "#/$defs/match_criteria"}          
+        ]
+      }    
+    }
+  }
+}

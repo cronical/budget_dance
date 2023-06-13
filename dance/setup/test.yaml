@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../setup/test_schema.json
+form:
+  shared: ok
+  nom: cat
+  font: italic
+
+
+
+ 
