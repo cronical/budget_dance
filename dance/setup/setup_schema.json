@@ -32,12 +32,8 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "color": {
-            "$ref": "#/$defs/color"
-          },
-          "table_style": {
-            "type": "string"
-          }
+          "color": {"$ref": "#/$defs/color"},
+          "table_style": { "type": "string"}
         },
         "required": [
           "color",
@@ -207,7 +203,55 @@
         "font":{"$ref":"#/$defs/font"},
         "keys":{"type":"array","items":{"type":"string"}}
       },
-      "required":["formula"]
+      "required":["formula"],
+      "additionalProperties": false
+    },
+    "match_criteria":{
+      "type":"object",
+      "properties":{
+        "required": ["formula","query"],
+        "type": "array",
+        "items": {
+          "type":"object",
+          "properties":{
+            "formula": {"type":"string"},
+            "first_item": {"type":"string"},
+            "query": {
+              "type": "array",
+              "items":{
+                "required": ["field","compare_with","compare_to"],
+                "additionalProperties": false,
+                "type":"object",
+                "properties":{
+                  "field": {"type":"string"},
+                  "compare_with": {"type":"string", "enum":["=",">","<","!="]},
+                  "compare_to": {"type": ["string","number"]},
+                  "look_up": {                    
+                    "type":"object",
+                    "properties":{
+                      "required":["table","index_on","value_field"],
+                      "table": {"type":"string"},
+                      "index_on":{"type":"string"},
+                      "value_field":{"type":"string"}
+                    }
+                  }
+                }
+              } 
+            }
+          }
+        }
+      }
+    },
+    "match_list":{
+      "type": "object",
+      "properties": {
+        "base_field": {"type":"string"},
+        "matches": {"type":["string","array"]},
+        "first_item": {"type":"string"},
+        "xl_formula": {"type":"string"} 
+      },
+      "required": ["base_field","matches","xl_formula"],
+      "additionalProperties": false           
     },
     "parameter": {
       "type": "object",
@@ -221,12 +265,11 @@
     "row_formula":{
       "type": "object",
       "properties": {
-        "base_field": {"type":"string"},
-        "matches": {"type":["string","array"]},
-        "first_item": {"type":"string"},
-        "formula": {"type":"string"}       
-      },
-      "required":["base_field","matches","formula"]      
+        "oneOf":[
+          {"$ref" :  "#/$defs/match_list"},
+          {"$ref" :  "#/$defs/match_criteria"}          
+        ]
+      }    
     },
     "sheet": {
       "type": "object",
@@ -249,25 +292,16 @@
     "table": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "title": {
-          "type": "string"
-        },
-        "include_years": {
-          "type": "boolean"
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "column": {
-              "$ref": "#/$defs/column"
-            }
-          }
-        },
+        "name": {"type": "string"},
+        "title": {"type": "string"},
+        "include_years": {"type": "boolean"},
+        "columns": {"type": "array","items": {"column": {"$ref": "#/$defs/column"}}},
         "data":{"$ref":"#/$defs/data"},
         "hidden": {"type":"array","items":{"type":"string"}},
+        "highlights": {"type": "object","additionalProperties":{"type":"object","properties": {"#ref":"#/$defs/hidden"}}},
+        "actl_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
+        "all_col_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
+        "fcst_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
         "title_row":{"type":"integer"},
         "start_col":{"type":"integer"},
         "actual_only":{"type":"boolean"},
