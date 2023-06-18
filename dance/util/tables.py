@@ -14,6 +14,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from dance.util.logs import get_logger
 from dance.util.files import read_config
+from dance.util.xl_eval import filter_parser,eval_criteria,prepare_formula
 
 
 agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
@@ -21,7 +22,8 @@ agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
 logger=get_logger(__file__)
 
 def df_for_range(worksheet=None,range_ref=None):
-  '''get a dataframe given a range reference on a worksheet'''
+  '''get a dataframe given a range reference on a worksheet
+  First column becomes the index of the result'''
 
   data=[]
   rb=openpyxl.utils.cell.range_boundaries(range_ref)
@@ -166,7 +168,7 @@ def is_formula(value):
         result=True
   return result
 
-def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_checks=None):
+def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_checks=None,table_map=None):
   '''
   Write the dataframe to the worksheet as a table, formatting numbers
   If groups provided, create folding based on groups.
@@ -181,6 +183,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
     groups: a list of 3 element lists, each representing a grouping. The elements are level, start, end
     title_row: to allow for stacking of multiple tables on a sheet. If provided it will override the config value, default None
     edit_checks: a list of edit checks which each contain a list of "for_columns" and the formula.
+    table_map: a dict of the tables available so far - used by edit_checks
 
   returns: the workbook
 
@@ -239,8 +242,9 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
           pattern=re.compile(regex_column)
           matches=pattern.findall(values[cn]) 
           if len(matches): # looks like a dynamic formula
-            address=get_column_letter(cix)+str(rix)
-            ws[address] = ArrayFormula(address,values[cn]) # assume that the formula collapses to a single value
+            ref=get_column_letter(cix)+str(rix)
+            formula=prepare_formula(values[cn])
+            ws[ref] = ArrayFormula(ref,formula) # assume that the formula collapses to a single value
           else:
             ws.cell(row=rix,column=cix).value=values[cn] # set the formula like a regular value  
 
@@ -314,38 +318,34 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
       ws_row=table_start_row+1
       ws.cell(row=ws_row-1,column=ws_col).value=f'CHOICES-{ecx}'
       formula=edit_check['formula']
-      formula=formula.replace('FILTER','_xlfn._xlws.FILTER')
       # starting in openpyxl 3.1 there is array formula support - CSE style only, not dynamic
       # the caller must know how many cells will be contained
-      source = f'{get_column_letter(ws_col)}{ws_row}' 
-      address="F3:F32" # TODO hard coded for testing
-      ws[source]=ArrayFormula(address,formula)
-      pass
+      # so evaluate the criteria part of the formula
+      table,_,criteria=filter_parser(formula) 
+      #... against the data in the source
+      source_ws=wb[table_map[table]]
+      ref_df=df_for_range(worksheet=source_ws,range_ref=source_ws.tables[table].ref)
+      sel=eval_criteria(criteria,ref_df)
 
-      # TODO remove the following 3.0.10 code which was attempting this
+      # compute the range of the output of the formula
+      col=get_column_letter(ws_col)
+      address = f'${col}${ws_row}' 
+      ref='%s%d:%s%d'%(col,ws_row,col,ws_row+sel.sum()-1)
+
+      formula=prepare_formula(formula)
+      pass
+      # place the array formula and its output range in the workbook
+      ws[address]=ArrayFormula(ref,formula)
       
-      #ws.cell(row=ws_row,column=ws_col).value=formula
-      # address=get_column_letter(ws_col)+str(ws_row)
-      # we need to get the number of cells in order to inform Excel
-      # first make sure there is exactly one table referred to
-      #pat=re.compile('tbl_[a-zA-Z0-9]+')
-      #matches=pat.findall(formula)
-      #assert 1!=len(set(matches)),'Formula does not refer to exactly one table'
-      #pat=re.compile('(\([\w=\[\] ]+\))') # require criteria to be in parens
-      #matches=pat.findall(formula) # each item is a string starting and ending with parens
-      #for phrase in matches:
-      #  phrase=phrase[1:][:-1]
-      
-      #ws.formula_attributes['F3']={'t':'array','ref': address}
-      
+      # point to the array for the data validations
       # the trailing # is for excel to know to reference the entire dynamic array
-      dv = DataValidation(type="list", formula1="={source}#", allow_blank=True) 
+      dv = DataValidation(type="list", formula1=f"_xlfn.ANCHORARRAY({address})", allow_blank=True) 
       for tbl_col in edit_check['for_columns']: # apply to the columns specified
           col_let=get_column_letter((key_values['start_col'])+list(df.columns).index(tbl_col))
           row_refs=[table_start_row+1,table_start_row+df.shape[0]]
           cells='%s%d:%s%d'%(col_let,row_refs[0],col_let,row_refs[1])
           dv.add(cells)
-      #ws.add_data_validation(dv)
+      ws.add_data_validation(dv)
 
 
   # add conditional formatting if any
