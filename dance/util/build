@@ -1,0 +1,17 @@
+#!/bin/zsh
+#
+# pull latest vba from fcast.xlms and build the test spreadsheet and open it
+dance/util/vba/extract_vba.py    
+dance/util/vba/sort_vba.py 
+dance/setup/create_wb.py data/test_wb.xlsm -o
+RC=$?
+if [ $RC -ne 0 ]; then
+  exit $RC
+fi
+# pull in the ytd reprojections
+dance/ytd.py -l -f
+
+# use script to open and save, avoiding timeout
+# this allows Excel to compute the formulas
+osascript ./dance/util/excel_save.scpt
+
