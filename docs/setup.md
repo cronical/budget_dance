@@ -19,6 +19,8 @@ The system copies the inflation data to faciliatate planning.  To do this an API
 bls: 7b50d7a727104578b1ac86bc27caff3f
 ```
 
+Fifteen days before it expires (in 1 year) `labstat@bls.gov` will send an email titled `Bureau of Labor Statistics API Key Expiration` requiring a reactivation.
+
 ## The setup control file
 
 The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
@@ -148,29 +150,46 @@ Include only those lines that are not headings or totals; those will be construc
 
 #### Actual and Forecast Formulas
 
-There are two optional keys to allow formulas to be established for the years section: `actl_formulas` and `fcst_formulas`.  They work the same way but apply to different columns. 
+There are three optional keys to allow formulas to be established for the years section: `actl_formulas`, `all_col_formulas`, and `fcst_formulas`.  They work the same way but apply to different columns, as their names indicate.
 
-Each section consists of a list of rules.  The rules have the following parts:
+Each section consists of a list of rules.  All rules have the following parts:
+|Key word|Description|
+|---|---|
+|formula|The formula to use for the selected year columns (actual or forecast)
+|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
+
+There are two constructions.  The first is the enumeration method, where the config lists all the keys that are to be matched against a base field.
+
 |Key word|Description|
 |---|---|
 |base_field|The name of the column that is used for matching|
 |matches|A list of values by which to match rows. This could match a single row or many rows.|
-|formula|The formula to use for the selected year columns (actual or forecast)
-|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
+
+The second construction allows for queries against several fields.  These are "anded" together to product a boolean series to select the rows to be updated.
+
+|Key word|Description|
+|---|---|
+|query|The query is a list of objects with the following fields.|
+|- field|A field name in this table|
+|- compare_to|A value to compare to, either a string or a number|
+|- compare_with|A comparison like "="|
 
 For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 
 ```yaml
-fcst_formulas:
-  - base_field: ValType
-    matches:
-    - Rate
-    formula: =.03
-  - base_field: ValType
-    matches:
-    - Add/Wdraw
-    formula: =add_wdraw( [@AcctName],this_col_name())
-  - base_field: ...
+  fcst_formulas:
+    - base_field: ValType # Near Mkt Rate
+      matches: Mkt Gn Rate
+      first_item: =get_val([@AcctName],"tbl_accounts","Near Mkt Rate")*[@Active]
+      formula: =rolling_avg()
+    - formula: =add_wdraw( [@AcctName],this_col_name()) # Add/Wdraw for rows with distribution plans
+      query:
+        - field: ValType # Add/Wdraw if no distribution plan is via transfers_plan 
+          compare_with: "="
+          compare_to: "Add/Wdraw"
+        - field: No Distr Plan
+          compare_with: =
+          compare_to: 0 ...
 ```
 
 #### Build-time created fields
