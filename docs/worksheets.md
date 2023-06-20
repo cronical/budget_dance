@@ -7,6 +7,7 @@
 |acct-bal|
 ||[accounts](sheets/accounts.md)|lists the tracked accounts and their attributes|
 ||[balances](sheets/balances.md)|tracks annual changes and balance for tracked accounts|
+||[transfers_plan](sheets/transfers_plan.md)|Allows for planning of transfers between accounts that do not have a distribution plan|
 |income-expense|
 ||[iande](sheets/iande.md)|Income and expenses (and cash flow) for both actuals and forecast periods.
 ||[aux](sheets/aux.md)|A place for side calculations.|
