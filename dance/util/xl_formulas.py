@@ -1,6 +1,8 @@
 '''Utility programs that deal with Excel formulas'''
 import re
 
+from dance.util.tables import df_for_range
+
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it
   to the long form which Excel recognizes exclusively (even though it displays the short form).
@@ -18,16 +20,20 @@ def table_ref(formula):
   result=re.sub(regex_row,r'[[#This Row],[\1]]',result)
   return result
 
-def apply_formulas(table_info,data,ffy,is_actl):
+def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
   '''insert actual or forecast formulas per config
   The config may give formula definitions in sections called actl_formulas, all_col_formulas and/or fcst_formulas.
   If it exists, *_formulas section contains the key_field to use to match the key from the rules.
-  The rules are a list of dictionaries that contain entries for 'key' and 'formula'.
+  The rules are a list of dictionaries of two types both of which contain a 'formula'
+    - contain an enumeration of the values to match, or
+    - more complex queries
 
   args: table_info portion of the config for this table
   data: a dataframe to modify
   ffy: the first forecast year as Ynnnn
   is_actl: True to apply the actual formulas, False to apply the forecast formulas
+  wb: the in-memory openpyxl workbook (needed for lookups against already established tables)
+  table_map: the table to worksheet map (used for lookups)
 
   returns: the possibly modified dataframe.
   '''
@@ -38,11 +44,29 @@ def apply_formulas(table_info,data,ffy,is_actl):
       continue
     rules+=table_info[section]
   for rule in rules:
-    base_field=rule['base_field']
-    matches=rule['matches']
-    if not isinstance(matches,list):
-      matches=[matches]
-    for ix, rw in data.loc[data[base_field].isin(matches)].iterrows(): # the rows that match this rule
+    if 'matches' in rule:
+      base_field=rule['base_field']
+      matches=rule['matches']
+      if not isinstance(matches,list):
+        matches=[matches]
+      selection=data[base_field].isin(matches)
+    else:
+      assert 'query' in rule,'neither matches or query is in the rule'
+      queries=rule['query']
+      selection = True
+      for query in queries:
+        assert query['compare_with'] == '=','Nonce error - only equality implemented'
+        values=data[query['field']]
+        if 'look_up' in query: # if its a lookup perform the lookup.  
+          look_up=query['look_up']
+          ref_table=look_up['table']
+          source_ws=wb[table_map[ref_table]] 
+          ref_df=df_for_range(worksheet=source_ws,range_ref=source_ws.tables[ref_table].ref) # The index is the 1st column in the table
+          index_on=data[look_up["index_on"]]
+          values=ref_df.loc[index_on,look_up['value_field']].reset_index(drop=True)# lookup with the index then discard it
+        next_sel=(values == query['compare_to'])
+        selection=selection & next_sel
+    for ix, rw in data.loc[selection].iterrows(): # the rows that match this rule
       selector=is_actl
       yix=0 # special handling if first year: allow it to be skipped such as for a start bal, or have its own value.
       first_item=None
@@ -72,7 +96,7 @@ def apply_formulas(table_info,data,ffy,is_actl):
             data.at[ix,col]=formula
   return data
 
-def actual_formulas(table_info,data,ffy):
+def actual_formulas(table_info,data,ffy,wb=None,table_map=None):
   '''insert actual formulas per config
   The config may give a section called actl_formulas.
   If it exists, actl_formulas contains the key_field to use to match the key from the rules.
@@ -82,10 +106,10 @@ def actual_formulas(table_info,data,ffy):
   data: a dataframe to modify
   ffy: the first forecast year as Ynnnn
   '''
-  data=apply_formulas(table_info,data,ffy,True)
+  data=apply_formulas(table_info,data,ffy,True,wb=wb,table_map=table_map)
   return data
 
-def forecast_formulas(table_info,data,ffy):
+def forecast_formulas(table_info,data,ffy,wb=None,table_map=None):
   '''insert forecast formulas per config
   The config may give a section called fcst_formulas.
   If it exists, fcst_formulas contains the key_field to use to match the key from the rules.
@@ -95,7 +119,7 @@ def forecast_formulas(table_info,data,ffy):
   data: a dataframe to modify
   ffy: the first forecast year as Ynnnn
   '''
-  data=apply_formulas(table_info,data,ffy,False)
+  data=apply_formulas(table_info,data,ffy,False,wb=wb,table_map=table_map)
   return data
 
 def dyno_fields(table_info,data):
@@ -132,11 +156,7 @@ def dyno_fields(table_info,data):
         data.at[ix,action['target_field']]=value
   return data
 
-def main():
-  test='[@AcctName],[@Type],[@Active]'
-  test='=@get_val("End Bal" &  [@AcctName],"tbl_balances",y_offset(this_col_name(),-1))'
-  lf=table_ref(test)
-  print(lf)
 
-if __name__ == '__main__':
-  main()
+
+
+

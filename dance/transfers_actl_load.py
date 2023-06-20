@@ -100,7 +100,6 @@ def read_transfers_actl(data_info,target_file='data/fcast.xlsm',table_map=None):
   #combine the sets
   df =pd.concat([summary,bank_changes])
   df.sort_index(inplace=True)
-  #df=df.reset_index().rename(columns={'key':'Account'})
   return df
 
 def prepare_transfers_actl(workbook,df,f_fcast=None):
@@ -243,7 +242,7 @@ if __name__ == '__main__':
   parser.add_argument('--path','-p',default= 'data/transfers.tsv',help='The path and name of the input file')
   parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
-  df=read_transfers_actl(data_info={'path':args.path},target_file=args.workbook)
+  df=read_transfers_actl(data_info={'path':args.path,'file_sets':{'balances':'./data/acct-bals/'}},target_file=args.workbook)
   transfers_actl,fold_groups=prepare_transfers_actl(args.workbook,df)
   sheet='transfers_actl'
   table='tbl_'+sheet

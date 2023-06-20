@@ -2,65 +2,32 @@
 
 ## Summary of steps
 
-1. Save certain reports from Moneydance to the `data` folder.
-1. Acquire a registration key for the bureau of labor statistics (for inflation data)
-1. Edit the control file: `dance/setup/setup.yaml`
+1. Prepare data files. See [Data Files](./data_files.md).
+    1. Save certain reports from Moneydance to the `data` folder.
+    1. Prepare other imput files as json or tsv
+1. [Acquire a registration key](#api-key) for the bureau of labor statistics (for inflation data)
+1. Edit the [control file](#the-setup-control-file) as described below.
+1. Validate the file against the schema.  I use VS Code extension `YAML Language Support by Red Hat`
 1. Run `dance/setup/create_wb.py`
 
-## Conventions
-
-### File types
-
-Set up files are either 
-
-- tab separated values with extension .tsv
-- JSON with extension .json.  These are typically exports from tables defined in Excel. There are two types depending on the 'orientation'.  
-- YAML - used for the setup config definitions
-
-### File locations
-
-Files are in the data folder under the project.  The data folder is not included in the git repository. 
-
-To make more manageable, the files that have a version each year are placed in subfolders.  The under the sub-folder the files are simply named *yyyy*.tsv.
-
-A listing of the files can be had with 
-
-`tree -PD '*.tsv' --prune data/`
-
-### File names
-
-Preferred format uses hyphen not underscores or spaces to separate words. Abbreviations such as IRA and HSA are forced to lowercase, to aid sorting.
-
-## Reports and their files
-
-(Case sensitive sort to match Moneydance)
-
-|Report|Periods|File(s)|Used in config by|Other file use|
-|:--|:--|:--|:--|:--|
-|401, HSA, ESP payroll data|full years|payroll_to_savings.tsv|tbl_payroll_savings||
-|529-Distr[^4]|all years|529-distr.tsv|tbl_529_distr||
-|Account Balances|each year|acct-bals-*yyyy*.tsv|tbl_accounts[^1], tbl_balances[^2]|bank_actl_load.py[^3]|
-|HSA - disbursements - 2|full years|hsa-disbursements.tsv|tbl_hsa_disb[^5]||
-|IRA-Distr[^6]|all years|ira-distr.tsv|tbl_ira_distr|
-|Income & Expense by Year|full years|iande.tsv|tbl_iande,tbl_iande_actl||
-|Investment IandE[^7]|full years|invest-iande.tsv|tbl_invest_iande_work||
-|Investment Performance|each year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]||
-|Roth-contributions2|all years|roth_contributions.tsv|tbl_roth_contributions|
-|Transfers BKG detailed|full years|trans_bkg.tsv|tbl_bank_sel_invest[^10]
-|Transfers to Investment Accounts by Year|full years|invest-x.tsv|tbl_invest_actl|
-|Transfers-to-fcast[^9]|full years|transfers.tsv|tbl_transfers_actl||
 
 ## API key
 
-The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
+The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free; they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
 
 ```yaml
 bls: 7b50d7a727104578b1ac86bc27caff3f
 ```
 
+Fifteen days before it expires (in 1 year) `labstat@bls.gov` will send an email titled `Bureau of Labor Statistics API Key Expiration` requiring a reactivation.
+
 ## The setup control file
 
-The control file is `dance/data/setup.yaml`.
+The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
+
+```
+# yaml-language-server: $schema=../dance/setup/setup_schema.json
+```
 
 ### Global Settings
 
@@ -109,7 +76,7 @@ The table definition consists of various fields, some of which are optional and/
 |Item|Purpose|Default|
 |:--|:---|---|
 |**title**|The title that is place above the table in Excel||
-|**columns**|A list of the column definitions (name and width) that are included before the time |
+|**columns**|A list of the column definitions (see [below](#column-definitions)) that are included in the table|
 |title_row|When there is more than one table, locates this table on the sheet. If tables are spread horizontally, then subsequent tables will need an entry.|1 for the first table, then automatically places a space before the next table.
 |start_col|The first column of the table on the sheet (A=1,B=2...)|1|
 |include_years|True if there is a time series for the years|False|
@@ -119,6 +86,19 @@ The table definition consists of various fields, some of which are optional and/
 |[fcst_formulas](#actual-and-forecast-formulas)|Specify formulas for forecast periods.|
 |highlights|Specify Excel conditional formatting|
 |[dyno_fields](#build-time-created-fields)|a way to determine values at build time|
+|[edit_checks](#edit-checks)|Sets data validation in Excel for table columns|
+
+#### Column definitions
+
+The following support column definitions
+
+|Item|Purpose|Default|
+|:--|:---|---|
+|name|the column heading|
+|width|optional width used to set column width in spreadsheet|width of previous column|
+|horiz|optional indicator of horizontal alignment such as "center"
+|number_format|number from [openpyxl chart](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html) |
+
 
 #### Data definitions
 
@@ -170,30 +150,76 @@ Include only those lines that are not headings or totals; those will be construc
 
 #### Actual and Forecast Formulas
 
-There are two optional keys to allow formulas to be established for the years section: `actl_formulas` and `fcst_formulas`.  They work the same way but apply to different columns. 
+There are three optional keys to allow formulas to be established for the years section: `actl_formulas`, `all_col_formulas`, and `fcst_formulas`.  They work the same way but apply to different columns, as their names indicate.
 
-Each section consists of a list of rules.  The rules have the following parts:
+Each section consists of a list of rules.  All rules have the following parts:
+|Key word|Description|
+|---|---|
+|formula|The formula to use for the selected year columns (actual or forecast)
+|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
+
+There are two constructions.  The first is the enumeration method, where the config lists all the keys that are to be matched against a base field.
+
 |Key word|Description|
 |---|---|
 |base_field|The name of the column that is used for matching|
 |matches|A list of values by which to match rows. This could match a single row or many rows.|
-|formula|The formula to use for the selected year columns (actual or forecast)
-|first_item|Optional. In some cases the first item or items of the series needs to be different. If supplied it may be a keyword `skip`. If it starts with `=` then it is a formula that will be used in the first place. Otherwise, it will be a constant or a list of constants separated by `,`. In that case it will be applied to the first *n* positions.|
+
+The second construction allows for queries against several fields.  These are "anded" together to product a boolean series to select the rows to be updated.
+
+|Key word|Description|
+|---|---|
+|query|The query is a list of objects with the following fields.|
+|- field|A field name in this table|
+|- compare_to|A value to compare to, either a string or a number|
+|- compare_with|A comparison like "="|
 
 For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 
 ```yaml
-fcst_formulas:
-  - base_field: ValType
-    matches:
-    - Rate
-    formula: =.03
-  - base_field: ValType
-    matches:
-    - Add/Wdraw
-    formula: =add_wdraw( [@AcctName],this_col_name())
-  - base_field: ...
+  fcst_formulas:
+    - base_field: ValType # Near Mkt Rate
+      matches: Mkt Gn Rate
+      first_item: =get_val([@AcctName],"tbl_accounts","Near Mkt Rate")*[@Active]
+      formula: =rolling_avg()
+    - formula: =add_wdraw( [@AcctName],this_col_name()) # Add/Wdraw for rows with distribution plans
+      query:
+        - field: ValType # Add/Wdraw if no distribution plan is via transfers_plan 
+          compare_with: "="
+          compare_to: "Add/Wdraw"
+        - field: No Distr Plan
+          compare_with: =
+          compare_to: 0 ...
 ```
+
+##### Array formulas
+
+It is not possible to use dynamic arrays fully as they are not well supported (yet?) by `openpyxl`. However, some effort has been made to allow for control-shift-enter (CSE) arrays. These work best when the formula summarizes to a single cell or results in a single column of results in a fixed size array.  This has been tested for use with data validation.
+
+For instance the following formula selects the active accounts with no distribution plan which is used for data validation of a table field.
+
+```
+=SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)*(tbl_accounts[No Distr Plan]=1)))
+```
+
+The result is stored under a heading of CHOICES.  The data validation is a list with a source of `=$F$3#`.  The # indicates the entire result set.
+
+![image](./images/tgt/data_validation.png)
+
+The following formula (shown wrapped) uses dynamic array functions, but due to the `openpyxl` limitation it results in a CSE formula, which is fine since it produces a single value.
+
+```
+=SUM(
+  BYROW(
+    (tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),
+    LAMBDA(_xlpm.row,SUM(_xlpm.row))
+  )
+  *(tbl_transfers_plan[Y_Year]=this_col_name()))
+```
+
+The lambda function needs its parameters prefixed with _xlpm.  The code handles the prefixes for the dynamic array functions.
+
+After an Excel session when the file is saved, Excel will rewrite the document so that the internal XML files have new schemas listed.  Further, if a CSE formula is edited, it may be converted to a dynamic array formula, and, in that case, an internal `metadata.xml` file is created to support the dynamic arrays.  If `openpyxl` later rewrites the file, the `metadata.xml` and the references to it in the dynamic array formulas will be lost.  This has the effect of converting back to a CSE formula.
 
 #### Build-time created fields
 
@@ -242,6 +268,20 @@ For example the following puts a line between the actual and forecast periods. T
         color: B50000
 ```
 
+#### Edit Checks
+
+This provides a way to use a dynamic array filter in Excel to create a data validation list (a drop down menu) for a set of columns.
+
+```yaml
+      edit_checks:
+        - for_columns:
+            - From_Account
+            - To_Account
+          formula: =SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)*(tbl_accounts[No Distr Plan]=1)))          
+```
+The formula will be placed to the right of the table and the a data validation will reference it for each of the columns.  In this example the active accounts with no distribution plan will be displayed as the drop down choices for the to listed columns.
+
+
 ### Specific Sheets & Tables
 
 #### Inflation
@@ -287,27 +327,3 @@ tax_free_keys:
 - "529"
 - IRA
 ```
-
-
-
-[^1]: The most recent is best so as to contain all current accounts. This is used to create the Accounts worksheet.  The balances are not used, except that when they are zero, the account will be ignored unless it is specifically mentiond in the `include_zeros` section of the YAML.
-
-[^2]:  Another instance of the Account Balances is used to establish the opening balances on the Balances sheet. This may be for a different year.  If an earlier file is used, history can be included in the Balances sheet.
-
-[^3]: All history years must be available in order to compute the flows to/from bank accounts and credit cards.
-
-[^4]: 529 Distributions depend on the tag `529-Distr` being used to make distributions but not inheritance or transfers.  Thus on the iande table it defrays the college expenses.
-
-[^5]: These data are used to compute medical payments made from HSA accounts by year.
-
-[^6]: This is a transaction filter report using the tag `IRA-Txbl-Distr`
-
-[^7]: This is a transaction filter that selects income and expense categories that are required to only apply to investments.
-
-[^8]: Investment actuals requires the transfers file and the performance files. It also depends on the data from the investment expenses to already be in place.
-
-[^9]: This requires that if the Passthru account is used, it must only be used to transfer funds to/from banks.  In other words there is an assumption that it does not mask any movement to/from income or expense items.  Those must be directly in the investment account.
-
-[^10]: Source accounts: All bank, credit card, income, expense and all HSA accounts. Target Accounts: All asset, liability & loan. The HSA accounts (a subset of investments) are needed since they sometimes transfer to the medical providers.
-
-

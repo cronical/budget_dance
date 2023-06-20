@@ -4,5 +4,7 @@
 **/__pycache__/*
 .venv/**
 data/**
+data-z-archive/**
 private/**
 site/**
+tmp/**

@@ -104,7 +104,6 @@ def prepare_taxes(data_info,workbook):
   col_def=columns_for_table(wb,'taxes','tbl_taxes',read_config())
   df=conform_table(df,col_def['name'])  
   df=subtotal_formulas(df,groups)
-  pass
   return df,groups
 
 if __name__ == '__main__':

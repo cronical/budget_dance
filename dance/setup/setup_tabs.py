@@ -3,6 +3,7 @@
 May be modified to add new tabs and re-run.  Unless overwrite is selected, does not replace or delete any tabs, only adds them
 '''
 import argparse
+from json import JSONDecodeError 
 from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
@@ -125,8 +126,13 @@ def refresh_sheets(target_file,overwrite=False):
                 quit()
               data_info['api_key']=api_keys[key_name]
               logger.debug('API key retrieved from private data')
-            data=remote_data.request(data_info)
-            logger.debug('pulled data from remote')
+            try:
+              data=remote_data.request(data_info)
+              logger.debug('pulled data from remote')
+            except JSONDecodeError :
+              logger.error('Remote data not available, possible maintenance window')
+              data={1970:	5.60}
+
           if source=='local': 
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map,
             title_row=table_info.get('title_row',1))
@@ -137,6 +143,9 @@ def refresh_sheets(target_file,overwrite=False):
           if isinstance(data,list):
             data=pd.DataFrame(list,columns=col_def.name)
           if isinstance(data,pd.DataFrame):
+            # special case for YTD which gets as_of_date as new column heading 
+            if 'YTD' in col_def.name.tolist():
+              col_def.loc[col_def.name=='YTD',['name']]=data.columns[3] #TODO  remove hardcoded 3
             # it may be that the 1st column is in the index,
             # and/or there may be a new year 
             # so fix that
@@ -150,9 +159,12 @@ def refresh_sheets(target_file,overwrite=False):
                 data[missing]=nan
         data=dyno_fields(table_info,data)# any dynamic field values
         data=conform_table(data,col_def['name'])
-        data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
-        data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
-        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups,title_row=key_values['title_row'])
+        data=forecast_formulas(table_info,data,ffy,wb=wb,table_map=table_map) # insert forecast formulas per config
+        data=actual_formulas(table_info,data,ffy,wb=wb,table_map=table_map) # insert actual formulas per config
+        edit_checks=None
+        if 'edit_checks' in table_info:
+          edit_checks=table_info['edit_checks']
+        wb=write_table(wb=wb,target_sheet=sheet_name,table_name=table_info['name'],df=data,groups=groups,title_row=key_values['title_row'],edit_checks=edit_checks,table_map=table_map)
         attrs=col_attrs_for_sheet(wb,sheet_name,config)
         wb=set_col_attrs(wb,sheet_name,attrs)
         wb=freeze_panes(wb,sheet_name,config)
@@ -167,7 +179,7 @@ def refresh_sheets(target_file,overwrite=False):
   logger.info('workbook {} saved'.format(target_file))
 
 if __name__=='__main__':
-    # execute only if run as a script
+  # execute only if run as a script
   parser = argparse.ArgumentParser(description ='set tabs the given workbook')
   parser.add_argument('target_file', help='provide the name of the output file')
   args=parser.parse_args()

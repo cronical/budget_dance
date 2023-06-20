@@ -11,3 +11,11 @@ this_col_name is a VBA function that gets the current column table name.
 
 The field 'Accum_by' is intended to allow summations using the `accum` function.  If a value needs more than one tag, create another row with the same data and a different tag.  An example of this 401K deductions, which generate W2 exclusions on one hand and the need to deposit amounts into the 401K account.
 
+### Setup
+
+Setup sources this from: data/aux.json 
+To refresh that file:
+
+```zsh
+dance/util/extract_table.py -w data/test_wb.xlsm -t tbl_aux -j data/aux.json -o records
+```

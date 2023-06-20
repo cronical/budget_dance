@@ -29,9 +29,9 @@ def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Note
   logger=get_logger(__file__)
   try:
     df=pd.read_csv(filename,sep=sep,skiprows=skiprows,dtype='str') # keep as string because there are some clean ups needed
-  except FileNotFoundError:
+  except FileNotFoundError as e:
     logger.error('No file "{}"'.format(filename))
-    raise
+    raise f'file not found {filename}' from e 
   cols=df.columns
   for col in cols[1:]:
     if col != 'Date' and col not in string_fields:

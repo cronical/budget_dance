@@ -18,4 +18,19 @@ Plans out income streams and post-retirement medical expenses.  This affects bot
 
 ## Retirement Medical
 
-Retirement medical values are modeled here.   
+Retirement medical values are modeled here. Part B and Part D have their own rows on this table, so that the variable cost can be modeled (based on year -2 income). The items with type=PKG get their values as the sum of the rows in `tbl_mcare_opt` with the matching package.
+
+The values from this table get carried into the forecast in `tbl_iande`.
+
+### Fields
+
+- Item is manually constructed from Who, Type and Firm.  
+- Package - refers to a set of items on the `tbl_mcare_opt` table. The logic sums these, applies the start and end dates and places the value in the years.
+- Spare_x - are there just to keep the years aligned with the income plan table.
+- Start Date of the month when this line applies
+- End Date (if given) ends the cost after this month.
+
+### Setup
+
+Setup sources this from: data/retire_medical_template.tsv
+To refresh that file: edit it.

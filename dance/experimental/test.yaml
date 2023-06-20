@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../setup/test_schema.json
+fcst_formulas:
+  -  xl_formula: sdfs
+     matches: dog
+     base_field: Account
+     foo: sdf
+  - xl_formula: asdf
+    query: 
+      - compare_field: Active
+        compare_to: 1
+        compare_with: =
+      - compare_field: No Distr Plan
+        compare_to: 1
+        compare_with: "!="
+
+
+      
+
+
+
+
+
+
+  
+
+
+
+ 

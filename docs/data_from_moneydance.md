@@ -1,9 +1,5 @@
 # Data from Moneydance
 
-## Python Environment
-In the terminal change the current directory to the root of the repository.
-Use the following command to active the virtual environment: `source .venv/bin/activate`
-
 ## Copy Income and Expense from Moneydance
 
 1. In Moneydance run `Income & Expense by Year`

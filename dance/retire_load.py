@@ -19,9 +19,10 @@ def prepare_retire(data_info):
 
 def prepare_retire_medical(data_info):
   '''setup the retir_medical dataframe'''
-  string_fields='Item,Start Date'.split(',')
+  string_fields='Item,Package,Start Date,End Date'.split(',')
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False,string_fields=string_fields)
   df['Start Date']=pd.to_datetime(df['Start Date'])
+  df['End Date']=pd.to_datetime(df['End Date'])
   df[['Type','Who','Firm']]=df.Item.str.split(' - ',expand=True)
   return df
 

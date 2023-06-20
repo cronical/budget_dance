@@ -51,7 +51,6 @@ class Tester:
     if zeros.sum()!=len(zeros):
       df=df.loc[~ zeros]
       df.columns=['Expected','Found','Difference']
-      df.index=df.index.str.replace('Y','...Y')
       print(df)
       print('')
 

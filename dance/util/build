@@ -14,7 +14,4 @@ dance/ytd.py -l -f
 # use script to open and save, avoiding timeout
 # this allows Excel to compute the formulas
 osascript ./dance/util/excel_save.scpt
-#
-# tests
-#
-tests/cross_check.py
+
