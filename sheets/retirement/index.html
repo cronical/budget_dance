@@ -194,6 +194,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../../data_files/" class="md-nav__link">
+        Data Files
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
       </a>
@@ -209,8 +224,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../fcast/" class="md-nav__link">
-        Design of fcast.xlsm
+      <a href="../../operations/" class="md-nav__link">
+        Operations
       </a>
     </li>
   
@@ -256,6 +271,21 @@
     <li class="md-nav__item">
       <a href="../../setup/" class="md-nav__link">
         Setting up the spreadsheet
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../spreadsheet/" class="md-nav__link">
+        Design of the spreadsheet
       </a>
     </li>
   
@@ -319,18 +349,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_10" type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_12" type="checkbox" id="__nav_12" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_10">
+        <label class="md-nav__link" for="__nav_12">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Sheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_10">
+        <label class="md-nav__title" for="__nav_12">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -386,6 +416,20 @@
     <li class="md-nav__item">
       <a href="../cap_gain/" class="md-nav__link">
         capgn
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/" class="md-nav__link">
+        current
       </a>
     </li>
   
@@ -527,6 +571,26 @@
     Retirement Medical
   </a>
   
+    <nav class="md-nav" aria-label="Retirement Medical">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    Fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -652,6 +716,26 @@
     Retirement Medical
   </a>
   
+    <nav class="md-nav" aria-label="Retirement Medical">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    Fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -689,7 +773,7 @@
 </tr>
 <tr>
 <td>Type</td>
-<td>See <a href="../../fcast/#conventions">conventions</a>. Normally hidden.</td>
+<td>See <a href="../fcast.md#conventions">conventions</a>. Normally hidden.</td>
 </tr>
 <tr>
 <td>Firm</td>
@@ -718,7 +802,19 @@
 </tbody>
 </table>
 <h2 id="retirement-medical">Retirement Medical</h2>
-<p>Retirement medical values are modeled here.   </p>
+<p>Retirement medical values are modeled here. Part B and Part D have their own rows on this table, so that the variable cost can be modeled (based on year -2 income). The items with type=PKG get their values as the sum of the rows in <code>tbl_mcare_opt</code> with the matching package.</p>
+<p>The values from this table get carried into the forecast in <code>tbl_iande</code>.</p>
+<h3 id="fields">Fields</h3>
+<ul>
+<li>Item is manually constructed from Who, Type and Firm.  </li>
+<li>Package - refers to a set of items on the <code>tbl_mcare_opt</code> table. The logic sums these, applies the start and end dates and places the value in the years.</li>
+<li>Spare_x - are there just to keep the years aligned with the income plan table.</li>
+<li>Start Date of the month when this line applies</li>
+<li>End Date (if given) ends the cost after this month.</li>
+</ul>
+<h3 id="setup">Setup</h3>
+<p>Setup sources this from: data/retire_medical_template.tsv
+To refresh that file: edit it.</p>
 
               
             </article>

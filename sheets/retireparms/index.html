@@ -194,6 +194,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../../data_files/" class="md-nav__link">
+        Data Files
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
       </a>
@@ -209,8 +224,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../fcast/" class="md-nav__link">
-        Design of fcast.xlsm
+      <a href="../../operations/" class="md-nav__link">
+        Operations
       </a>
     </li>
   
@@ -256,6 +271,21 @@
     <li class="md-nav__item">
       <a href="../../setup/" class="md-nav__link">
         Setting up the spreadsheet
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../spreadsheet/" class="md-nav__link">
+        Design of the spreadsheet
       </a>
     </li>
   
@@ -319,18 +349,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_10" type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_12" type="checkbox" id="__nav_12" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_10">
+        <label class="md-nav__link" for="__nav_12">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Sheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_10">
+        <label class="md-nav__title" for="__nav_12">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -386,6 +416,20 @@
     <li class="md-nav__item">
       <a href="../cap_gain/" class="md-nav__link">
         capgn
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/" class="md-nav__link">
+        current
       </a>
     </li>
   
@@ -548,6 +592,26 @@
     mcare_opt
   </a>
   
+    <nav class="md-nav" aria-label="mcare_opt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    Fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -666,6 +730,26 @@
     mcare_opt
   </a>
   
+    <nav class="md-nav" aria-label="mcare_opt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    Fields
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -688,7 +772,21 @@
 <h2 id="social-security">social security</h2>
 <p>This table creates a key for the selected social security election, by which the retirement table can find the value.</p>
 <h2 id="mcare_opt">mcare_opt</h2>
-<p>Medical plan options and selection.</p>
+<p>Medical plan options and selection. This is the menu of medical plan choices.</p>
+<h3 id="fields">Fields</h3>
+<ul>
+<li>Year: Idenifies what year the plan is for.</li>
+<li>Package: This idenfifies the elements of a package.  This is used to select a set of items.  The value corresponds to a value in <code>tbl_retir_medical</code>, or blank if not selected.</li>
+<li>Class, Firm, Name and ID are labels to help tell what the line is.</li>
+<li>Monthly is the monthly premium.  For part D plans this is the amount over and above the surcharge, if any.</li>
+<li>Premium is annual</li>
+<li>Cost is the annual premium + the deductible.</li>
+</ul>
+<h3 id="setup">Setup</h3>
+<p>Setup sources this from: data/mcare_opt.json 
+To refresh that file:</p>
+<pre><code class="language-zsh">dance/util/extract_table.py -w data/test_wb.xlsm -t tbl_mcare_opt -j data/mcare_opt.json -o records
+</code></pre>
 
               
             </article>
