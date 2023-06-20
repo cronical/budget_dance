@@ -12,7 +12,7 @@ Many of the tables represent time series where the time is based on years.  The 
 
 The time series columns are labeled with 'Y' + year.    The meaning of the time series data depends on the state of the system.  To the left of the first forecast year, data is considered actual, while to the right it is forecast.  In the following example, the red line marks the transition from actual to forecast.
 
-![Income and Expense time series](./images/timeseries.png)
+![Income and Expense time series](./images/tgt/time_series.png)
 
 Other columns are labeled with appropriate short column labels.
 

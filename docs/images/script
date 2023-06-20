@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+magick src/data_validation.png -resize 40% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 tgt/data_validation.png
+
+magick src/time_series.png -resize 40% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 tgt/time_series.png

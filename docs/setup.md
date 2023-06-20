@@ -192,6 +192,35 @@ For example, if there is a key `fcst_formulas` under the table, it is used to se
           compare_to: 0 ...
 ```
 
+##### Array formulas
+
+It is not possible to use dynamic arrays fully as they are not well supported (yet?) by `openpyxl`. However, some effort has been made to allow for control-shift-enter (CSE) arrays. These work best when the formula summarizes to a single cell or results in a single column of results in a fixed size array.  This has been tested for use with data validation.
+
+For instance the following formula selects the active accounts with no distribution plan which is used for data validation of a table field.
+
+```
+=SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)*(tbl_accounts[No Distr Plan]=1)))
+```
+
+The result is stored under a heading of CHOICES.  The data validation is a list with a source of `=$F$3#`.  The # indicates the entire result set.
+
+![image](./images/tgt/data_validation.png)
+
+The following formula (shown wrapped) uses dynamic array functions, but due to the `openpyxl` limitation it results in a CSE formula, which is fine since it produces a single value.
+
+```
+=SUM(
+  BYROW(
+    (tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),
+    LAMBDA(_xlpm.row,SUM(_xlpm.row))
+  )
+  *(tbl_transfers_plan[Y_Year]=this_col_name()))
+```
+
+The lambda function needs its parameters prefixed with _xlpm.  The code handles the prefixes for the dynamic array functions.
+
+After an Excel session when the file is saved, Excel will rewrite the document so that the internal XML files have new schemas listed.  Further, if a CSE formula is edited, it may be converted to a dynamic array formula, and, in that case, an internal `metadata.xml` file is created to support the dynamic arrays.  If `openpyxl` later rewrites the file, the `metadata.xml` and the references to it in the dynamic array formulas will be lost.  This has the effect of converting back to a CSE formula.
+
 #### Build-time created fields
 
 Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
