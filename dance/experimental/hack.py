@@ -5,6 +5,7 @@ import zipfile
 from dance.setup.create_wb import zip_up
 
 filename='data/test_wb.xlsm'
+filename='dance/experimental/Book1.xlsx'
 if exists('./tmp'):
   rmtree('./tmp')
 with zipfile.ZipFile(filename, 'r') as z:
