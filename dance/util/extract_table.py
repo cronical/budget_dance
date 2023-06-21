@@ -2,6 +2,7 @@
 '''Extract a table and save data as a json file
 '''
 import argparse
+from openpyxl.worksheet.formula import ArrayFormula
 from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name
