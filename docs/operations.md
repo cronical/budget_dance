@@ -121,8 +121,6 @@ The Python code, `util/index_tables.py` enumerates and indexs the tables (someth
 Use `dance/util/extract_table.py` to copy the contents of an existing table to a `json` formatted file.
 
 ```zsh
-usage: extract_table.py [-h] [--workbook WORKBOOK] [--table TABLE] [--orient {index,records}] [--json JSON] [--data_only]
-
 Copies table from workbook and stores as a json output file
 
 options:
@@ -130,10 +128,10 @@ options:
   --workbook WORKBOOK, -w WORKBOOK
                         Source workbook
   --table TABLE, -t TABLE
-                        Source table name
+                        Source table name, include tbl_
   --orient {index,records}, -o {index,records}
                         Use records if 1st fld not unique
-  --json JSON, -j JSON  Name of the json file to store the output.
+  --json JSON, -j JSON  Name of the json file to store the output. Default is folder of workbook and name of table less the tbl_
   --data_only, -d       To get data not formulas
 ```
 
@@ -141,5 +139,6 @@ options:
 For example, this copies the aux table from a worksheet called test_wb.xlsm to a data file.
 
 ```zsh
-dance/util/extract_table.py -w data/test_wb.xlsm -t tbl_aux -j data/aux.json -o records
+% dance/util/extract_table.py -w data/test_wb.xlsm -t tbl_aux -o records
+2023-06-21 14:23:19,716 - extract_table - INFO - Wrote to data/aux.json
 ```

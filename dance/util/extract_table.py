@@ -2,6 +2,8 @@
 '''Extract a table and save data as a json file
 '''
 import argparse
+from os import sep
+from os.path import dirname
 from openpyxl.worksheet.formula import ArrayFormula
 from dance.util.files import read_config
 from dance.util.logs import get_logger
@@ -9,7 +11,13 @@ from dance.util.tables import df_for_table_name
 
 logger=get_logger(__file__)
 
-def extract(workbook,table,orient,out_file,data_only):
+def extract(workbook,table,orient,out_file=None,data_only=None):
+  if out_file is None:
+    path=dirname(workbook)
+    tbl='_'.join(table.split('_')[1:])
+    out_file=sep.join([path,tbl+'.json'])
+  if data_only is None:
+    data_only=False
   df=df_for_table_name(table_name=table,workbook=workbook,data_only=data_only)
   if orient=='records':
     config=read_config() # locate the name of the index field
@@ -27,9 +35,9 @@ def extract(workbook,table,orient,out_file,data_only):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies table from workbook and stores as a json output file')
   parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Source workbook')
-  parser.add_argument('--table', '-t',help='Source table name')
+  parser.add_argument('--table', '-t',required=True,help='Source table name, include tbl_')
   parser.add_argument('--orient', '-o',default='index',choices=['index','records'],help='Use records if 1st fld not unique')
-  parser.add_argument('--json', '-j',help='Name of the json file to store the output.')
+  parser.add_argument('--json', '-j',help='Name of the json file to store the output. Default is folder of workbook and name of table less the tbl_')
   parser.add_argument('--data_only', '-d',action='store_true', default=False, help='To get data not formulas')
 
   args=parser.parse_args()
