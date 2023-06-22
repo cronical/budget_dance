@@ -3,12 +3,13 @@
 import argparse
 import json
 from openpyxl import load_workbook
+from openpyxl.comments import Comment
 import pandas as pd
 from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name
 logger=get_logger(__file__)
-
+comment=Comment('Estimated based on year to date data.','ytd.py')
 if __name__ == '__main__':
   defaults={'workbook':'data/test_wb.xlsm','storage':'./data/ytd_data.json'}# TODO fcast
   parser = argparse.ArgumentParser(description ='Copies data from ytd tab to file or from file to ytd tab and iande.')
@@ -56,6 +57,8 @@ if __name__ == '__main__':
           rx=row_offset+idx.index(ix)
           val=values[src]
           ws.cell(row=rx,column=cx).value=val
+          if tab=='iande': # add comment for iande
+            ws.cell(row=rx,column=cx).comment=comment
         if tab=='current':
           # recompute reprojected year, in case the excel calc has not yet run.
           yx=col_offset+list(tgt_df.columns.str.startswith('Y')).index(True) # locate the ytd date column in the latest tsv
