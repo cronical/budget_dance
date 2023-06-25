@@ -3,7 +3,7 @@
 from openpyxl.utils import get_column_letter
 
 import pandas as pd
-
+from dance.util.xl_formulas import agg_types
 
 def hier_insert(df,table_info,sep=":"):
   '''Insert any specified new rows
@@ -45,24 +45,29 @@ def hier_insert(df,table_info,sep=":"):
     df=new_df.copy()
   return df
 
-def identify_groups(df):
-  '''identify groups where folding and subtotals occur
-  Whenever the level goes down from the previous level it may be a total.
-  Typically it is a total, but in the case of a deeper level in the middle of a tranche of a certain level
-  it may not be.
-
-  returns list of triples of group info: level, start, end
+def folding_groups(df):
+  '''prepare the groups for folding and remove the level field
+  The subtotals are aligned with the groups
+  Whenever the level goes down from the previous level it may be a total
+  Separate function allows use if heirarchical insert if needed.
+  
+  returns modifed df and groups
   '''
-  groups=[] 
+  groups=[] # level, start, end
   last_level=-1
   keys=list(df['Key'])
   for ix,row in df.iterrows():
     level_change= row['level']-last_level
     k=row['Key']# get the key value from the file
     if level_change <0: #this might be a total line
-      n=k.find(' - TOTAL') # see if it has the total label
-      if n >= 0: # if it has a total label
-        bare = k[:n]# # remove the total label
+      parts=k.split(' - ')# see if it has the total label
+      # typically it is a total, but in the case of a deeper level in the middle of a tranche of a certain level
+      # it may not be.
+      if len(parts)>1:# if it has a total label
+        agg=parts[-1]
+        if not agg in agg_types:
+          raise ValueError('Agg method not known: %s'%agg)
+        bare = ' - '.join(parts[:-1]) # remove the total label
         try:
           # prepare the grouping specs
           bx=keys.index(bare) # look for this in the keys - should be there
@@ -70,7 +75,10 @@ def identify_groups(df):
         except ValueError as e:
           raise ValueError(f'{k} not found in keys'.format()) from e
     last_level=row['level']
-  return groups
+  del df['level'] # clear out temp field  
+  return df,groups
+
+
 
 def indent_leaf(path,sep=':',spaces=3):
   '''Convert a path with separators to show level of the leaf by using spaces
@@ -104,7 +112,6 @@ def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
   #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
   df['level']=((df[cat_field].str.len() - df.Key.str.len()))/spaces_per_level # each level is indented 3 more spaces
   df['level']=[int(x) for x in df.level.tolist()]
-
   df['Key']=None # build up the keys by including parents
   last_level=-1
   pathparts=[]
@@ -123,28 +130,18 @@ def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
     last_level=lev
   return df
 
-
-def subtotal_formulas(df,groups,heading_row):  
-  '''On subtotal rows replace the existing (hard) values with formulas
+def subtotal_formulas(df,groups):
+  '''Replace the hard values with formulas
   if its not a total just let the value stay there
-  '''
+  Supports aggregation by TOTAL, MIN, MAX, PRODUCT'''
   for group in groups:
+    key=df.at[group[2]-2,'Key']
+    agg=key.split(' - ')[-1]
+    code=agg_types[agg]
     for cx,cl in enumerate(df.columns):
-      if str(cl).startswith('Y'):
+      if cl.startswith('Y'):
         let=get_column_letter(cx+1)
-        formula='=subtotal(9,{}{}:{}{})'.format(let,group[1],let,group[2])
+        formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1],let,group[2])
         df.loc[group[2]-2,[cl]]=formula
-
-  keys=df.Key.tolist()
-  grand_total='TOTAL INCOME - EXPENSES' # support for iande etc.
-  if grand_total in keys:
-    net_ix=keys.index(grand_total) # find the net line (its should be the last line)
-    group=groups[-1]
-    inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
-    exp_ix=keys.index('Expenses - TOTAL')+heading_row+1
-    for cx,cl in enumerate(df.columns):
-      if str(cl).startswith('Y'):
-        let=get_column_letter(cx+1)
-        formula='={}{}-{}{}'.format(let,inc_ix,let,exp_ix)
-        df.loc[net_ix,[cl]]=formula
   return df
+

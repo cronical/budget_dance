@@ -14,7 +14,7 @@ from dance.util.logs import get_logger
 from dance.util.tables import (columns_for_table, df_for_table_name,
                                get_f_fcast_year,  write_table)
 from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref, this_row
-from dance.util.row_tree import hier_insert,identify_groups,is_leaf,nest_by_cat,subtotal_formulas
+from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 
 logger=get_logger(__file__)
 
@@ -183,8 +183,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   df=nest_by_cat(df) # creates key, leaf and level fields
   df=hier_insert(df,tables[0]) # insert any specified lines into hierarchy
   df=is_leaf(df)# mark rows that are leaves of the category tree
-  groups=identify_groups(df)
-  del df['level'] # clear out temp field
+  df,groups=folding_groups(df)
 
   expected_cols=set(columns_for_table(wb,target_sheet,tab_tgt,config).name)
 
@@ -222,7 +221,20 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
     
 
   df=y_year(df)  
-  df=subtotal_formulas(df,groups,heading_row)
+  df=subtotal_formulas(df,groups)
+
+  # support for iande etc.
+  keys=df.Key.tolist()
+  grand_total='TOTAL INCOME - EXPENSES' 
+  if grand_total in keys:
+    net_ix=keys.index(grand_total) # find the net line (its should be the last line)
+    inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
+    exp_ix=keys.index('Expenses - TOTAL')+heading_row+1
+    for cx,cl in enumerate(df.columns):
+      if str(cl).startswith('Y'):
+        let=get_column_letter(cx+1)
+        formula='={}{}-{}{}'.format(let,inc_ix,let,exp_ix)
+        df.loc[net_ix,[cl]]=formula
 
   data_has_cols=set(df.columns)
   if data_has_cols != expected_cols:

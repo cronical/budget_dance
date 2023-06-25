@@ -16,7 +16,7 @@ from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
-from dance.util.row_tree import hier_insert,identify_groups,indent_leaf,is_leaf,nest_by_cat,subtotal_formulas
+from dance.util.row_tree import hier_insert,folding_groups,indent_leaf,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
 from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
 import remote_data
@@ -109,13 +109,12 @@ def refresh_sheets(target_file,overwrite=False):
               data=nest_by_cat(data,cat_field='Line') # creates key, leaf and level fields
               data=hier_insert(data,table_info,sep=data_info['hier_separator']) # insert any specified lines into hierarchy
               data=is_leaf(data)# mark rows that are leaves of the category tree
-              groups=identify_groups(data)
-              del data['level'] # clear out temp field
+              data,groups=folding_groups(data)
               del data['is_leaf'] # clear out temp field
               title_row=1
               if 'title_row' in table_info:
                 title_row=table_info['title_row']
-              data=subtotal_formulas(data,groups,1+title_row)
+              data=subtotal_formulas(data,groups)
           if source == 'internal':
             try:
               var_name=data_info['name']
