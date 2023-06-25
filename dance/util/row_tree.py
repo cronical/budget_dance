@@ -5,7 +5,7 @@ from openpyxl.utils import get_column_letter
 import pandas as pd
 
 
-def hier_insert(df,table_info):
+def hier_insert(df,table_info,sep=":"):
   '''Insert any specified new rows
   args:
     df - a dataframe with the Key in a column
@@ -20,9 +20,9 @@ def hier_insert(df,table_info):
       continue
     # determine which subpaths need to be inserted
     to_insert=[] # headings and the row itself
-    path_parts=path.split(':')
+    path_parts=path.split(sep)
     for ix,_ in enumerate(path_parts):
-      subpath=':'.join(path_parts[0:ix+1])
+      subpath=sep.join(path_parts[0:ix+1])
       if subpath in df['Key'].tolist():
         continue
       to_insert+=[subpath]
@@ -93,27 +93,29 @@ def is_leaf(df):
   df.loc[sel,'is_leaf']=1
   return df
 
-def nest_by_cat(df):
-  '''create key of nested category names
+def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
+  '''create key of nested "category" names based on the field named in cat_field
    determines level of each row in the category hierarchy
    and whether the row is a leaf node
    returns df with key, is_leaf and level columns'''
-  df.insert(loc=0,column='Key',value=df.Account.str.lstrip()) # used to define level
+  if not 'Key' in df.columns:
+    df.insert(loc=0,column='Key',value=None)
+  df['Key']=df[cat_field].str.lstrip() # used to define level
   #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
-  df['level']=((df.Account.str.len() - df.Key.str.len()))/3 # each level is indented 3 more spaces
+  df['level']=((df[cat_field].str.len() - df.Key.str.len()))/spaces_per_level # each level is indented 3 more spaces
   df['level']=[int(x) for x in df.level.tolist()]
 
   df['Key']=None # build up the keys by including parents
   last_level=-1
   pathparts=[]
   pathpart=None
-  for ix,row in df[['level','Account']].iterrows():
+  for ix,row in df[['level',cat_field]].iterrows():
     lev=row['level']
     if lev > last_level and pathpart is not None:
       pathparts.append(pathpart)
     if lev < last_level:
       pathparts=pathparts[:-1]
-    pathpart=row['Account'].strip()
+    pathpart=row[cat_field].strip()
     a=pathparts.copy()
     a.append(pathpart)
     key=':'.join(a)
@@ -134,8 +136,9 @@ def subtotal_formulas(df,groups,heading_row):
         df.loc[group[2]-2,[cl]]=formula
 
   keys=df.Key.tolist()
-  net_ix=keys.index('TOTAL INCOME - EXPENSES') # find the net line (its should be the last line)
-  if -1!=net_ix:
+  grand_total='TOTAL INCOME - EXPENSES' # support for iande etc.
+  if grand_total in keys:
+    net_ix=keys.index(grand_total) # find the net line (its should be the last line)
     group=groups[-1]
     inc_ix=keys.index('Income - TOTAL')+heading_row+1 # offset for excel
     exp_ix=keys.index('Expenses - TOTAL')+heading_row+1

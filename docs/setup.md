@@ -119,7 +119,8 @@ The data definitions are purpose built to support the target table, but there ar
 |table|Defines how to locate a table in HTML|remote|
 |table.find_method|caption - only supported method|remote|
 |table.method_parameters|parameters for the method, specifically the text to search for in the caption.|remote|
-|[hier_insert_paths](#inserting-rows-for-future-use) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande|
+|hier_separator|Typically set to colon.  The existence of this key indicates that the lines should be subtotaled and folded|iande,iande_actl,current,aux|
+|[hier_insert_paths](#inserting-rows-for-future-use) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande,iande_actl,current,aux|
 
 ##### Supported Types
 
@@ -134,11 +135,17 @@ json_index|Imports entire table previously exported via `dance/util/extract_tabl
 json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.|
 |tax_template|Prepares the taxes worksheet|
 
-##### Inserting Rows for Future Use
+##### Inserting Rows
 
-The income and expense report in MoneyDance filters out categories that have no transactions.  This leads to a need to insert those rows in the `tbl_iande` and `tbl_iande_actl` tables. For example, future social security payouts should subtotal into retirement income. 
+An optional key is used to define new rows to be inserted on sheets that use the folding/subtotaling method.
 
-An optional key is used to define these rows. The specification needs to contain the full hiearchy information so that it can be inserted into the right place.  At run time these are checked against the existing items and added only if not already there.
+For instance, the income and expense report in MoneyDance filters out categories that have no transactions.  This leads to a need to insert those rows in the `tbl_iande` and `tbl_iande_actl` tables. For example, future social security payouts should subtotal into retirement income. 
+
+It is also useful in the aux table to construct subtotals.
+
+The specification of the new rows needs to contain the full hiearchy information so that it can be inserted into the right place.  At run time these are checked against the existing items and added only if not already there.
+
+Note: include only those lines that are not headings or totals. Headings and total lines will be constructed and inserted as well as the specified data lines.
 
 ```yaml
 data: ...
@@ -146,7 +153,6 @@ data: ...
     - Income: "Income:I:Retirement income:Social Security:SS-G"
     - Income: "Income:I:Retirement income:Social Security:SS-V"
 ```
-Include only those lines that are not headings or totals; those will be constructed and inserted as well as the specified data lines.
 
 #### Actual and Forecast Formulas
 

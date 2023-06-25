@@ -55,7 +55,7 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
       queries=rule['query']
       selection = True
       for query in queries:
-        assert query['compare_with'] == '=','Nonce error - only equality implemented'
+        assert query['compare_with'] in ['=','starts','not_starting'],'Nonce error - comparison not implemented '+query['compare_with']
         values=data[query['field']]
         if 'look_up' in query: # if its a lookup perform the lookup.  
           look_up=query['look_up']
@@ -64,7 +64,13 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
           ref_df=df_for_range(worksheet=source_ws,range_ref=source_ws.tables[ref_table].ref) # The index is the 1st column in the table
           index_on=data[look_up["index_on"]]
           values=ref_df.loc[index_on,look_up['value_field']].reset_index(drop=True)# lookup with the index then discard it
-        next_sel=(values == query['compare_to'])
+        match query['compare_with']:
+          case '=':
+            next_sel=(values == query['compare_to'])
+          case 'starts':
+            next_sel=  values.str.startswith(query['compare_to'])
+          case 'not_starting':
+            next_sel= ~ values.str.startswith(query['compare_to'])
         selection=selection & next_sel
     for ix, rw in data.loc[selection].iterrows(): # the rows that match this rule
       selector=is_actl

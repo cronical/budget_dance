@@ -126,7 +126,7 @@
     "data": {
       "type": "object",
       "properties": {
-        "source": {"type":"string","enum":["internal","local","remote"]},
+        "source": {"type":"string","enum":["internal","local","remote","none"]},
         "site_code": {"type":"string"},
         "api_key": {"type":"string"},
         "parameters": {"$ref":"#/$defs/parameter"},
@@ -141,6 +141,7 @@
         "include_zeros": {"type":"array","items":{"type":"string"}},
         "tax_free_keys": {"type":"array","items":{"type":"string"}},
         "hier_insert_paths": {"type":"array","items":{"type":"string"}},
+        "hier_separator":{"type":"string","maxLength":1},
         "file_set": {"$ref":"#/$defs/file_set"},
         "sheet": {"type":"string"},
         "table": {"$ref":"#/$defs/data_table"},
@@ -224,7 +225,7 @@
                 "type":"object",
                 "properties":{
                   "field": {"type":"string"},
-                  "compare_with": {"type":"string", "enum":["=",">","<","!="]},
+                  "compare_with": {"type":"string", "enum":["=","starts","not_starting"]},
                   "compare_to": {"type": ["string","number"]},
                   "look_up": {                    
                     "type":"object",

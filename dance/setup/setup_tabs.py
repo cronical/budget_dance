@@ -16,6 +16,7 @@ from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
+from dance.util.row_tree import hier_insert,identify_groups,indent_leaf,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
 from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
 import remote_data
@@ -28,8 +29,6 @@ def include_year(table_info,first_forecast_year,proposed_year):
   if not ao:
     return True
   return first_forecast_year > proposed_year
-
-
 
 def refresh_sheets(target_file,overwrite=False):
   '''create or refresh tabs'''
@@ -92,15 +91,31 @@ def refresh_sheets(target_file,overwrite=False):
         groups=None
         # Excel seems to need at least one data row, so a row of blanks if no data is provided
         if 'data' not in table_info:
-          data=pd.DataFrame([[None]*col_count],columns=col_def.name)
+          data=pd.DataFrame([[None]*col_count],columns=col_def.name)  
         else: # if table has a data source add those rows
           assert 'source' in table_info['data']
           data_info=table_info['data']
-          valid_sources=['internal','remote','local']
+          valid_sources=['internal','remote','local','none']
           source=data_info['source']
           if source not in valid_sources:
             logger.error('Only the following are valid data sources {}'.format(valid_sources))
             quit()
+          if source == 'none':
+            data=pd.DataFrame(columns=col_def.name)                  
+            if 'hier_separator' in data_info: # this will want groups, folding, subtotals
+              # for now only for none. 
+              # same logic exists in iande_actl_load, which may be able to move
+
+              data=nest_by_cat(data,cat_field='Line') # creates key, leaf and level fields
+              data=hier_insert(data,table_info,sep=data_info['hier_separator']) # insert any specified lines into hierarchy
+              data=is_leaf(data)# mark rows that are leaves of the category tree
+              groups=identify_groups(data)
+              del data['level'] # clear out temp field
+              del data['is_leaf'] # clear out temp field
+              title_row=1
+              if 'title_row' in table_info:
+                title_row=table_info['title_row']
+              data=subtotal_formulas(data,groups,1+title_row)
           if source == 'internal':
             try:
               var_name=data_info['name']
@@ -111,7 +126,6 @@ def refresh_sheets(target_file,overwrite=False):
             if not isinstance(data,dict):
               logger.error('configured internal data source {} is not a dict.'.format(var_name))
               quit()
-
           if source == 'remote':
             if 'api_key' in data_info:
               fn='./private/api_keys.yaml'
@@ -132,7 +146,6 @@ def refresh_sheets(target_file,overwrite=False):
             except JSONDecodeError :
               logger.error('Remote data not available, possible maintenance window')
               data={1970:	5.60}
-
           if source=='local': 
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map,
             title_row=table_info.get('title_row',1))
@@ -157,6 +170,9 @@ def refresh_sheets(target_file,overwrite=False):
                 data=data.rename(columns={'index':missing})
               else:
                 data[missing]=nan
+        
+
+        
         data=dyno_fields(table_info,data)# any dynamic field values
         data=conform_table(data,col_def['name'])
         data=forecast_formulas(table_info,data,ffy,wb=wb,table_map=table_map) # insert forecast formulas per config
@@ -174,6 +190,11 @@ def refresh_sheets(target_file,overwrite=False):
         table_map[table_info['name']]=sheet_name
         table_location += 3+data.shape[0]
       ws.sheet_view.zoomScale=config['zoom_scale']
+
+    # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
+    wb.calculation.iterate=1
+    wb.calculation.iterateCount=2
+    wb.calculation.iterateDelta=0.05  
 
   wb.save(filename=target_file)
   logger.info('workbook {} saved'.format(target_file))
