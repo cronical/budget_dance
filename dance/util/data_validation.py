@@ -4,7 +4,8 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import coordinate_from_string
 from openpyxl.worksheet.datavalidation import DataValidation
-from dance.util.tables import df_for_range,df_for_table_name,load_workbook,ws_for_table_name
+from dance.util.sheet import df_for_range
+from dance.util.tables import df_for_table_name,load_workbook,ws_for_table_name
 
 source='data/test_wb.xlsm'
 table_name='tbl_transfers_plan'

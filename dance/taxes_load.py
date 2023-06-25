@@ -8,7 +8,8 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
 from dance.util.files import tsv_to_df,read_config
-from dance.util.tables import agg_types,columns_for_table,conform_table
+from dance.util.tables import columns_for_table,conform_table
+from dance.util.xl_formulas import agg_types
 
 def nest(df,source_field):
   '''Create key of nested category names

@@ -12,7 +12,7 @@ from dance.taxes_load import prepare_taxes
 from dance.retire_load import prepare_retire, prepare_retire_medical                                     
 from dance.util.files import tsv_to_df
 from dance.util.logs import get_logger
-from dance.util.tables import this_row
+from dance.util.xl_formulas import this_row
 
 logger=get_logger(__file__)
 

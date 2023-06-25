@@ -7,40 +7,18 @@ from openpyxl.styles import Font, Alignment, PatternFill, Side,Border
 from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00,FORMAT_NUMBER
 from openpyxl.styles.differential import DifferentialStyle
 from openpyxl.utils import get_column_letter
-import openpyxl.utils.cell
+
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.formula import ArrayFormula
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from dance.util.logs import get_logger
 from dance.util.files import read_config
-from dance.util.xl_eval import filter_parser,eval_criteria,prepare_formula
-
-
-agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
+from dance.util.sheet import df_for_range
+from dance.util.xl_eval import filter_parser,eval_criteria
+from dance.util.xl_formulas import is_formula,prepare_formula
 
 logger=get_logger(__file__)
-
-def df_for_range(worksheet=None,range_ref=None):
-  '''get a dataframe given a range reference on a worksheet
-  First column becomes the index of the result
-  For Array Formulas, just include the text of the formula'''
-
-  data=[]
-  rb=openpyxl.utils.cell.range_boundaries(range_ref)
-  for src_row in worksheet.iter_rows(min_col=rb[0],min_row=rb[1], max_col=rb[2], max_row=rb[3]):
-    row=[]
-    for cell in src_row:
-      value=cell.value
-      if isinstance(value,ArrayFormula): 
-        value=value.text
-      row.append(value)
-    data.append(row)
-  cols = data[0][1:]
-  idx = [r[0] for r in data[1:]]
-  data = [r[1:] for r in data[1:]]
-  df = pd.DataFrame(data, index=idx, columns=cols)
-  return df
 
 def ws_for_table_name(table_map=None,table_name=None):
   '''Return name of worksheet holding table given a data frame holding the table'''
@@ -148,11 +126,6 @@ def get_f_fcast_year(wb,config):
     ffy=config['first_forecast_year']
   return ffy
 
-def this_row(field):
-  ''' prepare part of the formula so support Excel;s preference for the [#this row] style over the direct @
-  '''
-  return '[[#this row],[{}]]'.format(field)
-
 def first_not_hidden(table_info):
   '''determine the first column that is not hidden (origin 1)'''
   if 'hidden' not in table_info:
@@ -161,15 +134,6 @@ def first_not_hidden(table_info):
     if col_data['name'] in table_info['hidden']:
       continue
     return col_no+1
-
-def is_formula(value):
-  '''Returns true if the value is a formula'''
-  result=False
-  if value is not None:
-    if isinstance(value,str):
-      if value.startswith('='):
-        result=True
-  return result
 
 def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_checks=None,table_map=None):
   '''

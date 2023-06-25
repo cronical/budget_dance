@@ -12,8 +12,8 @@ from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
 from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
 from dance.util.tables import (columns_for_table, df_for_table_name,
-                               get_f_fcast_year, this_row, write_table)
-from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref
+                               get_f_fcast_year,  write_table)
+from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref, this_row
 from dance.util.row_tree import hier_insert,identify_groups,is_leaf,nest_by_cat,subtotal_formulas
 
 logger=get_logger(__file__)
