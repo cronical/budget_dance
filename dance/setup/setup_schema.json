@@ -143,6 +143,10 @@
         "hier_insert_paths": {"type":"array","items":{"type":"string"}},
         "hier_separator":{"type":"string","maxLength":1},
         "file_set": {"$ref":"#/$defs/file_set"},
+        "hier_alt_agg":{
+          "type": "object",
+          "additionalProperties":{ "type": "string","enum":["MIN","MAX","PRODUCT"] }
+        },
         "sheet": {"type":"string"},
         "table": {"$ref":"#/$defs/data_table"},
         "name": {"type":"string"}

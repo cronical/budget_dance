@@ -28,7 +28,13 @@ def hier_insert(df,table_info,sep=":"):
       to_insert+=[subpath]
     totals=to_insert.copy()[:-1]
     totals.reverse()
-    totals=[t + ' - TOTAL' for t in totals]
+    for ix,tot in enumerate(totals):
+      agg='TOTAL'
+      if 'hier_alt_agg' in table_info['data']:
+        hier_alt_agg=table_info['data']['hier_alt_agg']
+        if tot in hier_alt_agg:
+          agg=hier_alt_agg[tot]
+      totals[ix]=tot + ' - ' + agg          
     to_insert+= totals
     cols=df.columns
     insert_df=pd.DataFrame({cols[0]:to_insert,
@@ -141,7 +147,9 @@ def subtotal_formulas(df,groups):
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)
-        formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1],let,group[2])
+        formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1]+1,let,group[2])
+        # add one to start of group to not include the heading line which is blank.
+        # blank works ok for sum but not for min, max, product
         df.loc[group[2]-2,[cl]]=formula
   return df
 
