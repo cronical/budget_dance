@@ -25,9 +25,9 @@ Fifteen days before it expires (in 1 year) `labstat@bls.gov` will send an email 
 
 The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
 
-```
-# yaml-language-server: $schema=../dance/setup/setup_schema.json
-```
+  ```
+  # yaml-language-server: $schema=../dance/setup/setup_schema.json
+  ```
 
 ### Global Settings
 
@@ -121,19 +121,31 @@ The data definitions are purpose built to support the target table, but there ar
 |table.method_parameters|parameters for the method, specifically the text to search for in the caption.|remote|
 |hier_separator|Typically set to colon.  The existence of this key indicates that the lines should be subtotaled and folded|iande,iande_actl,current,aux|
 |[hier_insert_paths](#inserting-rows-for-future-use) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande,iande_actl,current,aux|
+|hier_alt_agg|This optional field allows aggregation to occur by any of the following methods: MIN, MAX, PRODUCT. The default is TOTAL. This is a mapping between lines and one of the aggregation types.|
 
 ##### Supported Types
 
+
 |Type|Purpose|
 |:--|:---|
+|json_index| Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.|
+|json_records| Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.|
+|md_529_distr|Get the 529 plan distribution records from Moneydance export and summarize so data items can be put in spreadsheet|
 |md_acct|Processes the account extract from Moneydance|
 |md_bal|Processes the balances extract from Moneydance|
+|md_hsa_disb|Get the HSA disbursement records from Moneydance export and summarize so data items can be put in spreadsheet|
 |md_iande_actl|Processes the income and expense extract from Moneydance to create the iande and iande_actl sheets|
-|md_transfers_actl|Sets up the non-investment actual transfers|
 |md_invest_actl|Sets up the investment actual transfers|
-json_index|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.
-json_records|Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.|
-|tax_template|Prepares the taxes worksheet|
+|md_invest_iande_work|Read investment income and expense actual data from file into a dataframe|
+|md_ira_distr|Get the IRA distribution records from Moneydance export and summarize so data items can be put in spreadsheet|
+|md_pr_sav|Get the payroll to savings records from Moneydance export and summarize so data items can be put in spreadsheet|
+|md_roth|Get the roth contributions|
+|md_sel_inv|Get amounts transferred to/from certain brokerages, mutual funds, loans from/to any banks.|
+|md_transfers_actl|Sets up the non-investment actual transfers|
+|retire_medical_template|Sets up the retire medical table based on a template|
+|retire_template|Set up the retirement table based on a template|
+|tax_template|Prepares the taxes worksheet based on a template|
+
 
 ##### Inserting Rows
 
@@ -147,11 +159,25 @@ The specification of the new rows needs to contain the full hiearchy information
 
 Note: include only those lines that are not headings or totals. Headings and total lines will be constructed and inserted as well as the specified data lines.
 
+In this example, we aggregate based on the MIN function to plan the distributions from the health savings accounts
+
 ```yaml
 data: ...
+  source: none
+  hier_separator: ":"
   hier_insert_paths:
-    - Income: "Income:I:Retirement income:Social Security:SS-G"
-    - Income: "Income:I:Retirement income:Social Security:SS-V"
+  - 401K - GBD - TRV:contributions:ER
+  - 401K - GBD - TRV:Withdrawal
+  - 401K - VEC - UHG:contributions:ER
+  - 401K - VEC - UHG:contributions:EE
+  - 401K - VEC - UHG:Withdrawal
+  - HSA - GBD - Fidelity:avail
+  - HSA - GBD - Fidelity:demand
+  - HSA - VEC - UHG:avail
+  - HSA - VEC - UHG:demand
+  hier_alt_agg:
+    "HSA - GBD - Fidelity": MIN
+    "HSA - VEC - UHG": MIN      
 ```
 
 #### Actual and Forecast Formulas
