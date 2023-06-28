@@ -8,7 +8,7 @@ Plans out income streams and post-retirement medical expenses.  This affects bot
 | --------------- | ------------------------------------------------------------ |
 |Item|A computed key, composed of type, whose, and firm.|
 |Who|Initials of who owns this account or JNT for joint. Normally hidden.|
-|Type|See [conventions](../fcast.md#conventions). Normally hidden.|
+|Type|See [conventions](../spreadsheet.md#conventions). Normally hidden.|
 |Firm|The firm holding the account. Normally hidden.|
 |Election|A code for the distribution election on this item.|
 |Start Date|Expected start date for the distribution or expense|

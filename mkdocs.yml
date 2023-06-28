@@ -3,3 +3,11 @@ theme:
   name: material
 markdown_extensions:
   - footnotes
+  - pymdownx.highlight:
+      anchor_linenums: true
+      linenums: false
+      linenums_style: inline
+  - pymdownx.superfences
+      
+      
+
