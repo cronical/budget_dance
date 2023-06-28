@@ -8,8 +8,14 @@
       
       
       
+      
+        <link rel="prev" href="../data_files/">
+      
+      
+        <link rel="next" href="../idioms/">
+      
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
     
     
       
@@ -17,13 +23,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
-      
-        
-        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
-        
+      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
       
       
+
     
     
     
@@ -36,23 +39,21 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
+    
   </head>
   
   
-    
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    <body dir="ltr">
   
     
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -72,7 +73,9 @@
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Budget Dance" class="md-header__button md-logo" aria-label="Budget Dance" data-md-component="logo">
       
@@ -116,7 +119,7 @@
       </label>
       <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
@@ -128,7 +131,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -212,7 +215,7 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
@@ -329,6 +332,21 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../idioms/" class="md-nav__link">
+        Some Excel idioms
+      </a>
     </li>
   
 
@@ -464,18 +482,19 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
       
       
       
-      
-        <label class="md-nav__link" for="__nav_12">
+        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Sheets" data-md-level="1">
-        <label class="md-nav__title" for="__nav_12">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_13">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -711,6 +730,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../sheets/transfers_plan/" class="md-nav__link">
+        transfers_plan
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../sheets/utility/" class="md-nav__link">
         utility
       </a>
@@ -842,10 +875,11 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
+                  
 
 
 <h1 id="data-from-moneydance">Data from Moneydance</h1>
@@ -857,7 +891,7 @@
 <li>Ensure that the formulas on the year are set to <code>getval...</code></li>
 <li>Check that income, tax and expense totals match to report: </li>
 <li>start at level 3 and drill down to find problems.</li>
-<li>IRA distributions are problematic <a href="./fcast.md#ira-txbl-distr">see note IRA-Txbl-Distr</a></li>
+<li>IRA distributions are problematic <a href="../spreadsheet/#ira-txbl-distr">see note IRA-Txbl-Distr</a></li>
 <li>If there are new categories - you will need to insert a line</li>
 </ol>
 <h2 id="first-pass-on-the-taxes">First pass on the taxes</h2>
@@ -877,16 +911,16 @@
 <li>Run <code>python transfers_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
-<pre><code class="language-bash">&gt; dance/transfers_actl_load.py
-2022-08-19 12:49:34,546 - transfers_actl_load - INFO - loaded dataframe from data/transfers.tsv
-2022-08-19 12:49:34,839 - tables - INFO - Read table tbl_iande_actl from data/fcast.xlsm
-2022-08-19 12:49:34,839 - tables - INFO -   300 rows and 6 columns
-2022-08-19 12:49:35,124 - transfers_actl_load - INFO - loaded workbook from data/fcast.xlsm
-2022-08-19 12:49:35,162 - transfers_actl_load - INFO - First forecast year is: 2022
-2022-08-19 12:49:35,470 - books - INFO - deleted worksheet transfers_actl
-2022-08-19 12:49:35,470 - books - INFO - created worksheet transfers_actl
-2022-08-19 12:49:35,499 - tables - INFO - table tbl_transfers_actl added to transfers_actl
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&gt;<span class="w"> </span>dance/transfers_actl_load.py
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:34,546<span class="w"> </span>-<span class="w"> </span>transfers_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>loaded<span class="w"> </span>dataframe<span class="w"> </span>from<span class="w"> </span>data/transfers.tsv
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:34,839<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Read<span class="w"> </span>table<span class="w"> </span>tbl_iande_actl<span class="w"> </span>from<span class="w"> </span>data/fcast.xlsm
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:34,839<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w">   </span><span class="m">300</span><span class="w"> </span>rows<span class="w"> </span>and<span class="w"> </span><span class="m">6</span><span class="w"> </span>columns
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:35,124<span class="w"> </span>-<span class="w"> </span>transfers_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>loaded<span class="w"> </span>workbook<span class="w"> </span>from<span class="w"> </span>data/fcast.xlsm
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:35,162<span class="w"> </span>-<span class="w"> </span>transfers_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>First<span class="w"> </span>forecast<span class="w"> </span>year<span class="w"> </span>is:<span class="w"> </span><span class="m">2022</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:35,470<span class="w"> </span>-<span class="w"> </span>books<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>deleted<span class="w"> </span>worksheet<span class="w"> </span>transfers_actl
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:35,470<span class="w"> </span>-<span class="w"> </span>books<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>created<span class="w"> </span>worksheet<span class="w"> </span>transfers_actl
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">12</span>:49:35,499<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>table<span class="w"> </span>tbl_transfers_actl<span class="w"> </span>added<span class="w"> </span>to<span class="w"> </span>transfers_actl
+</code></pre></div>
 <h2 id="bank-balance-export-procedure">Bank balance export procedure</h2>
 <p>The method used is the difference of progressive balances.  This is done for each year.  </p>
 <ol>
@@ -905,19 +939,19 @@
 <li>Run <code>invest_actl_load.py</code></li>
 <li>Re-open the spreadsheet and save it to force balances to recalc and be stored.</li>
 </ol>
-<pre><code class="language-bash">&gt;dance/invest_actl_load.py 
-2022-08-19 13:49:22,563 - invest_actl_load - INFO - loaded dataframe from data/invest_x.tsv
-2022-08-19 13:49:22,563 - invest_actl_load - INFO - Starting investment actual load
-2022-08-19 13:49:22,824 - tables - INFO - Read table tbl_accounts from data/fcast.xlsm
-2022-08-19 13:49:22,824 - tables - INFO -   27 rows and 10 columns
-2022-08-19 13:49:22,834 - invest_actl_load - INFO - Processing 2018
-2022-08-19 13:49:22,846 - invest_actl_load - INFO - Processing 2019
-2022-08-19 13:49:22,856 - invest_actl_load - INFO - Processing 2020
-2022-08-19 13:49:22,867 - invest_actl_load - INFO - Processing 2021
-2022-08-19 13:49:23,145 - books - INFO - deleted worksheet invest_actl
-2022-08-19 13:49:23,145 - books - INFO - created worksheet invest_actl
-2022-08-19 13:49:23,175 - tables - INFO - table tbl_invest_actl added to invest_actl
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&gt;dance/invest_actl_load.py<span class="w"> </span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,563<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>loaded<span class="w"> </span>dataframe<span class="w"> </span>from<span class="w"> </span>data/invest_x.tsv
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,563<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Starting<span class="w"> </span>investment<span class="w"> </span>actual<span class="w"> </span>load
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,824<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Read<span class="w"> </span>table<span class="w"> </span>tbl_accounts<span class="w"> </span>from<span class="w"> </span>data/fcast.xlsm
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,824<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w">   </span><span class="m">27</span><span class="w"> </span>rows<span class="w"> </span>and<span class="w"> </span><span class="m">10</span><span class="w"> </span>columns
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,834<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Processing<span class="w"> </span><span class="m">2018</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,846<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Processing<span class="w"> </span><span class="m">2019</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,856<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Processing<span class="w"> </span><span class="m">2020</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:22,867<span class="w"> </span>-<span class="w"> </span>invest_actl_load<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Processing<span class="w"> </span><span class="m">2021</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:23,145<span class="w"> </span>-<span class="w"> </span>books<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>deleted<span class="w"> </span>worksheet<span class="w"> </span>invest_actl
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:23,145<span class="w"> </span>-<span class="w"> </span>books<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>created<span class="w"> </span>worksheet<span class="w"> </span>invest_actl
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="m">2022</span>-08-19<span class="w"> </span><span class="m">13</span>:49:23,175<span class="w"> </span>-<span class="w"> </span>tables<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>table<span class="w"> </span>tbl_invest_actl<span class="w"> </span>added<span class="w"> </span>to<span class="w"> </span>invest_actl
+</code></pre></div>
 <h2 id="validate-balances-for-a-year">Validate balances for a year</h2>
 <p>The routine <code>balance_check.py</code> is available to see how the values from the <code>Account Balances</code> report in Moneydance match to those in <code>fcast.xlsm</code>. </p>
 <ol>
@@ -1008,51 +1042,20 @@ where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is
 <h3 id="other-assets">Other Assets</h3>
 <p>The "Other Asset" account has several sub-accounts, including receivables from a few parties.  The method of determining the transfers depends is to use the <code>transfers-to-fcast</code> memorized report.  Some of the sub-accounts in Other Asset have transactions using expense categories.  To support this the memorized report includes all expenses in the criteria.  This correctly gathers the amounts such as depreciation for cars and payments made against some expense category (on our behalf).  The set of a target accounts configured in this report includes all investment, loan, asset and liability accounts.   Whenever there is a transfer between these accounts, this method essentially cancels out that values, which can lead to wrong balances.  Such transactions should be routed throught the <code>Passthru</code> bank account to avoid this problem.</p>
 
-              
-            </article>
-            
-          </div>
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
         </div>
         
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../data_files/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Data Files" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Data Files
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../operations/" class="md-footer__link md-footer__link--next" aria-label="Next: Operations" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Operations
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1074,10 +1077,11 @@ where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      <script src="../assets/javascripts/bundle.b425cdc4.min.js"></script>
       
     
   </body>
