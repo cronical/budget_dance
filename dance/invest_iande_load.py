@@ -10,9 +10,9 @@ import pandas as pd
 
 from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
 from dance.util.files import tsv_to_df, read_config
-from dance.util.tables import  columns_for_table, write_table,this_row,get_f_fcast_year,conform_table
+from dance.util.tables import  columns_for_table, write_table,get_f_fcast_year,conform_table
 from dance.util.logs import get_logger
-from dance.util.xl_formulas import actual_formulas,forecast_formulas,dyno_fields
+from dance.util.xl_formulas import actual_formulas,forecast_formulas,dyno_fields,this_row
 
 logger=get_logger(__file__)
 

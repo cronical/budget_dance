@@ -26,7 +26,15 @@ Tables are distributed over a set of worksheets. Sometimes a worksheet holds mor
 
 ## Excel Calculations
 
-Use of Visual Basic (macros) allows for calculations to be done in a more readable manner.  However there is a downside.  This is that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  So far, I have not turned on the use of the application volitile method, as there is significant overhead, possibly causing slow performance. There is a macro, currently called calc_retir(), to perform the re-calcuations in the correct order. 
+The original plan was to use Visual Basic (macros) allows for calculations to be done in a more readable manner.  However there is a downside.  This is that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  There is a macro, currently called calc_retir(), to perform the re-calcuations in the correct order. 
+
+The advent of array functions in Office 365 allows for fairly succinct and readable formulas, which do not suffer from the problem of dependency updates.  Generally, by referencing only the needed columns true dependency loops can be avoided.  However, Excel may get a bit confused in some cases when tables appear to reference each other.  This is squelched by setting the calculation option as follows. 
+
+![calc opt](./images/tgt/calc_option.png)
+
+## Idioms
+
+A glossary of Excel array idioms is available. [Idioms](./idioms.md)
 
 ## Functions
 

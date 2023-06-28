@@ -1,40 +1,17 @@
 #!/usr/bin/env python
 '''Initialize the workbook'''
 import argparse
-from os import chdir,getcwd ,mkdir,walk
-from os.path import exists, join,sep
+from os import getcwd ,mkdir
+from os.path import exists, sep
 from shutil import copy2,rmtree
 from sys import exit
 import zipfile
 from openpyxl import load_workbook
+from dance.util.files import zip_up
 from dance.util.logs import get_logger
 from dance.setup.setup_tabs import refresh_sheets
 
-def get_all_file_paths(directory):
-  '''zip does one file at a time so get the list'''
-  # initializing empty file paths list
-  file_paths = []
 
-  # crawling through directory and subdirectories
-  for root, _, files in walk(directory):
-    for filename in files:
-      # join the two strings in order to form the full filepath.
-      filepath = join(root, filename)
-      file_paths.append(filepath)
-
-  # returning all file paths
-  return file_paths
-
-def zip_up(zip_name,directory):
-  '''put a directory into a zipfile'''
-  dir=getcwd()
-  chdir(directory)
-  file_paths = get_all_file_paths('./')
-  # writing files to a zipfile
-  with zipfile.ZipFile(dir+sep+zip_name,'w') as zip:
-    for file in file_paths:
-      zip.write(file)
-  chdir(dir)
 
 def create(filename,overwrite=False):
   '''Create the excel file, insert the vba project and then add in the worksheets.

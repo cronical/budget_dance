@@ -1,5 +1,5 @@
 '''Tools for preparation and evaluation of excel formulas
-TODO prepare_formula is here instead of xl_formulas only to avoid dependency loop with tables.'''
+'''
 import re
 from openpyxl.formula import Tokenizer
 from pandas import DataFrame
@@ -126,51 +126,6 @@ def eval_criteria(criteria,ref_df):
             assert op in '+*', 'Expected + or * not ' + op            
     return left
 
-def prepare_formula(formula):
-  '''Utility method to strip array braces from a formula and
-     also expand out dynamic array formulas.
-     This does not fix the need for _xlpm. to prefix any parameters (declared or used) in a LAMBDA function'''
-  # Remove array formula braces.
-  if formula.startswith("{"):
-    formula = formula[1:]
-  if formula.endswith("}"):
-    formula = formula[:-1]
-
-  # Check if formula is already expanded by the user.
-  if "_xlfn." in formula:
-    return formula
-
-  # Expand dynamic formulas.
-  formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula)
-  formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula)
-  formula = re.sub(r"\bBYROW\(", "_xlfn.BYROW(", formula)
-  formula = re.sub(r"\bCHOOSECOLS\(", "_xlfn.CHOOSECOLS(", formula)
-  formula = re.sub(r"\bCHOOSEROWS\(", "_xlfn.CHOOSEROWS(", formula)
-  formula = re.sub(r"\bDROP\(", "_xlfn.DROP(", formula)
-  formula = re.sub(r"\bEXPAND\(", "_xlfn.EXPAND(", formula)
-  formula = re.sub(r"\bFILTER\(", "_xlfn._xlws.FILTER(", formula)
-  formula = re.sub(r"\bHSTACK\(", "_xlfn.HSTACK(", formula)
-  formula = re.sub(r"\bLAMBDA\(", "_xlfn.LAMBDA(", formula)
-  formula = re.sub(r"\bMAKEARRAY\(", "_xlfn.MAKEARRAY(", formula)
-  formula = re.sub(r"\bMAP\(", "_xlfn.MAP(", formula)
-  formula = re.sub(r"\bRANDARRAY\(", "_xlfn.RANDARRAY(", formula)
-  formula = re.sub(r"\bREDUCE\(", "_xlfn.REDUCE(", formula)
-  formula = re.sub(r"\bSCAN\(", "_xlfn.SCAN(", formula)
-  formula = re.sub(r"\SINGLE\(", "_xlfn.SINGLE(", formula)
-  formula = re.sub(r"\bSEQUENCE\(", "_xlfn.SEQUENCE(", formula)
-  formula = re.sub(r"\bSORT\(", "_xlfn._xlws.SORT(", formula)
-  formula = re.sub(r"\bSORTBY\(", "_xlfn.SORTBY(", formula)
-  formula = re.sub(r"\bSWITCH\(", "_xlfn.SWITCH(", formula)
-  formula = re.sub(r"\bTAKE\(", "_xlfn.TAKE(", formula)
-  formula = re.sub(r"\bTEXTSPLIT\(", "_xlfn.TEXTSPLIT(", formula)
-  formula = re.sub(r"\bTOCOL\(", "_xlfn.TOCOL(", formula)
-  formula = re.sub(r"\bTOROW\(", "_xlfn.TOROW(", formula)
-  formula = re.sub(r"\bUNIQUE\(", "_xlfn.UNIQUE(", formula)
-  formula = re.sub(r"\bVSTACK\(", "_xlfn.VSTACK(", formula)
-  formula = re.sub(r"\bWRAPCOLS\(", "_xlfn.WRAPCOLS(", formula)
-  formula = re.sub(r"\bWRAPROWS\(", "_xlfn.WRAPROWS(", formula)
-  formula = re.sub(r"\bXLOOKUP\(", "_xlfn.XLOOKUP(", formula)
-  return formula
 
 if __name__ == '__main__':
   test_filter_parser()

@@ -6,6 +6,38 @@ import yaml
 
 from dance.util.logs import get_logger
 
+from os import chdir,getcwd ,walk
+from os.path import join,sep
+import zipfile
+from dance.util.logs import get_logger
+
+def get_all_file_paths(directory):
+  '''zip does one file at a time so get the list'''
+  # initializing empty file paths list
+  file_paths = []
+
+  # crawling through directory and subdirectories
+  for root, _, files in walk(directory):
+    for filename in files:
+      # join the two strings in order to form the full filepath.
+      filepath = join(root, filename)
+      file_paths.append(filepath)
+
+  # returning all file paths
+  return file_paths
+
+def zip_up(zip_name,directory):
+  '''put a directory into a zipfile'''
+  dir=getcwd()
+  chdir(directory)
+  file_paths = get_all_file_paths('./')
+  # writing files to a zipfile
+  with zipfile.ZipFile(dir+sep+zip_name,'w') as zip:
+    for file in file_paths:
+      zip.write(file)
+  chdir(dir)
+
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Notes'],parse_shares=False):
