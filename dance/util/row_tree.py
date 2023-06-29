@@ -84,6 +84,25 @@ def folding_groups(df):
   del df['level'] # clear out temp field  
   return df,groups
 
+def multi_agg_subtotals(groups):
+  '''for a each group determine what rows should be aggregated
+  groups is a result of folding_groups and group is one of its members
+  for type 9 (sum) this is not needed, but other types cannot have their constituents in the result
+  for example row 7 is the min of rows 5 and 6 and 7 is further aggregated with 8 as a sum into 9
+  in this case the result for the group with end of sums up 7 and 8 but not 5 and 6
+  returns a list of row numbers to be summed for each group'''
+
+  group_rows=[]
+  groups_df=pd.DataFrame(groups,columns='level,start,end'.split(','))
+  for group in groups:
+    rows=set(range(1+group[1],group[2])) # all possible rows
+    sel=(groups_df.start > group[1]) & (groups_df.end<group[2]) & (groups_df.level==1+group[0])
+    for _,row in groups_df.loc[sel].iterrows():
+      rows=rows - set(range(row[1],row[2]))
+    rows=list(rows)
+    group_rows+=[sorted(rows)]
+  return group_rows
+
 
 
 def indent_leaf(path,sep=':',spaces=3):
