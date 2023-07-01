@@ -95,15 +95,56 @@ def multi_agg_subtotals(groups):
   group_rows=[]
   groups_df=pd.DataFrame(groups,columns='level,start,end'.split(','))
   for group in groups:
-    rows=set(range(1+group[1],group[2])) # all possible rows
+    rows=set(range(group[1]+1,group[2]+1)) # all possible rows
+  # add one to start of group to not include the heading line which is blank.
+  # blank works ok for sum but not for min, max, product  
     sel=(groups_df.start > group[1]) & (groups_df.end<group[2]) & (groups_df.level==1+group[0])
     for _,row in groups_df.loc[sel].iterrows():
-      rows=rows - set(range(row[1],row[2]))
+      rows=rows - set(range(row[1],row[2]+1))
     rows=list(rows)
     group_rows+=[sorted(rows)]
   return group_rows
 
 
+def collapse_adjacent(seq):
+  '''given a list of non-negative integers in ascending order, detect spans where the gap between successive elements is 1
+  replace those spans with a two element tuple that includes the start and end'''
+  r=[]
+  candidate=[-1,-1]
+  def post(r,candidate):
+    if candidate[0]==-1:
+      return r
+    if candidate[1]==-1:
+      r.append(candidate[0])
+    else:
+      r.append(tuple(candidate))
+    return r
+  for n in seq:
+    if candidate[0]>0:
+      if (n-max(candidate))==1:
+        candidate[1]=n
+      else:
+        r=post(r,candidate)
+        candidate=[n,-1]
+    else:
+      candidate[0]=n
+  r=post(r,candidate)
+  return r
+
+def address_phrase(let,collapsed_seq):
+  '''given a list consisting of integers and/or two element tuples of integers produce Excel addresses.
+  let is the column letter
+  collapsed_seq is result of collapse_adjacent
+  Returns string with commas separating ranges/addresses'''
+  a=[]
+  for item in collapsed_seq:
+    if isinstance(item,tuple):
+      f='%s%d:%s%d'%(let,item[0],let,item[1])
+    else:
+      f='%s%d'%(let,item)
+    a.append(f)
+  r=','.join(a)
+  return r
 
 def indent_leaf(path,sep=':',spaces=3):
   '''Convert a path with separators to show level of the leaf by using spaces
@@ -136,7 +177,7 @@ def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
   df['Key']=df[cat_field].str.lstrip() # used to define level
   #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
   df['level']=((df[cat_field].str.len() - df.Key.str.len()))/spaces_per_level # each level is indented 3 more spaces
-  df['level']=[int(x) for x in df.level.tolist()]
+  df['level']=df.level.astype(int)
   df['Key']=None # build up the keys by including parents
   last_level=-1
   pathparts=[]
@@ -156,19 +197,30 @@ def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
   return df
 
 def subtotal_formulas(df,groups):
-  '''Replace the hard values with formulas
-  if its not a total just let the value stay there
-  Supports aggregation by TOTAL, MIN, MAX, PRODUCT'''
-  for group in groups:
+  '''Replace the aggregate lines values with formulas
+  if its not an aggregate just let the value stay there
+  Supports aggregation by TOTAL, MIN, MAX, PRODUCT
+
+  Works by enumerating the ranges to aggregate.  
+  Unlike the subtotal method this grabs the subordinate aggregation lines not the underlying leaf nodes
+  This methods allows the folding to do things like sum the results of subordinate aggregations that are not themselves sums.
+
+  Returns revised dataframe
+  '''
+
+  agg_rows=multi_agg_subtotals(groups)
+  for gx,group in enumerate(groups):
     key=df.at[group[2]-2,'Key']
     agg=key.split(' - ')[-1]
-    code=agg_types[agg]
+    code=agg_types[agg] # keep numeric code in order to switch back to subtotal method
+    func={4:"MAX",5:"MIN",6:"PRODUCT",9:"SUM"}[code]
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)
-        formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1]+1,let,group[2])
-        # add one to start of group to not include the heading line which is blank.
-        # blank works ok for sum but not for min, max, product
+        addrs=address_phrase(let,collapse_adjacent(agg_rows[gx]))
+        formula='={}({})'.format(func,addrs)
+        # retain following line - to allow switch back to subtotal method
+        #formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1]+1,let,group[2])
         df.loc[group[2]-2,[cl]]=formula
   return df
 
