@@ -1,4 +1,4 @@
-# Some Excel idioms
+# Some Excel idioms & notes
 
 ## This column
 
@@ -10,10 +10,10 @@ INDIRECT("tbl_balances["&this_col_name()&"]")
 
 ## Lookup
 
-Use a value from this table to find a value in another table.
+Use a value from this table to find a value in another table. The 4th parameter is the default if not found.
 
 ```title="Locate a value with a common key"
-XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT("tbl_retir_vals["&this_col_name()&"]"))
+XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT("tbl_retir_vals["&this_col_name()&"]"),0)
 ```
 Here get the value for a year from the retirement table based on the account name.
 
@@ -117,3 +117,7 @@ Wrap the whole thing in a `SUM()` to get the net change in the account for the y
 ```title="Full"
 SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
 ```
+
+## Conditional Formatting limits
+
+Conditional formatting formulas cannot use structured references, including bare table names.
