@@ -99,6 +99,8 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
           ignore - list of Yyears to ignore
   '''
   found=get_row_set(workbook,table,'index','index',in_list=[row_name]).squeeze()
+  if found.shape[0]==0:
+    raise ValueError("Nothing found in "+row_name)
   found.name=legend(table,row_name)
   idx=found.index
   # set all values as zero then fill them in.  this allows test set to not (yet) have the right length.
