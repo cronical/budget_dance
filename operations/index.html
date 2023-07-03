@@ -228,7 +228,7 @@
   
     <li class="md-nav__item">
       <a href="../idioms/" class="md-nav__link">
-        Some Excel idioms
+        Some Excel idioms & notes
       </a>
     </li>
   
@@ -986,19 +986,20 @@ invest_iande_load.py</p>
 <h2 id="index_tables">index_tables</h2>
 <p>The Python code, <code>util/index_tables.py</code> enumerates and indexs the tables (something oddly missing in Excel due to the fact that it is worksheet oriented). The index is stored on the utility worksheet.</p>
 <h3 id="extract-table">Extract Table</h3>
-<p>Use <code>dance/util/extract_table.py</code> to copy the contents of an existing table to a <code>json</code> formatted file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Copies<span class="w"> </span>table<span class="w"> </span>from<span class="w"> </span>workbook<span class="w"> </span>and<span class="w"> </span>stores<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>json<span class="w"> </span>output<span class="w"> </span>file
+<p>Use <code>dance/util/extract_table.py</code> to copy the contents of an existing worksheet table to a <code>json</code> formatted file. Similarly, template files can be recreated from the worksheet table.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>usage:<span class="w"> </span>extract_table.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--workbook<span class="w"> </span>WORKBOOK<span class="o">]</span><span class="w"> </span>--table<span class="w"> </span>TABLE<span class="w"> </span><span class="o">[</span>--output<span class="w"> </span>OUTPUT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--data_only<span class="o">]</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>options:
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--workbook<span class="w"> </span>WORKBOOK,<span class="w"> </span>-w<span class="w"> </span>WORKBOOK
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">                        </span>Source<span class="w"> </span>workbook
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--table<span class="w"> </span>TABLE,<span class="w"> </span>-t<span class="w"> </span>TABLE
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                        </span>Source<span class="w"> </span>table<span class="w"> </span>name,<span class="w"> </span>include<span class="w"> </span>tbl_
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--orient<span class="w"> </span><span class="o">{</span>index,records<span class="o">}</span>,<span class="w"> </span>-o<span class="w"> </span><span class="o">{</span>index,records<span class="o">}</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">                        </span>Use<span class="w"> </span>records<span class="w"> </span><span class="k">if</span><span class="w"> </span>1st<span class="w"> </span>fld<span class="w"> </span>not<span class="w"> </span>unique
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span>--json<span class="w"> </span>JSON,<span class="w"> </span>-j<span class="w"> </span>JSON<span class="w">  </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>json<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>store<span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>folder<span class="w"> </span>of<span class="w"> </span>workbook<span class="w"> </span>and<span class="w"> </span>name<span class="w"> </span>of<span class="w"> </span>table<span class="w"> </span>less<span class="w"> </span>the<span class="w"> </span>tbl_
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span>--data_only,<span class="w"> </span>-d<span class="w">       </span>To<span class="w"> </span>get<span class="w"> </span>data<span class="w"> </span>not<span class="w"> </span>formulas
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Copies<span class="w"> </span>table<span class="w"> </span>data<span class="w"> </span>from<span class="w"> </span>workbook<span class="w"> </span>and<span class="w"> </span>stores<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>json<span class="w"> </span>or<span class="w"> </span>tsv<span class="w"> </span>output<span class="w"> </span>file.
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>options:
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--workbook<span class="w"> </span>WORKBOOK,<span class="w"> </span>-w<span class="w"> </span>WORKBOOK
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                        </span>Source<span class="w"> </span>workbook
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--table<span class="w"> </span>TABLE,<span class="w"> </span>-t<span class="w"> </span>TABLE
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">                        </span>Source<span class="w"> </span>table<span class="w"> </span>name,<span class="w"> </span>include<span class="w"> </span>tbl_
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span>--output<span class="w"> </span>OUTPUT,<span class="w"> </span>-o<span class="w"> </span>OUTPUT
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">                        </span>Name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>output<span class="w"> </span>file.<span class="w"> </span>Default<span class="w"> </span>is<span class="w"> </span>folder<span class="w"> </span>of<span class="w"> </span>workbook<span class="w"> </span>and<span class="w"> </span>configured<span class="w"> </span>data<span class="w"> </span>path
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span>--data_only,<span class="w"> </span>-d<span class="w">       </span>To<span class="w"> </span>get<span class="w"> </span>data<span class="w"> </span>not<span class="w"> </span>formulas
 </code></pre></div>
 <p>For example, this copies the aux table from a worksheet called test_wb.xlsm to a data file.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>%<span class="w"> </span>dance/util/extract_table.py<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsm<span class="w"> </span>-t<span class="w"> </span>tbl_aux<span class="w"> </span>-o<span class="w"> </span>records

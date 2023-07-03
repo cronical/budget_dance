@@ -19,7 +19,7 @@
     
     
       
-        <title>Some Excel idioms - Budget Dance</title>
+        <title>Some Excel idioms & notes - Budget Dance</title>
       
     
     
@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#some-excel-idioms" class="md-skip">
+        <a href="#some-excel-idioms-notes" class="md-skip">
           Skip to content
         </a>
       
@@ -96,7 +96,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Some Excel idioms
+              Some Excel idioms & notes
             
           </span>
         </div>
@@ -237,12 +237,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Some Excel idioms
+          Some Excel idioms & notes
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Some Excel idioms
+        Some Excel idioms & notes
       </a>
       
         
@@ -367,6 +367,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-formatting-limits" class="md-nav__link">
+    Conditional Formatting limits
+  </a>
   
 </li>
       
@@ -921,6 +928,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#conditional-formatting-limits" class="md-nav__link">
+    Conditional Formatting limits
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -936,14 +950,14 @@
                   
 
 
-<h1 id="some-excel-idioms">Some Excel idioms</h1>
+<h1 id="some-excel-idioms-notes">Some Excel idioms &amp; notes</h1>
 <h2 id="this-column">This column</h2>
 <p>Use the indirect method to locate this column.</p>
 <div class="highlight"><span class="filename">Refer to this column</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;)
 </code></pre></div>
 <h2 id="lookup">Lookup</h2>
-<p>Use a value from this table to find a value in another table.</p>
-<p><div class="highlight"><span class="filename">Locate a value with a common key</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;))
+<p>Use a value from this table to find a value in another table. The 4th parameter is the default if not found.</p>
+<p><div class="highlight"><span class="filename">Locate a value with a common key</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),0)
 </code></pre></div>
 Here get the value for a year from the retirement table based on the account name.</p>
 <h2 id="construct-a-key">Construct a key</h2>
@@ -1014,6 +1028,8 @@ Here get the value for a year from the retirement table based on the account nam
 <p>Wrap the whole thing in a <code>SUM()</code> to get the net change in the account for the year.</p>
 <div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
 </code></pre></div>
+<h2 id="conditional-formatting-limits">Conditional Formatting limits</h2>
+<p>Conditional formatting formulas cannot use structured references, including bare table names.</p>
 
 
 

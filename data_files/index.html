@@ -351,7 +351,7 @@
   
     <li class="md-nav__item">
       <a href="../idioms/" class="md-nav__link">
-        Some Excel idioms
+        Some Excel idioms & notes
       </a>
     </li>
   
@@ -1032,10 +1032,6 @@
 </thead>
 <tbody>
 <tr>
-<td align="left">aux.json</td>
-<td align="left">records</td>
-</tr>
-<tr>
 <td align="left">ct_tax_rates.json</td>
 <td align="left">records</td>
 </tr>
@@ -1111,12 +1107,13 @@
 <h3 id="template-tsv-files">Template tsv files</h3>
 <p>These files are used to seed their respective tables.
 They are styled as a Moneydance report saved as .tsv, so the first three lines are ignored. The 4th line contains headings and subsequent lines contain data. 
-Processing occurs specific to the type. In the case of taxes, indentation must be 3 spaces. The year column is for testing subtotals and is ignored during processing.</p>
+Processing occurs specific to the type. In the case of taxes, indentation must be 3 spaces. </p>
 <ul>
 <li>retire_medical_template.tsv</li>
 <li>retire_template.tsv</li>
 <li>taxes_template.tsv</li>
 </ul>
+<p>The above files can be prepared from an existing worksheet with the <a href="../operations/#extract-table"><code>dance/util/extract_table.py</code> utility</a>, or they can be created manually.</p>
 <div class="footnote">
 <hr />
 <ol>
