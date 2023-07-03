@@ -59,7 +59,6 @@ The following files can be prepared from an existing worksheet with the [`dance/
 
 |File|Orientation|
 |:--|:--|
-|aux.json|records
 |ct_tax_rates.json|records|
 |fed_tax_rates.json|records|
 |gen_state.json|index|
@@ -115,12 +114,13 @@ The file `known_test_values.json` is set up to allow checking of the results aga
 
 These files are used to seed their respective tables.
 They are styled as a Moneydance report saved as .tsv, so the first three lines are ignored. The 4th line contains headings and subsequent lines contain data. 
-Processing occurs specific to the type. In the case of taxes, indentation must be 3 spaces. The year column is for testing subtotals and is ignored during processing.
+Processing occurs specific to the type. In the case of taxes, indentation must be 3 spaces. 
 
 - retire_medical_template.tsv
 - retire_template.tsv
 - taxes_template.tsv
 
+The above files can be prepared from an existing worksheet with the [`dance/util/extract_table.py` utility](./operations.md#extract-table), or they can be created manually.
 
 
 [^1]: The most recent is best so as to contain all current accounts. This is used to create the Accounts worksheet.  The balances are not used, except that when they are zero, the account will be ignored unless it is specifically mentiond in the `include_zeros` section of the YAML.

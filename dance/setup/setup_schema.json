@@ -147,7 +147,14 @@
           "type": "object",
           "additionalProperties":{ "type": "string","enum":["MIN","MAX","PRODUCT"] }
         },
-        "sheet": {"type":"string"},
+        "template":{
+          "type": "object",
+          "properties":{ 
+            "fold_spacing": {"type":"integer"},
+            "fold_field": {"type":"string"},
+            "fields": {"type":"array","items":{"type":"string"}}
+          }
+        },        "sheet": {"type":"string"},
         "table": {"$ref":"#/$defs/data_table"},
         "name": {"type":"string"}
       },

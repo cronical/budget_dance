@@ -55,7 +55,7 @@
       "request": "launch",
       "program": "dance/util/extract_table.py",
       "console": "integratedTerminal",
-      "args": ["-w","data/test_wb.xlsm","-t","tbl_aux","-o","records"],
+      "args": ["-w","data/test_wb.xlsm","-t","tbl_taxes",],
       "justMyCode": true
     },
     {
