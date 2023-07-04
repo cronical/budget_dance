@@ -1,8 +1,9 @@
 #!/bin/zsh
 
-# items to reduce to 40% and put a border around
-for f in data_validation.png time_series.png calc_option.png
+# items to reduce to 40% and put a border around are in src/std
+for f in src/std/*
 do
-  echo "Processing $f"
-  magick "src/$f" -resize 40% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 "tgt/$f"
+  echo "Processing $f:t"
+
+  magick "$f" -resize 40% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 "tgt/$f:t"
 done

@@ -13,12 +13,10 @@ Security and Investments are handled via the performance report
 
 This report can be run once for all actual year periods.  It provides transfers in/out of the investment accounts.
 
-Source accounts: All Bank (except Passthru:Pass-IRA-VEC-ML), All Credit Card + certain categories
+Source accounts: All Bank (except any accounts that acts as a passthru account to handle separate dividend and dividend reinvested transactions), All Credit Card + certain categories
 Target accounts: All Investment
 
-The account Passthru:Pass-IRA-VEC-ML is used to support the strange way the broker handles re-investments.  It has to be excluded from true transfers.
-
-The category I:Untaxed Income:Inherit is used to capture the original income that funded the inherited IRA.
+A account passthru account may be used to support the strange way the broker handles re-investments.  It has to be excluded from true transfers.
 
 ### Certain categories
 

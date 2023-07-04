@@ -15,9 +15,7 @@
 
 The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free; they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
 
-```yaml
-bls: 7b50d7a727104578b1ac86bc27caff3f
-```
+![apikey](./images/tgt/api_key.png)
 
 Fifteen days before it expires (in 1 year) `labstat@bls.gov` will send an email titled `Bureau of Labor Statistics API Key Expiration` requiring a reactivation.
 
@@ -162,30 +160,14 @@ Note: include only those lines that are not headings or totals. Headings and tot
 
 In this example, we aggregate based on the MIN function to plan the distributions from the health savings accounts
 
-```yaml
-data: ...
-  source: none
-  hier_separator: ":"
-  hier_insert_paths:
-  - 401K - GBD - TRV:contributions:ER
-  - 401K - GBD - TRV:Withdrawal
-  - 401K - VEC - UHG:contributions:ER
-  - 401K - VEC - UHG:contributions:EE
-  - 401K - VEC - UHG:Withdrawal
-  - HSA - GBD - Fidelity:avail
-  - HSA - GBD - Fidelity:demand
-  - HSA - VEC - UHG:avail
-  - HSA - VEC - UHG:demand
-  hier_alt_agg:
-    "HSA - GBD - Fidelity": MIN
-    "HSA - VEC - UHG": MIN      
-```
+![alt_agg](./images/tgt/alt_agg.png)
 
 #### Actual and Forecast Formulas
 
 There are three optional keys to allow formulas to be established for the years section: `actl_formulas`, `all_col_formulas`, and `fcst_formulas`.  They work the same way but apply to different columns, as their names indicate.
 
 Each section consists of a list of rules.  All rules have the following parts:
+
 |Key word|Description|
 |---|---|
 |formula|The formula to use for the selected year columns (actual or forecast)
@@ -258,19 +240,8 @@ After an Excel session when the file is saved, Excel will rewrite the document s
 
 Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
 
-```yaml
-dyno_fields:
-  - base_field: Account
-    matches:
-      - 401K - GBD - TRV
-      - CHET - Fidelity
-    actions:
-      - target_field: Fcst_source
-        suffix: "- wdraw"
-      - target_field: Fcst_source_tab
-        constant: tbl_aux
-  - base_field: ...
-```
+![dyno_fields](./images/tgt/dyno_field.png)
+
 the `matches` list is a list of values to be matched agains the field. There is a special case if just a single *, meaning all.
 
 The target field should be previously defined, but it is filled in by this logic.  The commands available are:
