@@ -583,6 +583,26 @@
     Retirement Income Plan
   </a>
   
+    <nav class="md-nav" aria-label="Retirement Income Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#election-codes" class="md-nav__link">
+    Election Codes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-model-a-rollover-from-a-401k-to-an-ira" class="md-nav__link">
+    How to model a rollover from a 401K to an IRA
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -742,6 +762,26 @@
     Retirement Income Plan
   </a>
   
+    <nav class="md-nav" aria-label="Retirement Income Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#election-codes" class="md-nav__link">
+    Election Codes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-model-a-rollover-from-a-401k-to-an-ira" class="md-nav__link">
+    How to model a rollover from a 401K to an IRA
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -835,8 +875,82 @@
 </tr>
 </tbody>
 </table>
+<h3 id="election-codes">Election Codes</h3>
+<table>
+<thead>
+<tr>
+<th align="left">Code</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">ANN</td>
+<td align="left">Annuity - Creates an annuity stream based on the prior year's end balance, using the <code>Start Date</code>, <code>Anny Dur Yrs</code>, <code>Anny Rate</code> fields. Currently prorates the start by month, but does not do the same for the last period.</td>
+</tr>
+<tr>
+<td align="left">RMD-1</td>
+<td align="left">This determines the required minimum distribution for inherited IRAs</td>
+</tr>
+<tr>
+<td align="left">ROLLOVER</td>
+<td align="left">Also treated as a annuity, so the only natural duration is one year.</td>
+</tr>
+</tbody>
+</table>
+<p>The following correspond to the headings on the pensions facts table. These are used to look up the data there.  The annual amount is then placed in the Yearly column and it is applied to future years.</p>
+<ul>
+<li>Single</li>
+<li>EE50</li>
+<li>Spouse50</li>
+<li>EE75</li>
+<li>Spouse75</li>
+<li>EE100</li>
+<li>Spouse100</li>
+<li>Lump</li>
+<li>10 year certain</li>
+</ul>
+<p>For items that start with SS, the codes are looked up in the Social Security table. The codes consist of the initials of the person and the year portion of the age when starting to receive social security.</p>
+<h3 id="how-to-model-a-rollover-from-a-401k-to-an-ira">How to model a rollover from a 401K to an IRA</h3>
+<ol>
+<li>On the retirement table:<ol>
+<li>set ROLLOVER as the code</li>
+<li>set <code>Start Date</code> as January 1st of the rollover year</li>
+<li>set <code>Anny Dur Yrs</code> as 1</li>
+<li>set <code>Anny Rate</code> as the precise value of the <code>Mkt Gn Rate</code> on the balances tab. Five or six significant digits seems to eliminate residual balances.</li>
+<li>note the exact amount to be rolled over</li>
+</ol>
+</li>
+<li>To prevent this from being taxed:<ol>
+<li>Ensure additional rows are created on the <code>iande</code> table, in the distributions area using the <code>hier_insert_paths</code> key. In the following example the second set of rows are created under <code>Rollover</code>.
+<img alt="example" src="../../images/tgt/rollover_1.png" /></li>
+<li>Populate these rows with a forecast formula such as:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="l l-Scalar l-Scalar-Plain">=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))</span>
+</code></pre></div></li>
+<li>This will produce a total line on the <code>iande</code> table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
+<img alt="example" src="../../images/tgt/rollover_2.png" /></li>
+</ol>
+</li>
+<li>Enter the amount rolled over into the <code>transfers_plan</code> table. </li>
+<li>
+<p>Use the aux table to compute the net changes to the target IRA account.</p>
+<ol>
+<li>User the hier_insert_paths key to insert something like
+<img alt="example" src="../../images/tgt/rollover_3.png" /></li>
+<li>Set the formulas for withdraws to pull from retirement</li>
+</ol>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>=-XLOOKUP(INDEX(TEXTSPLIT([@Key],&quot;:&quot;),1),tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;))
+</code></pre></div>
+3. Set the formula for rollovers to pull from the <code>transfers_plan</code> (assume only positive rollovers):</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>=SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]=INDEX(TEXTSPLIT([@Key],&quot;:&quot;),1))*(tbl_transfers_plan[Y_Year]=this_col_name()),0))
+</code></pre></div>
+1. Lastly configure the IRA accounts on balances to pull the <code>Add/Wdraw</code> line from <code>aux</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>=XLOOKUP(TRIM([@AcctName])&amp;&quot; - TOTAL&quot;,tbl_aux[Key],INDIRECT(&quot;tbl_aux[&quot;&amp;this_col_name()&amp;&quot;]&quot;))
+</code></pre></div>
+</li>
+</ol>
 <h2 id="retirement-medical">Retirement Medical</h2>
-<p>Retirement medical values are modeled here. Part B and Part D have their own rows on this table, so that the variable cost can be modeled (based on year -2 income). The items with type=PKG get their values as the sum of the rows in <code>tbl_mcare_opt</code> with the matching package.</p>
+<p>Retirement medical values are modeled here. Medicare Part B and Part D have their own rows on this table, so that the variable cost can be modeled (based on year -2 income). The items with type=PKG get their values as the sum of the rows in <code>tbl_mcare_opt</code> with the matching package.</p>
 <p>The values from this table get carried into the forecast in <code>tbl_iande</code>.</p>
 <h3 id="fields">Fields</h3>
 <ul>

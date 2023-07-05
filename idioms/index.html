@@ -307,6 +307,19 @@
     Filter then aggregate
   </a>
   
+    <nav class="md-nav" aria-label="Filter then aggregate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-filter-can-empty" class="md-nav__link">
+    If filter can empty
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -865,6 +878,19 @@
     Filter then aggregate
   </a>
   
+    <nav class="md-nav" aria-label="Filter then aggregate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-filter-can-empty" class="md-nav__link">
+    If filter can empty
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -985,17 +1011,21 @@ Here get the value for a year from the retirement table based on the account nam
 <p>In another example, two items are multiplied:
 <div class="highlight"><span class="filename">Pick two rows and multiply them</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>PRODUCT(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]=&quot;Reinv Rate&quot;)+(tbl_balances[ValType]=&quot;Rlz Int/Gn&quot;))))
 </code></pre></div></p>
+<h3 id="if-filter-can-empty">If filter can empty</h3>
+<p>If the result can be empty then use the if_empty parameter</p>
+<div class="highlight"><span class="filename">Last parm of FILTER is 0 to allow empty set</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))
+</code></pre></div>
 <h2 id="convert-transaction-format-to-net-change">Convert transaction format to net change</h2>
 <p>The <code>transfers_plan</code> table is in a transactional format, with a year, two accounts (from and to) and a value.  This ensures that both sides of the transaction are accounted for.  However, most other tables have a net change style - what happens to a particular account in a year. This formula converts the plan to the net change format.</p>
 <p>Working in memory, two arrays element by element, then add them up.</p>
 <h3 id="construct-debitcredit-array-for-account">Construct debit/credit array for account</h3>
 <h4 id="make-boolean-array">Make boolean array</h4>
 <p>This creates an array of two columns and as many rows as in the table.</p>
-<div class="highlight"><span class="filename">Structured table reference to mark this account</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])
+<div class="highlight"><span class="filename">Structured table reference to mark this account</span><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])
 </code></pre></div>
 <h4 id="construct-two-values-array-column-array">Construct two values array column array</h4>
 <p>This creates two columns with the same number of rows with a negative and positive version of each amount</p>
-<div class="highlight"><span class="filename">Horizontal stacking</span><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
+<div class="highlight"><span class="filename">Horizontal stacking</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
 </code></pre></div>
 <h4 id="multiply-them">Multiply them</h4>
 <table>
@@ -1020,13 +1050,13 @@ Here get the value for a year from the retirement table based on the account nam
 </table>
 <h3 id="add-across-rows">Add across rows</h3>
 <p>The BYROW and LAMBDA functions are used. Each row is passed into lambda as the parameter <code>row</code>, which is then summed. the <code>_xlpm.</code> is needed as Excel uses that to identify the parameter name.  It is actually stored in the internal XML but not displayed in the Excel user interface.</p>
-<div class="highlight"><span class="filename">Sum by row</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))
+<div class="highlight"><span class="filename">Sum by row</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))
 </code></pre></div>
 <p>The result is then multiplied by the year selection to get all net of all the transactions for the account and year, as shown here:</p>
 <p><img alt="result" src="../images/tgt/trans_to_net_4.png" /></p>
 <h3 id="final-sum">Final sum</h3>
 <p>Wrap the whole thing in a <code>SUM()</code> to get the net change in the account for the year.</p>
-<div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
+<div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
 </code></pre></div>
 <h2 id="conditional-formatting-limits">Conditional Formatting limits</h2>
 <p>Conditional formatting formulas cannot use structured references, including bare table names.</p>
