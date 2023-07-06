@@ -1,4 +1,11 @@
 #!/bin/zsh
+
+FILE='./data/~$test_wb.xlsm'
+if [[ -f "$FILE" ]]; then
+    echo "$FILE exists indicating target is open."
+    exit 1
+fi
+
 #
 # pull latest vba from fcast.xlms and build the test spreadsheet and open it
 dance/util/vba/extract_vba.py    
