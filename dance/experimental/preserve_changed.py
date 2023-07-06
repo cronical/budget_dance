@@ -2,6 +2,7 @@
 '''Look for values with no formulas and save them off for eventual reload'''
 import argparse
 import json
+from math import isnan
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 from openpyxl.utils.cell import coordinate_to_tuple
@@ -16,29 +17,48 @@ comment=Comment('Recovered from previous run of preservation utility',author='sy
 def is_formula(item):
   if not isinstance(item,str): return False
   return item.startswith('=')
+
+def is_fcst(col,ffy):
+  '''Return true if col is a forecast '''
+  r=False
+  if col.startswith('Y'): # todo allow edit of enumerated fields based on config
+    if int(col[1:])>=ffy:
+      r=True  
+  return r
+
 def save_sparse(config,workbook,path):
-  '''write cells that meet criteria out to a json file'''
+  '''write cells that meet criteria out to a json file
+  tables are eligible if config has preserve method sparse
+  columns are eligible if a forecast year or in preserve non-year-cols
+  cell is eligible if it is not a formula'''
   out=[]
   counters={}
   ffy=config['first_forecast_year']
-  for table in ['tbl_iande','tbl_balances']:# TODO list tables
-    counters[table]=0
-    df= df_for_table_name(table,workbook,data_only=False)# key is in index
-    for ix,row in df.iterrows():
-      for col,item in row.items():        
-        if col.startswith('Y'): # todo allow edit of enumerated fields based on config
-          if int(col[1:])>=ffy:
-            if not is_formula(item): # will save ytd forwarded items, but no matter
-              if item is not None:
-                out.append({'table':table,'row':ix,'col':col,'value':item})
-                counters[table]+=1
-    logger.info('Found %d items from table %s'%(counters[table],table))
+  for _,sheet_info in config['sheets'].items():
+    for table_info in sheet_info['tables']:
+      if 'preserve' in table_info:
+        if table_info['preserve']['method']=='sparse':
+          non_year_cols=[]
+          if 'non-year-cols' in table_info['preserve']:
+            non_year_cols=table_info['preserve']['non-year-cols']
+          table=table_info['name']
+          counters[table]=0
+          df= df_for_table_name(table,workbook,data_only=False)# key is in index
+          for ix,row in df.iterrows():
+            for col,item in row.items():
+              if (is_fcst(col,ffy) or (col in non_year_cols)):
+                if not is_formula(item): # will save ytd forwarded items, but no matter
+                  if item is not None:
+                    out.append({'table':table,'row':ix,'col':col,'value':item})
+                    counters[table]+=1
+          logger.info('Found %d items from table %s'%(counters[table],table))
   with open (path,'w',encoding='utf-8') as f:
     json.dump(out,f,ensure_ascii=False,indent=2)
   logger.info('Wrote %d items to %s'%(len(out),args.path))
 
 def load_sparse(config,workbook,path):
-  '''copy items from saved json file back into various tables'''
+  '''copy items from saved json file back into various tables
+  Only writes values that differ from what is aready in the sheet'''
   wb=load_workbook(filename = workbook,keep_vba=True)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
@@ -53,8 +73,11 @@ def load_sparse(config,workbook,path):
       x=top_left[0]+df_table.index.get_loc(row['row']) +1 # +1 to skip the table heading 
       y=top_left[1]+df_table.columns.get_loc(row['col'])+1 # +1 since we moved the column to the index
       val=row['value']
-      ws.cell(row=x,column=y,value=val)
-      counters[table]+=1
+      curr_val=ws.cell(row=x,column=y).value
+      if val != curr_val:
+        if not (isnan(val) and (curr_val is None)):
+          ws.cell(row=x,column=y,value=val)
+          counters[table]+=1
     logger.info('Wrote %d values into table %s'%(counters[table],table))
   wb.save(args.workbook)
 
