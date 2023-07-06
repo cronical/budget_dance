@@ -120,6 +120,15 @@
       "console": "integratedTerminal",
       "args": ["-w","data/test_wb.xlsm" ],
       "justMyCode": true
-    },    
+    },
+    {
+      "name": "preserve_changed args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/experimental/preserve_changed.py",
+      "console": "integratedTerminal",
+      "args": ["-l"],
+      "justMyCode": true
+    },         
   ]
 }
