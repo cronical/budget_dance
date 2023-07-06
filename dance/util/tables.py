@@ -25,6 +25,26 @@ def ws_for_table_name(table_map=None,table_name=None):
 
   return table_map.loc[table_name,'Worksheet']
 
+def table_as_df(wb,table_name):
+  '''converts an table_name into a dataframe with the 1st column as index, and the range it occupies
+  args: wb = an open workbook in memory
+        table name = an existing table
+
+  requires the table map to exist in the workbook
+
+  returns the dataframe, the worksheet name, the range that it occupies
+  '''
+
+  ws=wb['utility']
+  ref=ws.tables['tbl_table_map'].ref
+  table_map = df_for_range(worksheet=ws,range_ref=ref)
+  ws_name =table_map.loc[table_name,'Worksheet']
+  ws=wb[ws_name]
+  ref=ws.tables[table_name].ref
+  table=df_for_range(worksheet=ws,range_ref=ref)
+
+  return table, ws_name,ref
+
 def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False,table_map=None):
   '''Opens the file, and extracts a table as a Pandas dataframe
 
@@ -225,12 +245,15 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
             if legend is None: # when no data is provided, there is a row of Nones
               legend=''
             legend=legend.split(':')[-1].strip().lower()
-            special_fmt=None # determine if percentage or integer (0, or 1)
-            for kw,fmt in {'rate':0,'pct':0,'percent':0,'tax table':1}.items():
-              if legend.startswith(kw) or legend.endswith(kw):
-                special_fmt=(FORMAT_PERCENTAGE_00,FORMAT_NUMBER)[fmt]
-                ws.cell(row=rix,column=cix).number_format=special_fmt
-                break
+            special_fmt=None # determine if percentage or integer
+            fmt_map={'rate':FORMAT_PERCENTAGE_00,'pct':FORMAT_PERCENTAGE_00,'percent':FORMAT_PERCENTAGE_00,'tax table':FORMAT_NUMBER}
+            pat='.*\\b(%s).*'%('|'.join(fmt_map.keys())) # TODO make balance key have a separator and add 2nd \b here
+            prog=re.compile(pat)
+            rx_result=prog.match(legend)
+            if rx_result:
+              kw=rx_result.group(1)
+              special_fmt=fmt_map[kw]
+              ws.cell(row=rix,column=cix).number_format=special_fmt
 
         else: # the non year columns
           if 'horiz' in col_defs.columns:
