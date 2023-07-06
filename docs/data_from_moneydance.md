@@ -89,20 +89,18 @@ The routine `balance_check.py` is available to see how the values from the `Acco
 
 
 ## Add an account
+
+It may be best to do this by recreating the worksheet but the following suggests how to do it manually.
+
 1. On the accounts tab insert a row in the table
 2. Fill in all fields (notes is optional). Usually, the account name is used for the actl_source
-3. Create the rows on the balances table
-
-|      | Steps                                                        |
-| ---- | ------------------------------------------------------------ |
-| 1    | Unhide all columns and sort by account name                  |
-| 2    | Insert 6 new rows.  Put the account name in the first row of the AcctName field. |
-| 3    | Copy down columns A, D, E, F from another account.           |
-| 4    | Copy the 6 value types into column B                         |
-| 5    | Insert 6 copies of the new account name for each account in  column c |
-| 6    | Copy formulas into 1st active year                           |
-| 7    | Set the opening balance                                      |
-| 8    | When satisfied with actuals, copy formulas into 1st forecast period |
+3. Create the rows on the balances table as follows:
+      1. Unhide all columns and sort by account name
+      1. Insert 9 new rows
+      1. Copy the 9 value types into column B 
+      1. Put the account name in all 9 of the new rows in the AcctName field
+      1. Construct the Key (concatenate the values of ValType and AcctName) - it needs to be be values not a formula
+      1. Copy actual formulas and forecast formulas from another account
 
 ## Rename an account
 
@@ -118,12 +116,14 @@ Here's what has to be done to rename an account.
 
 1. The account name can be changed in Moneydance using the Tools -> Accounts menu.
 
-2. It must be changed in fcst.xlsm at the following locations
-   1. tbl_accounts - it occurs in the A column and may occur in the G column
-   2. tbl_balances
+2. It must be changed in the spreadsheet at the following locations
+      1. tbl_accounts - it occurs in the A column and may occur in the G column
+      1. tbl_balances - it occurs in the AcctName and Key columns
 3. Depending on the account it may occur in the following location
-   1. tbl_retir, 
-   2. tbl_retir_parms
+      1. tbl_retir, 
+      1. tbl_retir_parms
+      1. tbl_invest_actl
+
 4. The following should be refreshed: tbl_transfers_actl by running the procedure
 
 ## Accounting
