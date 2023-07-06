@@ -308,12 +308,13 @@ def prepare_balance_tab(years,in_df):
   acct_ref=this_row('AcctName')
   # TODO move repeated formulas to setup.yaml
   repeated_formulas={
-    'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), acct_ref),
     'Type':'=@get_val({},"tbl_accounts",D$2)'.format(acct_ref),
     'Income Txbl': '=@get_val( {},"tbl_accounts",E$2)'.format(acct_ref),
     'Active': '=@get_val( {},"tbl_accounts",F$2)'.format(acct_ref),
     'No Distr Plan': '=@get_val( {},"tbl_accounts",G$2)'.format(acct_ref)
   }
+  #Now implemented below to make field static:    'Key':'=@CONCATENATE( {},{})'.format(this_row('ValType'), acct_ref),
+
   lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active','No Distr Plan','Reinv Rate']
 
   # the actual and the forecast formulas specified in setup.yaml - except for the opening balance
@@ -344,6 +345,7 @@ def prepare_balance_tab(years,in_df):
         formulas+=[formula]
       acct_df['Y{}'.format(c)]=formulas
     df=pd.concat([df,acct_df],axis=0)
+  df['Key']=df['ValType']+df['AcctName']  
   df.reset_index(inplace=True,drop='True')
   return df
 
