@@ -13,8 +13,13 @@ dance/util/vba/sort_vba.py
 dance/setup/create_wb.py data/test_wb.xlsm -o
 RC=$?
 if [ $RC -ne 0 ]; then
+  echo "create_wb failed"
   exit $RC
 fi
+
+# load preserved values
+dance/preserve_changed.py -l
+
 # pull in the ytd reprojections
 dance/ytd.py -l -f
 
