@@ -12,7 +12,6 @@ from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name, table_as_df
 
 logger=get_logger(__file__)
-comment=Comment('Recovered from previous run of preservation utility',author='system')
 
 def is_formula(item):
   if not isinstance(item,str): return False
@@ -56,9 +55,10 @@ def save_sparse(config,workbook,path):
     json.dump(out,f,ensure_ascii=False,indent=2)
   logger.info('Wrote %d items to %s'%(len(out),args.path))
 
-def load_sparse(config,workbook,path):
+def load_sparse(workbook,path):
   '''copy items from saved json file back into various tables
   Only writes values that differ from what is aready in the sheet'''
+  comment=Comment('Preserved from previous run of preservation utility','BudgetDance')
   wb=load_workbook(filename = workbook,keep_vba=True)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
@@ -70,13 +70,16 @@ def load_sparse(config,workbook,path):
     for _,row in df_points.loc[df_points.table==table].iterrows():
       top_left=coordinate_to_tuple(ref.split(':')[0]) # in Excel origin 1
       # in Python origin 0, so adding to top_left is also in Excel origin 1
-      x=top_left[0]+df_table.index.get_loc(row['row']) +1 # +1 to skip the table heading 
-      y=top_left[1]+df_table.columns.get_loc(row['col'])+1 # +1 since we moved the column to the index
+      rx=top_left[0]+df_table.index.get_loc(row['row']) +1 # +1 to skip the table heading 
+      cx=top_left[1]+df_table.columns.get_loc(row['col'])+1 # +1 since we moved the column to the index
       val=row['value']
-      curr_val=ws.cell(row=x,column=y).value
+      curr_val=ws.cell(row=rx,column=cx).value
       if val != curr_val:
         if not (isnan(val) and (curr_val is None)):
-          ws.cell(row=x,column=y,value=val)
+          ws.cell(row=rx,column=cx,value=val)
+          ws.cell(row=rx,column=cx).comment=comment  
+          # the above causes UserWarning: Duplicate name: 'xl/drawings/commentsDrawing1.vml'
+          # when this is run after ytd.py but not if its run 1st!!!
           counters[table]+=1
     logger.info('Wrote %d values into table %s'%(counters[table],table))
   wb.save(args.workbook)
@@ -97,4 +100,4 @@ if __name__ == '__main__':
     save_sparse(config,args.workbook,args.path)
 
   if args.load :
-    load_sparse(config,args.workbook,args.path)
+    load_sparse(args.workbook,args.path)
