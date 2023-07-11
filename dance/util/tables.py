@@ -228,7 +228,9 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
           regex_column=r'[A-Za-z_]+(\[\[?[ A-Za-z0-9]+\]?\])'
           pattern=re.compile(regex_column)
           matches=pattern.findall(values[cn]) 
-          if len(matches): # looks like a dynamic formula
+          ftr='Fed_Tax_Range' in values[cn]# apparently the range with the vba function needs to be treated like an array formula
+          fln='FORECAST.LINEAR' in values[cn].upper()# this one too?
+          if (len(matches)>0) or ftr or fln: # looks like a dynamic formula
             ref=get_column_letter(cix)+str(rix)
             formula=prepare_formula(values[cn])
             ws[ref] = ArrayFormula(ref,formula) # assume that the formula collapses to a single value

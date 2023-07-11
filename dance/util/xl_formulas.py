@@ -3,8 +3,6 @@ import re
 
 from dance.util.sheet import df_for_range
 
-agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9}
-
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it
   to the long form which Excel recognizes exclusively (even though it displays the short form).
@@ -200,6 +198,7 @@ def prepare_formula(formula):
   formula = re.sub(r"\bCHOOSEROWS\(", "_xlfn.CHOOSEROWS(", formula)
   formula = re.sub(r"\bDROP\(", "_xlfn.DROP(", formula)
   formula = re.sub(r"\bEXPAND\(", "_xlfn.EXPAND(", formula)
+  formula = re.sub(r"\bFORECAST.LINEAR\(", "_xlfn.FORECAST.LINEAR(", formula)
   formula = re.sub(r"\bFILTER\(", "_xlfn._xlws.FILTER(", formula)
   formula = re.sub(r"\bHSTACK\(", "_xlfn.HSTACK(", formula)
   formula = re.sub(r"\bLAMBDA\(", "_xlfn.LAMBDA(", formula)
