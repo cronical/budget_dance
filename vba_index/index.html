@@ -790,6 +790,14 @@
 <td>Calculate the ct income tax for a given year and taxable income amount. The so called initial tax calculation only.. Table is not setup exactly like federal - it uses the traditional method not the subraction method.. Gets a result of zero if year not in the table.</td>
 </tr>
 <tr>
+<td>CT_Tax_Range</td>
+<td>Function CT_Tax_Range(ParamArray parms() As Variant) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Pass in either. A single range of two values to get ct initial tax; or. A list of ranges of single values - count of 2. Encapsulates ct_tax. First value is tax table year as integer. Second value is ct taxable income</td>
+</tr>
+<tr>
 <td>d2s</td>
 <td>Function d2s(dt As Date) As String</td>
 </tr>
@@ -806,14 +814,6 @@
 <td>Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022</td>
 </tr>
 <tr>
-<td>endbal</td>
-<td>Function endbal(acct As String, y_year As String) As Variant</td>
-</tr>
-<tr>
-<td></td>
-<td>Compute the end balance for an account for a year</td>
-</tr>
-<tr>
 <td>extend_iiande</td>
 <td>Function extend_iiande(account As String, category As String, y_year As String) As Double</td>
 </tr>
@@ -828,6 +828,14 @@
 <tr>
 <td></td>
 <td>Computes the resulting federal tax with capital gains portion at 15%. The input should include qualified dividends</td>
+</tr>
+<tr>
+<td>Fed_Tax_Range</td>
+<td>Function Fed_Tax_Range(ParamArray parms() As Variant) As Double</td>
+</tr>
+<tr>
+<td></td>
+<td>Pass in either. A single range of two or three values to get federal tax; or. A list of ranges of single values - either 2 or 3. Encapsulates fed_tax_capgn. First value is tax table year as integer. Second value is taxable income. Third is the capital gains. If the 3rd value is zero then returns the federal tax without adjusting for capital gains</td>
 </tr>
 <tr>
 <td>Federal_Tax</td>

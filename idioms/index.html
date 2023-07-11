@@ -311,8 +311,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#if-filter-can-empty" class="md-nav__link">
-    If filter can empty
+  <a href="#if-filter-can-be-empty" class="md-nav__link">
+    If filter can be empty
   </a>
   
 </li>
@@ -380,6 +380,20 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forecasting-based-on-last-n-elements" class="md-nav__link">
+    Forecasting based on last n elements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tax-calculations" class="md-nav__link">
+    Tax calculations
+  </a>
   
 </li>
       
@@ -882,8 +896,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#if-filter-can-empty" class="md-nav__link">
-    If filter can empty
+  <a href="#if-filter-can-be-empty" class="md-nav__link">
+    If filter can be empty
   </a>
   
 </li>
@@ -955,6 +969,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#forecasting-based-on-last-n-elements" class="md-nav__link">
+    Forecasting based on last n elements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tax-calculations" class="md-nav__link">
+    Tax calculations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#conditional-formatting-limits" class="md-nav__link">
     Conditional Formatting limits
   </a>
@@ -1011,7 +1039,7 @@ Here get the value for a year from the retirement table based on the account nam
 <p>In another example, two items are multiplied:
 <div class="highlight"><span class="filename">Pick two rows and multiply them</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>PRODUCT(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]=&quot;Reinv Rate&quot;)+(tbl_balances[ValType]=&quot;Rlz Int/Gn&quot;))))
 </code></pre></div></p>
-<h3 id="if-filter-can-empty">If filter can empty</h3>
+<h3 id="if-filter-can-be-empty">If filter can be empty</h3>
 <p>If the result can be empty then use the if_empty parameter</p>
 <div class="highlight"><span class="filename">Last parm of FILTER is 0 to allow empty set</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))
 </code></pre></div>
@@ -1058,6 +1086,14 @@ Here get the value for a year from the retirement table based on the account nam
 <p>Wrap the whole thing in a <code>SUM()</code> to get the net change in the account for the year.</p>
 <div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
 </code></pre></div>
+<h2 id="forecasting-based-on-last-n-elements">Forecasting based on last n elements</h2>
+<p>Linear least squares fit. The example takes current cell with <code>INDIRECT(ADDRESS(ROW(),COLUMN())</code> as the basis for <code>OFFSET</code> which looks back 5 columns on this row and includes this row and 5 samples in the form of a 1 by 5 matrix. This needs to be a just a 1D series, so <code>TOROW</code> is used.  Then we just ask the linear forecast tool to provide item 6 for a sequence of 5 elements.  Seems like it should require the sequence to be 1D as well, but it doesn't.</p>
+<div class="highlight"><span class="filename">Forecast</span><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>=FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
+</code></pre></div>
+<h2 id="tax-calculations">Tax calculations</h2>
+<p>Not implemented but kind of cool</p>
+<p><code>title federal tax calc for a year and a taxable income value
+=ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]&lt;260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)</code></p>
 <h2 id="conditional-formatting-limits">Conditional Formatting limits</h2>
 <p>Conditional formatting formulas cannot use structured references, including bare table names.</p>
 

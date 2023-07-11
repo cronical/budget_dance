@@ -962,53 +962,20 @@
 <li>In a terminal window set current directory to the project root and run <code>dance/balance_check.py yyyy</code> where yyyy is the year to check.  You should get a listing that shows the exact matches and the accounts that don't match (and how much they are off).</li>
 </ol>
 <h2 id="add-an-account">Add an account</h2>
+<p>It may be best to do this by recreating the worksheet but the following suggests how to do it manually.</p>
 <ol>
 <li>On the accounts tab insert a row in the table</li>
 <li>Fill in all fields (notes is optional). Usually, the account name is used for the actl_source</li>
-<li>Create the rows on the balances table</li>
+<li>Create the rows on the balances table as follows:<ol>
+<li>Unhide all columns and sort by account name</li>
+<li>Insert 9 new rows</li>
+<li>Copy the 9 value types into column B </li>
+<li>Put the account name in all 9 of the new rows in the AcctName field</li>
+<li>Construct the Key (concatenate the values of ValType and AcctName) - it needs to be be values not a formula</li>
+<li>Copy actual formulas and forecast formulas from another account</li>
 </ol>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Steps</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>Unhide all columns and sort by account name</td>
-</tr>
-<tr>
-<td>2</td>
-<td>Insert 6 new rows.  Put the account name in the first row of the AcctName field.</td>
-</tr>
-<tr>
-<td>3</td>
-<td>Copy down columns A, D, E, F from another account.</td>
-</tr>
-<tr>
-<td>4</td>
-<td>Copy the 6 value types into column B</td>
-</tr>
-<tr>
-<td>5</td>
-<td>Insert 6 copies of the new account name for each account in  column c</td>
-</tr>
-<tr>
-<td>6</td>
-<td>Copy formulas into 1st active year</td>
-</tr>
-<tr>
-<td>7</td>
-<td>Set the opening balance</td>
-</tr>
-<tr>
-<td>8</td>
-<td>When satisfied with actuals, copy formulas into 1st forecast period</td>
-</tr>
-</tbody>
-</table>
+</li>
+</ol>
 <h2 id="rename-an-account">Rename an account</h2>
 <p>It turns out to be useful to have an account naming convention.  The convention is 
     <em>type - owner - firm</em>
@@ -1023,14 +990,23 @@ where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is
 <p>The account name can be changed in Moneydance using the Tools -&gt; Accounts menu.</p>
 </li>
 <li>
-<p>It must be changed in fcst.xlsm at the following locations</p>
-</li>
+<p>It must be changed in the spreadsheet at the following locations</p>
+<ol>
 <li>tbl_accounts - it occurs in the A column and may occur in the G column</li>
-<li>tbl_balances</li>
-<li>Depending on the account it may occur in the following location</li>
+<li>tbl_balances - it occurs in the AcctName and Key columns</li>
+</ol>
+</li>
+<li>
+<p>Depending on the account it may occur in the following location</p>
+<ol>
 <li>tbl_retir, </li>
 <li>tbl_retir_parms</li>
-<li>The following should be refreshed: tbl_transfers_actl by running the procedure</li>
+<li>tbl_invest_actl</li>
+</ol>
+</li>
+<li>
+<p>The following should be refreshed: tbl_transfers_actl by running the procedure</p>
+</li>
 </ol>
 <h2 id="accounting">Accounting</h2>
 <p>The computation of balances depends on the ability to determine the changes to the accounts.  </p>
