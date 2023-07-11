@@ -128,14 +128,14 @@ Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optio
     ReDim by_tags_v(UBound(by_tags))
     
 
-    For I = LBound(by_tags) To UBound(by_tags)
-        Set tag_rngs(I) = tbl.ListColumns(tag_col_names(I)).Range
-        If IsNumeric(by_tags(I)) Then
-            by_tags_v(I) = CInt(by_tags(I))
+    For i = LBound(by_tags) To UBound(by_tags)
+        Set tag_rngs(i) = tbl.ListColumns(tag_col_names(i)).Range
+        If IsNumeric(by_tags(i)) Then
+            by_tags_v(i) = CInt(by_tags(i))
         Else
-            by_tags_v(I) = by_tags(I)
+            by_tags_v(i) = by_tags(i)
         End If
-    Next I
+    Next i
     
     Select Case agg_method
     Case "sum"
@@ -252,14 +252,14 @@ Sub calc_retir()
     k = UBound(tbl_names)
     ReDim tbls(k), ws_names(k)
     msg = ""
-    For I = LBound(tbl_names) To k
-        ws_names(I) = ws_for_table_name(tbl_names(I))
-        Set tbls(I) = ThisWorkbook.Worksheets(ws_names(I)).ListObjects(tbl_names(I))
+    For i = LBound(tbl_names) To k
+        ws_names(i) = ws_for_table_name(tbl_names(i))
+        Set tbls(i) = ThisWorkbook.Worksheets(ws_names(i)).ListObjects(tbl_names(i))
         If Len(msg) > 0 Then msg = msg & ","
-        If I = UBound(tbl_names) Then msg = msg & " and "
-        msg = msg & ws_names(I)
+        If i = UBound(tbl_names) Then msg = msg & " and "
+        msg = msg & ws_names(i)
         
-    Next I
+    Next i
     
     Set rcols = tbls(0).HeaderRowRange
     Set col = tbls(0).ListColumns("yearly")
@@ -270,9 +270,9 @@ Sub calc_retir()
     For Each rcell In rcols
         If InStr(rcell.value, "Y20") = 1 Then
             log ("Calculating for " & rcell.value)
-            For I = LBound(tbls) To UBound(tbls)
-                Set col = tbls(I).ListColumns(rcell.value)
-                t_name = tbls(I).Name
+            For i = LBound(tbls) To UBound(tbls)
+                Set col = tbls(i).ListColumns(rcell.value)
+                t_name = tbls(i).Name
                 Application.StatusBar = rcell.value & ":" & t_name
                 log ("  " & t_name & " - Range " & col.Range.address)
                 If dbg Then
@@ -290,7 +290,7 @@ Sub calc_retir()
                     col.Range.Dirty
                     col.Range.Calculate
                 End If
-            Next I
+            Next i
 
          End If
     Next rcell
@@ -360,6 +360,41 @@ Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double
     CT_Tax = result
 End Function
 
+Function CT_Tax_Range(ParamArray parms() As Variant) As Double
+'Pass in either
+'  a single range of two values to get CT initial tax; or
+'  a list of ranges of single values - count of 2
+'Encapsulates CT_tax
+'First value is tax table year as integer
+'Second value is CT taxable income
+
+
+Dim args As Variant
+Dim vals As Variant
+Dim i As Integer
+Dim rng As Range
+
+n = UBound(parms)
+
+vals = Array(0, 0)
+If n = 0 Then
+    Set rng = parms(0)
+    args = rng.value
+    For i = LBound(args, 1) To UBound(args, 1)
+        vals(i - 1) = args(i, 1)
+    Next i
+Else
+    For i = LBound(parms) To n
+        Set rng = parms(i)
+        vals(i) = rng.value
+    Next i
+End If
+result = CT_Tax(CInt(vals(0)), CDbl(vals(1)))
+
+CT_Tax_Range = result
+
+End Function
+
 Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
@@ -401,20 +436,6 @@ ei_withhold = result
 
 End Function
 
-Function endbal(acct As String, y_year As String) As Variant
-'compute the end balance for an account for a year
-    Dim rate As Variant
-    Dim val As Variant
-    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
-    adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
-    reinv = get_val("Reinv Amt" & acct, "tbl_balances", y_year)
-    fees = get_val("Fees" & acct, "tbl_balances", y_year)
-    unrlzd = get_val("Unrlz Gn/Ls" & acct, "tbl_balances", y_year)
-    val = open_bal + adds + reinv + unrlzd + fees
-    endbal = val
-
-End Function
-
 Function extend_iiande(account As String, category As String, y_year As String) As Double
 'For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row
 'To be run in a cell in the invest_iande_work table.
@@ -440,6 +461,43 @@ Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn A
     result = base + cgt
     Fed_Tax_CapGn = result
     
+End Function
+
+Function Fed_Tax_Range(ParamArray parms() As Variant) As Double
+'Pass in either
+'  a single range of two or three values to get federal tax; or
+'  a list of ranges of single values - either 2 or 3
+'Encapsulates Fed_Tax_CapGn
+'First value is tax table year as integer
+'Second value is taxable income
+'Third is the capital gains
+'If the 3rd value is zero then returns the federal tax without adjusting for capital gains
+
+
+Dim args As Variant
+Dim vals As Variant
+Dim i As Integer
+Dim rng As Range
+
+n = UBound(parms)
+
+vals = Array(0, 0, 0)
+If n = 0 Then
+    Set rng = parms(0)
+    args = rng.value
+    For i = LBound(args, 1) To UBound(args, 1)
+        vals(i - 1) = args(i, 1)
+    Next i
+Else
+    For i = LBound(parms) To n
+        Set rng = parms(i)
+        vals(i) = rng.value
+    Next i
+End If
+result = Fed_Tax_CapGn(CInt(vals(0)), CDbl(vals(1)), CDbl(vals(2)))
+
+Fed_Tax_Range = result
+
 End Function
 
 Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double
@@ -665,13 +723,13 @@ Function linear(count As Integer, Optional minimum = 0) As Double
     progress = "initialized"
     With ws
     ' see how many prior items are available up to the requested number
-        For I = 1 To count
-            cn = .Cells(hdg_row, point.Column - I).value
+        For i = 1 To count
+            cn = .Cells(hdg_row, point.Column - i).value
             If Not (Left(cn, 1) = "Y" And IsNumeric(Right(cn, 4))) Then
                 Exit For
             End If
-        Next I
-        count = I - 1
+        Next i
+        count = i - 1
         progress = "count set: " & count
     ' Construct the exising dependent (y) values
         y_year = .Cells(hdg_row, point.Column).value
@@ -690,11 +748,11 @@ Function linear(count As Integer, Optional minimum = 0) As Double
     any_empty = False
     ReDim ys1(UBound(ys, 2) - 1) ' redim forces origin to, so the one dimension versions start there
     ReDim xs1(UBound(xs, 2) - 1)
-    For I = LBound(xs, 2) To UBound(xs, 2) 'years as numbers
-        xs1(I - 1) = CDbl(IntYear(xs(1, I)))
-        ys1(I - 1) = ys(1, I)
-        any_empty = any_empty Or IsEmpty(ys1(I - 1))
-    Next I
+    For i = LBound(xs, 2) To UBound(xs, 2) 'years as numbers
+        xs1(i - 1) = CDbl(IntYear(xs(1, i)))
+        ys1(i - 1) = ys(1, i)
+        any_empty = any_empty Or IsEmpty(ys1(i - 1))
+    Next i
     progress = "values formatted"
     
     'When workbook is initially loaded Excel does not have knowledge of dependencies hidden in this function
@@ -722,9 +780,9 @@ ErrHandler:
     log ("Error: " & Err.Number)
     log (Err.Description)
     If progress = "values formatted" Then
-        For I = LBound(xs1) To UBound(xs1)
-        log ("" & xs1(I) & ": " & ys1(I))
-        Next I
+        For i = LBound(xs1) To UBound(xs1)
+        log ("" & xs1(i) & ": " & ys1(i))
+        Next i
     End If
     
 End Function
@@ -1074,13 +1132,13 @@ Dim infl As Variant
 Dim magi As Variant
 test_cases() = Array(Array(2021, 1#, 10000), Array(2022, 1#, 182001), Array(2022, 1#, 400000), Array(2023, 1.02, 75000))
 log ("Part B tests")
-For I = LBound(test_cases) To UBound(test_cases)
-    yr = "Y" & test_cases(I)(0)
-    magi = test_cases(I)(2)
-    infl = test_cases(I)(1)
+For i = LBound(test_cases) To UBound(test_cases)
+    yr = "Y" & test_cases(i)(0)
+    magi = test_cases(i)(2)
+    infl = test_cases(i)(1)
     partB = PartBPrem(yr, infl, magi)
     partD = PartDSurcharge(yr, infl, magi)
-    msg = "Input: year=" & test_cases(I)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
+    msg = "Input: year=" & test_cases(i)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
     log (msg)
 Next
 
@@ -1100,8 +1158,8 @@ Array(3, 2022, 2025, 9, 2025), _
 Array(3, 2022, 2022, 8, 2022) _
 )
 log ("mo_apply tests")
-For I = LBound(test_cases) To UBound(test_cases)
-    test_case = test_cases(I)
+For i = LBound(test_cases) To UBound(test_cases)
+    test_case = test_cases(i)
     start_date = DateSerial(test_case(1), test_case(0), 1)
 
     yr = "Y" & test_case(2)
@@ -1114,7 +1172,7 @@ For I = LBound(test_cases) To UBound(test_cases)
     End If
     msg = "Input: year=" & yr & " start/end dates = " & start_date & " " & end_date & "   Output: " & result
     log (msg)
-Next I
+Next i
 End Sub
 
 Sub test_nth()
