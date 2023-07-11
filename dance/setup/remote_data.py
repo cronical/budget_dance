@@ -30,7 +30,7 @@ def request(data_info):
       parameters['endyear']=e
       data = json.dumps(parameters)
       url=urls[data_info['site_code']]
-      p = requests.post(url, data=data, headers=headers)
+      p = requests.post(url, data=data, headers=headers,timeout=5 )
       try:
         json_data = json.loads(p.text)
       except json.JSONDecodeError as e:
@@ -50,7 +50,7 @@ def request(data_info):
     return inflation
   if data_info['site_code']=='FEDREG':
     headers={'User-Agent': user_agent}
-    response=requests.get(urls['FEDREG'],headers=headers)
+    response=requests.get(urls['FEDREG'],headers=headers, timeout=5)
     assert response.status_code==200,'trouble'
     soup=BeautifulSoup(response.text,'lxml')
     method=data_info['table']['find_method']

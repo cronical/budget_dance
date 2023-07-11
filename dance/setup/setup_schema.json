@@ -274,6 +274,19 @@
         }
       }
     },
+
+    "preserve":{
+      "type":"object",
+      "properties":{
+        "method": {"type":"string","enum":["sparse","full","none"]},
+        "non-year-cols": {
+          "type":"array",
+          "items": {"type":"string"}
+        }
+      }
+    },
+
+
     "row_formula":{
       "type": "object",
       "properties": {
@@ -318,7 +331,8 @@
         "start_col":{"type":"integer"},
         "actual_only":{"type":"boolean"},
         "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}},
-        "edit_checks":{"type":"array","items":{"$ref":"#$defs/edit_check"}}
+        "edit_checks":{"type":"array","items":{"$ref":"#$defs/edit_check"}},
+        "preserve":{"$ref":"#/$defs/preserve"}
       },
       "required":["name","title","include_years","columns"]
     }

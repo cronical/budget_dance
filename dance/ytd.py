@@ -41,27 +41,37 @@ if __name__ == '__main__':
     col_offset=2 # 1 to change origin, 1 since key is in the index not a field
 
   tgt_year='Y%04d'%ffy
+  counters={}
   for control in (
     {'select':args.load,'tab':'current','sources':['Factor','Add'],'targets':['Factor','Add']},
     {'select':args.forward,'tab':'iande','sources':['Year'],'targets':[tgt_year]}
     ):
     src_tgt=list(zip(control['sources'],control['targets']))
     if control['select']:
-      tab=control['tab']
-      ws=wb[tab]
-      tgt_df=df_for_table_name('tbl_'+tab,args.workbook,data_only=True)
+      ws_name=control['tab']
+      table='tbl_'+ws_name
+      counters[table]=0
+      ws=wb[ws_name]
+      tgt_df=df_for_table_name(table,args.workbook,data_only=True)
       idx = tgt_df.index.to_list() # key is in index
       for ix,values in df.iterrows():
         for src,tgt in src_tgt:
           cx=col_offset+tgt_df.columns.to_list().index(tgt)
           rx=row_offset+idx.index(ix)
           val=values[src]
-          ws.cell(row=rx,column=cx).value=val
-          if tab=='iande': # add comment for iande
-            ws.cell(row=rx,column=cx).comment=comment
-        if tab=='current':
+          if ws_name != 'iande':
+            ws.cell(row=rx,column=cx).value=val
+            counters[table]+=1
+          else: # for iande if val is not already there, set it and comment
+            curr_val=ws.cell(row=rx,column=cx).value
+            if val != curr_val:
+              ws.cell(row=rx,column=cx,value=val)
+              ws.cell(row=rx,column=cx).comment=comment
+              counters[table]+=1
+        if ws_name=='current':
           # recompute reprojected year, in case the excel calc has not yet run.
           yx=col_offset+list(tgt_df.columns.str.startswith('Y')).index(True) # locate the ytd date column in the latest tsv
           df.at[ix,'Year']=ws.cell(row=rx,column=yx).value*values['Factor']+values['Add'] 
+      logger.info('Wrote %d values into table %s'%(counters[table],table))
       wb.save(args.workbook)
-      logger.info('Wrote %d %s values into table tbl_%s'%(df.shape[0],', '.join(control['targets']),control['tab']))
+      

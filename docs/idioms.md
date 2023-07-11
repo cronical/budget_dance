@@ -66,14 +66,13 @@ In another example, two items are multiplied:
 PRODUCT(FILTER(INDIRECT("tbl_balances["&this_col_name()&"]"),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]="Reinv Rate")+(tbl_balances[ValType]="Rlz Int/Gn"))))
 ```
 
-### If filter can empty
+### If filter can be empty
 
 If the result can be empty then use the if_empty parameter
 
 ```title="Last parm of FILTER is 0 to allow empty set"
 =-SUM(FILTER(INDIRECT("tbl_retir_vals["&this_col_name()&"]"),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]="ROLLOVER"),0))
 ```
-
 
 ## Convert transaction format to net change
 
@@ -125,6 +124,25 @@ Wrap the whole thing in a `SUM()` to get the net change in the account for the y
 
 ```title="Full"
 SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
+```
+
+## Forecasting based on last n elements
+
+Linear least squares fit. The example takes current cell with `INDIRECT(ADDRESS(ROW(),COLUMN())` as the basis for `OFFSET` which looks back 5 columns on this row and includes this row and 5 samples in the form of a 1 by 5 matrix. This needs to be a just a 1D series, so `TOROW` is used.  Then we just ask the linear forecast tool to provide item 6 for a sequence of 5 elements.  Seems like it should require the sequence to be 1D as well, but it doesn't.
+
+
+
+```title="Forecast"
+=FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
+```
+
+
+## Tax calculations 
+
+Not implemented but kind of cool
+
+```title federal tax calc for a year and a taxable income value
+=ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]<260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)
 ```
 
 ## Conditional Formatting limits

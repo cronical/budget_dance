@@ -26,16 +26,18 @@
 ||Testing forced calc of table|
 |CT_Tax|Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the ct income tax for a given year and taxable income amount. The so called initial tax calculation only.. Table is not setup exactly like federal - it uses the traditional method not the subraction method.. Gets a result of zero if year not in the table.|
+|CT_Tax_Range|Function CT_Tax_Range(ParamArray parms() As Variant) As Double|
+||Pass in either. A single range of two values to get ct initial tax; or. A list of ranges of single values - count of 2. Encapsulates ct_tax. First value is tax table year as integer. Second value is ct taxable income|
 |d2s|Function d2s(dt As Date) As String|
 |||
 |ei_withhold|Function ei_withhold(legend As String, ei_template, y_year As String) As Double|
 ||Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022|
-|endbal|Function endbal(acct As String, y_year As String) As Variant|
-||Compute the end balance for an account for a year|
 |extend_iiande|Function extend_iiande(account As String, category As String, y_year As String) As Double|
 ||For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row. To be run in a cell in the invest_iande_work table.|
 |Fed_Tax_CapGn|Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double|
 ||Computes the resulting federal tax with capital gains portion at 15%. The input should include qualified dividends|
+|Fed_Tax_Range|Function Fed_Tax_Range(ParamArray parms() As Variant) As Double|
+||Pass in either. A single range of two or three values to get federal tax; or. A list of ranges of single values - either 2 or 3. Encapsulates fed_tax_capgn. First value is tax table year as integer. Second value is taxable income. Third is the capital gains. If the 3rd value is zero then returns the federal tax without adjusting for capital gains|
 |Federal_Tax|Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the federal income tax for a given year and taxable income amount. Gets a result of zero if year not in the table.|
 |gain|Function gain(acct As String, y_year As String, realized As Boolean) As Variant|

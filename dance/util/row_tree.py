@@ -3,7 +3,10 @@
 from openpyxl.utils import get_column_letter
 
 import pandas as pd
-from dance.util.xl_formulas import agg_types
+
+agg_types={'MAX':4,'MIN':5,'PRODUCT':6,'TOTAL':9} # original excel native types
+agg_types['FED_TAX']=-1
+agg_types['CT_TAX']=-2
 
 def hier_insert(df,table_info,sep=":"):
   '''Insert any specified new rows
@@ -199,7 +202,7 @@ def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
 def subtotal_formulas(df,groups):
   '''Replace the aggregate lines values with formulas
   if its not an aggregate just let the value stay there
-  Supports aggregation by TOTAL, MIN, MAX, PRODUCT
+  Supports aggregation by TOTAL, MIN, MAX, PRODUCT, FED_TAX
 
   Works by enumerating the ranges to aggregate.  
   Unlike the subtotal method this grabs the subordinate aggregation lines not the underlying leaf nodes
@@ -213,7 +216,7 @@ def subtotal_formulas(df,groups):
     key=df.at[group[2]-2,'Key']
     agg=key.split(' - ')[-1]
     code=agg_types[agg] # keep numeric code in order to switch back to subtotal method
-    func={4:"MAX",5:"MIN",6:"PRODUCT",9:"SUM"}[code]
+    func={4:"MAX",5:"MIN",6:"PRODUCT",9:"SUM",-1:"Fed_Tax_Range",-2:"CT_Tax_Range"}[code]
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)

@@ -5,14 +5,10 @@ Reads data from "data/taxes_template.tsv" to create the taxes table
 import argparse
 
 from openpyxl import load_workbook
-from openpyxl.utils import get_column_letter
 
 from dance.util.files import tsv_to_df,read_config
 from dance.util.row_tree import nest_by_cat, folding_groups,subtotal_formulas
 from dance.util.tables import columns_for_table,conform_table
-from dance.util.xl_formulas import agg_types
-
-
 
 def prepare_taxes(data_info,workbook):
   '''setup the taxes dataframe'''
@@ -25,6 +21,7 @@ def prepare_taxes(data_info,workbook):
   df.drop(columns=remove_cols,inplace=True)
 
   df=nest_by_cat(df,'Line')
+  assert 8>=df.level.max(), 'Highest level is %d.  Excel max is 8'%df.level.max()
   df,groups=folding_groups(df)
   wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
   col_def=columns_for_table(wb,'taxes','tbl_taxes',read_config())
