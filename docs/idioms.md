@@ -153,6 +153,33 @@ Linear least squares fit. The example takes current cell with `INDIRECT(ADDRESS(
 =FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
 ```
 
+## LET example: Simple return calculation
+
+The following computes a simplistic return by setting intermediate variables with LET. 
+
+| Variable | Description |
+| ----------- | ----------- |
+|y|The column of data for this year
+|a|The account name
+|b|The value types of the rows to be averaged for the denominator
+|c|The value types of the rows to be summed for the numerator
+|x|The indicies to locate the denominator values
+|w|The indicies to locate the numerator values
+
+after all these are set is fairly easy to use CHOOSEROWS to select the right data elements.  The 2 is for the average. Wrapping with IFERROR forces the #DIV  to 0.
+
+```  
+  =LET(
+    y,INDIRECT("tbl_balances["&@INDEX(tbl_balances[#Headers],COLUMN())&"]"),
+    a,[@AcctName],
+    b,{"Start Bal","End Bal"},
+    c,{"Rlz Int/Gn","Unrlz Gn/Ls"},
+    x,MATCH(@b&a,[Key],0),
+    w,MATCH(@c&a,[Key],0),
+    IFERROR(2*SUM(CHOOSEROWS(y,w))/SUM(CHOOSEROWS(y,x)),0)
+    )
+  ```
+
 
 ## Tax calculations 
 
