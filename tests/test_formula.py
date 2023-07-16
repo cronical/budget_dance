@@ -1,6 +1,7 @@
 '''tests formula handling'''
 import pandas as pd
 from dance.util.xl_formulas import table_ref
+from dance.util.xl_pm import get_params,repl_params
 from dance.util.row_tree import multi_agg_subtotals, collapse_adjacent,address_phrase
 
 import pytest # pylint: disable=unused-import
@@ -46,3 +47,48 @@ def test_address_phrase():
   assert address_phrase('A',[1])=='A1'
   assert address_phrase('B',[(3,7)])=='B3:B7'
   assert address_phrase('C',[1,(3,5),7,(9,11)])=='C1,C3:C5,C7,C9:C11'
+
+def test_xl_pm():
+  # LET
+  formula='=LET(y,INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]"),a,[@AcctName],b,{"Start Bal","End Bal"},c,{"Rlz Int/Gn","Unrlz Gn/Ls"},x,MATCH(b&a,[Key],0),w,MATCH(c&a,[Key],0),2*SUM(CHOOSEROWS(y,w))/SUM(CHOOSEROWS(y,x)))'
+  formula2='=LET(_xlpm.y,INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]"),_xlpm.a,[@AcctName],_xlpm.b,{"Start Bal","End Bal"},_xlpm.c,{"Rlz Int/Gn","Unrlz Gn/Ls"},_xlpm.x,MATCH(_xlpm.b&_xlpm.a,[Key],0),w,MATCH(_xlpm.c&_xlpm.a,[Key],0),2*SUM(CHOOSEROWS(_xlpm.y,_xlpm.w))/SUM(CHOOSEROWS(_xlpm.y,_xlpm.x)))'
+  params=get_params(formula)
+  assert params == ['y', 'a', 'b', 'c', 'x', 'w']
+  formula='=LET(x,9,y,12,sum(x,y))'
+  params=get_params(formula)
+  assert params == ['x','y']
+  
+  # LAMBDA
+  formula='=BYROW(Table2[[Y1]:[Y2]],LAMBDA(arr,MAX(arr)))'
+  formula2='=BYROW(Table2[[Y1]:[Y2]],LAMBDA(_xlpm.arr,MAX(_xlpm.arr)))'
+  params=get_params(formula)
+  assert params == ['arr']
+  assert repl_params(formula,params)== formula2
+  
+  formula='=LAMBDA(a,b, SQRT((a^2)+(b^2)))(3,4)'
+  formula2='=LAMBDA(_xlpm.a,_xlpm.b, SQRT((_xlpm.a^2)+(_xlpm.b^2)))(3,4)'
+  params=get_params(formula)
+  assert params == ['a','b']
+  assert repl_params(formula,params)== formula2
+
+  formula='=SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))'
+  formula2='=SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))'
+  params=get_params(formula)
+  assert params == ['row']
+  assert repl_params(formula,params) == formula2
+
+  # both (nested)
+  formula='=LET(a,BYROW(Table2[[Y1]:[Y2]],LAMBDA(arr,MAX(arr))),SUM(a))'
+  formula2='=LET(_xlpm.a,BYROW(Table2[[Y1]:[Y2]],LAMBDA(_xlpm.arr,MAX(_xlpm.arr))),SUM(_xlpm.a))'
+  params=get_params(formula)
+  assert params == ['a','arr']
+  assert repl_params(formula,params)== formula2
+  
+  # NONE
+  formula='=SUM(3,4)'
+  formula2='=SUM(3,4)'
+  params=get_params(formula)
+  assert params == []
+  assert repl_params(formula,params)== formula2
+
+
