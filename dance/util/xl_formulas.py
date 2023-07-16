@@ -1,6 +1,7 @@
 '''Utility programs that deal with Excel formulas'''
 import re
 
+from dance.util.logs import get_logger
 from dance.util.sheet import df_for_range
 from dance.util.xl_pm import get_params,repl_params
 
@@ -50,6 +51,7 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
 
   returns: the possibly modified dataframe.
   '''
+  logger=get_logger(__file__)
   sections = ['all_col_formulas']+[('fcst','actl')[int(is_actl)]  +'_formulas']
   rules=[]
   for section in sections:
@@ -84,6 +86,9 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
             next_sel=  values.str.startswith(query['compare_to'])
           case 'not_starting':
             next_sel= ~ values.str.startswith(query['compare_to'])
+        if next_sel.sum()==0:
+            logger.warning('Formula not applied due to query producing no rows.')
+            logger.warning('Query is: %s %s %s'% (query['field'],query['compare_with'],query['compare_to']))       
         selection=selection & next_sel
     for ix, rw in data.loc[selection].iterrows(): # the rows that match this rule
       selector=is_actl
