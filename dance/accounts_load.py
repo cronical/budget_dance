@@ -199,6 +199,9 @@ def prepare_account_tab(data_info, in_df):
   account_names=df.Account.tolist()
   df['Income Txbl']= [ int(not any(y in x for y in tax_free_keys)) for x in account_names]
   df['Active']=(df[['Current Balance']] != 0).astype(int) # default zero accounts to inactive
+  if 'force_active' in data_info:
+    sel=df.Account.isin( data_info['force_active'])
+    df.loc[sel,'Active']=1
   df['Near Mkt Rate']=0
   acct_ref='= '+this_row('Account')
   source_formulas=[ acct_ref,acct_ref + ' & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
