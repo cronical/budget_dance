@@ -227,13 +227,13 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
         else: # its a formula, 
           # so called "future functions" need prefixes as do certain parameters
           formula=prepare_formula(values[cn])
-
+          ff=formula != values[cn] # flag future formulas, and force them to array formulas to avoid excel adding @ at inconvenient places
           # determine if it is an array formula by looking for table column headers with brackets
           regex_column=r'[A-Za-z_]+(\[\[?[ A-Za-z0-9]+\]?\])'
           pattern=re.compile(regex_column)
           matches=pattern.findall(formula) 
           ftr='Fed_Tax_Range' in formula# apparently the range with the vba function needs to be treated like an array formula
-          if (len(matches)>0) or ftr : # looks like a dynamic formula
+          if (len(matches)>0) or ftr or ff : # looks like a dynamic formula
             ref=get_column_letter(cix)+str(rix)
             ws[ref] = ArrayFormula(ref,formula) # assume that the formula collapses to a single value
           else:
