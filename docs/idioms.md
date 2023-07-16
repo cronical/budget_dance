@@ -8,6 +8,23 @@ Use the indirect method to locate this column.
 INDIRECT("tbl_balances["&this_col_name()&"]")
 ```
 
+or a native way to locate this column name is
+
+```
+=INDEX(tbl_balances[#Headers],COLUMN())
+```
+
+```
+INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]")
+```
+
+
+## Value in prior column for this row
+
+```title="Use OFFSET"
+=OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-1,1,1)
+```
+
 ## Lookup
 
 Use a value from this table to find a value in another table. The 4th parameter is the default if not found.
@@ -141,7 +158,7 @@ Linear least squares fit. The example takes current cell with `INDIRECT(ADDRESS(
 
 Not implemented but kind of cool
 
-```title federal tax calc for a year and a taxable income value
+```title="Federal tax calc for a year and a taxable income value"
 =ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]<260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)
 ```
 
