@@ -188,6 +188,8 @@ The second construction allows for queries against several fields.  These are "a
 |- field|A field name in this table|
 |- compare_to|A value to compare to, either a string or a number|
 |- compare_with|A comparison like "="|
+|- look_up|Allows for the values to be looked up from another table. It requires three addtional subfields: table, index_on and value_field.
+
 
 For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
 
@@ -205,6 +207,22 @@ For example, if there is a key `fcst_formulas` under the table, it is used to se
         - field: No Distr Plan
           compare_with: =
           compare_to: 0 ...
+```
+
+How to use the look_up function
+
+```yaml
+          - query: # Bank actual interest
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Rlz Int/Gn"
+            - field: Type
+              compare_with: "="
+              compare_to: B 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
 ```
 
 ##### Array formulas
@@ -307,6 +325,7 @@ The data section in the `setup.yaml` needs the following sub-sections:
 |no_details_for|If you have summary accounts that cover all the items in a category, then you can use those instead of the leaf accounts. By listing the category hear the detail accounts will be ignored.
 |include_zeros|Usually zero balance accounts will be ignored.  If the account is entered here, it will be carried forward.  This can be useful if its a brand new account with no balance or if its an old account that had a balance in the historical period.
 |tax_free_keys|A list of keywords that will be used to determine how the tax status of the account will be initialized.|
+|force_active|A list of accounts to force active. By default accounts with zero balance are made inactive|
 
 Example:
 
