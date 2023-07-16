@@ -50,7 +50,10 @@ def request(data_info):
     return inflation
   if data_info['site_code']=='FEDREG':
     headers={'User-Agent': user_agent}
-    response=requests.get(urls['FEDREG'],headers=headers, timeout=5)
+    try:
+      response=requests.get(urls['FEDREG'],headers=headers, timeout=5)
+    except requests.exceptions.ConnectTimeout as e:
+      raise e
     assert response.status_code==200,'trouble'
     soup=BeautifulSoup(response.text,'lxml')
     method=data_info['table']['find_method']
