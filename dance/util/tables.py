@@ -224,18 +224,20 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
 
         if not is_formula(values[cn]):
           ws.cell(row=rix,column=cix).value=values[cn] # set the value
-        else: # its a formula, determine if it is an array formula by looking for table column headers with brackets
+        else: # its a formula, 
+          # so called "future functions" need prefixes as do certain parameters
+          formula=prepare_formula(values[cn])
+
+          # determine if it is an array formula by looking for table column headers with brackets
           regex_column=r'[A-Za-z_]+(\[\[?[ A-Za-z0-9]+\]?\])'
           pattern=re.compile(regex_column)
-          matches=pattern.findall(values[cn]) 
-          ftr='Fed_Tax_Range' in values[cn]# apparently the range with the vba function needs to be treated like an array formula
-          fln='FORECAST.LINEAR' in values[cn].upper()# this one too?
-          if (len(matches)>0) or ftr or fln: # looks like a dynamic formula
+          matches=pattern.findall(formula) 
+          ftr='Fed_Tax_Range' in formula# apparently the range with the vba function needs to be treated like an array formula
+          if (len(matches)>0) or ftr : # looks like a dynamic formula
             ref=get_column_letter(cix)+str(rix)
-            formula=prepare_formula(values[cn])
             ws[ref] = ArrayFormula(ref,formula) # assume that the formula collapses to a single value
           else:
-            ws.cell(row=rix,column=cix).value=values[cn] # set the formula like a regular value  
+            ws.cell(row=rix,column=cix).value=formula # set the formula like a regular value  
 
         # formats for Y columns  
         if cn.startswith('Y')and cn[1:].isnumeric(): 
@@ -341,7 +343,8 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
 
 
   # add conditional formatting if any
-  if 'highlights' in table_info:
+  # temporary skip this to see if this is what is causing endless recalcs
+  if  False and 'highlights' in table_info:
     # set range to without the heading
     top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row+1}'
     rng=f'{top_left}:{bot_right}'
