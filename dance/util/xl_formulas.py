@@ -2,6 +2,14 @@
 import re
 
 from dance.util.sheet import df_for_range
+from dance.util.xl_pm import get_params,repl_params
+
+FUTURE_FUNCTIONS=[
+  "ANCHORARRAY", "BYCOL", "BYROW", "CHOOSECOLS", "CHOOSEROWS", 
+  "DROP", "EXPAND","FORECAST.LINEAR","FILTER","HSTACK", "LAMBDA", "LET", "MAKEARRAY",
+  "MAP", "RANDARRAY", "REDUCE", "SCAN", "SINGLE", "SEQUENCE","SORT", "SORTBY", "SWITCH", 
+  "TAKE", "TEXTSPLIT", "TOCOL", "TOROW", "UNIQUE","VSTACK","WRAPCOLS","WRAPROWS","XLOOKUP", 
+  ]
 
 def table_ref(formula):
   '''Allows user to specify formula using the short form of "a field in this row" by converting it
@@ -177,19 +185,28 @@ def is_formula(value):
   return result
 
 def prepare_formula(formula):
-  '''Utility method to strip array braces from a formula and
-     also expand out dynamic array formulas.
-     This does not fix the need for _xlpm. to prefix any parameters (declared or used) in a LAMBDA function'''
+  '''Utility method to:
+      strip array braces from a formula, 
+      fully qualify selected subset of "future functions (usually with _xlfn.), and
+      qualify parameters of LET and LAMBDA with _xlpm." 
+      returns possibly modified formula
+  '''
   # Remove array formula braces.
   if formula.startswith("{"):
     formula = formula[1:]
   if formula.endswith("}"):
     formula = formula[:-1]
 
+  # fix any parameters unless user has fixed at least one.
+  if "_xlpm." not in formula:
+    params=get_params(formula)
+    formula=repl_params(formula,params)
+
   # Check if formula is already expanded by the user.
   if "_xlfn." in formula:
     return formula
 
+  # from xls_writer with LET and LAMBDA added
   # Expand dynamic formulas.
   formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula)
   formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula)
@@ -202,6 +219,7 @@ def prepare_formula(formula):
   formula = re.sub(r"\bFILTER\(", "_xlfn._xlws.FILTER(", formula)
   formula = re.sub(r"\bHSTACK\(", "_xlfn.HSTACK(", formula)
   formula = re.sub(r"\bLAMBDA\(", "_xlfn.LAMBDA(", formula)
+  formula = re.sub(r"\bLET\(", "_xlfn.LET(", formula)
   formula = re.sub(r"\bMAKEARRAY\(", "_xlfn.MAKEARRAY(", formula)
   formula = re.sub(r"\bMAP\(", "_xlfn.MAP(", formula)
   formula = re.sub(r"\bRANDARRAY\(", "_xlfn.RANDARRAY(", formula)
@@ -222,6 +240,3 @@ def prepare_formula(formula):
   formula = re.sub(r"\bWRAPROWS\(", "_xlfn.WRAPROWS(", formula)
   formula = re.sub(r"\bXLOOKUP\(", "_xlfn.XLOOKUP(", formula)
   return formula
-
-
-
