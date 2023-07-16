@@ -873,15 +873,6 @@ continue:
 
 End Function
 
-Function reinv_amt(acct_name As String, y_year As String) As Double
-'compute the reinvestment amount for an account and year.
-    Dim amt, rlz, rate, fees As Double
-    rlz = get_val("Rlz Int/Gn" & acct_name, "tbl_balances", y_year)
-    rate = get_val("Reinv Rate" & acct_name, "tbl_balances", y_year)
-    amt = Round(rlz * rate, 2)
-    reinv_amt = amt
-End Function
-
 Function retir_parm(code As String, who As String) As Variant
 'Get a retirement paramenter given code and code (G or V)
     Dim rng As Range
@@ -922,21 +913,6 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     End If
     result = prior_end_bal / life_expectancy
     RMD_1 = result
-End Function
-
-Function simple_return(account As String, y_year As String) As Double
-'return the rlzd gain divided by the average of the start and end balances (or zero)
-sb = get_val("Start Bal" & account, "tbl_balances", y_year)
-eb = get_val("End Bal" & account, "tbl_balances", y_year)
-rg = get_val("Rlz Int/Gn" & account, "tbl_balances", y_year)
-urg = get_val("Unrlz Gn/Ls" & account, "tbl_balances", y_year)
-av = (sb + eb) / 2
-If av = 0 Then
-  result = 0
-Else
-  result = (rg + urg) / av
-End If
-simple_return = result
 End Function
 
 Function sort_tax_table()

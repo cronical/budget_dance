@@ -72,14 +72,10 @@
 ||Get the prior years' value for this line. suitable only for year columns.|
 |ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
 ||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
-|reinv_amt|Function reinv_amt(acct_name As String, y_year As String) As Double|
-||Compute the reinvestment amount for an account and year.|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
 ||Return the req minimum distribution table 1 result for a year for a given account, owner (gbd or vec) and year.. If death year is not given then this function treat this as spousal inheritance. If death year is given the treat this as a beneficiary inheritance|
-|simple_return|Function simple_return(account As String, y_year As String) As Double|
-||Return the rlzd gain divided by the average of the start and end balances (or zero)|
 |sort_tax_table|Function sort_tax_table()|
 ||Make sure the federal tax tables are sorted properly|
 |test_fed_tax|Sub test_fed_tax()|

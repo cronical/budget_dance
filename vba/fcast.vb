@@ -884,36 +884,10 @@ Next
 
 End Sub
 
-
-
-Function reinv_amt(acct_name As String, y_year As String) As Double
-'compute the reinvestment amount for an account and year.
-    Dim amt, rlz, rate, fees As Double
-    rlz = get_val("Rlz Int/Gn" & acct_name, "tbl_balances", y_year)
-    rate = get_val("Reinv Rate" & acct_name, "tbl_balances", y_year)
-    amt = Round(rlz * rate, 2)
-    reinv_amt = amt
-End Function
-
-
 Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
-Function simple_return(account As String, y_year As String) As Double
-'return the rlzd gain divided by the average of the start and end balances (or zero)
-sb = get_val("Start Bal" & account, "tbl_balances", y_year)
-eb = get_val("End Bal" & account, "tbl_balances", y_year)
-rg = get_val("Rlz Int/Gn" & account, "tbl_balances", y_year)
-urg = get_val("Unrlz Gn/Ls" & account, "tbl_balances", y_year)
-av = (sb + eb) / 2
-If av = 0 Then
-  result = 0
-Else
-  result = (rg + urg) / av
-End If
-simple_return = result
-End Function
 
 Function this_col_name() As String
 'return the caller's column name, assuming the cell is in a table.
