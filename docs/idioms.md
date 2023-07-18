@@ -207,3 +207,9 @@ Not implemented but kind of cool
 ## Conditional Formatting limits
 
 Conditional formatting formulas cannot use structured references, including bare table names.
+
+## Looking for non-native formulas
+
+```bash
+ grep formula: data/setup.yaml | grep -v 'XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT'
+```
