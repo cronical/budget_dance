@@ -70,7 +70,7 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
       queries=rule['query']
       selection = True
       for query in queries:
-        assert query['compare_with'] in ['=','starts','not_starting'],'Nonce error - comparison not implemented '+query['compare_with']
+        assert query['compare_with'] in ['=','starts','not_starting', 'is_in'],'Nonce error - comparison not implemented '+query['compare_with']
         values=data[query['field']]
         if 'look_up' in query: # if its a lookup perform the lookup.  
           look_up=query['look_up']
@@ -86,6 +86,8 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
             next_sel=  values.str.startswith(query['compare_to'])
           case 'not_starting':
             next_sel= ~ values.str.startswith(query['compare_to'])
+          case 'is_in':
+            next_sel= values.isin(query['compare_to'])
         if next_sel.sum()==0:
             logger.warning('Formula not applied due to query producing no rows.')
             logger.warning('Query is: %s %s %s'% (query['field'],query['compare_with'],query['compare_to']))       

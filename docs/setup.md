@@ -187,7 +187,7 @@ The second construction allows for queries against several fields.  These are "a
 |query|The query is a list of objects with the following fields.|
 |- field|A field name in this table|
 |- compare_to|A value to compare to, either a string or a number|
-|- compare_with|A comparison like "="|
+|- compare_with|A comparison like "=", starts, not_starting, is_in. YAML requires the equals to be quoted. If is_in is used, there should be a list|
 |- look_up|Allows for the values to be looked up from another table. It requires three addtional subfields: table, index_on and value_field.
 
 
@@ -219,6 +219,25 @@ How to use the look_up function
             - field: Type
               compare_with: "="
               compare_to: B 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+```
+
+Using the `is_in` comparator:
+
+```
+          - query: # Add/Wdraw - Assets, Liabilities & Loans
+            - field: ValType
+              compare_with: "="
+              compare_to: Add/Wdraw          
+            - field: Type
+              compare_with: is_in
+              compare_to:
+              - A
+              - L
+              - N
               look_up: 
                 table: tbl_accounts
                 index_on: AcctName
