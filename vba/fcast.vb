@@ -600,52 +600,7 @@ ErrHandler1:
     log ("Trying to locate column: " & col_name & " in table " & tbl_name)
     log ("line is " & line_key)
 End Function
-Function add_wdraw(acct As String, y_year As String) As Variant
- 'Get the actual or forecast transfers in (positive) our out(negative)
-'Determines whether the year is actual or forecast, in order to determine the source from the Accounts table.
-'For actuals returns the value from the source table.
-'For forecast, will add realized gains that are not re-invested
-'If source table is the retirement table, changes the sign.
 
-    Dim line As String, tbl As String, prefix As String
-    Dim rlz As Double, reinv As Double, wdraw As Double
-    Dim no_distr_plan As Integer
-    
-    is_fcst = is_forecast(y_year)
-    prefix = "Actl"
-    If is_fcst Then prefix = "Fcst"
-    value = 0
-    
-    acct_type = get_val(acct, "tbl_accounts", "Type")
-    tbl = get_val(acct, "tbl_accounts", prefix & "_source_tab")
-    
-    'logic to switch sign for retirement
-    sign = 1
-    If tbl = "tbl_retir_vals" Then
-        sign = -1
-    End If
-    
-    line = get_val(acct, "tbl_accounts", prefix & "_source")
-    
-    If ("I" = acct_type) And Not is_fcst Then line = "add/wdraw" & line ' complete key for investment actuals
-    
-    If line <> "zero" Then  ' keyword to enable forecasting of zeros
-        value = get_val(line, tbl, y_year)
-        value = value * sign
-    End If
-    
-    If "I" = acct_type Then 'determine amount to withdraw based on reinv rate
-        If is_fcst Then
-            rlz = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
-            no_distr_plan = get_val(acct, "tbl_accounts", "No Distr Plan")
-            reinv = Round(no_distr_plan * rlz * get_val("Reinv Rate" & acct, "tbl_balances", y_year), 0)
-            wdraw = -Round(rlz - reinv)
-            value = value + wdraw
-        End If
-    End If
-    
-    add_wdraw = value
-End Function
 Function is_forecast(y_year As String) As Boolean
     'determine if this year is a forecast year
     ffys = get_val("first_forecast", "tbl_gen_state", "Value")
