@@ -236,8 +236,8 @@
                 "type":"object",
                 "properties":{
                   "field": {"type":"string"},
-                  "compare_with": {"type":"string", "enum":["=","starts","not_starting"]},
-                  "compare_to": {"type": ["string","number"]},
+                  "compare_with": {"type":"string", "enum":["=","starts","not_starting","is_in"]},
+                  "compare_to": {"type": ["string","number","array"]},
                   "look_up": {                    
                     "type":"object",
                     "properties":{
