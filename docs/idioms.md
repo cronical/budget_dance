@@ -26,6 +26,13 @@ So the drop in replacement for this_col_name() is:
 INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
 ```
 
+## The last column (field name)
+
+Useful to get the last actual, for instance.
+
+```
+=TAKE(tbl_manual_actl[#Headers],1,-1)
+```
 
 ## Value in prior column for this row
 
