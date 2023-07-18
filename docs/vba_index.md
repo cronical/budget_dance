@@ -58,6 +58,8 @@
 ||Using the year of the current column and the data in the people table, return a number between 0 and 1. Indicating the percent of the year worked for the person with initials given|
 |prior_value|Function prior_value(line As String) As Variant|
 ||Get the prior years' value for this line. suitable only for year columns.|
+|ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
+||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|

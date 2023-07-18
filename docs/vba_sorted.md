@@ -634,6 +634,40 @@ Function prior_value(line As String) As Variant
     prior_value = value
 End Function
 
+Function ratio_to_start(account As String, category As String, y_year As String) As Double
+'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since
+'that should have already been computed.  This allows the table to occur before the balances table in the compute order
+'To be run in a cell in the invest_iande_work table.
+    Dim work_table As String, bal_table As String
+    Dim key As Variant
+    Dim start_bal As Double, value As Double, ratio As Double
+    work_table = Application.caller.ListObject.Name
+    bal_table = "tbl_balances"
+    On Error GoTo err1
+    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1), True)
+    GoTo continue
+err1:
+    ' If we are on the first period, then the start value should be static and not require a calculation
+    If 1729 = Err.Number - vbObjectError Then
+        start_bal = get_val("Start Bal" + account, bal_table, y_year)
+    Else
+        log (Err.Description)
+        ratio_to_start = 0
+        Exit Function
+    End If
+continue:
+    key = account + ":" + category + ":value"
+    value = get_val(key, work_table, y_year)
+    If start_bal = 0 Then
+        ratio = 0
+    Else
+        ratio = value / start_bal
+        ratio = Round(ratio, 4)
+    End If
+    ratio_to_start = ratio
+
+End Function
+
 Function retir_parm(code As String, who As String) As Variant
 'Get a retirement paramenter given code and code (G or V)
     Dim rng As Range
