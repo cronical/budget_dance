@@ -203,14 +203,6 @@ def prepare_account_tab(data_info, in_df):
     sel=df.Account.isin( data_info['force_active'])
     df.loc[sel,'Active']=1
   df['Near Mkt Rate']=0
-  acct_ref='= '+this_row('Account')
-  source_formulas=[ acct_ref,acct_ref + ' & " - TOTAL"' ]  #formula for (sub-accounts),  (leaves, and categories)
-  flag=(df.level>0) & (df.Type!='I') & (df.is_total)
-  df['Actl_source']=[source_formulas[ x] for x in flag]
-  source_tabs=['tbl_transfers_actl','tbl_invest_actl']# actuals are sourced from this, (depends on account type)
-  df['Actl_source_tab']= [source_tabs[x=='I']for x in df.Type.tolist()]
-  df['Fcst_source']= None 
-  df['Fcst_source_tab']=None
   df['Notes']=None
   del df['is_total']
   del df['level']
