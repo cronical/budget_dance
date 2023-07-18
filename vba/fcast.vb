@@ -88,30 +88,6 @@ ErrHandler:
 End Function
 
 
-Function ANN(account As String, account_owner As String, y_year As String) As Double
-'DEPRECATED - USE annuity instead
-'return a year's value for an annuity stream based on the prior year's end balance
-'does not properly handle partial years
-    Dim this_year As Integer, age As Integer
-    Dim prior_end_bal As Double, term As Double, result As Double, anny_rate As Double, anny_dur As Double
-    Dim anny_start As Date, o1 As String, n As Integer
-    Dim dur_parm As String
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    age = age_of(account_owner, y_year) - 1
-    o1 = Left(account_owner, 1)
-    anny_rate = get_val("anny_rate", "tbl_retir_parms", o1)
-    dur_parm = "anny_dur"  ' hack picks different duration for roth
-    If InStr(account, "Roth") > 0 Then dur_parm = "roth_dur"
-    anny_dur = get_val(dur_parm, "tbl_retir_parms", o1)
-    anny_start = get_val("anny_start", "tbl_retir_parms", o1)
-    n = anny_dur - (this_year - year(anny_start))
-    result = 0
-    If n > 0 Then
-        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
-    End If
-    ANN = result
-End Function
 Function annuity(account As String, y_year As String) As Double
 'return a year's value for an annuity stream based on the prior year's end balance
 'fetches the start date, duration and annual annuity rate from tbl_retir_vals
