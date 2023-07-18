@@ -14,8 +14,16 @@ or a native way to locate this column name is
 =INDEX(tbl_balances[#Headers],COLUMN())
 ```
 
+Note, that the table name can be elided to reference the table the cell is in.  Excel displays the table name in the formula even if is not provided.
+
 ```
-INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]")
+INDEX([#Headers],COLUMN())
+```
+
+So the drop in replacement for this_col_name() is:
+
+```
+INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
 ```
 
 

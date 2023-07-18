@@ -40,8 +40,6 @@
 ||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.. Bad columns are usually logged, but if the argument raise_bad_col is true then an error is raised.|
 |IntYear|Function IntYear(yval) As Integer|
 ||Strips off the y on the argument (eg y2019) and returns an integer|
-|invest_fees|Function invest_fees(acct As String, y_year As String) As Variant|
-||For investments, return the account fees for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_iande_work|
 |is_forecast|Function is_forecast(y_year As String) As Boolean|
 ||Determine if this year is a forecast year|
 |last_two_parts|Function last_two_parts(cat As String, Optional delim = ":") As String|
@@ -88,8 +86,6 @@
 |||
 |this_col_name|Function this_col_name() As String|
 ||Return the caller's column name, assuming the cell is in a table.. Otherwise generates a #value  error. Use to make formulas more portable|
-|unrlz|Function unrlz(acct As String, y_year As String) As Variant|
-||Compute the unrealized gain or loss for an account for a year, assuming end bal is fixed|
 |ws_for_table_name|Function ws_for_table_name(tbl_name As String) As String|
 ||Find out what worksheet the named table occurs on|
 |y_offset|Function y_offset(y_year As String, offset As Integer) As String|

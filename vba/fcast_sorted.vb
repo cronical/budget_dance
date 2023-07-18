@@ -522,27 +522,6 @@ Function IntYear(yval) As Integer
     IntYear = y
 End Function
 
-Function invest_fees(acct As String, y_year As String) As Variant
-'For investments, return the account fees for an account for a year for actual or forecast
-'Other types of accounts return zero.
-' for investments actuals, use the values from invest_iande_work
-    Dim val As Variant
-        
-    account_type = get_val(acct, "tbl_accounts", "Type")
-    
-    Select Case account_type
-        Case "I"
-            val = get_val(acct & ":Investing:Account Fees:value", "tbl_invest_iande_work", y_year)
-            'Do not include action fees since those are included as part of the realized gain
-            'val = val + get_val(acct & ":Investing:Action Fees:value", "tbl_invest_iande_work", y_year)
-            invest_fees = val
-                               
-         Case Else ' return zero if not investment or bank account
-            invest_fees = 0
-    End Select
-    
-End Function
-
 Function is_forecast(y_year As String) As Boolean
 'determine if this year is a forecast year
     ffys = get_val("first_forecast", "tbl_gen_state", "Value")
@@ -903,19 +882,6 @@ Function this_col_name() As String
     offset = list_obj.Range(1, 1).Column - 1
     col_ix = offset + point.Column
     this_col_name = cols(col_ix)
-End Function
-
-Function unrlz(acct As String, y_year As String) As Variant
-'compute the unrealized gain or loss for an account for a year, assuming end bal is fixed
-    Dim open_bal As Variant, adds As Variant, rlzd As Variant, end_bal As Variant
-    Dim val As Variant
-    open_bal = get_val("Start bal" & acct, "tbl_balances", y_year)
-    adds = get_val("Add/Wdraw" & acct, "tbl_balances", y_year)
-    rlzd = get_val("Rlz Int/Gn" & acct, "tbl_balances", y_year)
-    end_bal = get_val("End bal" & acct, "tbl_balances", y_year)
-    val = end_bal - (open_bal + adds + rlzd)
-    unrlz = val
-
 End Function
 
 Function ws_for_table_name(tbl_name As String) As String
