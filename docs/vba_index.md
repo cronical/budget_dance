@@ -40,8 +40,6 @@
 ||Pass in either. A single range of two or three values to get federal tax; or. A list of ranges of single values - either 2 or 3. Encapsulates fed_tax_capgn. First value is tax table year as integer. Second value is taxable income. Third is the capital gains. If the 3rd value is zero then returns the federal tax without adjusting for capital gains|
 |Federal_Tax|Function Federal_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the federal income tax for a given year and taxable income amount. Gets a result of zero if year not in the table.|
-|gain|Function gain(acct As String, y_year As String, realized As Boolean) As Variant|
-||For bank accounts and investments, return the realized or unrealized gain for an account for a year for actual or forecast. Other types of accounts return zero.. For investments actuals, use the values from invest_actl. For bank account actuals use the row in iande defined by the 'bank_interest' value on the general (state) table|
 |get_val|Function get_val(line_key As Variant, tbl_name As String, col_name As String, Optional raise_bad_col = False) As Variant|
 ||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.. Bad columns are usually logged, but if the argument raise_bad_col is true then an error is raised.|
 |IntYear|Function IntYear(yval) As Integer|
