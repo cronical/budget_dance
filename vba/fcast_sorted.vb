@@ -327,43 +327,6 @@ Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
-Function ei_withhold(legend As String, ei_template, y_year As String) As Double
-' compute annual social security or medicare withholding for earned income
-' relies on naming conventions
-' ei_template is a template for the line with earned income.  % is replaced by the person indicator, which
-' is the trailing part of the legend.
-' the legend has two parts separated by hyphen.  The first part is the type of withholding
-' which must be either: Medicare or Soc Sec
-' y_year is the column heading such as Y2022
-Dim result As Double, earned As Double
-Dim rate As Variant, cap As Variant
-Dim legend_parts() As String
-Dim typ As String, ei_line As String, y_rate_year As String
-
-legend_parts = Split(legend, "-")
-typ = Trim(legend_parts(LBound(legend_parts)))
-who = Trim(legend_parts(UBound(legend_parts)))
-
-ei_line = Replace(ei_template, "%", who)
-earned = get_val(ei_line, "tbl_iande", y_year)
-ffy = get_val("first_forecast", "tbl_gen_state", "value")
-lay = -1 + IntYear(ffy)
-rate_year = Application.WorksheetFunction.Min(lay, IntYear(y_year))
-y_rate_year = "Y" & CStr(rate_year)
-
-Select Case typ
-Case "Soc Sec":
-    cap = get_val("Social Security Wage Cap", "tbl_manual_actl", y_rate_year)
-    rate = get_val("Social Security FICA rate", "tbl_manual_actl", y_rate_year)
-    result = rate * Application.WorksheetFunction.Min(cap, earned)
-Case "Medicare":
-    rate = get_val("Medicare withholding rate", "tbl_manual_actl", y_rate_year)
-    result = rate * earned
-End Select
-ei_withhold = result
-
-End Function
-
 Function extend_iiande(account As String, category As String, y_year As String) As Double
 'For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row
 'To be run in a cell in the invest_iande_work table.
@@ -618,15 +581,6 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
     mo_apply = result
 End Function
 
-Function nth_word_into(n As Integer, source As String, template As String) As String
-' insert the nth word (first is 0th) from source into the template, replacing %
-Dim words() As String
-
-words = Split(Trim(source), " ")
-result = Replace(template, "%", Trim(words(n)))
-nth_word_into = result
-End Function
-
 Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
 'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium
 'If the year is not in the table, then the largest year lower than that given will be used
@@ -676,40 +630,6 @@ Function prior_value(line As String) As Variant
     prior_col = y_offset(this_col_name(), -1)
     value = get_val(line, table, prior_col)
     prior_value = value
-End Function
-
-Function ratio_to_start(account As String, category As String, y_year As String) As Double
-'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since
-'that should have already been computed.  This allows the table to occur before the balances table in the compute order
-'To be run in a cell in the invest_iande_work table.
-    Dim work_table As String, bal_table As String
-    Dim key As Variant
-    Dim start_bal As Double, value As Double, ratio As Double
-    work_table = Application.caller.ListObject.Name
-    bal_table = "tbl_balances"
-    On Error GoTo err1
-    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1), True)
-    GoTo continue
-err1:
-    ' If we are on the first period, then the start value should be static and not require a calculation
-    If 1729 = Err.Number - vbObjectError Then
-        start_bal = get_val("Start Bal" + account, bal_table, y_year)
-    Else
-        log (Err.Description)
-        ratio_to_start = 0
-        Exit Function
-    End If
-continue:
-    key = account + ":" + category + ":value"
-    value = get_val(key, work_table, y_year)
-    If start_bal = 0 Then
-        ratio = 0
-    Else
-        ratio = value / start_bal
-        ratio = Round(ratio, 4)
-    End If
-    ratio_to_start = ratio
-
 End Function
 
 Function retir_parm(code As String, who As String) As Variant
@@ -856,10 +776,6 @@ For i = LBound(test_cases) To UBound(test_cases)
     msg = "Input: year=" & yr & " start/end dates = " & start_date & " " & end_date & "   Output: " & result
     log (msg)
 Next i
-End Sub
-
-Sub test_nth()
-Debug.Print (nth_word_into(0, "fed tax value", "Taxes for %s"))
 End Sub
 
 Sub test_sort()

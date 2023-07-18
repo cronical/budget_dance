@@ -26,8 +26,6 @@
 ||Pass in either. A single range of two values to get ct initial tax; or. A list of ranges of single values - count of 2. Encapsulates ct_tax. First value is tax table year as integer. Second value is ct taxable income|
 |d2s|Function d2s(dt As Date) As String|
 |||
-|ei_withhold|Function ei_withhold(legend As String, ei_template, y_year As String) As Double|
-||Compute annual social security or medicare withholding for earned income. Relies on naming conventions. Ei_template is a template for the line with earned income.  % is replaced by the person indicator, which. Is the trailing part of the legend.. The legend has two parts separated by hyphen.  the first part is the type of withholding. Which must be either: medicare or soc sec. Y_year is the column heading such as y2022|
 |extend_iiande|Function extend_iiande(account As String, category As String, y_year As String) As Double|
 ||For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row. To be run in a cell in the invest_iande_work table.|
 |Fed_Tax_CapGn|Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double|
@@ -52,8 +50,6 @@
 ||Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|
 ||Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.|
-|nth_word_into|Function nth_word_into(n As Integer, source As String, template As String) As String|
-||Insert the nth word (first is 0th) from source into the template, replacing %|
 |PartBPrem|Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |PartDSurcharge|Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
@@ -62,8 +58,6 @@
 ||Using the year of the current column and the data in the people table, return a number between 0 and 1. Indicating the percent of the year worked for the person with initials given|
 |prior_value|Function prior_value(line As String) As Variant|
 ||Get the prior years' value for this line. suitable only for year columns.|
-|ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
-||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
 |retir_parm|Function retir_parm(code As String, who As String) As Variant|
 ||Get a retirement paramenter given code and code (g or v)|
 |RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
@@ -79,8 +73,6 @@
 |test_medicarePrem|Sub test_medicarePrem()|
 |||
 |test_mo_apply|Sub test_mo_apply()|
-|||
-|test_nth|Sub test_nth()|
 |||
 |test_sort|Sub test_sort()|
 |||
