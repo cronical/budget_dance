@@ -35,9 +35,12 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
   rows=['Bank Accounts','Credit Cards']
   inrows=[rows[x] + tot for x in range(0,len(rows))]
   for file_name in files:
+    y=file_name.split('.')[0]
+    if not y.isnumeric():
+      raise ValueError('File %s in %s should have a numeric file name'%(y,base_path))
     #grab the year from the file name
-    y_year = 'Y' + file_name.split('.')[0]
-    if ffy <= int(y_year[1:]): # only up to the configured first forecast year less one
+    y_year = 'Y' + y
+    if ffy <= int(y): # only up to the configured first forecast year less one
       continue
     df=pd.read_csv(base_path+file_name,sep='\t',skiprows=3)
     # move the account to the index
