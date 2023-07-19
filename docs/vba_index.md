@@ -12,6 +12,8 @@
 ||Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
 |agg_table|Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
 ||Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max". A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:. A delimiter is included in the strings to allow two values to be provided.the delimiter is stile (|). The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree|
+|ANN|Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double|
+||Return a year's value for an annuity stream based on the prior year's end balance. This version leaves all the excel dependencies visible to excel|
 |annuity|Function annuity(account As String, y_year As String) As Double|
 ||Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number|
 |bal_agg|Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double|
@@ -50,6 +52,8 @@
 ||Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|
 ||Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.|
+|mo_factor|Function mo_factor(start_date As Date, duration As Integer, this_year As Integer) As Double|
+||Get a floating point number that represents the number of months that apply in a particular year given the start date and duration|
 |PartBPrem|Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |PartDSurcharge|Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
