@@ -15,6 +15,7 @@ def count_leading_space(s):
   return 0 if not match else match.end()
 
 def extract(workbook,table,out_file=None,data_only=None):
+  logger.info("Source workbook is %s"%workbook)
   config=read_config() 
   # locate info such as orientation, the name of the index field
   column_info=None
