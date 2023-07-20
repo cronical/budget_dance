@@ -55,25 +55,37 @@ For items that start with SS, the codes are looked up in the Social Security tab
       ```
     3. This will produce a total line on the `iande` table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
 ![example](../images/tgt/rollover_2.png)
-1. Enter the amount rolled over into the `transfers_plan` table. 
-1. Use the aux table to compute the net changes to the target IRA account.
+1. Enter the amount rolled over into the `transfers_plan` table as a transfer from bank accounts to the target account.
+1. Use the aux table to compute the net changes to the target IRA account.   
     1. User the hier_insert_paths key to insert something like
     ![example](../images/tgt/rollover_3.png)
-    2. Set the formulas for withdraws to pull from retirement
-    
+    1. Set the formulas for withdraws to pull from retirement
     ```
     =-XLOOKUP(INDEX(TEXTSPLIT([@Key],":"),1),tbl_retir_vals[Item],INDIRECT("tbl_retir_vals["&this_col_name()&"]"))
     ```
-    3. Set the formula for rollovers to pull from the `transfers_plan` (assume only positive rollovers):
-
+    1. Set the formula for rollovers to pull from the `transfers_plan` (assume only positive rollovers):
     ```
     =SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]=INDEX(TEXTSPLIT([@Key],":"),1))*(tbl_transfers_plan[Y_Year]=this_col_name()),0))
     ```
-1. Lastly configure the IRA accounts on balances to pull the `Add/Wdraw` line from `aux`.
+
+1. Configure the IRA accounts on balances to pull the `Add/Wdraw` line from `aux`.
 
     ```
     =XLOOKUP(TRIM([@AcctName])&" - TOTAL",tbl_aux[Key],INDIRECT("tbl_aux["&this_col_name()&"]"))
     ```
+
+1. Extract the retirement values and the transfers plan data 
+
+    ```bash
+    (.venv) george@GeorgesacStudio budget % dance/util/extract_table.py -t tbl_retir_vals -w data/test_wb.xlsm
+    2023-07-19 20:02:21,229 - extract_table - INFO - Source workbook is data/test_wb.xlsm
+    2023-07-19 20:02:21,560 - extract_table - INFO - Wrote to data/retire_template.tsv
+    (.venv) george@GeorgesacStudio budget % dance/util/extract_table.py -t tbl_transfers_plan -w data/test_wb.xlsm
+    2023-07-19 20:02:34,639 - extract_table - INFO - Source workbook is data/test_wb.xlsm
+    2023-07-19 20:02:34,961 - extract_table - INFO - Wrote to data/transfers_plan.json
+    ```
+
+1. Rerun the build
 
 ## Retirement Medical
 
