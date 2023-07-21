@@ -191,8 +191,9 @@ def refresh_sheets(target_file,overwrite=False):
       ws.sheet_view.zoomScale=config['zoom_scale']
 
     # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
+    # raised from 2 to 10 to address #NAME? errors, which may be due to multiple threads
     wb.calculation.iterate=1
-    wb.calculation.iterateCount=2
+    wb.calculation.iterateCount=10
     wb.calculation.iterateDelta=0.05  
 
   wb.save(filename=target_file)
