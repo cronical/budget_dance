@@ -280,6 +280,7 @@ Function age_of(inits As String, y_year As String) As Integer
 End Function
 Function age_as_of_date(inits As String, dt As Date) As Double
 'return the age attained by an account owner in a given year
+'deprecation candidate - appears not to be used
     Dim dob As Date, eoy As Date
     Dim diff As Double, age As Double
     dob = get_val(inits, "tbl_people", "DOB")
