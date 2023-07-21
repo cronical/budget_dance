@@ -8,7 +8,7 @@ Use the indirect method to locate this column.
 INDIRECT("tbl_balances["&this_col_name()&"]")
 ```
 
-or a native way to locate this column name is
+or a native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)
 
 ```
 =INDEX(tbl_balances[#Headers],COLUMN())
@@ -20,11 +20,20 @@ Note, that the table name can be elided to reference the table the cell is in.  
 INDEX([#Headers],COLUMN())
 ```
 
-So the drop in replacement for this_col_name() is:
+So getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. 
 
 ```
 INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
 ```
+
+Other ways is using a non-structured approach
+
+`=INDEX(tbl_aux[#Data],0,COLUMN())`
+
+`=CHOOSECOLS(tbl_balances[#Data],COLUMN())`
+
+These depend on the whole table, though, where the INDIRECT method depends only on the column.
+These seem to need the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
 
 ## The last column (field name)
 

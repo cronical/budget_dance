@@ -5,7 +5,7 @@
 |acct_who1|Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String|
 ||Return the first initial of the owner of an account in format type - who - firm|
 |age_as_of_date|Function age_as_of_date(inits As String, dt As Date) As Double|
-||Return the age attained by an account owner in a given year|
+||Return the age attained by an account owner in a given year. Deprecation candidate - appears not to be used|
 |age_of|Function age_of(inits As String, y_year As String) As Integer|
 ||Return the age attained by an account owner in a given year|
 |agg|Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
