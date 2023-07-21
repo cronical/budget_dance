@@ -49,7 +49,8 @@ def mark_parms(df,start_row=0,caller_scope=None):
   return ix,df
 
 def get_params(formula):
-  '''Given a formula return the parameters that need to be prefaced by _xlpm.'''
+  '''Given a formula return the parameters that need to be prefaced by _xlpm.
+  Requires formula to start with ='''
   tok=Tokenizer(formula)
   toks=[]
   for t in tok.items:
@@ -57,7 +58,7 @@ def get_params(formula):
   df= pd.DataFrame(toks)
   df['parameter']=False
   _,df=mark_parms(df)
-  params=list(df.loc[df.parameter,'value'])
+  params=list(pd.unique(df.loc[df.parameter,'value']))
   return params  
 
 def repl_params(formula,params):
