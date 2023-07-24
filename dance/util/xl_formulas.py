@@ -9,7 +9,7 @@ FUTURE_FUNCTIONS=[
   "ANCHORARRAY", "BYCOL", "BYROW", "CHOOSECOLS", "CHOOSEROWS", 
   "DROP", "EXPAND","FORECAST.LINEAR","FILTER","HSTACK", "LAMBDA", "LET", "MAKEARRAY",
   "MAP", "RANDARRAY", "REDUCE", "SCAN", "SINGLE", "SEQUENCE","SORT", "SORTBY", "SWITCH", 
-  "TAKE", "TEXTSPLIT", "TOCOL", "TOROW", "UNIQUE","VSTACK","WRAPCOLS","WRAPROWS","XLOOKUP", 
+  "TAKE", "TEXTSPLIT", "TOCOL", "TOROW", "UNIQUE","VSTACK","WRAPCOLS","WRAPROWS","XLOOKUP","XMATCH" 
   ]
 
 def table_ref(formula):
@@ -213,7 +213,7 @@ def prepare_formula(formula):
   if "_xlfn." in formula:
     return formula
 
-  # from xls_writer with LET and LAMBDA added
+  # from xls_writer with LET, LAMBDA, XMATCH added
   # Expand dynamic formulas.
   formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula)
   formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula)
@@ -246,4 +246,5 @@ def prepare_formula(formula):
   formula = re.sub(r"\bWRAPCOLS\(", "_xlfn.WRAPCOLS(", formula)
   formula = re.sub(r"\bWRAPROWS\(", "_xlfn.WRAPROWS(", formula)
   formula = re.sub(r"\bXLOOKUP\(", "_xlfn.XLOOKUP(", formula)
+  formula = re.sub(r"\bXMATCH\(", "_xlfn.XMATCH(", formula)
   return formula
