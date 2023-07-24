@@ -119,7 +119,7 @@ Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior
     Dim months, nper, sm, sy As Integer
     ANN = 0
     If month_factor > 0 Then
-        months = CInt(12 * month_factor) ' TODO switch to months in arg
+        ' TODO in final period just take the whole amount?
         sm = Month(anny_start)
         sy = year(anny_start)
         If sy = this_year Then
@@ -133,8 +133,7 @@ Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior
         End If
         ' nper is now number of months remaining
         If nper > 0 Then
-            result = -Application.WorksheetFunction.Pmt(anny_rate / 12, nper, prior_end_bal)
-            result = result * Application.WorksheetFunction.Min(months, nper)
+            result = -Application.WorksheetFunction.Pmt(anny_rate, nper / 12, prior_end_bal)
             result = Application.WorksheetFunction.Round(result, 0)
             ANN = result
         End If
