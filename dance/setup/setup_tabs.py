@@ -8,17 +8,19 @@ from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
+from openpyxl.workbook.defined_name import DefinedName
+
 import pandas as pd
 from numpy import nan
-
 import yaml
+
 from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
 from dance.util.row_tree import hier_insert,folding_groups,indent_leaf,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
-from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
+from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields, prepare_formula
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -190,11 +192,18 @@ def refresh_sheets(target_file,overwrite=False):
         table_location += 3+data.shape[0]
       ws.sheet_view.zoomScale=config['zoom_scale']
 
-    # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
-    # raised from 2 to 10 to address #NAME? errors, which may be due to multiple threads
-    wb.calculation.iterate=1
-    wb.calculation.iterateCount=10
-    wb.calculation.iterateDelta=0.05  
+  # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
+  # raised from 2 to 12 to address #NAME? errors, which may be due to multiple threads
+  wb.calculation.iterate=1
+  wb.calculation.iterateCount= 12
+  wb.calculation.iterateDelta=0.5  
+
+  for lam in config['lambdas']:
+    f=prepare_formula(lam['formula'])
+    assert f.startswith("="),"lambda formula does not start with = " + f
+    f=f[1:]
+    d=DefinedName(lam["name"],comment=lam["comment"],attr_text=f)
+    wb.defined_names.add(d)    
 
   wb.save(filename=target_file)
   logger.info('workbook {} saved'.format(target_file))
