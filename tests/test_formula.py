@@ -1,6 +1,6 @@
 '''tests formula handling'''
 import pandas as pd
-from dance.util.xl_formulas import table_ref
+from dance.util.xl_formulas import table_ref,prepare_formula
 from dance.util.xl_pm import get_params,repl_params
 from dance.util.row_tree import multi_agg_subtotals, collapse_adjacent,address_phrase
 
@@ -91,4 +91,10 @@ def test_xl_pm():
   assert params == []
   assert repl_params(formula,params)== formula2
 
-
+def test_prepare_formula():
+  formula='=XLOOKUP("End Bal"&tbl_retir_vals[@Item],tbl_balances[Key],CHOOSECOLS(tbl_balances[#Data],XMATCH(this_col_name(),tbl_balances[#Headers])-1)) *(1+tbl_retir_vals[@[Anny Rate]])*(YEAR(tbl_retir_vals[@[Start Date]])=THIS_YEAR())'
+  formula2='=_xlfn.XLOOKUP("End Bal"&amp;tbl_retir_vals[[#This Row],[Item]],tbl_balances[Key],_xlfn.CHOOSECOLS(tbl_balances[#Data],_xlfn.XMATCH(this_col_name(),tbl_balances[#Headers])-1)) *(1+tbl_retir_vals[[#This Row],[Anny Rate]])*(YEAR(tbl_retir_vals[[#This Row],[Start Date]])=THIS_YEAR())'
+  f=prepare_formula(formula)
+  f=f=table_ref(f)
+  f=f.replace("&","&amp;")
+  assert f == formula2
