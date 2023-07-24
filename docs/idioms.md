@@ -20,22 +20,43 @@ Note, that the table name can be elided to reference the table the cell is in.  
 INDEX([#Headers],COLUMN())
 ```
 
+To locate the column of a different table
+
+```
+XMATCH(this_col_name(),tbl_retir_vals[#Headers])
+```
+
 So getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. 
 
 ```
 INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
 ```
 
-Other ways is using a non-structured approach
+Other ways is using a non-structured approach. These phrases require the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
 
 `=INDEX(tbl_aux[#Data],0,COLUMN())`
 
 `=CHOOSECOLS(tbl_balances[#Data],COLUMN())`
 
-These depend on the whole table, though, where the INDIRECT method depends only on the column.
-These seem to need the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
+The following picks a year column from balances by locating the year in the headers and using that to choose the column.
 
-## The last column (field name)
+`=CHOOSECOLS(tbl_balances[#Data],XMATCH(this_col_name(),tbl_balances[#Headers]))`
+
+```title="Prior year end balance"
+=XLOOKUP("End Bal"&tbl_retir_vals[@Item],tbl_balances[Key],
+  CHOOSECOLS(tbl_balances[#Data],XMATCH(this_col_name(),tbl_balances[#Headers])-1)
+  )
+```
+
+These depend on the whole table, though, where the INDIRECT method depends only on the column.
+
+## The last column
+
+```
+CHOOSECOLS(tbl_manual_actl,-1)
+```
+
+## The last column field name
 
 Useful to get the last actual, for instance.
 
@@ -48,6 +69,9 @@ Useful to get the last actual, for instance.
 ```title="Use OFFSET"
 =OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-1,1,1)
 ```
+
+But... OFFSET is a volatile function, causing performance problems.
+
 
 ## Lookup
 
@@ -222,3 +246,28 @@ Conditional formatting formulas cannot use structured references, including bare
 ```bash
  grep formula: data/setup.yaml | grep -v 'XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT'
 ```
+
+## Using LAMBDAs in defined names
+
+### Current list
+
+- DOB <br>
+  Get date of birth for initials
+- THIS_YEAR
+  Suitable to use in tables in columns that represent years. Returns the year as a number.
+- AGE
+  Return the age attained by an account owner with inits in a given year
+- ROW_IN
+  Return a one row array containing data from the current row in the array. Call like this 
+- ROW_IN(tbl_iande[#All])
+- PRIOR_COLS
+  Get column references for the prior n columns suitable for CHOOSECOLS for a table or array
+- PRIORS
+  Get column values for the prior n columns for a table or array
+
+### Get Prior cells on this row
+
+``` Straight line forecast but no less than zero
+MAX(0,FORECAST.LINEAR(6,TOROW(PRIORS(ROW_IN(tbl_iande[]),5)),SEQUENCE(1,5)))
+```
+Note that `tbl_iande[]` is short for `tbl_iande[#All]`.
