@@ -43,7 +43,7 @@ def mark_parms(df,start_row=0,caller_scope=None):
     if typ in['OPERAND',"FUNC"]:
       if df.at[ix-1,'subtype']=='RANGE' and caller_scope is not None:   
         # the range clause prevents final parameter from being captured (as it is the result of the formula)
-        if 0==comma_count%moduli[caller_scope.group(0)]:  # only for LET (not sure about LAMBDA) TODO
+        if 0==comma_count%moduli[caller_scope.group(0).upper()]:  # only for LET (not sure about LAMBDA) TODO
           df.at[ix-1,'parameter']=True # ix has already be incremented
 
   return ix,df
@@ -51,7 +51,11 @@ def mark_parms(df,start_row=0,caller_scope=None):
 def get_params(formula):
   '''Given a formula return the parameters that need to be prefaced by _xlpm.
   Requires formula to start with ='''
-  tok=Tokenizer(formula)
+  try:
+    tok=Tokenizer(formula)
+  except IndexError:
+    logger.error("Bad formula: %s"% formula)
+    raise IndexError("Bad formula")  
   toks=[]
   for t in tok.items:
     toks.append({"value":t.value,"type":t.type,"subtype":t.subtype})
