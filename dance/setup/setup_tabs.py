@@ -38,6 +38,21 @@ def refresh_sheets(target_file,overwrite=False):
   config=read_config()
   years=range(config['start_year'],1+config['end_year'])
   wb=load_workbook(filename = target_file,keep_vba=True)
+
+  # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
+  wb.calculation.iterate=1
+  wb.calculation.iterateCount= 2
+  wb.calculation.iterateDelta=0.5  
+  #wb.calculation.concurrentManualCount=1 # Serializes the calc so that #NAME? is not left 
+
+  for lam in config['lambdas']:
+    f=prepare_formula(lam['formula'])
+    assert f.startswith("="),"lambda formula does not start with = " + f
+    f=f[1:]
+    d=DefinedName(lam["name"],comment=lam["comment"],attr_text=f)
+    wb.defined_names.add(d)    
+    pass
+
   sheets=wb.sheetnames
   logger.debug('{} existing sheets in {}'.format(len(sheets),target_file))
 
@@ -191,19 +206,6 @@ def refresh_sheets(target_file,overwrite=False):
         table_map[table_info['name']]=sheet_name
         table_location += 3+data.shape[0]
       ws.sheet_view.zoomScale=config['zoom_scale']
-
-  # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
-  # raised from 2 to 12 to address #NAME? errors, which may be due to multiple threads
-  wb.calculation.iterate=1
-  wb.calculation.iterateCount= 12
-  wb.calculation.iterateDelta=0.5  
-
-  for lam in config['lambdas']:
-    f=prepare_formula(lam['formula'])
-    assert f.startswith("="),"lambda formula does not start with = " + f
-    f=f[1:]
-    d=DefinedName(lam["name"],comment=lam["comment"],attr_text=f)
-    wb.defined_names.add(d)    
 
   wb.save(filename=target_file)
   logger.info('workbook {} saved'.format(target_file))
