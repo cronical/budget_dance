@@ -30,7 +30,7 @@ def request(data_info):
       parameters['endyear']=e
       data = json.dumps(parameters)
       url=urls[data_info['site_code']]
-      p = requests.post(url, data=data, headers=headers,timeout=5 )
+      p = requests.post(url, data=data, headers=headers,timeout=8 )
       try:
         json_data = json.loads(p.text)
       except json.JSONDecodeError as e:
