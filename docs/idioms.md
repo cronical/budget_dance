@@ -249,6 +249,17 @@ Conditional formatting formulas cannot use structured references, including bare
 
 ## Using LAMBDAs in defined names
 
+It is not clear if Excel properly handles a lambda inside a let inside a lambda.  
+
+Even though I put the _xlpm. in properly, and it is in the workbook.xml file as input, the prefixes are dropped insided the nested elements, unless they are defined in the outer element.
+
+The problem is that each of the parameters needs a hidden defined name too.  Excel creates these upon open. 
+
+It appears that Excel converts input "lambda" into "LAMBDA", then subsequent processing is based on the upper case version.
+So when Openpyxl provides these functions, they need to be provided in uppercase.
+
+This fixed my simplified formula. the nested case has not been retested.
+
 ### Current list
 
 - DOB <br>
