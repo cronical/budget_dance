@@ -357,21 +357,6 @@ Function d2s(dt As Date) As String
     d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
-Function extend_iiande(account As String, category As String, y_year As String) As Double
-'For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row
-'To be run in a cell in the invest_iande_work table.
-    Dim work_table As String, bal_table As String
-    Dim key As Variant
-    Dim start_bal As Double, rate As Double, value As Double
-    work_table = Application.caller.ListObject.Name
-    bal_table = "tbl_balances"
-    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1))
-    key = account + ":" + category + ":rate"
-    rate = get_val(key, work_table, y_year)
-    value = rate * start_bal
-    extend_iiande = value
-End Function
-
 Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double
 'computes the resulting federal tax with capital gains portion at 15%
 'the input should include qualified dividends
@@ -564,7 +549,7 @@ Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, O
     yr = IntYear(year)
     If magi = -1 Then
         magi_yr = y_offset(year, -2)
-        magi = get_val("Adjusted Gross - TOTAL", "tbl_taxes", magi_yr)
+        magi = get_val("Adjusted gross - TOTAL", "tbl_taxes", magi_yr)
     End If
     magi = Application.WorksheetFunction.Max(1, magi)
     tbl_name = "tbl_part_b"
@@ -611,7 +596,7 @@ Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As Stri
     mo_apply = result
 End Function
 
-Function mo_factor(start_date As Date, duration As Integer, this_year As Integer) As Double
+Function mo_factor(start_date As Date, duration As Double, this_year As Integer) As Double
 'Get a floating point number that represents the number of months that apply in a particular year given the start date and duration
     mo_factor = 0#
     If this_year = year(start_date) Then

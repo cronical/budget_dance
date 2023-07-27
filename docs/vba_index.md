@@ -28,8 +28,6 @@
 ||Pass in either. A single range of two values to get ct initial tax; or. A list of ranges of single values - count of 2. Encapsulates ct_tax. First value is tax table year as integer. Second value is ct taxable income|
 |d2s|Function d2s(dt As Date) As String|
 |||
-|extend_iiande|Function extend_iiande(account As String, category As String, y_year As String) As Double|
-||For investment income and expense, use a ratio to the start balance to compute a forecast value for the income/expense item on this row. To be run in a cell in the invest_iande_work table.|
 |Fed_Tax_CapGn|Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double|
 ||Computes the resulting federal tax with capital gains portion at 15%. The input should include qualified dividends|
 |Fed_Tax_Range|Function Fed_Tax_Range(ParamArray parms() As Variant) As Double|
@@ -52,7 +50,7 @@
 ||Given a year (as y+year), return annual part b premium or part d surcharge (irmaa). Normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.. B_or_d isa 1 for part b premium or 2 for part d surcharge. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|
 ||Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.|
-|mo_factor|Function mo_factor(start_date As Date, duration As Integer, this_year As Integer) As Double|
+|mo_factor|Function mo_factor(start_date As Date, duration As Double, this_year As Integer) As Double|
 ||Get a floating point number that represents the number of months that apply in a particular year given the start date and duration|
 |PartBPrem|Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant|
 ||Given a year (as y+year) and the modifed adjusted gross (2 years ago) return annual part b premium. If the year is not in the table, then the largest year lower than that given will be used. And the resulting value will include inflation.  inflation is given as 1.0x so it can be used directly|
