@@ -5,11 +5,12 @@ from dance.util.logs import get_logger
 from dance.util.sheet import df_for_range
 from dance.util.xl_pm import get_params,repl_params
 
+# keep a list of various prefixes as they are discovered, operate on them below.
 FUTURE_FUNCTIONS=[
   "ANCHORARRAY", "BYCOL", "BYROW", "CHOOSECOLS", "CHOOSEROWS", 
   "DROP", "EXPAND","FORECAST.LINEAR","FILTER","HSTACK", "LAMBDA", "LET", "MAKEARRAY",
   "MAP", "RANDARRAY", "REDUCE", "SCAN", "SINGLE", "SEQUENCE","SORT", "SORTBY", "SWITCH", 
-  "TAKE", "TEXTSPLIT", "TOCOL", "TOROW", "UNIQUE","VSTACK","WRAPCOLS","WRAPROWS","XLOOKUP","XMATCH" 
+  "TAKE", 'TEXTJOIN',"TEXTSPLIT", "TOCOL", "TOROW", "UNIQUE","VSTACK","WRAPCOLS","WRAPROWS","XLOOKUP","XMATCH" 
   ]
 
 def table_ref(formula):
@@ -214,37 +215,40 @@ def prepare_formula(formula):
     return formula
 
   # from xls_writer with LET, LAMBDA, XMATCH added
+  # made case insensitive with re.I
   # Expand dynamic formulas.
-  formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula)
-  formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula)
-  formula = re.sub(r"\bBYROW\(", "_xlfn.BYROW(", formula)
-  formula = re.sub(r"\bCHOOSECOLS\(", "_xlfn.CHOOSECOLS(", formula)
-  formula = re.sub(r"\bCHOOSEROWS\(", "_xlfn.CHOOSEROWS(", formula)
-  formula = re.sub(r"\bDROP\(", "_xlfn.DROP(", formula)
-  formula = re.sub(r"\bEXPAND\(", "_xlfn.EXPAND(", formula)
-  formula = re.sub(r"\bFORECAST.LINEAR\(", "_xlfn.FORECAST.LINEAR(", formula)
-  formula = re.sub(r"\bFILTER\(", "_xlfn._xlws.FILTER(", formula)
-  formula = re.sub(r"\bHSTACK\(", "_xlfn.HSTACK(", formula)
-  formula = re.sub(r"\bLAMBDA\(", "_xlfn.LAMBDA(", formula)
-  formula = re.sub(r"\bLET\(", "_xlfn.LET(", formula)
-  formula = re.sub(r"\bMAKEARRAY\(", "_xlfn.MAKEARRAY(", formula)
-  formula = re.sub(r"\bMAP\(", "_xlfn.MAP(", formula)
-  formula = re.sub(r"\bRANDARRAY\(", "_xlfn.RANDARRAY(", formula)
-  formula = re.sub(r"\bREDUCE\(", "_xlfn.REDUCE(", formula)
-  formula = re.sub(r"\bSCAN\(", "_xlfn.SCAN(", formula)
-  formula = re.sub(r"\SINGLE\(", "_xlfn.SINGLE(", formula)
-  formula = re.sub(r"\bSEQUENCE\(", "_xlfn.SEQUENCE(", formula)
-  formula = re.sub(r"\bSORT\(", "_xlfn._xlws.SORT(", formula)
-  formula = re.sub(r"\bSORTBY\(", "_xlfn.SORTBY(", formula)
-  formula = re.sub(r"\bSWITCH\(", "_xlfn.SWITCH(", formula)
-  formula = re.sub(r"\bTAKE\(", "_xlfn.TAKE(", formula)
-  formula = re.sub(r"\bTEXTSPLIT\(", "_xlfn.TEXTSPLIT(", formula)
-  formula = re.sub(r"\bTOCOL\(", "_xlfn.TOCOL(", formula)
-  formula = re.sub(r"\bTOROW\(", "_xlfn.TOROW(", formula)
-  formula = re.sub(r"\bUNIQUE\(", "_xlfn.UNIQUE(", formula)
-  formula = re.sub(r"\bVSTACK\(", "_xlfn.VSTACK(", formula)
-  formula = re.sub(r"\bWRAPCOLS\(", "_xlfn.WRAPCOLS(", formula)
-  formula = re.sub(r"\bWRAPROWS\(", "_xlfn.WRAPROWS(", formula)
-  formula = re.sub(r"\bXLOOKUP\(", "_xlfn.XLOOKUP(", formula)
-  formula = re.sub(r"\bXMATCH\(", "_xlfn.XMATCH(", formula)
+  formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula, re.I)
+  formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula, re.I)
+  formula = re.sub(r"\bBYROW\(", "_xlfn.BYROW(", formula, re.I)
+  formula = re.sub(r"\bCHOOSECOLS\(", "_xlfn.CHOOSECOLS(", formula, re.I)
+  formula = re.sub(r"\bCHOOSEROWS\(", "_xlfn.CHOOSEROWS(", formula, re.I)
+  formula = re.sub(r"\bDROP\(", "_xlfn.DROP(", formula, re.I)
+  formula = re.sub(r"\bEXPAND\(", "_xlfn.EXPAND(", formula, re.I)
+  formula = re.sub(r"\bFORECAST.LINEAR\(", "_xlfn.FORECAST.LINEAR(", formula, re.I)
+  formula = re.sub(r"\bFILTER\(", "_xlfn._xlws.FILTER(", formula, re.I)
+  formula = re.sub(r"\bHSTACK\(", "_xlfn.HSTACK(", formula, re.I)
+  formula = re.sub(r"\bLAMBDA\(", "_xlfn.LAMBDA(", formula, re.I)
+  formula = re.sub(r"\bLET\(", "_xlfn.LET(", formula, re.I)
+  formula = re.sub(r"\bMAKEARRAY\(", "_xlfn.MAKEARRAY(", formula, re.I)
+  formula = re.sub(r"\bMAP\(", "_xlfn.MAP(", formula, re.I)
+  formula = re.sub(r"\bRANDARRAY\(", "_xlfn.RANDARRAY(", formula, re.I)
+  formula = re.sub(r"\bREDUCE\(", "_xlfn.REDUCE(", formula, re.I)
+  formula = re.sub(r"\bSCAN\(", "_xlfn.SCAN(", formula, re.I)
+  formula = re.sub(r"\SINGLE\(", "_xlfn.SINGLE(", formula, re.I)
+  formula = re.sub(r"\bSEQUENCE\(", "_xlfn.SEQUENCE(", formula, re.I)
+  formula = re.sub(r"\bSORT\(", "_xlfn._xlws.SORT(", formula, re.I)
+  formula = re.sub(r"\bSORTBY\(", "_xlfn.SORTBY(", formula, re.I)
+  formula = re.sub(r"\bSWITCH\(", "_xlfn.SWITCH(", formula, re.I)
+  formula = re.sub(r"\bTAKE\(", "_xlfn.TAKE(", formula, re.I)
+  formula = re.sub(r"\bTEXTJOIN\(", "_xlfn.TEXTJOIN(", formula, re.I)
+  formula = re.sub(r"\bTEXTSPLIT\(", "_xlfn.TEXTSPLIT(", formula, re.I)
+  formula = re.sub(r"\bTOCOL\(", "_xlfn.TOCOL(", formula, re.I)
+  formula = re.sub(r"\bTOROW\(", "_xlfn.TOROW(", formula, re.I)
+  formula = re.sub(r"\bUNIQUE\(", "_xlfn.UNIQUE(", formula, re.I)
+  formula = re.sub(r"\bVSTACK\(", "_xlfn.VSTACK(", formula, re.I)
+  formula = re.sub(r"\bWRAPCOLS\(", "_xlfn.WRAPCOLS(", formula, re.I)
+  formula = re.sub(r"\bWRAPROWS\(", "_xlfn.WRAPROWS(", formula, re.I)
+  formula = re.sub(r"\bXLOOKUP\(", "_xlfn.XLOOKUP(", formula, re.I)
+  formula = re.sub(r"\bXMATCH\(", "_xlfn.XMATCH(", formula, re.I)
+
   return formula
