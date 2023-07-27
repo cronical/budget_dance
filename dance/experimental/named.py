@@ -5,6 +5,8 @@ from dance.util.xl_formulas import prepare_formula
 
 wb=load_workbook('data/test_wb.xlsm',keep_vba=True)
 dns=wb.defined_names
+for dn in dns:
+    print(dns[dn])
 dob=dns['DOB']
 f='=LAMBDA(a,b,a*b)'
 f=prepare_formula(f)
