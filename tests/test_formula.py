@@ -49,6 +49,8 @@ def test_address_phrase():
   assert address_phrase('C',[1,(3,5),7,(9,11)])=='C1,C3:C5,C7,C9:C11'
 
 def test_xl_pm():
+
+
   # LET
   formula='=LET(y,INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]"),a,[@AcctName],b,{"Start Bal","End Bal"},c,{"Rlz Int/Gn","Unrlz Gn/Ls"},x,MATCH(b&a,[Key],0),w,MATCH(c&a,[Key],0),2*SUM(CHOOSEROWS(y,w))/SUM(CHOOSEROWS(y,x)))'
   formula2='=LET(_xlpm.y,INDIRECT("tbl_balances["&INDEX(tbl_balances[#Headers],COLUMN())&"]"),_xlpm.a,[@AcctName],_xlpm.b,{"Start Bal","End Bal"},_xlpm.c,{"Rlz Int/Gn","Unrlz Gn/Ls"},_xlpm.x,MATCH(_xlpm.b&_xlpm.a,[Key],0),w,MATCH(_xlpm.c&_xlpm.a,[Key],0),2*SUM(CHOOSEROWS(_xlpm.y,_xlpm.w))/SUM(CHOOSEROWS(_xlpm.y,_xlpm.x)))'
@@ -77,13 +79,15 @@ def test_xl_pm():
   assert params == ['row']
   assert repl_params(formula,params) == formula2
 
-  # both (nested)
+  # both (nested LAMBDA in LET)
   formula='=LET(a,BYROW(Table2[[Y1]:[Y2]],LAMBDA(arr,MAX(arr))),SUM(a))'
   formula2='=LET(_xlpm.a,BYROW(Table2[[Y1]:[Y2]],LAMBDA(_xlpm.arr,MAX(_xlpm.arr))),SUM(_xlpm.a))'
   params=get_params(formula)
   assert params == ['a','arr']
   assert repl_params(formula,params)== formula2
   
+
+
   # NONE
   formula='=SUM(3,4)'
   formula2='=SUM(3,4)'
@@ -98,3 +102,10 @@ def test_prepare_formula():
   f=f=table_ref(f)
   f=f.replace("&","&amp;")
   assert f == formula2
+
+  # portion
+  formula = '=LAMBDA(s,e,y,DAY_COUNT(MAX_MIN(VSTACK(HSTACK(s,DEFAULT_DATE(e)),FIRST_LAST(y))))/DAY_COUNT(FIRST_LAST(y)))'
+  formula2='=_xlfn.LAMBDA(_xlpm.s,_xlpm.e,_xlpm.y,DAY_COUNT(MAX_MIN(_xlfn.VSTACK(_xlfn.HSTACK(_xlpm.s,DEFAULT_DATE(_xlpm.e)),FIRST_LAST(_xlpm.y))))/DAY_COUNT(FIRST_LAST(_xlpm.y)))'
+  f=prepare_formula(formula)
+  assert f == formula2
+  pass  
