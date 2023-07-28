@@ -2,13 +2,13 @@ Attribute VB_Name = "Module1"
 
 Public Const dbg As Boolean = False
 Option Base 0
-Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
-'return the first initial of the owner of an account in format type - who - firm
-    Dim parts() As String
-    parts = Split(acct, " - ")
-    who = parts(1)
-    acct_who1 = Left(who, num_chars)
+Function y_offset(y_year As String, offset As Integer) As String
+'given a y_year offset it by the amount given, producing a new y_year
+    y = IntYear(y_year)
+    r = "Y" & y + offset
+    y_offset = r
 End Function
+
 Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
 ' Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.
 ' Use of this can help avoid the hard coding of addresses into formulas
@@ -244,29 +244,7 @@ Sub calc_retir()
     Application.Calculation = xlCalculationAutomatic
 
 End Sub
-Sub calc_table()
-'Testing forced calc of table
-    Dim rcols As Range, rcell As Range
-    Dim tbl As ListObject
-    Dim tbl_name As String
-    Dim ws_name As String
-    Dim msg As String
-    log ("-----------------------------")
-    log ("Entering manual calculation mode.")
-    Application.Calculation = xlCalculationManual
-    tbl_name = "tbl_balances"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
 
-    
-    tbl.Range.Dirty
-    tbl.Range.Calculate
-    log (tbl_name & " refreshed.")
-    log ("Entering automatic calculation mode.")
-    log ("-----------------------------")
-    Application.Calculation = xlCalculationAutomatic
-
-End Sub
 Function age_of(inits As String, y_year As String) As Integer
 'return the age attained by an account owner in a given year
     Dim dob As Date, eoy As Date
@@ -661,104 +639,7 @@ Function bal_agg(y_year As String, val_type As String, Optional acct_type As Str
     bal_agg = result
 
 End Function
-Function retir_parm(code As String, who As String) As Variant
-'Get a retirement paramenter given code and code (G or V)
-    Dim rng As Range
-    On Error GoTo ErrHandler
-    sht = "retireparms"
-    cl = InStr(1, "abGV", who, vbTextCompare)
-    With ThisWorkbook.Worksheets(sht)
-        Set rng = .Range("Table3[code]")
-        rw = Application.WorksheetFunction.Match(code, rng, False)
-        rw = rw + rng.Row - 1
-        s = sht & "!" & .Cells(rw, cl).address
-        v = .Range(s)
-        retir_parm = v
-    End With
-    Exit Function
 
-ErrHandler:
-    log ("retir_parm: " & Err.Description & " (" & Err.Number & ")")
-    log ("Looking for: " & code & " who:" & who)
-
-End Function
-
-Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year), return annual part b premium or part D surcharge (IRMAA)
-'normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.
-'b_or_d isa 1 for part B premium or 2 for Part D surcharge
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    Dim yr As Integer
-    Dim tbl_name As String, ws_name As String, magi_yr As String
-    Dim tbl As ListObject
-    Dim lr As ListRow, rng As Range
-    Dim infl As Variant
-    
-    yr = IntYear(year)
-    If magi = -1 Then
-        magi_yr = y_offset(year, -2)
-        magi = get_val("Adjusted gross - TOTAL", "tbl_taxes", magi_yr)
-    End If
-    magi = Application.WorksheetFunction.Max(1, magi)
-    tbl_name = "tbl_part_b"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set yr_col = tbl.ListColumns("year")
-    y = Application.WorksheetFunction.VLookup(yr, yr_col.Range, 1, True) ' latest year for which we have data
-    MedicarePrem = 0 'in case the if never succeeds
-    For Each lr In tbl.ListRows()
-        Set rng = lr.Range
-        ry = rng.Cells(1, 1).value
-        rl = rng.Cells(1, 2).value
-        rh = rng.Cells(1, 3).value
-        valu = rng.Cells(1, 3 + b_or_d).value
-        pw = (yr - y)
-        If (ry = y And rl < magi And rh >= magi) Then
-            p = valu * 12
-            infl = CDbl(Application.WorksheetFunction.Power(inflation, pw))
-            MedicarePrem = p * infl
-            Exit For
-        End If
-    Next
-End Function
-
-Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartBPrem = MedicarePrem(1, year, inflation, magi)
-End Function
-Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part D surcharge
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartDSurcharge = MedicarePrem(2, year, inflation, magi)
-End Function
-
-Sub test_medicarePrem()
-Dim test_cases() As Variant
-Dim yr As String
-Dim infl As Variant
-Dim magi As Variant
-test_cases() = Array(Array(2021, 1#, 10000), Array(2022, 1#, 182001), Array(2022, 1#, 400000), Array(2023, 1.02, 75000))
-log ("Part B tests")
-For i = LBound(test_cases) To UBound(test_cases)
-    yr = "Y" & test_cases(i)(0)
-    magi = test_cases(i)(2)
-    infl = test_cases(i)(1)
-    partB = PartBPrem(yr, infl, magi)
-    partD = PartDSurcharge(yr, infl, magi)
-    msg = "Input: year=" & test_cases(i)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
-    log (msg)
-Next
-
-
-End Sub
-
-Function d2s(dt As Date) As String
-    d2s = Format(dt, "mm/dd/yyyy")
-End Function
 
 
 Function this_col_name() As String
@@ -777,48 +658,6 @@ Function this_col_name() As String
     offset = list_obj.Range(1, 1).Column - 1
     col_ix = offset + point.Column
     this_col_name = cols(col_ix)
-End Function
-Function y_offset(y_year As String, offset As Integer) As String
-'given a y_year offset it by the amount given, producing a new y_year
-    y = IntYear(y_year)
-    r = "Y" & y + offset
-    y_offset = r
-End Function
-
-Function prior_value(line As String) As Variant
-' Get the prior years' value for this line. Suitable only for year columns.
-    Dim prior_col As String
-    Dim value As Variant
-    Dim table As String
-    Dim rng As Range
-    Set rng = Application.caller
-    table = rng.ListObject.Name
-    prior_col = y_offset(this_col_name(), -1)
-    value = get_val(line, table, prior_col)
-    prior_value = value
-End Function
-Function percent_year_worked(initials As String) As Double
-'Using the year of the current column and the data in the people table, return a number between 0 and 1
-'indicating the percent of the year worked for the person with initials given
-    Dim result As Double
-    Dim retir_date As Date
-    result = 0
-    retir_date = get_val(initials, "tbl_people", "Retire Date")
-    y_year = this_col_name()
-    y = IntYear(y_year)
-    j1 = DateSerial(y, 1, 1)
-    diff = DateDiff("d", j1, retir_date)
-    dty = 2 + DateDiff("d", j1, DateSerial(y, 12, 31)) 'days this year
-    If diff > dty Then
-        result = 1
-    End If
-    If diff < 0 Then
-        result = 0
-    End If
-    If diff > 0 And diff <= dty Then
-        result = diff / dty
-    End If
-    percent_year_worked = result
 End Function
 
 

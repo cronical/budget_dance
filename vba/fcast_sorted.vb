@@ -3,14 +3,6 @@ Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = False
 Option Base 0
 
-Function acct_who1(acct As String, Optional num_chars As Integer = 1) As String
-'return the first initial of the owner of an account in format type - who - firm
-    Dim parts() As String
-    parts = Split(acct, " - ")
-    who = parts(1)
-    acct_who1 = Left(who, num_chars)
-End Function
-
 Function age_as_of_date(inits As String, dt As Date) As Double
 'return the age attained by an account owner in a given year
 'deprecation candidate - appears not to be used
@@ -259,30 +251,6 @@ Sub calc_retir()
 
 End Sub
 
-Sub calc_table()
-'Testing forced calc of table
-    Dim rcols As Range, rcell As Range
-    Dim tbl As ListObject
-    Dim tbl_name As String
-    Dim ws_name As String
-    Dim msg As String
-    log ("-----------------------------")
-    log ("Entering manual calculation mode.")
-    Application.Calculation = xlCalculationManual
-    tbl_name = "tbl_balances"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-
-    
-    tbl.Range.Dirty
-    tbl.Range.Calculate
-    log (tbl_name & " refreshed.")
-    log ("Entering automatic calculation mode.")
-    log ("-----------------------------")
-    Application.Calculation = xlCalculationAutomatic
-
-End Sub
-
 Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double
 'Calculate the CT income tax for a given year and taxable income amount
 'The so called Initial Tax Calculation only.
@@ -351,10 +319,6 @@ result = CT_Tax(CInt(vals(0)), CDbl(vals(1)))
 
 CT_Tax_Range = result
 
-End Function
-
-Function d2s(dt As Date) As String
-    d2s = Format(dt, "mm/dd/yyyy")
 End Function
 
 Function Fed_Tax_CapGn(tax_Year As Integer, taxable_Income As Double, totCapGn As Double) As Double
@@ -534,46 +498,6 @@ Function LUMP(account As String, y_year As String) As Double
     LUMP = prior_end
 End Function
 
-Function MedicarePrem(b_or_d As Integer, year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year), return annual part b premium or part D surcharge (IRMAA)
-'normally look up the modifed adjusted gross from 2 years ago, but if its supplied, like for a test, use that instead.
-'b_or_d isa 1 for part B premium or 2 for Part D surcharge
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    Dim yr As Integer
-    Dim tbl_name As String, ws_name As String, magi_yr As String
-    Dim tbl As ListObject
-    Dim lr As ListRow, rng As Range
-    Dim infl As Variant
-    
-    yr = IntYear(year)
-    If magi = -1 Then
-        magi_yr = y_offset(year, -2)
-        magi = get_val("Adjusted gross - TOTAL", "tbl_taxes", magi_yr)
-    End If
-    magi = Application.WorksheetFunction.Max(1, magi)
-    tbl_name = "tbl_part_b"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set yr_col = tbl.ListColumns("year")
-    y = Application.WorksheetFunction.VLookup(yr, yr_col.Range, 1, True) ' latest year for which we have data
-    MedicarePrem = 0 'in case the if never succeeds
-    For Each lr In tbl.ListRows()
-        Set rng = lr.Range
-        ry = rng.Cells(1, 1).value
-        rl = rng.Cells(1, 2).value
-        rh = rng.Cells(1, 3).value
-        valu = rng.Cells(1, 3 + b_or_d).value
-        pw = (yr - y)
-        If (ry = y And rl < magi And rh >= magi) Then
-            p = valu * 12
-            infl = CDbl(Application.WorksheetFunction.Power(inflation, pw))
-            MedicarePrem = p * infl
-            Exit For
-        End If
-    Next
-End Function
-
 Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double
 'Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date
 'The end date is a string since there is a bug in the Mac Excel.
@@ -608,57 +532,6 @@ Function mo_factor(start_date As Date, duration As Double, this_year As Integer)
     End If
 End Function
 
-Function PartBPrem(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part b premium
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartBPrem = MedicarePrem(1, year, inflation, magi)
-End Function
-
-Function PartDSurcharge(year As String, inflation As Variant, Optional magi As Variant = -1) As Variant
-'Given a year (as Y+year) and the modifed adjusted gross (2 years ago) return annual part D surcharge
-'If the year is not in the table, then the largest year lower than that given will be used
-'and the resulting value will include inflation.  Inflation is given as 1.0x so it can be used directly
-    PartDSurcharge = MedicarePrem(2, year, inflation, magi)
-End Function
-
-Function percent_year_worked(initials As String) As Double
-'Using the year of the current column and the data in the people table, return a number between 0 and 1
-'indicating the percent of the year worked for the person with initials given
-    Dim result As Double
-    Dim retir_date As Date
-    result = 0
-    retir_date = get_val(initials, "tbl_people", "Retire Date")
-    y_year = this_col_name()
-    y = IntYear(y_year)
-    j1 = DateSerial(y, 1, 1)
-    diff = DateDiff("d", j1, retir_date)
-    dty = 2 + DateDiff("d", j1, DateSerial(y, 12, 31)) 'days this year
-    If diff > dty Then
-        result = 1
-    End If
-    If diff < 0 Then
-        result = 0
-    End If
-    If diff > 0 And diff <= dty Then
-        result = diff / dty
-    End If
-    percent_year_worked = result
-End Function
-
-Function prior_value(line As String) As Variant
-' Get the prior years' value for this line. Suitable only for year columns.
-    Dim prior_col As String
-    Dim value As Variant
-    Dim table As String
-    Dim rng As Range
-    Set rng = Application.caller
-    table = rng.ListObject.Name
-    prior_col = y_offset(this_col_name(), -1)
-    value = get_val(line, table, prior_col)
-    prior_value = value
-End Function
-
 Function ratio_to_start(account As String, category As String, y_year As String) As Double
 'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since
 'that should have already been computed.  This allows the table to occur before the balances table in the compute order
@@ -690,28 +563,6 @@ continue:
         ratio = Round(ratio, 4)
     End If
     ratio_to_start = ratio
-
-End Function
-
-Function retir_parm(code As String, who As String) As Variant
-'Get a retirement paramenter given code and code (G or V)
-    Dim rng As Range
-    On Error GoTo ErrHandler
-    sht = "retireparms"
-    cl = InStr(1, "abGV", who, vbTextCompare)
-    With ThisWorkbook.Worksheets(sht)
-        Set rng = .Range("Table3[code]")
-        rw = Application.WorksheetFunction.Match(code, rng, False)
-        rw = rw + rng.Row - 1
-        s = sht & "!" & .Cells(rw, cl).address
-        v = .Range(s)
-        retir_parm = v
-    End With
-    Exit Function
-
-ErrHandler:
-    log ("retir_parm: " & Err.Description & " (" & Err.Number & ")")
-    log ("Looking for: " & code & " who:" & who)
 
 End Function
 
@@ -787,26 +638,6 @@ Sub test_LUMP()
     Dim val As Double
     val = LUMP("401K - GBD - TRV", "Y2022")
     Debug.Print (val)
-End Sub
-
-Sub test_medicarePrem()
-Dim test_cases() As Variant
-Dim yr As String
-Dim infl As Variant
-Dim magi As Variant
-test_cases() = Array(Array(2021, 1#, 10000), Array(2022, 1#, 182001), Array(2022, 1#, 400000), Array(2023, 1.02, 75000))
-log ("Part B tests")
-For i = LBound(test_cases) To UBound(test_cases)
-    yr = "Y" & test_cases(i)(0)
-    magi = test_cases(i)(2)
-    infl = test_cases(i)(1)
-    partB = PartBPrem(yr, infl, magi)
-    partD = PartDSurcharge(yr, infl, magi)
-    msg = "Input: year=" & test_cases(i)(0) & " magi=" & magi & " inflation=" & infl & "   Output: " & partB & "  Part D: " & partD
-    log (msg)
-Next
-
-
 End Sub
 
 Sub test_mo_apply()
