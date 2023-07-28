@@ -5,6 +5,17 @@ For use in revising setup.yaml to allow Excel to handle dependencies'''
 import pyperclip
 import re
 from dance.util.files import read_config
+
+
+pat=re.compile('(^.*get_val)\((.*)\)(.*$)')
+
+config=read_config()
+table_keys={'tbl_iande':'Key',"tbl_bank_sel_invest":"Account"}
+for _,sheet in config['sheets'].items():
+    for table in sheet['tables']:
+        table_keys[table['name']]=table['columns'][0]['name']
+
+
 def unquote(text):
     '''remove any outside quotes'''
     m=re.search('^"(.*)"$',text)
@@ -40,16 +51,6 @@ def translate(formula):
             a2='%s[%s]'% (table,unq)
     r='%s(%s,%s,%s,0)%s'%(start,a0,a1,a2,end)
     return r
-
-pat=re.compile('(^.*get_val)\((.*)\)(.*$)')
-
-config=read_config()
-table_keys={'tbl_iande':'Key',"tbl_bank_sel_invest":"Account"}
-for _,sheet in config['sheets'].items():
-    for table in sheet['tables']:
-        table_keys[table['name']]=table['columns'][0]['name']
-
-
 
 while True:
     formula=input('Formula (or empty to exit): ')  
