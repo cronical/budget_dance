@@ -260,6 +260,8 @@ So when Openpyxl provides these functions, they need to be provided in uppercase
 
 This fixed my simplified formula. the nested case has not been retested.
 
+Note - do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.
+
 ### Current list
 
 - DOB <br>
