@@ -2,13 +2,11 @@
 
 ## This column
 
-Use the indirect method to locate this column.
+### Getting the column name
 
-```title="Refer to this column"
-INDIRECT("tbl_balances["&this_col_name()&"]")
-```
+The VBA function `this_col_name()` is provided.
 
-or a native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)
+Alternatively, native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)
 
 ```
 =INDEX(tbl_balances[#Headers],COLUMN())
@@ -26,13 +24,21 @@ To locate the column of a different table
 XMATCH(this_col_name(),tbl_retir_vals[#Headers])
 ```
 
-So getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. 
+### Use the indirect method to locate this column.
 
+Getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. 
+
+```title="Refer to this column using a VBA function"
+INDIRECT("tbl_balances["&this_col_name()&"]")
 ```
+
+```title="Refer to this column by indexing the headers"
 INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
 ```
 
-Other ways is using a non-structured approach. These phrases require the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
+### Index or Choosecols
+
+Another way is using a non-structured approach. These phrases require the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
 
 `=INDEX(tbl_aux[#Data],0,COLUMN())`
 
@@ -49,6 +55,22 @@ The following picks a year column from balances by locating the year in the head
 ```
 
 These depend on the whole table, though, where the INDIRECT method depends only on the column.
+
+### Selecting the column at build time
+
+Both the indirect and indexing methods have serious drawbacks, so another method was created. This allows the formula to be written with a generic year, which will be substituted at build time.
+
+```title="formula as written in setup.yaml"
+formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+```
+
+```title="formula as it occurs in Excel"
+=XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y2022])
+```
+
+There are two regular expression rules in `xl_formulas.py` that do the substituion.  One is the matches Ynnnn, which is the example above.  The other is used to indicate an offset, picking out a prior column. In that case, the form is Ynnnn-m, which will use the year m years before nnnn. 
+
+This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. 
 
 ## The last column
 
