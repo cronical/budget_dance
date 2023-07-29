@@ -110,6 +110,16 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
         if selector:
           if col[0]=='Y' and col[1:].isnumeric():
             formula=table_ref(rule['formula'])
+            formula,n=re.subn(r'\[(Y[0-9]{4})\]','[%s]'%col,formula)# when formula contains [Ynnnn] replace it with the column name
+            if n:
+              logger.debug('Annualized formula is: %s'%formula)
+            offset_pat=re.compile(r'\[Y[0-9]{4}(-[0-9])\]')# formula contains [Ynnnn-m] the offset year syntax
+            m=offset_pat.search(formula)
+            if m is not None:
+              col2='[Y%d]'%(int(col[1:])+int(m.group(1)))
+              formula,n=re.subn(offset_pat,col2,formula)
+              if n:
+                logger.debug('Annualized offset formula is: %s'%formula)
             if first_item is not None:
               if yix in range(len(first_item)):
                 if yix==0 and first_item[0]=='skip':
