@@ -40,11 +40,10 @@ def refresh_sheets(target_file,overwrite=False):
   wb=load_workbook(filename = target_file,keep_vba=True)
 
   # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
-  wb.calculation.iterate=1
-  wb.calculation.iterateCount= 2
-  wb.calculation.iterateDelta=0.5  
-  #wb.calculation.concurrentManualCount=1 # Serializes the calc so that #NAME? is not left 
-
+  #wb.calculation.iterate=1
+  #wb.calculation.iterateCount= 2
+  #wb.calculation.iterateDelta=0.5  
+  
   for lam in config['lambdas']:
     f=prepare_formula(lam['formula'])
     assert f.startswith("="),"lambda formula does not start with = " + f
