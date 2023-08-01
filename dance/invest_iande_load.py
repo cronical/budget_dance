@@ -10,6 +10,7 @@ import pandas as pd
 
 from dance.util.books import fresh_sheet, col_attrs_for_sheet,set_col_attrs
 from dance.util.files import tsv_to_df, read_config
+from dance.util.sheet import df_for_range
 from dance.util.tables import  columns_for_table, write_table,get_f_fcast_year,conform_table
 from dance.util.logs import get_logger
 from dance.util.xl_formulas import actual_formulas,forecast_formulas,dyno_fields,this_row
@@ -26,7 +27,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   '''  Read investment income and expense actual data from file into a dataframe
 
   args:
-    workbook: name of the workbook (to get the accounts data from)
+    workbook: name of the workbook (where to get the accounts data and the unrealized values used to calc market gn rates)
     data_info: dict that has a value for path used to locate the input file, which contains transaction data for a series of years
     f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
     table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
@@ -60,12 +61,30 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   df['Year']=df.Date.dt.year
   vals_df=pd.pivot_table(df,index=['Account','Category'],aggfunc='sum',values='Amount',columns='Year')
   vals_df.reset_index(inplace=True) # Account and category are now columns
+
+  # add rows for unrealized gains - actuals will be set by formulas
+  # pull all the accounts not just the ones that are in the performance report
+  ws=wb['accounts']
+  ref=ws.tables['tbl_accounts'].ref
+  accounts_df=df_for_range(ws,ref)
+  ia_df=vals_df.loc[vals_df.index <0] # zero rows, same cols
+  ia_df=ia_df.append(pd.DataFrame(accounts_df.index[accounts_df.Type=='I'],columns=['Account']))
+  ia_df['Category']="Unrlz Gn/Ls"
+  vals_df=pd.concat([vals_df,ia_df])
+  vals_df.reset_index(drop=True,inplace=True)
+
   full_categories=list(vals_df.Category.str.split(':'))
   vals_df['Category']=[':'.join(a[-2:])for a in full_categories]  # last 2 parts of the category are used
   vals_df.fillna(0,inplace=True) # no missing values - use zeros
   vals_df.insert(loc=2,column='IorE',value=[a[0]for a in full_categories],allow_duplicates=True)# Mark and I, X or T
+  sel=(vals_df.Category=='Unrlz Gn/Ls')
+  vals_df.loc[sel,'IorE']='I'
   vals_df.insert(loc=3,column='Type',value='value',allow_duplicates=True) # Type is value or rate
   vals_df.rename(columns=y_years,inplace=True) # use the y_years format for column names
+
+
+  
+
   rates_df=vals_df.copy(deep=True) # build out the rates rows
   rates_df['Type']='rate'
   ys=rates_df.columns[4:]

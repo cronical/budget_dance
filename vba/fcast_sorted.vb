@@ -542,12 +542,12 @@ Function ratio_to_start(account As String, category As String, y_year As String)
     work_table = Application.caller.ListObject.Name
     bal_table = "tbl_balances"
     On Error GoTo err1
-    start_bal = get_val("End Bal" + account, bal_table, y_offset(y_year, -1), True)
+    start_bal = get_val(account + ":Start Bal", bal_table, y_offset(y_year, -1), True)
     GoTo continue
 err1:
     ' If we are on the first period, then the start value should be static and not require a calculation
     If 1729 = Err.Number - vbObjectError Then
-        start_bal = get_val("Start Bal" + account, bal_table, y_year)
+        start_bal = get_val(account + ":Start Bal", bal_table, y_year)
     Else
         log (Err.Description)
         ratio_to_start = 0
@@ -573,7 +573,7 @@ Function RMD_1(account As String, account_owner As String, y_year As String, Opt
     Dim this_year As Integer, age As Integer
     Dim prior_end_bal As Double, life_expectancy As Double, result As Double
     this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
+    prior_end_bal = get_val(account + " - TOTAL", "tbl_balances", "Y" & this_year - 1)
     If death_year = 0 Then ' for spousal use actual age this year
         age = age_of(account_owner, y_year)
         life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
