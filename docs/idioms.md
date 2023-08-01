@@ -285,6 +285,7 @@ This fixed my simplified formula. the nested case has not been retested.
 Note - do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.
 
 ### Current list
+TODO - CLEAN THIS UP.
 
 - DOB <br>
   Get date of birth for initials
@@ -292,13 +293,6 @@ Note - do not use table names in the formulas as that creates a hidden defined n
   Suitable to use in tables in columns that represent years. Returns the year as a number.
 - AGE
   Return the age attained by an account owner with inits in a given year
-- ROW_IN
-  Return a one row array containing data from the current row in the array. Call like this 
-- ROW_IN(tbl_iande[#All])
-- PRIOR_COLS
-  Get column references for the prior n columns suitable for CHOOSECOLS for a table or array
-- PRIORS
-  Get column values for the prior n columns for a table or array
 
 ### Get Prior cells on this row
 
@@ -306,3 +300,9 @@ Note - do not use table names in the formulas as that creates a hidden defined n
 MAX(0,FORECAST.LINEAR(6,TOROW(PRIORS(ROW_IN(tbl_iande[]),5)),SEQUENCE(1,5)))
 ```
 Note that `tbl_iande[]` is short for `tbl_iande[#All]`.
+
+This has the same dependency drawback as was seen in columns. New method is to use build time replacement. 
+
+`tbl[@5<Y2023]` becomes `tbl[[#This Row],[Y2018]:[Y2022]]`.
+
+So the form `[@m<Ynnnn]` says for the m years in this row preceding this year.
