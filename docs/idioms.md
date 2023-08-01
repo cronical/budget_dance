@@ -306,3 +306,9 @@ Note - do not use table names in the formulas as that creates a hidden defined n
 MAX(0,FORECAST.LINEAR(6,TOROW(PRIORS(ROW_IN(tbl_iande[]),5)),SEQUENCE(1,5)))
 ```
 Note that `tbl_iande[]` is short for `tbl_iande[#All]`.
+
+This has the same dependency drawback as was seen in columns. New method is to use build time replacement. 
+
+`tbl[@5<Y2023]` becomes `tbl[@[Y2018]:[Y2022]]`.
+
+So the form `[@m<Ynnnn]` says for the m years in this row preceding this year.
