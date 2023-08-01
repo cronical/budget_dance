@@ -120,8 +120,8 @@ def refresh_sheets(target_file,overwrite=False):
           if source == 'none':
             data=pd.DataFrame(columns=col_def.name)                  
             if 'hier_separator' in data_info: # this will want groups, folding, subtotals
-              # for now only for none. 
-              # same logic exists in iande_actl_load, which may be able to move
+              # for now only for sourec = none. 
+              # same logic exists in iande_actl_load, taxes_load which may be able to move
 
               data=nest_by_cat(data,cat_field='Line') # creates key, leaf and level fields
               data=hier_insert(data,table_info,sep=data_info['hier_separator']) # insert any specified lines into hierarchy
