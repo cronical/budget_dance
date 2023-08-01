@@ -284,15 +284,7 @@ This fixed my simplified formula. the nested case has not been retested.
 
 Note - do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.
 
-### Current list
-TODO - CLEAN THIS UP.
-
-- DOB <br>
-  Get date of birth for initials
-- THIS_YEAR
-  Suitable to use in tables in columns that represent years. Returns the year as a number.
-- AGE
-  Return the age attained by an account owner with inits in a given year
+[List of functions](./excel_lambdas.md)
 
 ### Get Prior cells on this row
 
