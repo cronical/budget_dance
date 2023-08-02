@@ -26,11 +26,11 @@ Tables are distributed over a set of worksheets. Sometimes a worksheet holds mor
 
 ## Excel Calculations
 
-The original plan was to use Visual Basic (macros) allows for calculations to be done in a more readable manner.  However there is a downside.  This is that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  There is a macro, currently called calc_retir(), to perform the re-calcuations in the correct order. 
+The original plan was to use Visual Basic (macros) allows for calculations to be done in a more readable manner.  But there was a downside in that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  
 
-The advent of array functions in Office 365 allows for fairly succinct and readable formulas, which do not suffer from the problem of dependency updates.  Generally, by referencing only the needed columns true dependency loops can be avoided.  However, Excel may get a bit confused in some cases when tables appear to reference each other.  This is squelched by setting the calculation option as follows. 
+The advent of array functions in Office 365 allows for fairly succinct and readable formulas, which do not suffer from the problem of dependency updates.  Generally, by referencing only the needed columns true dependency loops can be avoided.  
 
-![calc opt](./images/tgt/calc_option.png)
+Getting this right turned out to be a bit tricky.  Some techniques are discussed in [Idioms](./idioms.md).  The winning technique is to isolate the columns used at build time, so that entire tables are not needed to be referenced.
 
 ## Idioms
 
@@ -38,15 +38,13 @@ A glossary of Excel array idioms is available. [Idioms](./idioms.md)
 
 ## Functions
 
-There are Visual Basic for Applications functions in this worksheet.  These are listed in the [VBA index](./vba_index.md).  The [full source](./vba_sorted.md) is also imported here as part of the build process.
+There are Visual Basic for Applications functions in this worksheet.  These are listed in the [VBA index](./vba_index.md).  The [full source](./vba_sorted.md) is also imported here as part of the build process.  With the approach indicated in [Excel Calculations](#calculations) these are being removed where not used.  Some may still be useful, but the reference to other cells should be replace.
 
 One commonly used function is `get_val`. The get_val routine requires the use of worksheet tables, and references the values by the row names and the column names.
 
 ### Calculations
 
 There are some complex dependencies between sheets.  Generally the flow is between sheets for a year, then certain values are carried forward into the next year.
-
-Currently, in some cases it is necessary to run `calc_retir` in order to complete the calculations. 
 
 ## Conventions
 

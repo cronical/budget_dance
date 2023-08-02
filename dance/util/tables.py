@@ -343,8 +343,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
 
 
   # add conditional formatting if any
-  # temporary skip this to see if this is what is causing endless recalcs
-  if  False and 'highlights' in table_info:
+  if  'highlights' in table_info:
     # set range to without the heading
     top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row+1}'
     rng=f'{top_left}:{bot_right}'

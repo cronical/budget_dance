@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 '''Reformat the lambda doc in the config file as markdown'''
 import pandas as pd
 from dance.util.files import read_config
