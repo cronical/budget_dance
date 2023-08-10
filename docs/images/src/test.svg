@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="294pt" height="185pt" viewBox="0 0 293.82 184.8">
+<g id="graph0" class="graph" transform="translate(18,166.8000030517578) scale(1)" data-name="">
+<polygon fill="white" stroke="none" points="-18,18 -18,-166.8 275.82,-166.8 275.82,18 -18,18"/>
+<text text-anchor="middle" x="128.91" y="-132.2" font-family="roboto" font-size="14.00">Forecasting Investment Income &amp; Expense</text>
+<!-- Actual Values -->
+<g id="node1" class="node" pointer-events="visible" data-name="Actual Values">
+
+<polygon fill="none" stroke="black" points="114.58,-108 19.19,-108 19.19,-72 114.58,-72 114.58,-108"/>
+<text text-anchor="middle" x="66.88" y="-85.8" font-family="roboto" font-size="14.00">Actual Values</text>
+</g>
+<!-- Actual Ratios -->
+<g id="node3" class="node" pointer-events="visible" data-name="Actual Ratios">
+
+<polygon fill="none" stroke="black" points="113.98,-36 21.79,-36 21.79,0 113.98,0 113.98,-36"/>
+<text text-anchor="middle" x="67.88" y="-13.8" font-family="roboto" font-size="14.00">Actual Ratios</text>
+</g>
+<!-- Actual Values&#45;&gt;Actual Ratios -->
+<g id="edge1" class="edge" data-name="Actual Values-&gt;Actual Ratios">
+
+<path fill="none" stroke="black" d="M60.05,-71.63C56.66,-61.51 55.73,-55.09 57.36,-47.08"/>
+<polygon fill="black" stroke="black" points="60.67,-48.21 60.17,-37.63 53.96,-46.22 60.67,-48.21"/>
+</g>
+<!-- Forecast Values -->
+<g id="node2" class="node" pointer-events="visible" data-name="Forecast Values">
+
+<polygon fill="none" stroke="black" points="238.69,-108 133.08,-108 133.08,-72 238.69,-72 238.69,-108"/>
+<text text-anchor="middle" x="185.88" y="-85.8" font-family="roboto" font-size="14.00">Forecast Values</text>
+</g>
+<!-- Forecast Ratios -->
+<g id="node4" class="node" pointer-events="visible" data-name="Forecast Ratios">
+
+<polygon fill="none" stroke="black" points="236.09,-36 133.68,-36 133.68,0 236.09,0 236.09,-36"/>
+<text text-anchor="middle" x="184.88" y="-13.8" font-family="roboto" font-size="14.00">Forecast Ratios</text>
+</g>
+<!-- Actual Ratios&#45;&gt;Forecast Ratios -->
+<g id="edge2" class="edge" data-name="Actual Ratios-&gt;Forecast Ratios">
+
+<path fill="none" stroke="black" d="M114.39,-1.52C117.04,-1.03 119.6,-0.71 122.14,-0.58"/>
+<polygon fill="black" stroke="black" points="121.74,-4.06 131.88,-1.02 122.06,2.93 121.74,-4.06"/>
+</g>
+<!-- Forecast Ratios&#45;&gt;Forecast Values -->
+<g id="edge3" class="edge" data-name="Forecast Ratios-&gt;Forecast Values">
+
+<path fill="none" stroke="black" d="M195.6,-60.92C197,-52.91 195.9,-46.49 192.23,-36.37"/>
+<polygon fill="black" stroke="black" points="192.28,-59.79 193.05,-70.36 199.04,-61.62 192.28,-59.79"/>
+</g>
+</g>
+</svg>

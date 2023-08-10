@@ -27,6 +27,6 @@ If both Factor and Add are blank it means the value won't be transferred to `ian
 
 The rows are handled like iande with groups, totals and hierarchical inserts.
 
-The mechanism is described [here](../python.md#year-to-date-and-reprojection).
+The mechanism is described [here](../operations.md#year-to-date-and-reprojection).
 
 Currently the distributions (Income:J) and cashflow (Expenses:Y) are not imported but if used, they are carried to storage and to iande.

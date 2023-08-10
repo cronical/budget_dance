@@ -14,9 +14,5 @@ The attributes are:
 | Near Mkt Rate| Rate to use to override the first forecast year computed rate|
 | Rate Cap | Rate used to cap computed rates|
 | Reinv Rate| Amount used to initialize the `Reinv Rate` row on the balances table|
-| Actl_source     | The line name where to find the actual add/wdraw amount      |
-| Actl_source_tab | The table name where to find the actual add/wdraw amount     |
-| Fcst_source     | The line name where to find the forecast add/wdraw amount    |
-| Fcst_source_tab | The table name where to find the forecast add/wdraw amount   |
 | Notes           | Place to indicate special things about the account           |
 
