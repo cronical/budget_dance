@@ -8,7 +8,7 @@ Plans out income streams and post-retirement medical expenses.  This affects bot
 | --------------- | ------------------------------------------------------------ |
 |Item|A key, composed of type, whose, and firm, separated by space-hypen-space like `401K - GBD - XXX`|
 |Who|Initials of who owns this account or JNT for joint. This is split from Item at build time and stored.|
-|Type|See [conventions](../spreadsheet.md#conventions). This is split from Item at build time and stored.|
+|Type|See [conventions](../workbook.md#conventions). This is split from Item at build time and stored.|
 |Firm|The firm holding the account. This is split from Item at build time and stored.|
 |Election|A code for the distribution election on this item.|
 |Start Date|Expected start date for the distribution or expense|
