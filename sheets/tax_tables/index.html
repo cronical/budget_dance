@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -607,8 +622,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#federal-tax-tables" class="md-nav__link">
-    Federal tax tables
+  <a href="#federal-tax-table-married-joint" class="md-nav__link">
+    Federal Tax Table Married Joint
   </a>
   
 </li>
@@ -732,8 +747,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#federal-tax-tables" class="md-nav__link">
-    Federal tax tables
+  <a href="#federal-tax-table-married-joint" class="md-nav__link">
+    Federal Tax Table Married Joint
   </a>
   
 </li>
@@ -779,11 +794,12 @@
 - Federal tax tables, 
 - Connecticut tax tables, </p>
 <p>And required minimum distribution tables (two types).</p>
-<h2 id="federal-tax-tables">Federal tax tables</h2>
-<p>These use the subtraction method in IRS pub detailed here: https://www.irs.gov/pub/irs-pdf/i1040gi.pdf.  This takes 6 rows and 4 columns per year.  These are organized in a single table.  A VBA function is used to select the right values for use on the <code>taxes</code> tab. </p>
+<h2 id="federal-tax-table-married-joint">Federal Tax Table Married Joint</h2>
+<p>Multiple years of tax tables for this filing status.</p>
+<p>These use the subtraction method in IRS pub detailed here: https://www.irs.gov/pub/irs-pdf/i1040gi.pdf.  This takes 6 rows and 4 columns per year.  These are organized in a single table.  </p>
 <p>The program <code>bracket_fix.py</code> computes the numbers for the subtraction table based on a csv file which is shows the values using the additive method. Not sure where I found that file, most recently, I recreated the format.  Kind of painful.  May be best to wait for the 1040 Instructions to be published each year. (Or find a reliable source)</p>
 <h2 id="ct-tax-table-married-joint">CT Tax Table Married Joint</h2>
-<p>Multiple years of tax tables for this slice.</p>
+<p>Multiple years of tax tables for this filing status.</p>
 <h2 id="reqd-min-distr-table-i">Reqd Min Distr Table I</h2>
 <p>Table I is for beneficiaries (inherited IRA).</p>
 <h2 id="uniform-lifetime-table">Uniform Lifetime Table</h2>

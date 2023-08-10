@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -512,9 +527,47 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          invest_actl
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         invest_actl
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    Data sources
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -673,6 +726,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    Data sources
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -687,9 +762,8 @@
 
 
 <h1 id="invest_actl">invest_actl</h1>
-<p>The Python program <code>invest-actl-load.py</code> gets the master list of investment accounts from <code>fcast.xlsm</code>.  It then reads the <code>data/invst_*.tsv</code> files and computes the net flows for each account by year.</p>
-<p>The MoneyDance Investment Performance report is named <code>invest-p-YYYY.tsv</code>. There is one for each actual year. The program reads these as well.</p>
-<p>It ends up with 5 rows of actuals for each investment.  The values types are:</p>
+<p>This table provides annual values for 6 investment values.  It is used to look up the actuals on the balances tab. </p>
+<p>Provides 6 rows of actuals for each investment.  The values types are:</p>
 <table>
 <thead>
 <tr>
@@ -718,9 +792,27 @@
 <td>Gains</td>
 <td>Realized Gains</td>
 </tr>
+<tr>
+<td>Fees</td>
+<td>well, fees</td>
+</tr>
 </tbody>
 </table>
-<p>This can be used to look up the actuals on the balances tab. The visual basic function <code>gain</code> references the realized and unrealized gain lines for actuals. the visual basic function <code>add_wdraw</code> likewise references the first line.</p>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>The add/wdraw value is principal transfered, so interest payments have been removed if they are not reinvested.</li>
+<li>The unrealized gain value does not have the fees removed</li>
+<li>Requires use of lots matching.  Average cost method seems to return non sensical results for unrealized gain.</li>
+<li>The loading program does some error detection. If it fails, suggests some things to look at.</li>
+</ul>
+<h2 id="data-sources">Data sources</h2>
+<p>The Python program <code>invest-actl-load.py</code> uses:</p>
+<ol>
+<li>The Moneydance performance reports. The Moneydance Investment Performance report are <code>data/invest-p/YYYY.tsv</code>. There is one for each actual year. </li>
+<li>The Moneydance balance reports, which are <code>data/acct-bals/YYYY.tsv</code>.</li>
+<li>The accounts table to get the master list of investments</li>
+<li>The invest_iande_work table to get the interest received from any loans</li>
+</ol>
 
 
 

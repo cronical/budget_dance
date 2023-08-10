@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -596,9 +611,67 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          taxes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         taxes
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rows" class="md-nav__link">
+    Rows
+  </a>
+  
+    <nav class="md-nav" aria-label="Rows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aggregation-lines" class="md-nav__link">
+    Aggregation lines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#last-known-value-used-into-future" class="md-nav__link">
+    Last known value used into future
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-source" class="md-nav__link">
+    Data Source
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -673,6 +746,48 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rows" class="md-nav__link">
+    Rows
+  </a>
+  
+    <nav class="md-nav" aria-label="Rows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aggregation-lines" class="md-nav__link">
+    Aggregation lines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#last-known-value-used-into-future" class="md-nav__link">
+    Last known value used into future
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-source" class="md-nav__link">
+    Data Source
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -687,7 +802,33 @@
 
 
 <h1 id="taxes">taxes</h1>
-<p>This computes Federal and State income taxes. It requires the data from the tables tab.  For actuals it pulls data mostly from iande-actl.  A few income fields need to come from tax documents. </p>
+<p>This computes Federal and State income taxes, using the folding method.</p>
+<p>In my configuration it uses the Excel maximum of 8 levels.</p>
+<p>The functional fields brought in from the template are:</p>
+<ul>
+<li>Line - The line name on this sheet (indented style)</li>
+<li>Source - The line name on the source sheet (full path style)</li>
+<li>Tab - the table on which to locate the source</li>
+<li>Sign - either 1 or -1 to multiply times the value of the source </li>
+</ul>
+<p>Two additional fields are to help the OP make sense of it</p>
+<ul>
+<li>Tax_doc_ref</li>
+<li>Notes</li>
+</ul>
+<p>Computed by the loading program is</p>
+<ul>
+<li>Key - the full path style of this rows Line.</li>
+</ul>
+<h2 id="rows">Rows</h2>
+<p>Values are pulled from iande, manual_actl, the tax tables, and from the the table itself (taking care not to create a dependency loop).</p>
+<h3 id="aggregation-lines">Aggregation lines</h3>
+<p>In addition to the normal TOTAL, PRODUCT, MIN, and MAX methods, two addition ones are defined: FED_TAX and CT_TAX.  These call a VBA program to compute the tax based on the child values.</p>
+<h3 id="last-known-value-used-into-future">Last known value used into future</h3>
+<p>The future value of a number of tax parameters are unknown. So the current value is propagated using the expansion formula <code>=tbl_taxes[@1&lt;Y1234]</code> which translates into the current row, 1 year earlier.</p>
+<h2 id="data-source">Data Source</h2>
+<p>This uses the template <code>data/taxes_template.tsv</code> to layout the hierarchy. This is done using the Moneydance style of indenting.</p>
+<p><img alt="tax template" src="../../images/tgt/taxes_template.png" /></p>
 
 
 

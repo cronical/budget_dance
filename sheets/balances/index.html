@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -733,51 +748,89 @@
 
 
 <h1 id="balances">balances</h1>
-<p>The following fields are looked up from the account page: Type, Income Txbl, and Active.</p>
-<p>This table has the following rows for each account.  </p>
+<p>This table uses the "folding" techique in order to calculate the ending balance. To support this the three leading fields are:</p>
+<ol>
+<li>Key - normally hidden, this field is the Account followed by a colon and then the ValType.</li>
+<li>ValType</li>
+<li>Account</li>
+</ol>
+<p>The after this follow fields looked up from the account page: Type, Income Txbl, and Active, No Distr Plan.</p>
+<p>This table has the following rows for each account, as shown for the account '<em>account</em>':</p>
 <table>
 <thead>
 <tr>
-<th>ValType</th>
-<th>Formula</th>
+<th>Key</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Mkt Gn Rate</td>
-<td>Used to forecast <em>unrealized</em> gains.   Computed with <code>simple_return</code> for historical rows.</td>
+<td><em>account</em></td>
+<td>A blank row</td>
 </tr>
 <tr>
-<td>Reinv Rate</td>
-<td>The part of realized gains that is reinvested each year. Proper modeling also requires consideration of re-investment policies, which are modeled as a re-investment rate per account per year. <strong>TODO</strong>: The remainder is planned to be transfered to the primary bank (new item in General State)</td>
+<td><em>account</em>:Start Bal</td>
+<td>Previous year's end balance, except the first one, which is pulled in from actuals at build time</td>
 </tr>
 <tr>
-<td>Start Bal</td>
-<td>Previous year's end balance</td>
+<td><em>account</em>:Add/Wdraw</td>
+<td>The amount added to the account during the year if positive, or removed if negative. Formula set at build-time based on config. For example in forecast periods bank accounts sweep any residual from income and expense with <code>=XLOOKUP("TOTAL INCOME - EXPENSES",tbl_iande[Key],tbl_iande[Y2023])</code></td>
 </tr>
 <tr>
-<td>Add/Wdraw</td>
-<td>The amount added to the account during the year if positive, or removed if negative. Either manual, or some rows will have formulas</td>
+<td><em>account</em>:Retain</td>
+<td>A blank row marking the retained realized interest/gain</td>
 </tr>
 <tr>
-<td>Rlz Int/Gn</td>
-<td>The actual or forecast realized gain, including income and any capital gains or losses.</td>
+<td><em>account</em>:Retain:Rlz Int/Gn</td>
+<td>For banks, interest pulled from the aux table; for investments, realized gains and income, pulled from invest_iande_work.</td>
 </tr>
 <tr>
-<td>Fees</td>
-<td>Account and transaction fees which reduce the value of the account</td>
+<td><em>account</em>:Retain:Reinv Rate</td>
+<td>The reinvestment rate pulled from the accounts table.</td>
 </tr>
 <tr>
-<td>Unrlz Gn/Ls</td>
-<td>The unrealized gains due to market changes</td>
+<td><em>account</em>:Retain - PRODUCT</td>
+<td>The amount retained calculated at the "fold" line with the product aggregation</td>
 </tr>
 <tr>
-<td>End Bal</td>
-<td>Adds the start balance to each of the other change categories.</td>
+<td><em>account</em>:Unrlzd</td>
+<td>A blank row marking unrealized gain or loss section</td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd:Actl Unrlz</td>
+<td>Actual unrealized gain or loss - only used for actual periods, where its pulled from invest_actl with <code>=XLOOKUP("Unrlz Gn/Ls"&amp;[@AcctName],tbl_invest_actl[Key],tbl_invest_actl[Y2022])</code></td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd:Fcst</td>
+<td>A blank row marking forecast unrealized gain or loss section</td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd:Fcst:I Start Bal</td>
+<td>For investments only (banks don't have unrealized gains), the prior period ending balance: <code>=XLOOKUP([@AcctName]&amp; " - TOTAL",[Key],[Y2022])</code></td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd:Fcst:Mkt Gn Rate</td>
+<td>The forecast market gain rate - usually: <code>=XLOOKUP([@AcctName]&amp;":Unrlz Gn/Ls:rate",tbl_invest_iande_work[Key],tbl_invest_iande_work[Y2024])</code>.  But first forecast period comes from the accounts table: <code>=XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Near Mkt Rate],0)*[@Active]</code></td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd:Fcst - PRODUCT</td>
+<td>The amount of market gain forecast, calculated at the "fold" line with the product aggregation</td>
+</tr>
+<tr>
+<td><em>account</em>:Unrlzd - TOTAL</td>
+<td>The actual or forecast unrealized bgain calculated at the "fold" line with the SUM aggregation</td>
+</tr>
+<tr>
+<td><em>account</em>:Fees</td>
+<td>Forecast fees for investment accounts: <code>=XLOOKUP([@AcctName]&amp; ":Investing:Account Fees:value",tbl_invest_iande_work[Key],tbl_invest_iande_work[Y2023],0)</code></td>
+</tr>
+<tr>
+<td><em>account</em> - TOTAL</td>
+<td>The actual or forecast ending balance. Sum of above</td>
 </tr>
 </tbody>
 </table>
-<p>The calculations are designed to work even if the rows are filtered or sorted.  To restore to the natural sort order sort by AcctName then ValType (using a custom sort order that needs to be defined).</p>
+<p>The calculations are designed to work even if the rows are filtered.  But sorting may produce strange results. </p>
 <h2 id="rlz-intgn-line">Rlz Int/Gn line</h2>
 <p>For actuals, this value derives from the investment performance report via the <a href="#invest-actl">invest_actl worksheet</a>.</p>
 <p>This report does not break out the income types.  If the accounting is done properly then the breakout for a particular investment account can be achieved via an income/expense report that selects that account. The value of the performance report 'Income' column total is equal to the value of the Investment Income report line Income - TOTAL.</p>

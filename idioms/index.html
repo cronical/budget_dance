@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../data_from_moneydance/">
+        <link rel="prev" href="../excel_lambdas/">
       
       
         <link rel="next" href="../operations/">
@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -263,6 +278,61 @@
         <li class="md-nav__item">
   <a href="#this-column" class="md-nav__link">
     This column
+  </a>
+  
+    <nav class="md-nav" aria-label="This column">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-the-column-name" class="md-nav__link">
+    Getting the column name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-the-indirect-method-to-locate-this-column" class="md-nav__link">
+    Use the indirect method to locate this column.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-or-choosecols" class="md-nav__link">
+    Index or Choosecols
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selecting-the-column-at-build-time" class="md-nav__link">
+    Selecting the column at build time
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-last-column" class="md-nav__link">
+    The last column
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-last-column-field-name" class="md-nav__link">
+    The last column field name
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-in-prior-column-for-this-row" class="md-nav__link">
+    Value in prior column for this row
   </a>
   
 </li>
@@ -391,8 +461,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tax-calculations" class="md-nav__link">
-    Tax calculations
+  <a href="#let-example-simple-return-calculation" class="md-nav__link">
+    LET example: Simple return calculation
   </a>
   
 </li>
@@ -401,6 +471,33 @@
   <a href="#conditional-formatting-limits" class="md-nav__link">
     Conditional Formatting limits
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#looking-for-non-native-formulas" class="md-nav__link">
+    Looking for non-native formulas
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-lambdas-in-defined-names" class="md-nav__link">
+    Using LAMBDAs in defined names
+  </a>
+  
+    <nav class="md-nav" aria-label="Using LAMBDAs in defined names">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-prior-cells-on-this-row" class="md-nav__link">
+    Get Prior cells on this row
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -480,21 +577,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -512,6 +594,21 @@
     <li class="md-nav__item">
       <a href="../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -545,17 +642,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" >
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -850,6 +947,61 @@
     This column
   </a>
   
+    <nav class="md-nav" aria-label="This column">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-the-column-name" class="md-nav__link">
+    Getting the column name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-the-indirect-method-to-locate-this-column" class="md-nav__link">
+    Use the indirect method to locate this column.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-or-choosecols" class="md-nav__link">
+    Index or Choosecols
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selecting-the-column-at-build-time" class="md-nav__link">
+    Selecting the column at build time
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-last-column" class="md-nav__link">
+    The last column
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-last-column-field-name" class="md-nav__link">
+    The last column field name
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-in-prior-column-for-this-row" class="md-nav__link">
+    Value in prior column for this row
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -976,8 +1128,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tax-calculations" class="md-nav__link">
-    Tax calculations
+  <a href="#let-example-simple-return-calculation" class="md-nav__link">
+    LET example: Simple return calculation
   </a>
   
 </li>
@@ -986,6 +1138,33 @@
   <a href="#conditional-formatting-limits" class="md-nav__link">
     Conditional Formatting limits
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#looking-for-non-native-formulas" class="md-nav__link">
+    Looking for non-native formulas
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-lambdas-in-defined-names" class="md-nav__link">
+    Using LAMBDAs in defined names
+  </a>
+  
+    <nav class="md-nav" aria-label="Using LAMBDAs in defined names">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-prior-cells-on-this-row" class="md-nav__link">
+    Get Prior cells on this row
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1006,42 +1185,86 @@
 
 <h1 id="some-excel-idioms-notes">Some Excel idioms &amp; notes</h1>
 <h2 id="this-column">This column</h2>
-<p>Use the indirect method to locate this column.</p>
-<div class="highlight"><span class="filename">Refer to this column</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;)
+<h3 id="getting-the-column-name">Getting the column name</h3>
+<p>The VBA function <code>this_col_name()</code> is provided.</p>
+<p>Alternatively, native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>=INDEX(tbl_balances[#Headers],COLUMN())
 </code></pre></div>
+<p>Note, that the table name can be elided to reference the table the cell is in.  Excel displays the table name in the formula even if is not provided.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>INDEX([#Headers],COLUMN())
+</code></pre></div>
+<p>To locate the column of a different table</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>XMATCH(this_col_name(),tbl_retir_vals[#Headers])
+</code></pre></div>
+<h3 id="use-the-indirect-method-to-locate-this-column">Use the indirect method to locate this column.</h3>
+<p>Getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. </p>
+<div class="highlight"><span class="filename">Refer to this column using a VBA function</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;)
+</code></pre></div>
+<div class="highlight"><span class="filename">Refer to this column by indexing the headers</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>INDIRECT(&quot;tbl_balances[&quot;&amp;INDEX([#Headers],COLUMN())&amp;&quot;]&quot;)
+</code></pre></div>
+<h3 id="index-or-choosecols">Index or Choosecols</h3>
+<p>Another way is using a non-structured approach. These phrases require the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.</p>
+<p><code>=INDEX(tbl_aux[#Data],0,COLUMN())</code></p>
+<p><code>=CHOOSECOLS(tbl_balances[#Data],COLUMN())</code></p>
+<p>The following picks a year column from balances by locating the year in the headers and using that to choose the column.</p>
+<p><code>=CHOOSECOLS(tbl_balances[#Data],XMATCH(this_col_name(),tbl_balances[#Headers]))</code></p>
+<div class="highlight"><span class="filename">Prior year end balance</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>=XLOOKUP(&quot;End Bal&quot;&amp;tbl_retir_vals[@Item],tbl_balances[Key],
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  CHOOSECOLS(tbl_balances[#Data],XMATCH(this_col_name(),tbl_balances[#Headers])-1)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  )
+</code></pre></div>
+<p>These depend on the whole table, though, where the INDIRECT method depends only on the column.</p>
+<h3 id="selecting-the-column-at-build-time">Selecting the column at build time</h3>
+<p>Both the indirect and indexing methods have serious drawbacks, so another method was created. This allows the formula to be written with a generic year, which will be substituted at build time.</p>
+<div class="highlight"><span class="filename">formula as written in setup.yaml</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+</code></pre></div>
+<div class="highlight"><span class="filename">formula as it occurs in Excel</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>=XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y2022])
+</code></pre></div>
+<p>There are two regular expression rules in <code>xl_formulas.py</code> that do the substituion.  One is the matches Ynnnn, which is the example above.  The other is used to indicate an offset, picking out a prior column. In that case, the form is Ynnnn-m, which will use the year m years before nnnn. </p>
+<p>This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. </p>
+<h2 id="the-last-column">The last column</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>CHOOSECOLS(tbl_manual_actl,-1)
+</code></pre></div>
+<h2 id="the-last-column-field-name">The last column field name</h2>
+<p>Useful to get the last actual, for instance.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>=TAKE(tbl_manual_actl[#Headers],1,-1)
+</code></pre></div>
+<h2 id="value-in-prior-column-for-this-row">Value in prior column for this row</h2>
+<div class="highlight"><span class="filename">Use OFFSET</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>=OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-1,1,1)
+</code></pre></div>
+<p>But... OFFSET is a volatile function, causing performance problems.</p>
 <h2 id="lookup">Lookup</h2>
 <p>Use a value from this table to find a value in another table. The 4th parameter is the default if not found.</p>
-<p><div class="highlight"><span class="filename">Locate a value with a common key</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),0)
+<p><div class="highlight"><span class="filename">Locate a value with a common key</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),0)
 </code></pre></div>
 Here get the value for a year from the retirement table based on the account name.</p>
 <h2 id="construct-a-key">Construct a key</h2>
 <p>Often the exact key has to be constructed.  Excel uses double quotes for strings and <code>&amp;</code> for concatenation.  TRIM is needed if the field is, say, indented.</p>
-<div class="highlight"><span class="filename">Use string functions to construct key</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>&quot;Add/Wdraw&quot;&amp;TRIM([@Account])
+<div class="highlight"><span class="filename">Use string functions to construct key</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>&quot;Add/Wdraw&quot;&amp;TRIM([@Account])
 </code></pre></div>
 <h2 id="delimited-strings-to-arrays">Delimited strings to arrays</h2>
 <p>Often the field value may have delimiters and you need to pick out one of the sections.  User the TEXTSPLIT and INDEX functions. For instance to pick out the 2nd item of the field <code>key</code>. Note the delimiter can be longer than a single character.</p>
-<div class="highlight"><span class="filename">Picking values between delimiters</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>INDEX(TEXTSPLIT([@key],&quot; - &quot;),2)
+<div class="highlight"><span class="filename">Picking values between delimiters</span><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>INDEX(TEXTSPLIT([@key],&quot; - &quot;),2)
 </code></pre></div>
 <h2 id="substring-match">Substring match</h2>
 <p>Is a substring in a list?  Use SEARCH wrapped with ISNUMBER.</p>
-<div class="highlight"><span class="filename">Find values with substring</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ISNUMBER(SEARCH(&quot;Start BalHSA - &quot;&amp;INDEX(TEXTSPLIT([@key],&quot; - &quot;),2),tbl_balances[Key]))
+<div class="highlight"><span class="filename">Find values with substring</span><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ISNUMBER(SEARCH(&quot;Start BalHSA - &quot;&amp;INDEX(TEXTSPLIT([@key],&quot; - &quot;),2),tbl_balances[Key]))
 </code></pre></div>
 <h2 id="is-value-in-a-list">Is value in a list</h2>
 <p>For use in filters, determine if a value is in a list. Construct the list with curly brackets.  Use the type 0 for exact match.</p>
-<div class="highlight"><span class="filename">Find values that match a list</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ISNUMBER(MATCH(tbl_balances[ValType],{&quot;Start Bal&quot;,&quot;Add/Wdraw&quot;,&quot;Reinv Amt&quot;,&quot;Fees&quot;,&quot;Unrlz Gn/Ls&quot;},0)
+<div class="highlight"><span class="filename">Find values that match a list</span><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ISNUMBER(MATCH(tbl_balances[ValType],{&quot;Start Bal&quot;,&quot;Add/Wdraw&quot;,&quot;Reinv Amt&quot;,&quot;Fees&quot;,&quot;Unrlz Gn/Ls&quot;},0)
 </code></pre></div>
 <h2 id="filter-then-aggregate">Filter then aggregate</h2>
 <p>Filters produce more than one row so the results have to be aggregated by SUM, PRODUCT, MIN or the like.</p>
 <p>Criteria are all required with multiplied together with *. To allow either criterion, use +.</p>
 <p>In this example several rows are selected to compute the end balance.</p>
-<div class="highlight"><span class="filename">Filter with criteria 'anded'</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>SUM(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*ISNUMBER(MATCH(tbl_balances[ValType],{&quot;Start Bal&quot;,&quot;Add/Wdraw&quot;,&quot;Reinv Amt&quot;,&quot;Fees&quot;,&quot;Unrlz Gn/Ls&quot;},0))))
+<div class="highlight"><span class="filename">Filter with criteria 'anded'</span><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>SUM(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*ISNUMBER(MATCH(tbl_balances[ValType],{&quot;Start Bal&quot;,&quot;Add/Wdraw&quot;,&quot;Reinv Amt&quot;,&quot;Fees&quot;,&quot;Unrlz Gn/Ls&quot;},0))))
 </code></pre></div>
 <p>In another example, two items are multiplied:
-<div class="highlight"><span class="filename">Pick two rows and multiply them</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>PRODUCT(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]=&quot;Reinv Rate&quot;)+(tbl_balances[ValType]=&quot;Rlz Int/Gn&quot;))))
+<div class="highlight"><span class="filename">Pick two rows and multiply them</span><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>PRODUCT(FILTER(INDIRECT(&quot;tbl_balances[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]=&quot;Reinv Rate&quot;)+(tbl_balances[ValType]=&quot;Rlz Int/Gn&quot;))))
 </code></pre></div></p>
 <h3 id="if-filter-can-be-empty">If filter can be empty</h3>
 <p>If the result can be empty then use the if_empty parameter</p>
-<div class="highlight"><span class="filename">Last parm of FILTER is 0 to allow empty set</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))
+<div class="highlight"><span class="filename">Last parm of FILTER is 0 to allow empty set</span><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))
 </code></pre></div>
 <h2 id="convert-transaction-format-to-net-change">Convert transaction format to net change</h2>
 <p>The <code>transfers_plan</code> table is in a transactional format, with a year, two accounts (from and to) and a value.  This ensures that both sides of the transaction are accounted for.  However, most other tables have a net change style - what happens to a particular account in a year. This formula converts the plan to the net change format.</p>
@@ -1049,11 +1272,11 @@ Here get the value for a year from the retirement table based on the account nam
 <h3 id="construct-debitcredit-array-for-account">Construct debit/credit array for account</h3>
 <h4 id="make-boolean-array">Make boolean array</h4>
 <p>This creates an array of two columns and as many rows as in the table.</p>
-<div class="highlight"><span class="filename">Structured table reference to mark this account</span><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])
+<div class="highlight"><span class="filename">Structured table reference to mark this account</span><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>(tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])
 </code></pre></div>
 <h4 id="construct-two-values-array-column-array">Construct two values array column array</h4>
 <p>This creates two columns with the same number of rows with a negative and positive version of each amount</p>
-<div class="highlight"><span class="filename">Horizontal stacking</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
+<div class="highlight"><span class="filename">Horizontal stacking</span><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
 </code></pre></div>
 <h4 id="multiply-them">Multiply them</h4>
 <table>
@@ -1078,24 +1301,95 @@ Here get the value for a year from the retirement table based on the account nam
 </table>
 <h3 id="add-across-rows">Add across rows</h3>
 <p>The BYROW and LAMBDA functions are used. Each row is passed into lambda as the parameter <code>row</code>, which is then summed. the <code>_xlpm.</code> is needed as Excel uses that to identify the parameter name.  It is actually stored in the internal XML but not displayed in the Excel user interface.</p>
-<div class="highlight"><span class="filename">Sum by row</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))
+<div class="highlight"><span class="filename">Sum by row</span><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))
 </code></pre></div>
 <p>The result is then multiplied by the year selection to get all net of all the transactions for the account and year, as shown here:</p>
 <p><img alt="result" src="../images/tgt/trans_to_net_4.png" /></p>
 <h3 id="final-sum">Final sum</h3>
 <p>Wrap the whole thing in a <code>SUM()</code> to get the net change in the account for the year.</p>
-<div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
+<div class="highlight"><span class="filename">Full</span><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))*(tbl_transfers_plan[Y_Year]=this_col_name()))
 </code></pre></div>
 <h2 id="forecasting-based-on-last-n-elements">Forecasting based on last n elements</h2>
 <p>Linear least squares fit. The example takes current cell with <code>INDIRECT(ADDRESS(ROW(),COLUMN())</code> as the basis for <code>OFFSET</code> which looks back 5 columns on this row and includes this row and 5 samples in the form of a 1 by 5 matrix. This needs to be a just a 1D series, so <code>TOROW</code> is used.  Then we just ask the linear forecast tool to provide item 6 for a sequence of 5 elements.  Seems like it should require the sequence to be 1D as well, but it doesn't.</p>
-<div class="highlight"><span class="filename">Forecast</span><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>=FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
+<div class="highlight"><span class="filename">Forecast</span><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>=FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
 </code></pre></div>
-<h2 id="tax-calculations">Tax calculations</h2>
-<p>Not implemented but kind of cool</p>
-<p><code>title federal tax calc for a year and a taxable income value
-=ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]&lt;260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)</code></p>
+<h2 id="let-example-simple-return-calculation">LET example: Simple return calculation</h2>
+<p>The following computes a simplistic return by setting intermediate variables with LET. </p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>y</td>
+<td>The column of data for this year</td>
+</tr>
+<tr>
+<td>a</td>
+<td>The account name</td>
+</tr>
+<tr>
+<td>b</td>
+<td>The value types of the rows to be averaged for the denominator</td>
+</tr>
+<tr>
+<td>c</td>
+<td>The value types of the rows to be summed for the numerator</td>
+</tr>
+<tr>
+<td>x</td>
+<td>The indicies to locate the denominator values</td>
+</tr>
+<tr>
+<td>w</td>
+<td>The indicies to locate the numerator values</td>
+</tr>
+</tbody>
+</table>
+<p>after all these are set is fairly easy to use CHOOSEROWS to select the right data elements.  The 2 is for the average. Wrapping with IFERROR forces the #DIV  to 0.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>  =LET(
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    y,INDIRECT(&quot;tbl_balances[&quot;&amp;@INDEX(tbl_balances[#Headers],COLUMN())&amp;&quot;]&quot;),
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    a,[@AcctName],
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    b,{&quot;Start Bal&quot;,&quot;End Bal&quot;},
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    c,{&quot;Rlz Int/Gn&quot;,&quot;Unrlz Gn/Ls&quot;},
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    x,MATCH(@b&amp;a,[Key],0),
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    w,MATCH(@c&amp;a,[Key],0),
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>    IFERROR(2*SUM(CHOOSEROWS(y,w))/SUM(CHOOSEROWS(y,x)),0)
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>    )
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>  ```
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>## Tax calculations 
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>Not implemented but kind of cool
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>```title=&quot;Federal tax calc for a year and a taxable income value&quot;
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>=ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]&lt;260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)
+</code></pre></div>
 <h2 id="conditional-formatting-limits">Conditional Formatting limits</h2>
 <p>Conditional formatting formulas cannot use structured references, including bare table names.</p>
+<h2 id="looking-for-non-native-formulas">Looking for non-native formulas</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="w"> </span>grep<span class="w"> </span>formula:<span class="w"> </span>data/setup.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s1">&#39;XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT&#39;</span>
+</code></pre></div>
+<h2 id="using-lambdas-in-defined-names">Using LAMBDAs in defined names</h2>
+<p>It is not clear if Excel properly handles a lambda inside a let inside a lambda.  </p>
+<p>Even though I put the _xlpm. in properly, and it is in the workbook.xml file as input, the prefixes are dropped insided the nested elements, unless they are defined in the outer element.</p>
+<p>The problem is that each of the parameters needs a hidden defined name too.  Excel creates these upon open. </p>
+<p>It appears that Excel converts input "lambda" into "LAMBDA", then subsequent processing is based on the upper case version.
+So when Openpyxl provides these functions, they need to be provided in uppercase.</p>
+<p>This fixed my simplified formula. the nested case has not been retested.</p>
+<p>Note - do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.</p>
+<p><a href="../excel_lambdas/">List of functions</a></p>
+<h3 id="get-prior-cells-on-this-row">Get Prior cells on this row</h3>
+<p><code>Straight line forecast but no less than zero
+MAX(0,FORECAST.LINEAR(6,TOROW(PRIORS(ROW_IN(tbl_iande[]),5)),SEQUENCE(1,5)))</code>
+Note that <code>tbl_iande[]</code> is short for <code>tbl_iande[#All]</code>.</p>
+<p>This has the same dependency drawback as was seen in columns. New method is to use build time replacement. </p>
+<p><code>tbl[@5&lt;Y2023]</code> becomes <code>tbl[[#This Row],[Y2018]:[Y2022]]</code>.</p>
+<p>So the form <code>[@m&lt;Ynnnn]</code> says for the m years in this row preceding this year.</p>
 
 
 

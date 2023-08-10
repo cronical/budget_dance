@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -610,9 +625,54 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          transfers-actl
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         transfers-actl
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#accounting-assumption" class="md-nav__link">
+    Accounting Assumption
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#folding" class="md-nav__link">
+    Folding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    Data Sources
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -673,6 +733,35 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#accounting-assumption" class="md-nav__link">
+    Accounting Assumption
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#folding" class="md-nav__link">
+    Folding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-sources" class="md-nav__link">
+    Data Sources
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -687,13 +776,17 @@
 
 
 <h1 id="transfers-actl">transfers-actl</h1>
-<p>Gathers the transfers to and from all accounts coming from or going to banks or credit cards.  This also shows the transfers to and from bank and credit card accounts.  The bank and credit card transfers are derived another way and are also included on this tab.</p>
+<p>This table shows the transfers to and from all accounts coming from or going to banks or credit cards.  </p>
+<p>It also shows the transfers to and from all bank and all credit card accounts at a summary level.  The bank and credit card transfers are based on the difference of successive balances.</p>
+<h2 id="accounting-assumption">Accounting Assumption</h2>
 <p>If there are transfers between these accounts, then they should pass through a bank account in order to be captured here.  That is the purpose of the pseudo bank account 'Passthru' and its sub-accounts in Moneydance.</p>
+<h2 id="folding">Folding</h2>
+<p>Other than Banks and Credit cards, the hierarchy of accounts is used allowing summarized values to be computed.</p>
+<h2 id="data-sources">Data Sources</h2>
 <p>This tab is loaded by <code>transfers-actl-load.py</code> from these sources:</p>
 <ol>
-<li>A copy of the output of moneydance transfer report stored under <code>budget/data</code>.  </li>
+<li>A copy of the output of moneydance transfer report stored under `data/transfers.tsv.  </li>
 <li>The method used is the difference of progressive balances.  The balances are generated by the <code>Account Balances</code> report selecting only banks and credit cards.  This is done for each year.  The tab-separated files are stored under <code>budget/data</code> as <code>bank-bal-YYYY</code>. </li>
-<li>A third method is planned which will ensure that all accounts have rows - even those with zero transfers.</li>
 </ol>
 
 

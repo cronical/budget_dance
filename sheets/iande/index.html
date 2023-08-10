@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -512,6 +527,40 @@
   <a href="#iande_1" class="md-nav__link">
     iande
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cash-flow-data" class="md-nav__link">
+    Cash Flow data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reforecasts" class="md-nav__link">
+    Reforecasts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-to-actual-data" class="md-nav__link">
+    Reference to actual data
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference to actual data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-arrangement" class="md-nav__link">
+    Current arrangement
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -717,6 +766,40 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#cash-flow-data" class="md-nav__link">
+    Cash Flow data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reforecasts" class="md-nav__link">
+    Reforecasts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-to-actual-data" class="md-nav__link">
+    Reference to actual data
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference to actual data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-arrangement" class="md-nav__link">
+    Current arrangement
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -733,7 +816,7 @@
 
 
 <h1 id="iande">iande</h1>
-<p>This is for income and expenses. There is one table.</p>
+<p>This is for income and expenses. There is one table, which uses the "folding" approach.  The folds follow the chart of accounts, with some modifications to support cash flow.</p>
 <h2 id="iande_1">iande</h2>
 <p>This is both actuals and forecast.  </p>
 <p>It has two leading columns then the actual and forecast years:</p>
@@ -756,6 +839,16 @@
 </tbody>
 </table>
 <p>The levels are grouped using Excel's grouping, so they can be expanded or collapsed.</p>
+<h2 id="cash-flow-data">Cash Flow data</h2>
+<p>The native high level qualifiers coming from Moneydance Income and Expense.  Under that are I,T, and X, which function identify income, taxes and expenses.  In order to accomodate cash flow items two new codes are introduced. J for money flowing in (such as a distribution from an IRA) and Y for money flowing out (such as payroll deduction for 401K or dividends reinvested).</p>
+<p>By accounting for all these flows, the bottom line will be zero for actuals.  For forecasts, the bottom line indicates the amount that can be put in or taken out of bank accounts.</p>
+<p>These are configured under the <code>data:hier_insert_paths</code> key.</p>
+<h2 id="reforecasts">Reforecasts</h2>
+<p>It is possible to reforecast selected rows for the current (first forecast) year.  This is done on the <code>current</code> tab, which has the same rows as <code>iande</code>. When the values are posted to this tab, they are marked with a comment.</p>
+<p>The mechanism is described <a href="../../operations/#year-to-date-and-reprojection">here</a>.</p>
+<h2 id="reference-to-actual-data">Reference to actual data</h2>
+<p>The current design is probably overcomplicated in that <code>iande</code> pulls in values from <code>iande_actl</code>, on the theory that it is <code>iande_actl</code> that would be updated and it was desirable not to alter the formulas for forecast.  As the concept shifted from initial generation to frequent re-generation, this will probably be deprecated.  In the future the <code>iande_actl</code> will go away and the actual columns here will hold actual values directly.</p>
+<h3 id="current-arrangement">Current arrangement</h3>
 <p>This tab is seeded with the original iande-actl data.   But it is expected that over time the rows will change.  For instance, if we later drop the first few years, we will find that some of the rows no longer come over from Moneydance.  On the other hand, we may add rows in Moneydance.  It is also possible that we may want to re-organize or rename the rows.  Take deleted rows first.</p>
 <ol>
 <li>Deleted Rows - The python script that loads the latest from Moneydance performs a check before executing the load.  It requires that any row that contains data or a fomula in the forecast era exist in the fresh import from Moneydance, when seeding the iande data.</li>

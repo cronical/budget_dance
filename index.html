@@ -59,7 +59,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tools-to-map-accounting-data-to-long-term-plans" class="md-skip">
+        <a href="#tools-to-integrate-accounting-data-with-long-term-plans" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tools to map accounting data to long term plans
+              Tools to integrate accounting data with long term plans
             
           </span>
         </div>
@@ -190,7 +190,7 @@
       
       
       <a href="." class="md-nav__link md-nav__link--active">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
       
     </li>
@@ -222,6 +222,21 @@
     <li class="md-nav__item">
       <a href="data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -310,21 +325,6 @@
   
   
     <li class="md-nav__item">
-      <a href="spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -342,6 +342,21 @@
     <li class="md-nav__item">
       <a href="vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -375,17 +390,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" >
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -682,17 +697,20 @@
                   
 
 
-<h1 id="tools-to-map-accounting-data-to-long-term-plans">Tools to map accounting data to long term plans</h1>
+<h1 id="tools-to-integrate-accounting-data-with-long-term-plans">Tools to integrate accounting data with long term plans</h1>
 <p>The accounting system is Moneydance.  The long term planning is via Excel.</p>
-<p>This spreadsheet extends the family's historical financials into the future.  It allows for modeling and planning for </p>
+<p>This workbook extends the family's historical financials into the future.  It allows for modeling and planning for </p>
 <ul>
 <li>Income and expenses (combined with cash flow)</li>
 <li>Accounts balances and transfers (including investments)</li>
 <li>Working life and retirement phases</li>
-<li>Federal and state income taxes. The tax calculator is far from general.</li>
+<li>Post retirement medical plans (U.S.)</li>
+<li>U.S. Federal and state income taxes. The tax calculator is far from general.</li>
 </ul>
-<p>The spreadsheet is built by Python programs.  Actual data is based on data exported from Moneydance.</p>
-<p><a href="spreadsheet/">Spreadsheet</a></p>
+<p>The data for historical (actual) periods is based on data exported from Moneydance.
+Data for planning is controlled via a set of external files.
+The workbook is built from the above by Python programs controlled by an extensive configuration file.</p>
+<p><a href="workbook/">Workbook</a></p>
 <p><a href="operations/">Operations</a></p>
 <p><a href="python/">Python is the glue</a></p>
 <p><a href="vba_index/">Visual Basic</a></p>

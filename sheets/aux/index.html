@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -733,17 +748,55 @@
 
 
 <h1 id="aux">aux</h1>
-<p>This is a set of rows needed to establish forecasts in some cases.  The rows may be input or calculated.  The need arises for aux data and calcs, for instance, in handling 401K accounts, where the EE contribution is tax deductable but is only part of the amount for add/wdraw at the balance level.  That value plus the pre-tax deductions amounts from the paychecks need to be summed to produce the W2 exclusions.  This is the place where those calcs happen. </p>
-<p>The calculations are flexible, but they often use the form of looking up a value and multiplying it by the value in the sign field.  Mostly the sign field is used to change or retain the sign, but it can be used to apply a scalar value such as a tax rate. </p>
-<p>The following style is used to allow the table to be relocated and makes the formula apparent from the values in cells.</p>
-<p><code>=@get_val([@Source],[@[Source Table]],this_col_name())*[@Sign]</code></p>
-<p>this_col_name is a VBA function that gets the current column table name.</p>
-<p>The field 'Accum_by' is intended to allow summations using the <code>accum</code> function.  If a value needs more than one tag, create another row with the same data and a different tag.  An example of this 401K deductions, which generate W2 exclusions on one hand and the need to deposit amounts into the 401K account.</p>
+<p>This is a set of rows needed to establish forecasts in some cases.  </p>
+<p>The rows may be input or calculated.  The need arises for aux data and calcs, for instance, in handling 401K accounts, where the EE contribution is tax deductable but is only part of the amount for add/wdraw at the balance level.  That value plus the pre-tax deductions amounts from the paychecks need to be summed to produce the W2 exclusions.  This is the place where those calcs happen. </p>
+<p>The table uses the "folding" method to allow aggregations, such as PRODUCT, MIN and TOTAL. Aggregated items are typically called for in another table. </p>
+<p>Social security withholding is a good example. Setting up the nesting as follows, allows the calculation to be done naturally without creating unwanted dependencies:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WH:Soc Sec</td>
+<td></td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G</td>
+<td></td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G:Base</td>
+<td></td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G:Base:Cap</td>
+<td>=XLOOKUP("Social Security Wage Cap",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))</td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G:Base:Gross</td>
+<td>=XLOOKUP(CHOOSECOLS(TEXTSPLIT([@Key],":"),3)&amp;" - Earned income - TOTAL",TRIM(tbl_iande[Account]),tbl_iande[Y2023])</td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G:Base - MIN</td>
+<td>=MIN(H58:H59)</td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G:Rate</td>
+<td>=XLOOKUP("Social Security FICA rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))</td>
+</tr>
+<tr>
+<td>WH:Soc Sec:G - PRODUCT</td>
+<td>=PRODUCT(H60:H61)</td>
+</tr>
+</tbody>
+</table>
+<p>The year column references, such as Y2023, are provided for each column at build time as are the aggregation formulas.</p>
 <h3 id="setup">Setup</h3>
-<p>Setup sources this from: data/aux.json 
-To refresh that file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>dance/util/extract_table.py<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsm<span class="w"> </span>-t<span class="w"> </span>tbl_aux<span class="w"> </span>-j<span class="w"> </span>data/aux.json<span class="w"> </span>-o<span class="w"> </span>records
-</code></pre></div>
+<p>The rows are defined in <code>setup.yaml</code> using the <code>data:hier_insert_paths:</code> and <code>data:hier_alt_agg:</code> keys.</p>
 
 
 

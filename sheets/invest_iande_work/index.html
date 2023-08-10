@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -688,9 +703,14 @@
 
 <h1 id="invest_iande_work">invest_iande_work</h1>
 <p>This sheet refers to Income and Expenses that relate to investments. The upper left quadrant of the sheet refers to actual values for several categories. These are converted to ratios in the lower left quadrant, so that forecasts can be derived. </p>
-<p>The table consists of
-- a set of lines of type <code>value</code> that represent income and expenses for each account<br />
-- a matching set of lines with a type of <code>rate</code> to hold the ratio to the <code>start bal</code>. These are computed in the case of actuals.  The actual rates are extended into the forecast periods where they are used to compute forecasts for each of the income/expense types.</p>
+<p><img alt="Concept" src="../../images/src/iiw_concept.svg" /></p>
+<p>The table consists of</p>
+<ol>
+<li>A set of lines of type <code>value</code> that represent income and expenses for each account  </li>
+<li>A matching set of lines with a type of <code>rate</code> to hold the ratio to the <code>start bal</code>. These are computed in the case of actuals</li>
+<li>The actual rates are extended into the forecast periods, by methods such as rolling average</li>
+<li>The forecast rates are then multiplied by the forecast start balances to get the value for each of the income/expense types.</li>
+</ol>
 <p>The following categories were devised to support forecasting investment income and taxes.</p>
 <table>
 <thead>

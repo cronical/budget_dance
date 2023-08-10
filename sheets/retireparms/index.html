@@ -183,7 +183,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Tools to map accounting data to long term plans
+        Tools to integrate accounting data with long term plans
       </a>
     </li>
   
@@ -214,6 +214,21 @@
     <li class="md-nav__item">
       <a href="../../data_from_moneydance/" class="md-nav__link">
         Data from Moneydance
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../excel_lambdas/" class="md-nav__link">
+        Defined Excel Lambda functions
       </a>
     </li>
   
@@ -302,21 +317,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../spreadsheet/" class="md-nav__link">
-        Design of the spreadsheet
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../vba_index/" class="md-nav__link">
         VBA Code Summary
       </a>
@@ -334,6 +334,21 @@
     <li class="md-nav__item">
       <a href="../../vba_sorted/" class="md-nav__link">
         VBA Code
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        Design of the workbook
       </a>
     </li>
   
@@ -369,17 +384,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
           Sheets
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_13">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_14">
           <span class="md-nav__icon md-icon"></span>
           Sheets
         </label>
@@ -604,6 +619,19 @@
     social security
   </a>
   
+    <nav class="md-nav" aria-label="social security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-source" class="md-nav__link">
+    Data source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -622,8 +650,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
+  <a href="#data-source_1" class="md-nav__link">
+    Data source
   </a>
   
 </li>
@@ -756,6 +784,19 @@
     social security
   </a>
   
+    <nav class="md-nav" aria-label="social security">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-source" class="md-nav__link">
+    Data source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -774,8 +815,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
+  <a href="#data-source_1" class="md-nav__link">
+    Data source
   </a>
   
 </li>
@@ -802,9 +843,14 @@
 
 <h1 id="retireparms">retireparms</h1>
 <h2 id="pension-facts">pension facts</h2>
-<p>Facts about pensions used by retirement sheet.  </p>
+<p>Facts about pensions used by retirement sheet. This is a static lookup table with the field <code>Pension</code> acting as they key. The columns are attributes to be used in the elections. </p>
 <h2 id="social-security">social security</h2>
-<p>This table creates a key for the selected social security election, by which the retirement table can find the value.</p>
+<p>This table creates a key for the selected social security elections, by which the retirement table can find the value. 
+The values need to be entered for amounts available at different ages.</p>
+<h3 id="data-source">Data source</h3>
+<p>It is sourced from <code>data/social_security.json</code>, which can be re-written with</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>dance/util/extract_table.py<span class="w"> </span>-t<span class="w"> </span>tbl_social_security<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsm
+</code></pre></div>
 <h2 id="mcare_opt">mcare_opt</h2>
 <p>Medical plan options and selection. This is the menu of medical plan choices.</p>
 <h3 id="fields">Fields</h3>
@@ -812,14 +858,14 @@
 <li>Year: Idenifies what year the plan is for.</li>
 <li>Package: This idenfifies the elements of a package.  This is used to select a set of items.  The value corresponds to a value in <code>tbl_retir_medical</code>, or blank if not selected.</li>
 <li>Class, Firm, Name and ID are labels to help tell what the line is.</li>
-<li>Monthly is the monthly premium.  For part D plans this is the amount over and above the surcharge, if any.</li>
+<li>Monthly is the monthly premium.  For part D plans this is the base amount.  Over and above this the surcharge, if any, will be applied.</li>
 <li>Premium is annual</li>
 <li>Cost is the annual premium + the deductible.</li>
 </ul>
-<h3 id="setup">Setup</h3>
+<h3 id="data-source_1">Data source</h3>
 <p>Setup sources this from: data/mcare_opt.json 
-To refresh that file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>dance/util/extract_table.py<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsm<span class="w"> </span>-t<span class="w"> </span>tbl_mcare_opt<span class="w"> </span>-j<span class="w"> </span>data/mcare_opt.json<span class="w"> </span>-o<span class="w"> </span>records
+To rewrite that file based on changes in the workbook</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="w"> </span>dance/util/extract_table.py<span class="w"> </span>-t<span class="w"> </span>tbl_mcare_opt<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsm
 </code></pre></div>
 
 
