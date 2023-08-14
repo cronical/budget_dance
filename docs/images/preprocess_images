@@ -1,9 +1,19 @@
 #!/bin/zsh
+# processing of images
+# expects to run in images folder
 
-# items to reduce to 40% and put a border around are in src/std
+
+# run dot jobs - send files to src/std
+for f in dot/*
+do
+  echo "Processing $f"
+  fn=$f:t:r #just the file name without the extension
+  dot -Tpng -o"src/std/$fn.png" "$f"
+done
+
+# reduce size 50% and put a border around items in src/std
 for f in src/std/*
 do
-  echo "Processing $f:t"
-
-  magick "$f" -resize 40% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 "tgt/$f:t"
+  echo "Processing $f"
+  magick "$f" -resize 50% -bordercolor navyblue -border 1 -alpha set -bordercolor none -border 50x0 "tgt/$f:t"
 done
