@@ -7,16 +7,16 @@ digraph{
     im_label
     im_scale
     im_border
-    im_montage
+    im_smush
   node [shape=ellipse]
   editor->{dot,sidebars}
   sidebars->im_label->sidebars
   screencap->{raw,safe}
   dot->graphviz->safe
-  {sidebars,im_border}->im_montage
+  {sidebars,bordered}->im_smush
   raw->redacted->safe
-  {safe}->im_scale->scaled->im_border
-  {im_border,im_montage}->tgt
+  {safe}->im_scale->scaled->im_border->bordered
+  {bordered,im_smush}->tgt
 
 
 }

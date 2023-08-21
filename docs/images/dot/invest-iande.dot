@@ -3,7 +3,7 @@ digraph {
     label = "Flow of data for investment income & expense"
     labelloc= t
     rankdir="TB"
-    splines=curved
+#    splines=curved
   ]
   newrank=True
   # accounts
@@ -27,7 +27,7 @@ digraph {
   "Add/Wdraw","Rlz Int/Gn", "Unrlz Gn/Ls", "End Bal", "Start Bal"
   node [fillcolor=3]
     "CapGn - LT", "CapGn - ST","Div","Div - Tax-exempt","Int","Int - Tax-exempt"
-  node [shape=rect,style=normal]
+  node [shape=rect,style=solid]
   pricing
 
   # files
@@ -82,7 +82,7 @@ digraph {
 
 
   #{rank=same;  "Div_reg"; "Cap Gn (sale)"; "Int_reg"; "Start Bal"}
-  edge [style=line]
+  edge [style=bold]
   compound=True
 
  
