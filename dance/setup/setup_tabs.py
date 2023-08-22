@@ -38,11 +38,6 @@ def refresh_sheets(target_file,overwrite=False):
   config=read_config()
   years=range(config['start_year'],1+config['end_year'])
   wb=load_workbook(filename = target_file,keep_vba=True)
-
-  # enable Iterative Calculation with low limit to allow "apparent" circular logic due to tables in different columns referencing each other
-  #wb.calculation.iterate=1
-  #wb.calculation.iterateCount= 2
-  #wb.calculation.iterateDelta=0.5  
   
   for lam in config['lambdas']:
     f=prepare_formula(lam['formula'])
