@@ -17,8 +17,6 @@ The system copies the inflation data to faciliatate planning.  To do this an API
 
 ![apikey](./images/tgt/api_key.png)
 
-Fifteen days before it expires (in 1 year) `labstat@bls.gov` will send an email titled `Bureau of Labor Statistics API Key Expiration` requiring a reactivation.
-
 ## The setup control file
 
 The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
@@ -38,11 +36,30 @@ The following values are global in nature:
 |year_column_width|Column size for years| 12
 |first_forecast_year |First year that is considered a forecast. Prior years are considered actual| 2022
 |zoom_scale|Scaling factor for all sheets| 135 # how to scale the worksheets
-|bank_interest|Moneydance category used to convey bank interest to the account balances| Income:I:Invest income:Int:Bank
+|bank_interest|Moneydance category used to convey bank interest to the account balances| Income:I:Invest income:Int:Bank|
+|lambdas|Excel lambda functions are defined here||
+
+```yaml
+lambdas:
+  - name: AGE
+    formula: =LAMBDA(inits,yr,ROUNDDOWN(((DATE(yr,12,31)-DOB(inits))/365.25),0))
+    comment: Return the age attained by an account owner with inits in a given year
+```
 
 ### Sheet groups
 
 Sheets are grouped together in sheet groups using the `sheet_group` definitions.  Each sheet is assigned to a group and thus shares the color and table style.
+
+```yaml
+sheet_groups:
+  acct-bal:
+    color: 4FA3DB
+    table_style: TableStyleMedium2
+  income-expense:
+    color: BDAE2D
+    table_style: TableStyleMedium12
+  ...
+```
 
 ### Sheets
 

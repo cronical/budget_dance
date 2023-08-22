@@ -56,21 +56,6 @@ The following picks a year column from balances by locating the year in the head
 
 These depend on the whole table, though, where the INDIRECT method depends only on the column.
 
-### Selecting the column at build time
-
-Both the indirect and indexing methods have serious drawbacks, so another method was created. This allows the formula to be written with a generic year, which will be substituted at build time.
-
-```title="formula as written in setup.yaml"
-formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
-```
-
-```title="formula as it occurs in Excel"
-=XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y2022])
-```
-
-There are two regular expression rules in `xl_formulas.py` that do the substituion.  One is the matches Ynnnn, which is the example above.  The other is used to indicate an offset, picking out a prior column. In that case, the form is Ynnnn-m, which will use the year m years before nnnn. 
-
-This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. 
 
 ## The last column
 
@@ -92,7 +77,7 @@ Useful to get the last actual, for instance.
 =OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-1,1,1)
 ```
 
-But... OFFSET is a volatile function, causing performance problems.
+But... OFFSET is a volatile function, causing performance problems. So instead use the [build time method](#get-prior-cells-on-this-row).
 
 
 ## Lookup
@@ -215,13 +200,19 @@ SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctNam
 
 ## Forecasting based on last n elements
 
-Linear least squares fit. The example takes current cell with `INDIRECT(ADDRESS(ROW(),COLUMN())` as the basis for `OFFSET` which looks back 5 columns on this row and includes this row and 5 samples in the form of a 1 by 5 matrix. This needs to be a just a 1D series, so `TOROW` is used.  Then we just ask the linear forecast tool to provide item 6 for a sequence of 5 elements.  Seems like it should require the sequence to be 1D as well, but it doesn't.
-
-
+Linear least squares fit. The example looks back 5 columns on this row for the `y` values and uses numbers 1 to 5 as the `x` values.  Then we just ask the linear forecast tool to provide item 6.  Wrap the whole thing with a MAX to prevent it from going negative.
 
 ```title="Forecast"
-=FORECAST.LINEAR(6,TOROW(OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-5,1,5)),SEQUENCE(1,5))
+=MAX(0,FORECAST.LINEAR(6,tbl_iande[@5<Y1234],SEQUENCE(1,5)))
 ```
+
+### Get Prior cells on this row
+
+The above uses [build time replacement](./workbook.md#build-time-column-substitutions). 
+
+`tbl[@5<Y1234]` becomes `tbl[[#This Row],[Y2018]:[Y2022]]`, when in the Y2023 column.
+
+So the form `[@m<Ynnnn]` says for the m years in this row preceding this year.
 
 ## LET example: Simple return calculation
 
@@ -269,32 +260,3 @@ Conditional formatting formulas cannot use structured references, including bare
  grep formula: data/setup.yaml | grep -v 'XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT'
 ```
 
-## Using LAMBDAs in defined names
-
-It is not clear if Excel properly handles a lambda inside a let inside a lambda.  
-
-Even though I put the _xlpm. in properly, and it is in the workbook.xml file as input, the prefixes are dropped insided the nested elements, unless they are defined in the outer element.
-
-The problem is that each of the parameters needs a hidden defined name too.  Excel creates these upon open. 
-
-It appears that Excel converts input "lambda" into "LAMBDA", then subsequent processing is based on the upper case version.
-So when Openpyxl provides these functions, they need to be provided in uppercase.
-
-This fixed my simplified formula. the nested case has not been retested.
-
-Note - do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.
-
-[List of functions](./excel_lambdas.md)
-
-### Get Prior cells on this row
-
-``` Straight line forecast but no less than zero
-MAX(0,FORECAST.LINEAR(6,TOROW(PRIORS(ROW_IN(tbl_iande[]),5)),SEQUENCE(1,5)))
-```
-Note that `tbl_iande[]` is short for `tbl_iande[#All]`.
-
-This has the same dependency drawback as was seen in columns. New method is to use build time replacement. 
-
-`tbl[@5<Y2023]` becomes `tbl[[#This Row],[Y2018]:[Y2022]]`.
-
-So the form `[@m<Ynnnn]` says for the m years in this row preceding this year.
