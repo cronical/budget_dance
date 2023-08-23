@@ -2,13 +2,14 @@
 
 ## Highlights
 
-1. Heavy use of Excel Tables
-    - Annual time series going from past actual into future forecast
-    - Tables are housed on various worksheets which are grouped and color coded.
-1. Formulas work best with hard-coded column names
-    - Substitutions for generics such as "this column" are provided at build time
-    - Avoids volitile functions and over large dependencies
-    - This impairs ease of revising formulas in rows, but produces performant spreadsheet
+1. Annual time series going from past actual into future forecast
+1. Uses Excel Tables and structured references for readability and usability
+1. Build of the workbook is defined for initial and annual updates
+    - Controlled by a definition file, including formulas
+    - Preservation of input data is supported so re-building can be done
+    - Substitutions for generics such as "this column" are provided at [build time](#build-time-column-substitutions)
+        - Avoids volatile functions and over large dependencies
+        - This impairs ease of revising formulas in rows, but produces performant spreadsheet
 1. Bias toward use of modern array oriented Excel functions
     - Excel Lambda functions are in use to make calculations more readable.
     - Tables don't support dynamic arrays - array functions reduced to a single value
@@ -24,6 +25,8 @@
 There are some complex dependencies between the tables.  Generally, the flow is between rows in a year, then certain values are carried forward into the next year.
 
 ## Tables
+
+Tables are housed on various worksheets which are grouped and color coded.
 
 Many of the tables represent a set of annual time series.  The data elements are typically financial values associated with a year.  For instance, the balances table tracks how balances change year by year.
 
@@ -71,7 +74,7 @@ There are three regular expression rules in `xl_formulas.py` that do the substit
 
 This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. 
 
-### Folding
+## Folding
 
 By folding we mean using the row grouping feature of Excel, where the final row of a group contains the aggregation of the items folded under it. 
 
