@@ -1,21 +1,23 @@
 # Design of the workbook
 
-1. Heavy use of Tables with named columns
-    - Many which include an annual time series going from past into future
+## Highlights
+
+1. Heavy use of Excel Tables
+    - Annual time series going from past actual into future forecast
     - Tables are housed on various worksheets which are grouped and color coded.
+1. Formulas work best with hard-coded column names
+    - Substitutions for generics such as "this column" are provided at build time
+    - Avoids volitile functions and over large dependencies
+    - This impairs ease of revising formulas in rows, but produces performant spreadsheet
 1. Bias toward use of modern array oriented Excel functions
-    - As tables don't support dynamic arrays - generally each function is reduced to a single value
-    - Progress is underway to remove VBA functions that rely on retrieving data, but some calculations are expected to remain.
     - Excel Lambda functions are in use to make calculations more readable.
-1. Formulas work best with hard-coded column names, avoiding volitile functions and over large dependencies
-    - These are provided at build time
-    - This impairs ease of revising formulas in rows
+    - Tables don't support dynamic arrays - array functions reduced to a single value
+    - Progress is underway to remove VBA functions that rely on retrieving data
+    - Some VBA calculations are expected to remain.
 1. Use of "folding" technique to make navigation easier and calculations less obtuse
-    - Replaces the SUBTOTAL(9,...) technique with aggregation by SUM, PROD, MIN, MAX special tax calculations
+    - Replaces the SUBTOTAL(9,...) technique with aggregation by SUM, PROD, MIN, MAX & special tax calculations
     - Unlike SUBTOTAL(9,...) uses the inner level aggregations not the interior leaf values.  
     - This supports typical tax calcs.
-
-By convention in the documentation we call the workbook `fcast.xlsm`, although it could be anything.
 
 ## Dependencies
 
@@ -69,6 +71,27 @@ There are three regular expression rules in `xl_formulas.py` that do the substit
 
 This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. 
 
+### Folding
+
+By folding we mean using the row grouping feature of Excel, where the final row of a group contains the aggregation of the items folded under it. 
+
+![Folding example](./images/tgt/folding_concept.png)
+
+The aggregation is performed on the last line of the group as indicated by the word occuring after the final hyphen.
+The aggregation methods TOTAL, MIN, MAX, PRODUCT, FED_TAX, CT_TAX.
+
+The technique is similar to that provided by Excel's SUBTOTAL function but differs as follows:
+
+Excel ignores nested aggregations - instead it re-sums the values from the leaf nodes.
+This is fine for subtotals but does not work when mixing aggregation types across levels.
+In all cases the system takes the values that are directly below this aggregation level, no matter if they are leaf nodes or aggregates themselves.
+
+Unlike the subtotal method this grabs the subordinate aggregation lines not the underlying leaf nodes
+This methods allows the folding to do things like sum the results of subordinate aggregations that are not themselves sums.
+
+For example, consider the calculation of social security withholding. Row 67 is the min of rows 65 and 66 and is itself combined  with 68 as a product into 69. The product calculation does not involve the lower level values on 65, and 66.
+
+ ![Aggregation example](./images/tgt/folding_ss_example.png)
 
 ## Idioms
 
@@ -124,3 +147,7 @@ With the approach indicated in [Excel Calculations](#calculations) these are bei
 ### Naming conventions for accounts
 
 - Actual account names are generally of the form *type-who-firm* where type is one of 401K, 529, BKG, BND, ESP, HSA, IRA, IRA Roth, LON, MUT.
+
+### Documentation Conventions
+
+By convention in the documentation we call the workbook `fcast.xlsm`, although it could be anything.

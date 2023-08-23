@@ -1,5 +1,4 @@
-The time series columns are labeled with 'Y' + year.    
-The meaning of the time series data depends on the first forecast year. 
-To the left of the first forecast year, data is considered actual.
-To the right it is forecast.  
-The red line marks the transition from actual to forecast.
+- Time series columns are labeled with 'Y' + year.    
+- Left of the first forecast year, data is actual.
+- To the right it is forecast.  
+- Red line marks the change from actual to forecast.

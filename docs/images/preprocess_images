@@ -26,7 +26,8 @@ for f in src/sidebars/*.txt
 do
   echo "Creating image from sidebar text: $f"
   fn=$f:t:r
-  magick -pointsize 16 -font Helvetica -background khaki \
+  magick -pointsize 20 -font Helvetica -background khaki \
+  -interline-spacing 10 \
   -fill blue label:@src/sidebars/"$fn".txt \
   -bordercolor khaki -border 20x20 \
   src/sidebars/"$fn".gif
@@ -37,7 +38,7 @@ do
   -alpha set -bordercolor none -border 40x20 \
   src/sidebars/"$fn".png
 
-  rm src/sidebars/"$fn".gif
+  #rm src/sidebars/"$fn".gif
 done
 
 # scale and put a border around items in src/safe
@@ -67,7 +68,7 @@ do
     magick convert -gravity center +smush 40 src/bordered/"$fn".png \
     src/sidebars/"$fn".png tgt/"$fn".png
   else
-    echo "Copying $fn.png"
-    cp $f "tgt/$f:t"
+    echo "Copying $fn.png if changed"
+    rsync -c $f "tgt/$f:t" # only copy if changed
   fi
 done
