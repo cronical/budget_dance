@@ -546,32 +546,7 @@ Function IntYear(yval) As Integer
     y = 0 + Right(yval, 4)
     IntYear = y
 End Function
-Function bal_agg(y_year As String, val_type As String, Optional acct_type As String = "*", Optional txbl As Integer = 1, Optional active As Integer = 1) As Double
-'get the sum of values from the balances table for a year and type, optionally further qualified by acct type,taxable status,active status
-'wild cards are OK as are Excel functions like "<>" prepended to the values for strings
-'NOTE all the criteria fields must have values - suggest using NA if there is no value such as for an election.
 
-    Dim this_year As Integer, tbl_name As String
-    Dim result As Double
-    Dim tbl As ListObject, crit_col1 As ListColumn, crit_col2 As ListColumn, val_col As ListColumn
-    Dim criteria1 As String, criteria2 As String
-    
-    tbl_name = "tbl_balances"
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set crit_col1 = tbl.ListColumns("ValType")
-    Set crit_col2 = tbl.ListColumns("Type")
-    Set crit_col3 = tbl.ListColumns("Income Txbl")
-    Set crit_col4 = tbl.ListColumns("Active")
-    Set val_col = tbl.ListColumns(y_year)
-    result = Application.WorksheetFunction.SumIfs(val_col.Range, _
-        crit_col1.Range, val_type, _
-        crit_col2.Range, acct_type, _
-        crit_col3.Range, txbl, _
-        crit_col4.Range, active)
-    bal_agg = result
-
-End Function
 
 
 

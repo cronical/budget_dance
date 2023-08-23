@@ -1,0 +1,10 @@
+#!/bin/zsh
+# look for vba function to see if it can be removed
+echo "================= $1 ==================="
+echo "Checking vba/fcast.vb"
+grep $1 vba/fcast.vb
+grep -c $1 vba/fcast.vb
+echo "\nChecking data/setup.yaml"
+grep $1 data/setup.yaml
+grep -c $1 data/setup.yaml
+
