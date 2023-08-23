@@ -188,7 +188,7 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
 
     # bank interest
     test_lines={
-      'tbl_balances':'Rlz Int/GnBank Accounts',
+      'tbl_balances':'Bank Accounts:Retain:Rlz Int/Gn',
       'tbl_iande': 'Income:I:Invest income:Int:Bank'
     }
     row_to_row(workbook,test_group,tester,test_lines)
@@ -213,7 +213,7 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
   # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
     test_lines={
     'tbl_iande':'Expenses:Y:Invest:Reinv',
-    'tbl_balances':'Reinv Amt'}
+    'tbl_balances':'Retain - PRODUCT'}
     row_to_row(workbook,test_group,tester,test_lines)
 
     # HSA - compare add/wdraw balances with P/R savings less distrib
