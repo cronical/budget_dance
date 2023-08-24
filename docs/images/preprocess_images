@@ -80,5 +80,5 @@ do
   fi
 done
 echo "Copying changed files to tgt/"
-rsync -c src/stage/* tgt/* # only copy if changed
+rsync -c src/stage/* tgt/ # only copy if changed
 
