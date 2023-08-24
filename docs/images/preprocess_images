@@ -9,8 +9,9 @@
 # 4. puts borders around png files in src/scaled and puts them in src/bordered
 # 5. For each file in src/bordered, determines if same name exists in src/sidebars
 #    If it does, then puts them together and copies into tgt.
-#    If not, then just copies the bordered file to tgt.
+#    If not, then just copies the bordered file to tgt only if changed
 #
+# png files are written without their metadata (with -strip) to allow better version management
 # run dot jobs - send files to src/safe
 for f in dot/*
 do
@@ -30,12 +31,14 @@ do
   -interline-spacing 10 \
   -fill blue label:@src/sidebars/"$fn".txt \
   -bordercolor khaki -border 20x20 \
+  -strip \
   src/sidebars/"$fn".gif
 
   # montage step adds the shadow
   magick montage src/sidebars/"$fn".gif -tile x1 \
   -shadow -geometry +3+5 -background none \
   -alpha set -bordercolor none -border 40x20 \
+  -strip \
   src/sidebars/"$fn".png
 
   #rm src/sidebars/"$fn".gif
@@ -47,17 +50,18 @@ do
   echo "Scaling $f"
   fn=$f:t:r
   magick src/safe/"$fn".png -resize 640x640\> \
+  -strip \
   src/scaled/"$fn".png  
-  #magick "$f" -resize 50% -bordercolor navyblue -border 1 -alpha set \
-  #-bordercolor none -border 50x0 "tgt/$f:t"
 
   # border
   magick src/scaled/"$fn".png -bordercolor navyblue -border 1 \
+  -strip \
   -alpha set -bordercolor none -border 40x20 \
   src/bordered/"$fn".png
 done
 
-echo "Placing files in tgt/"
+echo "Placing files in src/stage/"
+rm src/stage/*
 for f in src/bordered/*
 do
   fn=$f:t:r
@@ -65,10 +69,16 @@ do
   if [[ -f src/sidebars/"$fn".png ]]
   then
     echo "Smushing with sidebar: $f"
-    magick convert -gravity center +smush 40 src/bordered/"$fn".png \
-    src/sidebars/"$fn".png tgt/"$fn".png
+    echo $fn
+    magick convert \
+    -strip \
+    -gravity center +smush 40 src/bordered/"$fn".png \
+    src/sidebars/"$fn".png "src/stage/$fn.png"
   else
-    echo "Copying $fn.png if changed"
-    rsync -c $f "tgt/$f:t" # only copy if changed
+    echo "Copying $fn.png"
+    cp $f "src/stage/$fn.png"
   fi
 done
+echo "Copying changed files to tgt/"
+rsync -c src/stage/* tgt/* # only copy if changed
+

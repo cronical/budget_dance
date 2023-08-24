@@ -16,7 +16,7 @@ digraph{
   {sidebars,bordered}->im_smush
   raw->redacted->safe
   {safe}->im_scale->scaled->im_border->bordered
-  {bordered,im_smush}->tgt
+  {bordered,im_smush}->stage->tgt
 
 
 }
