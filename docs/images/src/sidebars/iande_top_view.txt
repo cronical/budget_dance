@@ -1,7 +1,4 @@
 - Historical and Forecast in one view
-
 - Income Expense and Taxes PLUS
-
 - In (J) and Out (Y) cashflow
-
 - Folding rows to allow drill down

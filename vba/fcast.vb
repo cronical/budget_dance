@@ -9,86 +9,6 @@ Function y_offset(y_year As String, offset As Integer) As String
     y_offset = r
 End Function
 
-Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
-' Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.
-' Use of this can help avoid the hard coding of addresses into formulas
-' By default the tag column is "tag" but an alternate can be provided
-' Other agg_methods are "min" and "max"
-    Dim agg_val As Double
-    
-    Dim tbl As ListObject
-    Dim point As Range, val_rng As Range, tag_col As Range
-    Set point = Application.caller
-    Set tbl = point.ListObject
-    Set tag_rng = tbl.ListColumns(tag_col_name).Range
-    Set val_rng = tbl.ListColumns(y_year).Range
-    Select Case agg_method
-    Case "sum"
-        agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rng, by_tag)
-    Case "min"
-        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rng, by_tag)
-    Case "max"
-        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rng, by_tag)
-    End Select
-    agg = agg_val
-End Function
-Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double
-' Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.
-' Use of this can help avoid the hard coding of addresses into formulas
-' By default the tag column is "tag" but an alternate can be provided
-' Other agg_methods are "min" and "max"
-' A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:
-'  A delimiter is included in the strings to allow two values to be provided.The delimiter is stile (|)
-'  The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree
-    Dim agg_val As Double
-    Dim tbl As ListObject
-    Dim point As Range, val_rng As Range, tag_rngs() As Range
-    Dim by_tags() As String, tag_col_names() As String, by_tags_v As Variant
-    
-    On Error GoTo ErrHandler
-    delim = "|"
-    by_tags = Split(by_tag, delim)
-    tag_col_names = Split(tag_col_name, delim)
-    
-    Set point = Application.caller
-    ws_name = ws_for_table_name(tbl_name)
-    Set tbl = ThisWorkbook.Worksheets(ws_name).ListObjects(tbl_name)
-    Set val_rng = tbl.ListColumns(y_year).Range
-    ReDim tag_rngs(UBound(by_tags))
-    ReDim by_tags_v(UBound(by_tags))
-    
-
-    For i = LBound(by_tags) To UBound(by_tags)
-        Set tag_rngs(i) = tbl.ListColumns(tag_col_names(i)).Range
-        If IsNumeric(by_tags(i)) Then
-            by_tags_v(i) = CInt(by_tags(i))
-        Else
-            by_tags_v(i) = by_tags(i)
-        End If
-    Next i
-    
-    Select Case agg_method
-    Case "sum"
-        Select Case UBound(by_tags)
-        Case 0
-            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0))
-        Case 1
-            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1))
-        Case 2
-            agg_val = Application.WorksheetFunction.SumIfs(val_rng, tag_rngs(0), by_tags_v(0), tag_rngs(1), by_tags_v(1), tag_rngs(2), by_tags_v(2))
-        End Select
-    Case "min"
-        agg_val = Application.WorksheetFunction.MinIfs(val_rng, tag_rngs(0), by_tags(0))
-    Case "max"
-        agg_val = Application.WorksheetFunction.MaxIfs(val_rng, tag_rngs(0), by_tags(0))
-    End Select
-    agg_table = agg_val
-    Exit Function
-ErrHandler:
-    log ("[ " & point.address & " ] agg_table: " & Err.Number & " " & Err.Description)
-End Function
-
-
 Function annuity(account As String, y_year As String) As Double
 'return a year's value for an annuity stream based on the prior year's end balance
 'fetches the start date, duration and annual annuity rate from tbl_retir_vals
@@ -570,15 +490,7 @@ End Function
 
 
 
-Function last_two_parts(cat As String, Optional delim = ":") As String
-    'take the last two parts of a delimited string and return them as a new string with the delimiter
-    'missing parts will be set to zero lenght string
-    Dim arr() As String
-    arr = Split("::" + cat, delim)
-    k = UBound(arr)
-    r = arr(k - 1) + ":" + arr(k)
-    last_two_parts = r
-End Function
+
 
 Function ratio_to_start(account As String, category As String, y_year As String) As Double
     'For investment income and expense, compute the ratio to the start balance, but use the prior end balance since

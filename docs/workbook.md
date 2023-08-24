@@ -29,6 +29,7 @@ There are some complex dependencies between the tables.  Generally, the flow is 
 Tables are housed on various worksheets which are grouped and color coded.
 
 Many of the tables represent a set of annual time series.  The data elements are typically financial values associated with a year.  For instance, the balances table tracks how balances change year by year.
+The view below selects just the end balance row.
 
 ![Income and Expense time series](./images/tgt/time_series.png)
 

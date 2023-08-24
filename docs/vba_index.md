@@ -6,10 +6,6 @@
 ||Return the age attained by an account owner in a given year. Deprecation candidate - appears not to be used|
 |age_of|Function age_of(inits As String, y_year As String) As Integer|
 ||Return the age attained by an account owner in a given year|
-|agg|Function agg(y_year As String, by_tag As Variant, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
-||Aggregate (default is sum) up the values in the table containing the calling cell for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max"|
-|agg_table|Function agg_table(tbl_name As String, y_year As String, by_tag As String, Optional agg_method = "sum", Optional tag_col_name As String = "Tag") As Double|
-||Aggregate (default is sum) up the values in the named table for a year where the by_tag is found in the tag column.. Use of this can help avoid the hard coding of addresses into formulas. By default the tag column is "tag" but an alternate can be provided. Other agg_methods are "min" and "max". A second and third criteria may be provided by extending the by_tag and the tag_col_name as follows:. A delimiter is included in the strings to allow two values to be provided.the delimiter is stile (|). The there should be exactly 0 or 1 or 2 delimiters, andthe by_tag and tag_column_name should agree|
 |ANN|Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double|
 ||Return a year's value for an annuity stream based on the prior year's end balance. This version leaves all the excel dependencies visible to excel|
 |annuity|Function annuity(account As String, y_year As String) As Double|
@@ -30,8 +26,6 @@
 ||Strips off the y on the argument (eg y2019) and returns an integer|
 |is_forecast|Function is_forecast(y_year As String) As Boolean|
 ||Determine if this year is a forecast year|
-|last_two_parts|Function last_two_parts(cat As String, Optional delim = ":") As String|
-||Take the last two parts of a delimited string and return them as a new string with the delimiter. Missing parts will be set to zero lenght string|
 |log|Sub log(txt As String)|
 |||
 |LUMP|Function LUMP(account As String, y_year As String) As Double|
