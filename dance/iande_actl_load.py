@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 '''
-Copies data from "data/iande.tsv" into tab "iande_actl" after doing some checks.
+Copies data from "data/iande.tsv" into tab "iande" after doing some checks.
 '''
 import argparse
 
@@ -13,80 +13,11 @@ from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
 from dance.util.tables import (columns_for_table, df_for_table_name,
                                get_f_fcast_year,  write_table)
-from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref, this_row
+from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref
 from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 
 logger=get_logger(__file__)
 
-def test_required_lines(df,workbook,forecast_start_year,initialize_iande=False,force=False,verbose=False):
-  ''' Test the proposed updates to income and expense, to keep iande and iande_actl aligned.
-  Compute the list of required lines given the forecast start year in form y_year
-  Args:
-    df: the dataframe containing the proposed replacement for iande_actl
-    workbook: the name of the target excel file
-    forecast_start_year: The first forecast year as a String (Ynnnn)
-    initialize_iande: True if we are going to (re)initialize iande. Default False.
-    force: True if we are going to allow forecast values to be destroyed. Default False
-    verbose: True to report out all the lines that are in actl but not in iande. default False.
-
-  returns: the required lines and all lines as sets
-
-  raises:
-    ValueError: when removing non-zero forecast lines without the -f (force) flag
-
-  '''
-  logger.debug('Testing required lines')
-  try:
-    iande=df_for_table_name(table_name='tbl_iande',workbook=workbook)
-  except ValueError as err:
-    logger.warning(str(err))
-    logger.warning('Unable to check required lines')
-    return
-  iande.insert(loc=0,column='Key',value=iande.index) # it comes with the key as the index
-  iande.reset_index(drop=True,inplace=True)
-  cols= list(iande.columns)
-  ix=cols.index(forecast_start_year)
-  c=cols[ix:]
-
-  def not_all_are_empty(a):
-    return any([x is not None for x in list(a)])
-
-  req_lines=set(iande.Key.loc[iande[c].apply(not_all_are_empty,axis=1)])
-  # make sure nothing of the forecast gets lost due to changed lines.
-
-  keys=list(df['Key'])
-  if not req_lines.issubset(set(keys)):
-    logger.warning('Existing forecast lines are not all present')
-    logger.warning('The following line(s) exist in {} but do not occur in the file to import ({})'\
-      .format(workbook,workbook))
-    missing=list(req_lines.difference(set(keys)))
-    for ms in missing:
-      logger.info('   {}'.format(ms))
-    logger.info('Intialize iande flag is set to %r',initialize_iande)
-    if initialize_iande:
-      print('That will remove those forecast lines from iande')
-      if not force:
-        logger.error('Exiting {}. Re-run with -f to continue'.format(__file__))
-        raise ValueError('Proposed removing forecast lines without the -f (force) flag')
-    else:
-      logger.info('But we are only updating iande_actl, it does not matter.')
-  else:
-    logger.debug('All forecast items are included in input file.')
-
-  # now report any new lines
-  all_lines=set(iande.index)
-  new=list(set(keys).difference(all_lines))
-  new.sort()
-  if 0<len(new):
-    logger.info('Note: new lines will be in iande_actl but not in iande')
-    logger.info('These may be added later by the program and/or you can manually add them there')
-    logger.info('Note: lines with the suffix "-Other" occur when a transaction exists at a non-leaf in the category tree')
-    logger.info('      If not desired, remove transaction and run again.  ')
-    if verbose:
-      for nw in new:
-        logger.info('   {}'.format(nw))
-    else:
-      logger.info('To see the list re-run with verbose option')
 
 def indent_other(str):
   '''indent -other rows to fix an anomoly in the md report
@@ -135,14 +66,14 @@ def y_year(df):
   return df 
 
 def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_row=1,verbose=False):
-  '''prepare the dataframe for insertion into workbook. Supports both iande and iande_actl.
-    Makes checks to ensure nothing of the forecast gets lost due to changed lines.
-    Checks can be overridden by a flag.
+  '''prepare the dataframe for insertion into workbook. 
+    #Makes checks to ensure nothing of the forecast gets lost due to changed lines.
+    #Checks can be overridden by a flag.
     Handles category nesting as groups with subtotals.
 
     args:
       workbook: the name of the spreadsheet to load data into.
-      target_sheet: the name of the tab to update. Either 'iande_actl' or'iande'
+      target_sheet: the name of the tab to update. Either 'iande' or 'current'
       df: the dataframe that has basic clean up already done
       force: Optional. True to override warning. Default False
       f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
@@ -154,13 +85,13 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
     raises:
       FileNotFoundError: if workbook does not exist or the config file does not exist.
-      ValueError: if tab_target is not iande or iande_actl
+      ValueError: if tab_target is not iande or current
       IndexError: if columns expected and received from data source do not match
     '''
 
   if title_row!=1:
-    raise NotImplementedError('Title row must be 1 for iande and iande_actl for now.')
-  valid_sheets=['iande_actl','iande','current']
+    raise NotImplementedError('Title row must be 1 for {} for now.'.format(target_sheet))
+  valid_sheets=['iande','current']
   heading_row=1+title_row
   if target_sheet not in valid_sheets:
     raise ValueError('tab_target must be one of: %s'%', '.join(valid_sheets))
@@ -190,13 +121,10 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   match target_sheet:
     case 'iande':
       del df['is_leaf'] # clear out temp field
-      test_required_lines(df,workbook,f_fcast,initialize_iande=True,force=force,verbose=verbose) # raises error if not good.
+      #test_required_lines(df,workbook,f_fcast,initialize_iande=True,force=force,verbose=verbose) # raises error if not good.
       # adjust for iande, adding columns
       for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
         df['Y{}'.format(y)]=None
-    case 'iande_actl':
-      del df['is_leaf'] # clear out temp field
-      test_required_lines(df,workbook,f_fcast,initialize_iande=False,force=force,verbose=verbose) # raises error if not good.
     case 'current':
       as_of=df.columns[-1]
       as_of_datetime=pd.to_datetime(as_of.split(' - ')[-1])
@@ -208,7 +136,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
       formula='=IF(AND(ISBLANK([@Factor]),ISBLANK(@Add)),"",([@Y%s]*[@Factor])+[@Add])'%yymmdd
       df['Year']=table_ref(formula)
     
-
   df=y_year(df)  
   df=subtotal_formulas(df,groups)
 
@@ -236,8 +163,8 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande_actl" or "current" after doing some checks. ')
-  parser.add_argument('-s','--sheet',choices=['iande_actl','current'],default='iande_actl',help='which sheet - iande_actl or current')
+  parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande" or "current".')
+  parser.add_argument('-s','--sheet',choices=['iande','current'],default='iande',help='which sheet - iande or current')
   parser.add_argument('-p','--path',default= None,help='The path and name of the input file. If not given will use "data/iande.tsv" or "data/iande_ytd.tsv" depending on sheet')
   parser.add_argument('-w','--workbook',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
   parser.add_argument('-f','--force', action='store_true', default=False, help='Use -f to ignore warning')
@@ -245,7 +172,7 @@ if __name__ == '__main__':
   args=parser.parse_args()
   path=args.path
   if path is None:
-    path={'iande_actl':'data/iande.tsv','current':'data/iande_ytd.tsv'}[args.sheet]
+    path={'iande':'data/iande.tsv','current':'data/iande_ytd.tsv'}[args.sheet]
   config=read_config()
   ffy=config['first_forecast_year']
   table_info=config['sheets'][args.sheet]['tables'][0]
