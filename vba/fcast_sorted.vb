@@ -53,30 +53,6 @@ Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior
 
 End Function
 
-Function annuity(account As String, y_year As String) As Double
-'return a year's value for an annuity stream based on the prior year's end balance
-'fetches the start date, duration and annual annuity rate from tbl_retir_vals
-'rounds to whole number
-    Dim anny_start As Date
-    Dim duration As Integer, this_year As Integer
-    Dim annual_rate As Double, anny_rate As Double
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    anny_start = get_val(account, "tbl_retir_vals", "Start Date")
-    duration = get_val(account, "tbl_retir_vals", "Anny Dur Yrs")
-    anny_rate = get_val(account, "tbl_retir_vals", "Anny Rate")
-    
-    n = duration - (this_year - year(anny_start))
-    result = 0
-    If n > 0 Then
-        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
-        factor = mo_apply(anny_start, y_year) ' TODO put end date on this call
-        result = factor * result
-        result = Application.WorksheetFunction.Round(result, 0)
-    End If
-    annuity = result
-End Function
-
 Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double
 'Calculate the CT income tax for a given year and taxable income amount
 'The so called Initial Tax Calculation only.
@@ -288,15 +264,6 @@ Function IntYear(yval) As Integer
 'strips off the Y on the argument (eg Y2019) and returns an integer
     y = 0 + Right(yval, 4)
     IntYear = y
-End Function
-
-Function is_forecast(y_year As String) As Boolean
-'determine if this year is a forecast year
-    ffys = get_val("first_forecast", "tbl_gen_state", "Value")
-    ffy = IntYear(ffys)
-    ty = IntYear(y_year)
-    r = ty >= ffy
-    is_forecast = r
 End Function
 
 Sub log(txt As String)

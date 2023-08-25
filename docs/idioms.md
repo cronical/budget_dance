@@ -239,7 +239,7 @@ after all these are set is fairly easy to use CHOOSEROWS to select the right dat
     w,MATCH(@c&a,[Key],0),
     IFERROR(2*SUM(CHOOSEROWS(y,w))/SUM(CHOOSEROWS(y,x)),0)
     )
-  ```
+```
 
 
 ## Tax calculations 

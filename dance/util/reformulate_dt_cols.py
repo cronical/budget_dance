@@ -7,7 +7,6 @@ import re
 from dance.util.files import read_config
 # look for this pattern
 sample='=XLOOKUP([@AcctName],tbl_transfers_actl[Account],CHOOSECOLS(tbl_transfers_actl[#Data],XMATCH(this_col_name(),tbl_transfers_actl[#Headers])))'
-#pat=re.compile('(^.*get_val)\((.*)\)(.*$)')
 pat=r'^.*(CHOOSECOLS\((tbl_[0-9a-z_]*)\[#Data\],XMATCH\(this_col_name\(\),(tbl_[0-9a-z_]*)\[#Headers\]\)\)).*$'
 pat=re.compile(pat)
 

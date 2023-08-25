@@ -9,7 +9,12 @@ fi
 #
 # pull latest vba from fcast.xlms and build the test spreadsheet and open it
 dance/util/vba/extract_vba.py    
-dance/util/vba/sort_vba.py 
+dance/util/vba/sort_vba.py
+
+# document the lambdas
+dance/util/doc_lambda.py
+
+# run the main build
 dance/setup/create_wb.py data/test_wb.xlsm -o
 RC=$?
 if [ $RC -ne 0 ]; then

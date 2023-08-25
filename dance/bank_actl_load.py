@@ -66,10 +66,10 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
   # So far we have the change in account value, but part of that comes from bank interest
   # so remove those amounts.
 
-  iande_actl=df_for_table_name('tbl_iande_actl',workbook=target_file,table_map=table_map)
+  iande=df_for_table_name('tbl_iande',workbook=target_file,table_map=table_map)
   cols=changes.columns # the year numbers
   for col in cols:
-    adj=changes.loc['Bank Accounts',col]-iande_actl.loc['Income:I:Invest income:Int:Bank',col]
+    adj=changes.loc['Bank Accounts',col]-iande.loc['Income:I:Invest income:Int:Bank',col]
     changes.loc['Bank Accounts',col]=adj
 
   # and fix the sign
@@ -79,7 +79,8 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
 
 def main():
   '''If called from the command line prints result'''
-  changes= bank_cc_changes(data_info={'file_sets':{'balances':'./data/acct-bals/'}})
+  changes= bank_cc_changes(data_info={'file_sets':{'balances':'./data/acct-bals/'}},
+                           target_file="data/test_wb.xlsm")
   print(changes)
 
 if __name__ == '__main__':

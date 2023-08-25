@@ -194,17 +194,6 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
       # adjust for iande, adding columns
       for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
         df['Y{}'.format(y)]=None
-      #use formulas to pull non-totals from iande_actl
-      tr=this_row('Key') # syntax to refer to key on this row inside of Excel
-      for rix,row in df.iterrows():
-        for cix,col_name in enumerate(df.columns):
-          if col_name[1:].isnumeric():
-            val=row[col_name]
-            if not isinstance(val,str):# if its a string then its formula for subtotal, so leave it
-              if int(col_name[1:])<int(f_fcast[1:]): # but for actual items, refer to iande_actl
-                cl=get_column_letter(1+cix)
-                formula=f'=get_val({tr},"tbl_iande_actl",this_col_name())'.format()
-                df.loc[rix,col_name]=formula
     case 'iande_actl':
       del df['is_leaf'] # clear out temp field
       test_required_lines(df,workbook,f_fcast,initialize_iande=False,force=force,verbose=verbose) # raises error if not good.

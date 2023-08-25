@@ -111,7 +111,7 @@ The functions are stored as defined names in Excel.  They are defined in the `la
 
 The following list is extracted from that file by `util.doc_lambdas.py`.
 
-[List of LAMBDA functions](./excel_lambdas.md)
+[List of LAMBDA functions](./functions/excel_lambdas.md)
 
 Note that a few steps are needed to get formulas using `LAMBDA` and `LET` into good order.  The logic can be found in `util.xl_formulas.prepare_formula`.
 
@@ -123,7 +123,7 @@ Note that a few steps are needed to get formulas using `LAMBDA` and `LET` into g
 
 ### Visual Basic for Applications (VBA)
 
-There are VBA functions in this worksheet.  These are listed in the [VBA index](./vba_index.md).  The [full source](./vba_sorted.md) is also imported here as part of the build process.  
+There are VBA functions in this worksheet.  These are listed in the [VBA index](./functions/vba_index.md).  The [full source](./functions/vba_sorted.md) is also imported here as part of the build process.  
 
 With the approach indicated in [Excel Calculations](#calculations) these are being removed where not used.  Some may still be useful, but the reference to other cells should be replaced.
 

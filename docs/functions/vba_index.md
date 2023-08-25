@@ -8,8 +8,6 @@
 ||Return the age attained by an account owner in a given year|
 |ANN|Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double|
 ||Return a year's value for an annuity stream based on the prior year's end balance. This version leaves all the excel dependencies visible to excel|
-|annuity|Function annuity(account As String, y_year As String) As Double|
-||Return a year's value for an annuity stream based on the prior year's end balance. Fetches the start date, duration and annual annuity rate from tbl_retir_vals. Rounds to whole number|
 |CT_Tax|Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
 ||Calculate the ct income tax for a given year and taxable income amount. The so called initial tax calculation only.. Table is not setup exactly like federal - it uses the traditional method not the subraction method.. Gets a result of zero if year not in the table.|
 |CT_Tax_Range|Function CT_Tax_Range(ParamArray parms() As Variant) As Double|
@@ -24,8 +22,6 @@
 ||Fetches a value from a given table (it must be an actual worksheet table. If the line is not found in the table, a zero is returned.. Bad columns are usually logged, but if the argument raise_bad_col is true then an error is raised.|
 |IntYear|Function IntYear(yval) As Integer|
 ||Strips off the y on the argument (eg y2019) and returns an integer|
-|is_forecast|Function is_forecast(y_year As String) As Boolean|
-||Determine if this year is a forecast year|
 |log|Sub log(txt As String)|
 |||
 |LUMP|Function LUMP(account As String, y_year As String) As Double|

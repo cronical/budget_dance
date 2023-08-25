@@ -9,29 +9,7 @@ Function y_offset(y_year As String, offset As Integer) As String
     y_offset = r
 End Function
 
-Function annuity(account As String, y_year As String) As Double
-'return a year's value for an annuity stream based on the prior year's end balance
-'fetches the start date, duration and annual annuity rate from tbl_retir_vals
-'rounds to whole number
-    Dim anny_start As Date
-    Dim duration As Integer, this_year As Integer
-    Dim annual_rate As Double, anny_rate As Double
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", "Y" & this_year - 1)
-    anny_start = get_val(account, "tbl_retir_vals", "Start Date")
-    duration = get_val(account, "tbl_retir_vals", "Anny Dur Yrs")
-    anny_rate = get_val(account, "tbl_retir_vals", "Anny Rate")
-    
-    n = duration - (this_year - year(anny_start))
-    result = 0
-    If n > 0 Then
-        result = -Application.WorksheetFunction.Pmt(anny_rate, n, prior_end_bal)
-        factor = mo_apply(anny_start, y_year) ' TODO put end date on this call
-        result = factor * result
-        result = Application.WorksheetFunction.Round(result, 0)
-    End If
-    annuity = result
-End Function
+
 Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double
 'return a year's value for an annuity stream based on the prior year's end balance
 'this version leaves all the Excel dependencies visible to Excel
@@ -451,14 +429,7 @@ ErrHandler1:
     log ("line is " & line_key)
 End Function
 
-Function is_forecast(y_year As String) As Boolean
-    'determine if this year is a forecast year
-    ffys = get_val("first_forecast", "tbl_gen_state", "Value")
-    ffy = IntYear(ffys)
-    ty = IntYear(y_year)
-    r = ty >= ffy
-    is_forecast = r
-End Function
+
 
 
 Function IntYear(yval) As Integer
