@@ -80,24 +80,27 @@ bank_actl_load.py
 
 ### Income and Expense
 
-The `dance/iande_actl_load.py` module loads data into either `iande_actl` or `current`.  For actual income and expense lines `iande` references the `iande_actl` table so that its easier to update.  
+The `dance/iande_actl_load.py` module loads data into either `iande` or `current`.  
 
 After refreshing the `current` table, it may or may not be desirable to reload the prior re-projection data using [ytd.py](#year-to-date).
 
 ```bash
-usage: iande_actl_load.py [-h] [-s {iande_actl,current}] [-p PATH] [-w WORKBOOK] [-f]
+usage: iande_actl_load.py [-h] [-s {iande,current}] [-p PATH] [-w WORKBOOK]
+                          [-f]
 
-Copies data from input file into tab "iande_actl" or "current" after doing some checks.
+Copies data from input file into tab "iande" or "current".
 
 options:
   -h, --help            show this help message and exit
-  -s {iande_actl,current}, --sheet {iande_actl,current}
-                        which sheet - iande_actl or current
-  -p PATH, --path PATH  The path and name of the input file. If not given will use "data/iande.tsv" or "data/iande_ytd.tsv"
-                        depending on sheet
+  -s {iande,current}, --sheet {iande,current}
+                        which sheet - iande or current
+  -p PATH, --path PATH  The path and name of the input file. If not given will
+                        use "data/iande.tsv" or "data/iande_ytd.tsv" depending
+                        on sheet
   -w WORKBOOK, --workbook WORKBOOK
                         Target workbook
   -f, --force           Use -f to ignore warning
+
 ```
 
 #### Year-to-date and reprojection

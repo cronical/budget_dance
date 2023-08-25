@@ -163,11 +163,6 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
   if test_group in test_groups:
     heading(test_group,'-')
 
-    # Income, expenses totals on iande match iande_actl
-    lines= ['Income:I - TOTAL','Expenses:X - TOTAL','Expenses:T - TOTAL']
-    for line in lines:
-      row_to_row(workbook,test_group,tester,{'tbl_iande_actl':line,'tbl_iande':line})
-
     # cap gains
     test_lines={
     'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
