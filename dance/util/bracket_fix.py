@@ -1,6 +1,14 @@
 #! /usr/bin/env python
 '''Take the IRS format of tax bracket and format it for inclusion in the fcast.xlsm tax table
 
+# See https://www.irs.gov/pub/irs-pdf/i1040gi.pdf
+# Section called YYYY Tax Computation Worksheet - Line 16
+# in 2022 on page 75
+
+# See https://portal.ct.gov/-/media/DRS/Forms/2022/Income/CT-1040-TCS_1222.pdf
+# Table B Initial Tax Calculation for 2022 Taxable Year
+
+
 Note the file should be unicode since it has an em-dash in the first column
 '''
 
