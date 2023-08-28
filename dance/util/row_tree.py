@@ -215,13 +215,17 @@ def subtotal_formulas(df,groups):
   for gx,group in enumerate(groups):
     key=df.at[group[2]-2,'Key']
     agg=key.split(' - ')[-1]
-    code=agg_types[agg] # keep numeric code in order to switch back to subtotal method
-    func={4:"MAX",5:"MIN",6:"PRODUCT",9:"SUM",-1:"Fed_Tax_Range",-2:"CT_Tax_Range"}[code]
+    code=agg_types[agg] 
+    func={4:"MAX",5:"MIN",6:"PRODUCT",9:"SUM",-1:"TX_FED",-2:"TX_CT"}[code]
     for cx,cl in enumerate(df.columns):
       if cl.startswith('Y'):
         let=get_column_letter(cx+1)
         addrs=address_phrase(let,collapse_adjacent(agg_rows[gx]))
-        formula='={}({})'.format(func,addrs)
+        if code >0:
+          formula='={}({})'.format(func,addrs)
+        if code <0:
+          tbl="tbl_{}_tax".format(func.split('_')[1].lower())
+          formula='={}({}[],{})'.format(func,tbl,addrs)
         # retain following line - to allow switch back to subtotal method
         #formula='=subtotal({},{}{}:{}{})'.format(code,let,group[1]+1,let,group[2])
         df.loc[group[2]-2,[cl]]=formula
