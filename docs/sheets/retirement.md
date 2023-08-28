@@ -21,7 +21,8 @@ Plans out income streams and post-retirement medical expenses.  This affects bot
 |Code|Description|
 |:--|:--|
 |ANN|Annuity - Creates an annuity stream based on the prior year's end balance, using the `Start Date`, `Anny Dur Yrs`,	`Anny Rate` fields. Currently prorates the start by month, but does not do the same for the last period. 
-|RMD-1|This determines the required minimum distribution for inherited IRAs|
+|RMD-BEN-YYYY|This determines the required minimum distribution for IRAs inherited as a beneficiary. The YYYY is replaced with the year of death of the former owner|
+|RMD-SPOUSE|This determines the required minimum distribution for IRAs inherited as a spouse.|
 |ROLLOVER|Also treated as a annuity, so the only natural duration is one year. |
 
 The following correspond to the headings on the pensions facts table. These are used to look up the data there.  The annual amount is then placed in the Yearly column and it is applied to future years.
