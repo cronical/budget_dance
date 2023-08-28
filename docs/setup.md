@@ -313,17 +313,17 @@ The target field should be previously defined, but it is filled in by this logic
 
 #### Highlights
 
-For example the following puts a line between the actual and forecast periods. The anchor, (ampersand) allows other tables to use the same by using `*past_future`
+For example the following puts a line between the actual and forecast periods. The anchor, (ampersand) allows other tables to use the same by using `*past_future`. 
 
 ```yaml
-  highlights: 
-    present: &past_future
-      formula: =A$2=get_val("first_forecast","tbl_gen_state","Value") # ref is to heading row
-      border:
-        edges: 
-        - left
-        style: thin
-        color: B50000
+    highlights: 
+      present: &past_future
+        formula: =A$2="Y"&YEAR(NOW()) # ref is to heading row
+        border:
+          edges: 
+          - left
+          style: thin
+          color: B50000
 ```
 
 #### Edit Checks

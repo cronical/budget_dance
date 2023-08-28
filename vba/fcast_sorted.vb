@@ -3,28 +3,6 @@ Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = False
 Option Base 0
 
-Function age_as_of_date(inits As String, dt As Date) As Double
-'return the age attained by an account owner in a given year
-'deprecation candidate - appears not to be used
-    Dim dob As Date, eoy As Date
-    Dim diff As Double, age As Double
-    dob = get_val(inits, "tbl_people", "DOB")
-    diff = (dt - dob) / 365.25
-    age = Application.WorksheetFunction.Round(diff, 3)
-    age_as_of_date = age
-End Function
-
-Function age_of(inits As String, y_year As String) As Integer
-'return the age attained by an account owner in a given year
-    Dim dob As Date, eoy As Date
-    Dim diff As Double, age As Integer
-    dob = get_val(inits, "tbl_people", "DOB")
-    eoy = DateSerial(IntYear(y_year), 12, 31)
-    diff = (eoy - dob) / 365.25
-    age = Int(Application.WorksheetFunction.RoundDown(diff, 0))
-    age_of = age
-End Function
-
 Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double
 'return a year's value for an annuity stream based on the prior year's end balance
 'this version leaves all the Excel dependencies visible to Excel
@@ -273,14 +251,6 @@ Sub log(txt As String)
     Close #1
 End Sub
 
-Function LUMP(account As String, y_year As String) As Double
-'return the expected lump sum payment for an account based on the prior year's end balance
-    Dim this_year As Integer, tbl_name As String
-    Dim prior_end_bal As Double
-    prior_end_bal = get_val("End Bal" & account, "tbl_balances", y_offset(y_year, -1))
-    LUMP = prior_end
-End Function
-
 Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double
 'Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date
 'The end date is a string since there is a bug in the Mac Excel.
@@ -349,26 +319,6 @@ continue:
 
 End Function
 
-Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double
-'return the req minimum distribution table 1 result for a year for a given account, owner (GBD or VEC) and year.
-'if death year is not given then this function treat this as spousal inheritance
-'if death year is given the treat this as a beneficiary inheritance
-    Dim this_year As Integer, age As Integer
-    Dim prior_end_bal As Double, life_expectancy As Double, result As Double
-    this_year = IntYear(y_year)
-    prior_end_bal = get_val(account + " - TOTAL", "tbl_balances", "Y" & this_year - 1)
-    If death_year = 0 Then ' for spousal use actual age this year
-        age = age_of(account_owner, y_year)
-        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
-    Else ' work with the age at year after death for beneficiary type
-        age = age_of(account_owner, "Y" & (death_year + 1))
-        life_expectancy = get_val(age, "tbl_rmd_1", "Life Expectancy")
-        life_expectancy = life_expectancy - (this_year - (death_year + 1)) 'factor is reduced by one for each succeeding distribution year.
-    End If
-    result = prior_end_bal / life_expectancy
-    RMD_1 = result
-End Function
-
 Function sort_tax_table()
 'make sure the federal tax tables are sorted properly
     Dim tbl_name As String
@@ -416,12 +366,6 @@ Sub test_get_val()
     Debug.Print (get_val("End BalReal Estate", "tbl_balances", "Y2019"))
 
  End Sub
-
-Sub test_LUMP()
-    Dim val As Double
-    val = LUMP("401K - GBD - TRV", "Y2022")
-    Debug.Print (val)
-End Sub
 
 Sub test_mo_apply()
 Dim test_cases() As Variant

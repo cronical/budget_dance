@@ -2,10 +2,6 @@
 
 |Function or Sub|Signature and info|
 |---|---|
-|age_as_of_date|Function age_as_of_date(inits As String, dt As Date) As Double|
-||Return the age attained by an account owner in a given year. Deprecation candidate - appears not to be used|
-|age_of|Function age_of(inits As String, y_year As String) As Integer|
-||Return the age attained by an account owner in a given year|
 |ANN|Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double|
 ||Return a year's value for an annuity stream based on the prior year's end balance. This version leaves all the excel dependencies visible to excel|
 |CT_Tax|Function CT_Tax(tax_Year As Integer, taxable_Income As Double) As Double|
@@ -24,23 +20,17 @@
 ||Strips off the y on the argument (eg y2019) and returns an integer|
 |log|Sub log(txt As String)|
 |||
-|LUMP|Function LUMP(account As String, y_year As String) As Double|
-||Return the expected lump sum payment for an account based on the prior year's end balance|
 |mo_apply|Function mo_apply(start_date As Date, y_year As String, Optional end_mdy As String = "") As Double|
 ||Get a rational number that represents the number of months that apply in a particular year given the start date and optionally an end date. The end date is a string since there is a bug in the mac excel.. The end date represents the month of the last period to include.  the day is ignored and the last day of the month is used.|
 |mo_factor|Function mo_factor(start_date As Date, duration As Double, this_year As Integer) As Double|
 ||Get a floating point number that represents the number of months that apply in a particular year given the start date and duration|
 |ratio_to_start|Function ratio_to_start(account As String, category As String, y_year As String) As Double|
 ||For investment income and expense, compute the ratio to the start balance, but use the prior end balance since. That should have already been computed.  this allows the table to occur before the balances table in the compute order. To be run in a cell in the invest_iande_work table.|
-|RMD_1|Function RMD_1(account As String, account_owner As String, y_year As String, Optional death_year As Integer = 0) As Double|
-||Return the req minimum distribution table 1 result for a year for a given account, owner (gbd or vec) and year.. If death year is not given then this function treat this as spousal inheritance. If death year is given the treat this as a beneficiary inheritance|
 |sort_tax_table|Function sort_tax_table()|
 ||Make sure the federal tax tables are sorted properly|
 |test_fed_tax|Sub test_fed_tax()|
 |||
 |test_get_val|Sub test_get_val()|
-|||
-|test_LUMP|Sub test_LUMP()|
 |||
 |test_mo_apply|Sub test_mo_apply()|
 |||
