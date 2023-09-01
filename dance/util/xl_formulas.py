@@ -5,6 +5,9 @@ from dance.util.logs import get_logger
 from dance.util.sheet import df_for_range
 from dance.util.xl_pm import get_params,repl_params
 
+logger=get_logger(__file__)
+
+
 # keep a list of various prefixes as they are discovered, operate on them below.
 FUTURE_FUNCTIONS=[
   "ANCHORARRAY", "BYCOL", "BYROW", "CHOOSECOLS", "CHOOSEROWS", 
@@ -35,6 +38,54 @@ def this_row(field):
   '''
   return '[[#this row],[{}]]'.format(field)
 
+def year_sub(formula,col):
+  # substitute given symbolic column name at build time
+  # Symbols are
+  #   Ynnnn - direct substitution
+  #   Ynnnn-m - offset
+  #   @m<Ynnnn - range of priors - used only in tables
+  # 
+  # symbol should be directly surrounded by either square brackets or double quotes
+  # TODO cut back if formula goes back past 1st year
+
+  def decorate(col,m):
+    # put the quotes or brackets on
+    gs=m.groups()
+    return '%s%s%s'%(gs[0],col,gs[-1])
+  opn=r'([\["])'
+  cls=r'([\]"])'
+
+  direct_pat=re.compile(opn+r'(Y[0-9]{4})'+cls)
+  offset_pat=re.compile(opn+r'Y[0-9]{4}(-[0-9])'+cls)
+  priors_pat=re.compile(opn+r'@([0-9])<Y[0-9]{4}'+cls)
+
+  # when formula contains [Ynnnn] or "Ynnnn" replace it with the column name
+  m=direct_pat.search(formula)
+  if m is not None:
+    col2=decorate(col,m)
+    formula,n=re.subn(direct_pat,col2,formula)
+    if n:
+      logger.debug('Annualized formula is: %s'%formula)
+    
+  # formula contains [Ynnnn-m] the offset year syntax
+  m=offset_pat.search(formula)
+  if m is not None:
+    col2=decorate('Y%d'%(int(col[1:])+int(m.group(2))),m)
+    formula,n=re.subn(offset_pat,col2,formula)
+    if n:
+      logger.debug('Annualized offset formula is: %s'%formula)
+  
+  # when formula contains [m<Ynnnn] replace it with the column range
+  m=priors_pat.search(formula)
+  if m is not None:
+    ys=int(m.group(2))
+    y1=(int(col[1:])-ys)
+    col2=decorate('[#This Row],[Y%d]:[Y%d]'%(y1,y1+(ys-1)),m )
+    formula,n=re.subn(priors_pat,col2,formula)
+    if n:
+      logger.debug('Priors offset formula is: %s'%formula)            
+  return formula        
+
 def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
   '''insert actual or forecast formulas per config
   The config may give formula definitions in sections called actl_formulas, all_col_formulas and/or fcst_formulas.
@@ -52,7 +103,6 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
 
   returns: the possibly modified dataframe.
   '''
-  logger=get_logger(__file__)
   sections = ['all_col_formulas']+[('fcst','actl')[int(is_actl)]  +'_formulas']
   rules=[]
   for section in sections:
@@ -65,7 +115,10 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
       matches=rule['matches']
       if not isinstance(matches,list):
         matches=[matches]
-      selection=data[base_field].isin(matches)
+      if matches==["*"]:
+        selection= [True]*data.shape[0]
+      else:
+        selection=data[base_field].isin(matches)
     else:
       assert 'query' in rule,'neither matches or query is in the rule'
       queries=rule['query']
@@ -99,44 +152,20 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
       first_item=None
       if 'first_item'in rule:
         first_item=str(rule['first_item'])
-        # it is now always a list
+        if first_item.startswith('='):
+          first_item=prepare_formula(first_item)
         if first_item=='skip' or first_item.startswith('='):
           first_item=[first_item]
         else:
           first_item=first_item.split(',')
+        # it is now always a list
       for col in rw.index:
         if col == 'Y%d'%ffy:
           selector= not selector
         if selector:
           if col[0]=='Y' and col[1:].isnumeric():
-
-            # when formula contains [Ynnnn] replace it with the column name
             formula=table_ref(rule['formula'])
-            formula,n=re.subn(r'\[(Y[0-9]{4})\]','[%s]'%col,formula)
-            if n:
-              logger.debug('Annualized formula is: %s'%formula)
-            
-            # formula contains [Ynnnn-m] the offset year syntax
-            offset_pat=re.compile(r'\[Y[0-9]{4}(-[0-9])\]')
-            m=offset_pat.search(formula)
-            if m is not None:
-              col2='[Y%d]'%(int(col[1:])+int(m.group(1)))
-              formula,n=re.subn(offset_pat,col2,formula)
-              if n:
-                logger.debug('Annualized offset formula is: %s'%formula)
-            
-            # when formula contains [m<Ynnnn] replace it with the column range
-            offset_pat=re.compile(r'\[@([0-9])<Y[0-9]{4}\]')
-            m=offset_pat.search(formula)
-            if m is not None:
-              ys=int(m.group(1))
-              y1=(int(col[1:])-ys)
-              col2='[[#This Row],[Y%d]:[Y%d]]'%(y1,y1+(ys-1)) # TODO cut back if formula goes back past 1st year
-              formula,n=re.subn(offset_pat,col2,formula)
-              if n:
-                logger.debug('Priors offset formula is: %s'%formula)            
-            
-            if first_item is not None:
+            if first_item is not None: # replace formula with first_item as needed
               if yix in range(len(first_item)):
                 if yix==0 and first_item[0]=='skip':
                   yix=+1
@@ -145,8 +174,10 @@ def apply_formulas(table_info,data,ffy,is_actl,wb=None,table_map=None):
                   formula=table_ref(first_item[0])
                 else:
                   formula='='+first_item[yix]
+
+            formula2=year_sub(formula,col)# when various substitutions on the column name            
             yix+=1
-            data.at[ix,col]=formula
+            data.at[ix,col]=formula2
   return data
 
 def actual_formulas(table_info,data,ffy,wb=None,table_map=None):
@@ -278,3 +309,15 @@ def prepare_formula(formula):
   formula = re.sub(r"\bXMATCH\(", "_xlfn.XMATCH(", formula, re.I)
 
   return formula
+
+if __name__=="__main__":
+  # testing year_sub
+  import logging
+  logger.setLevel(logging.DEBUG)
+  formulas=['tbl_invest_actl[Y1234])','INT_YEAR("Y1234")',
+            'tbl_invest_actl[Y1234-2])','INT_YEAR("Y1234-3")',
+            'tbl_invest_actl[@3<Y1234])','INT_YEAR("@3<Y1234")']
+  col="Y2022"
+  for f in formulas:
+    year_sub(f,"Y2022")
+  
