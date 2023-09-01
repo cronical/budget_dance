@@ -94,7 +94,7 @@ def df_for_table_name_for_update(table_name=None):
   logger.info('{} rows and {} columns in sheet {}'.format(table.shape[0],table.shape[1],ws))
   return table, ws,ws.tables[table_name].ref,wb
 
-def get_val(frame, line_key ,  col_name):
+def get_value(frame, line_key ,  col_name):
   '''get a single value from a dataframe'''
   return frame.loc[line_key,col_name]
 
@@ -124,7 +124,7 @@ def get_value_for_key(wb,key):
     ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
     ws=wb[ws_name]
     table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-    value= get_val(table,line_key=key,col_name='Value')
+    value= get_value(table,line_key=key,col_name='Value')
     return value
   except KeyError as err:
     raise ValueError(str(err)) from None
@@ -243,21 +243,24 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
         if cn.startswith('Y')and cn[1:].isnumeric(): 
           # by default use the fin format
           ws.cell(row=rix ,column=cix).number_format=fin_format
-          # determine if it should be overwritten
-          if first_field is not None:
-            legend=values[first_field]
-            if legend is None: # when no data is provided, there is a row of Nones
-              legend=''
-            legend=legend.split(':')[-1].strip().lower()
-            special_fmt=None # determine if percentage or integer
-            fmt_map={'rate':FORMAT_PERCENTAGE_00,'pct':FORMAT_PERCENTAGE_00,'percent':FORMAT_PERCENTAGE_00,'tax table':FORMAT_NUMBER}
-            pat='.*\\b(%s).*'%('|'.join(fmt_map.keys())) # TODO make balance key have a separator and add 2nd \b here
-            prog=re.compile(pat)
+          
+          # determine if format should be overwritten: for percentage or integer
+          # check table title, then line name - last word is key
+          fmt_map={'ratios':FORMAT_PERCENTAGE_00,'rate':FORMAT_PERCENTAGE_00,
+                    'pct':FORMAT_PERCENTAGE_00,'percent':FORMAT_PERCENTAGE_00,'tax table':FORMAT_NUMBER}
+          pat='.*\\b(%s).*'%('|'.join(fmt_map.keys())) # TODO make balance key have a separator and add 2nd \b here
+          prog=re.compile(pat)
+          line_name=values[first_field]
+          if line_name is None: # when no data is provided, there is a row of Nones
+            line_name=''
+          line_name=line_name.split(':')[-1].strip().lower()
+          for legend in table_info['title'].strip().split(' ')[-1].lower(),line_name:
             rx_result=prog.match(legend)
             if rx_result:
               kw=rx_result.group(1)
               special_fmt=fmt_map[kw]
               ws.cell(row=rix,column=cix).number_format=special_fmt
+              break
 
         else: # the non year columns
           if 'horiz' in col_defs.columns:
