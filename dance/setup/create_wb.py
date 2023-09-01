@@ -9,6 +9,7 @@ import zipfile
 from openpyxl import load_workbook
 from dance.util.files import zip_up
 from dance.util.logs import get_logger
+from dance.setup.lambdas import write_lambdas
 from dance.setup.setup_tabs import refresh_sheets
 
 
@@ -59,6 +60,7 @@ def create(filename,overwrite=False):
   mkdir(tmp)
   logger.debug('cleaned up {}'.format(tmp))
 
+  write_lambdas(filename)
   refresh_sheets(filename,overwrite)
 
 
