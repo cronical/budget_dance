@@ -149,7 +149,7 @@
         "type": {
           "type":"string",
           "enum":["json_index","json_records","md_529_distr","md_acct","md_bal","md_hsa_disb","md_iande_actl",
-            "md_invest_actl","md_invest_iande_work","md_ira_distr","md_pr_sav","md_roth","md_sel_inv","md_transfers_actl",
+            "md_invest_actl","md_invest_iande_values","md_invest_iande_ratios","md_ira_distr","md_pr_sav","md_roth","md_sel_inv","md_transfers_actl",
             "retire_template","retire_medical_template","tax_template"]},
         "path": {"type":"string"},
         "group": {"type":"array","items":{"type":"string"}},

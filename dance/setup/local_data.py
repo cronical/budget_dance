@@ -4,7 +4,7 @@ from dance.accounts_load import read_accounts, prepare_account_tab
 from dance.balances_load import read_balances, prepare_balances_folding
 from dance.iande_actl_load import prepare_iande_actl, read_iande_actl,y_year
 from dance.invest_actl_load import read_and_prepare_invest_actl
-from dance.invest_iande_load import read_and_prepare_invest_iande
+from dance.invest_iande_load import read_and_prepare_invest_iande,prepare_invest_iande_ratios
 from dance.other_actls import (IRA_distr, hsa_disbursements, payroll_savings,
                                sel_inv_transfers, five_29_distr,roth_contributions)
 from dance.transfers_actl_load import (prepare_transfers_actl,
@@ -48,8 +48,11 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'md_transfers_actl':
       df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
       df,groups=prepare_transfers_actl(workbook=target_file,df=df,f_fcast=ffy)
-    case 'md_invest_iande_work':
+    case 'md_invest_iande_values':
       df=read_and_prepare_invest_iande(workbook=target_file,data_info=data_info)
+    case 'md_invest_iande_ratios':
+      df=read_and_prepare_invest_iande(workbook=target_file,data_info=data_info)
+      df=prepare_invest_iande_ratios(df)
     case 'md_invest_actl':
       df=read_and_prepare_invest_actl(workbook=target_file,data_info=data_info,table_map=table_map)
     case 'md_hsa_disb':

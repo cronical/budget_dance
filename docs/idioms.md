@@ -4,7 +4,7 @@
 
 ### Getting the column name
 
-The VBA function `this_col_name()` is provided.
+The VBA function `this_col_name()` has been replaced by the lambda function THIS_COL_HDR.
 
 Alternatively, native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)
 

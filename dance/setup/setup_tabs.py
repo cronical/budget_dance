@@ -8,7 +8,6 @@ from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
-from openpyxl.workbook.defined_name import DefinedName
 
 import pandas as pd
 from numpy import nan
@@ -18,9 +17,9 @@ from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
-from dance.util.row_tree import hier_insert,folding_groups,indent_leaf,is_leaf,nest_by_cat,subtotal_formulas
+from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
-from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields, prepare_formula
+from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
 import remote_data
 
 def include_year(table_info,first_forecast_year,proposed_year):
@@ -39,14 +38,6 @@ def refresh_sheets(target_file,overwrite=False):
   years=range(config['start_year'],1+config['end_year'])
   wb=load_workbook(filename = target_file,keep_vba=True)
   
-  for lam in config['lambdas']:
-    f=prepare_formula(lam['formula'])
-    assert f.startswith("="),"lambda formula does not start with = " + f
-    f=f[1:]
-    d=DefinedName(lam["name"],comment=lam["comment"],attr_text=f)
-    wb.defined_names.add(d)    
-    pass
-
   sheets=wb.sheetnames
   logger.debug('{} existing sheets in {}'.format(len(sheets),target_file))
 
