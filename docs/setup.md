@@ -208,22 +208,25 @@ The second construction allows for queries against several fields.  These are "a
 |- look_up|Allows for the values to be looked up from another table. It requires three addtional subfields: table, index_on and value_field.
 
 
-For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  The structure is setup like this:
+For example, if there is a key `fcst_formulas` under the table, it is used to set formulas for the forecast columns.  Each column receives the same formula, but they can vary by row.  
+
+For example:
 
 ```yaml
-  fcst_formulas:
-    - base_field: ValType # Near Mkt Rate
-      matches: Mkt Gn Rate
-      first_item: =get_val([@AcctName],"tbl_accounts","Near Mkt Rate")*[@Active]
-      formula: =rolling_avg()
-    - formula: =add_wdraw( [@AcctName],this_col_name()) # Add/Wdraw for rows with distribution plans
-      query:
-        - field: ValType # Add/Wdraw if no distribution plan is via transfers_plan 
-          compare_with: "="
-          compare_to: "Add/Wdraw"
-        - field: No Distr Plan
-          compare_with: =
-          compare_to: 0 ...
+  - query: #  Mkt Gn Rate
+    - field: ValType
+      compare_with: "="
+      compare_to: Mkt Gn Rate
+    - field: Type
+      compare_with: "="
+      compare_to: I
+      look_up: 
+        table: tbl_accounts
+        index_on: AcctName
+        value_field: Type
+    first_item: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Near Mkt Rate],0)*[@Active]
+    formula: =XLOOKUP([@AcctName]&":Unrlz Gn/Ls",tbl_invest_iande_ratios[Key],tbl_invest_iande_ratios[Y1234])
+ ...
 ```
 
 How to use the look_up function

@@ -29,5 +29,5 @@ The Python program `invest-actl-load.py` uses:
 1. The Moneydance performance reports. The Moneydance Investment Performance report are `data/invest-p/YYYY.tsv`. There is one for each actual year. 
 1. The Moneydance balance reports, which are `data/acct-bals/YYYY.tsv`.
 1. The accounts table to get the master list of investments
-1. The invest_iande_work table to get the interest received from any loans
+1. The invest_iande_values table to get the interest received from any loans
 

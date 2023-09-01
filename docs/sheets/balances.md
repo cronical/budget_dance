@@ -16,7 +16,7 @@ This table has the following rows for each account, as shown for the account '*a
 |*account*:Start Bal| Previous year's end balance, except the first one, which is pulled in from actuals at build time|
 |*account*:Add/Wdraw|The amount added to the account during the year if positive, or removed if negative. Formula set at build-time based on config. For example in forecast periods bank accounts sweep any residual from income and expense with `=XLOOKUP("TOTAL INCOME - EXPENSES",tbl_iande[Key],tbl_iande[Y2023])`|
 |*account*:Retain|A blank row marking the retained realized interest/gain|
-|*account*:Retain:Rlz Int/Gn|For banks, interest pulled from the aux table; for investments, realized gains and income, pulled from invest_iande_work. |
+|*account*:Retain:Rlz Int/Gn|For banks, interest pulled from the aux table; for investments, realized gains and income, pulled from invest_iande_values. |
 |*account*:Retain:Reinv Rate|The reinvestment rate pulled from the accounts table.|
 |*account*:Retain - PRODUCT|The amount retained calculated at the "fold" line with the product aggregation|
 |*account*:Unrlzd|A blank row marking unrealized gain or loss section|

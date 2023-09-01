@@ -1,15 +1,12 @@
 # invest_iande_work
 
-This sheet refers to Income and Expenses that relate to investments. The upper left quadrant of the sheet refers to actual values for several categories. These are converted to ratios in the lower left quadrant, so that forecasts can be derived. 
+This sheet refers to Income and Expenses that relate to investments. There are two tables: the values and the ratios. The left part of the values table refers to actual values for several categories. These are converted to ratios in the left part of the second sheet, so that forecasts can be derived. 
 
 ![Concept](../images/src/iiw_concept.svg)
 
-The table consists of
+Each table consists of the same lines.  The values in the 1st table represent income and expenses for each account.  Those in the 2nd table hold the ratio to the `start bal`. These are computed in the case of actuals
 
-1. A set of lines of type `value` that represent income and expenses for each account  
-2. A matching set of lines with a type of `rate` to hold the ratio to the `start bal`. These are computed in the case of actuals
-3. The actual rates are extended into the forecast periods, by methods such as rolling average
-4. The forecast rates are then multiplied by the forecast start balances to get the value for each of the income/expense types.
+The actual rates are extended into the forecast periods, by methods such as rolling average. The forecast rates are then multiplied by the forecast start balances to get the value for each of the income/expense types.
 
 The following categories were devised to support forecasting investment income and taxes.
 
