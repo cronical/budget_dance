@@ -63,7 +63,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   accounts=accounts[accounts.Type == 'I']
 
   # get the investment income in order to handle interest received from loans we hold
-  invest_iande=df_for_table_name(table_name='tbl_invest_iande_work',workbook=workbook,table_map=table_map)
+  invest_iande=df_for_table_name(table_name='tbl_invest_iande_values',workbook=workbook,table_map=table_map)
 
   # get the output of the Moneydance investment transfers report
   try:
@@ -86,7 +86,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   lir_data=[]
   lir_index=[]
   for account,row in accounts.loc[accounts['Reinv Rate']<1].iterrows():
-    sel=(invest_iande.Account==account) & (invest_iande.Category.str.contains('Int:')) & (invest_iande.Type=='value')
+    sel=(invest_iande.Account==account) & (invest_iande.Category.str.contains('Int:'))
     interest=invest_iande.loc[sel,y_columns].sum(axis=0).astype(float)
     adj= round(interest * (1-row['Reinv Rate']),2)
     adjusted= df.loc[account] + adj
@@ -153,7 +153,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
     # get the fees and append as a column
     iiw=pd.read_excel(workbook,sheet_name='invest_iande_work',skiprows=1)
-    iiw=iiw.loc[iiw.Category_Type.isin(['Investing:Account Fees:value'])]#,'Investing:Action Fees:value'
+    iiw=iiw.loc[iiw.isnull().all(axis=1).cumsum()==0] # drop the ratios
+    iiw=iiw.loc[iiw.Category.isin(['Investing:Account Fees'])]#Not including 'Investing:Action Fees'
     iiw=iiw.reset_index().pivot_table(index='Account',values='Y'+fn_year,aggfunc='sum')# add both type of fees together
     df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
     df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
@@ -297,15 +298,17 @@ def parse_share_info(share_info):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
   parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
-  parser.add_argument('--path','-p',default= 'data/invest-x.tsv',help='The path and name of the input file')
-  parser.add_argument('--base_path','-b',default= 'data/invest-p/',help='The base path for the performance reports')
-  parser.add_argument('--prefix','-x',help='The prefix used to locate the performance reports')
+  parser.add_argument('--input','-i',default= 'data/invest-x.tsv',help='The path to the balances files')
+  parser.add_argument('--balances','-b',default= 'data/acct-bals/',help='The path to the balances files')
+  parser.add_argument('--performance','-f',default= 'data/invest-p/',help='The path to the performance reports')
+ 
 
   args=parser.parse_args()
   sheet='invest_actl'
   table='tbl_'+sheet
-  data=read_and_prepare_invest_actl(workbook=args.workbook,data_info={'path': os.getcwd()+'/'+args.path,
-    'file_sets':{'balances':args.base_path,'prefix':args.prefix}})
+  data_info={'path': os.getcwd()+'/'+args.input,
+    'file_sets':{'balances':args.balances,'performance':args.performance}}
+  data=read_and_prepare_invest_actl(workbook=args.workbook,data_info=data_info)
   table_info=read_config()['sheets'][sheet]['tables'][0]
   data=dyno_fields(table_info,data) # get the taxable status
   wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
