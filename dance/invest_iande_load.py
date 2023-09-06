@@ -78,7 +78,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   vals_df.fillna(0,inplace=True) # no missing values - use zeros
   vals_df.insert(loc=2,column='IorE',value=[a[0]for a in full_categories],allow_duplicates=True)# Mark and I, X or T
   sel=(vals_df.Category=='Unrlz Gn/Ls')
-  vals_df.loc[sel,'IorE']='I'
+  vals_df.loc[sel,'IorE']='U' # so it doesn't get included in realized gains
   vals_df.insert(0,column='Key',value=vals_df.Account+':'+vals_df.Category) # full key
   vals_df.rename(columns=y_years,inplace=True) # use the y_years format for column names
   for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years

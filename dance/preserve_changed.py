@@ -2,6 +2,7 @@
 '''Look for values with no formulas and save them off for eventual reload'''
 import argparse
 import json
+import re
 from math import isnan
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
@@ -20,9 +21,12 @@ def is_formula(item):
 def is_fcst(col,ffy):
   '''Return true if col is a forecast '''
   r=False
-  if col.startswith('Y'): # todo allow edit of enumerated fields based on config
-    if int(col[1:])>=ffy:
-      r=True  
+  pat=re.compile("(Y[0-9]{4,4})")
+  m=pat.match(col)
+  if m: # todo allow edit of enumerated fields based on config
+    if m.group(1)==col:
+      if int(col[1:])>=ffy:
+        r=True  
   return r
 
 def save_sparse(config,workbook,path):
@@ -46,8 +50,8 @@ def save_sparse(config,workbook,path):
           for ix,row in df.iterrows():
             for col,item in row.items():
               if (is_fcst(col,ffy) or (col in non_year_cols)):
-                if not is_formula(item): # will save ytd forwarded items, but no matter
-                  if item is not None:
+                if pd.notnull(item):
+                  if not is_formula(item): # will save ytd forwarded items, but no matter
                     out.append({'table':table,'row':ix,'col':col,'value':item})
                     counters[table]+=1
           logger.info('Found %d items from table %s'%(counters[table],table))

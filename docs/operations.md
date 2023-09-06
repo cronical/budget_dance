@@ -7,9 +7,9 @@
 1. On the retirement table:
     1. set ROLLOVER as the code
     1. set `Start Date` as January 1st of the rollover year
-    1. set `Anny Dur Yrs` as 1
-    1. set `Anny Rate` as the precise value of the `Mkt Gn Rate` on the balances tab. Five or six significant digits seems to eliminate residual balances.
-    1. note the exact amount to be rolled over
+    1. set `Anny Rate` as zero. If its in mid-year you can fuss with the rate to get the desired amount. If you use the last day of the year, it should be the same as the market gain rate on the balances table.
+    1. note the exact amount to be rolled over 
+1. On the balances table set the mkt gn rate as zero.
 1. To prevent this from being taxed:
     1. Ensure additional rows are created on the `iande` table, in the distributions area using the `hier_insert_paths` key. In the following example the second set of rows are created under `Rollover`.
 ![example](images/tgt/rollover_1.png)
@@ -20,6 +20,7 @@
     3. This will produce a total line on the `iande` table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
 ![example](images/tgt/rollover_2.png)
 1. Enter the amount rolled over into the `transfers_plan` table as a transfer from bank accounts to the target account.
+    1. Realized int/gains and fees, if any, on this account, need to be addressed, for example, by zeroing out the year's value for the expense ratios for that account. 
 1. Use the aux table to compute the net changes to the target IRA account.   
     1. User the hier_insert_paths key to insert something like
     ![example](images/tgt/rollover_3.png)

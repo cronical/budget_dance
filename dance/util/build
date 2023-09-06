@@ -14,13 +14,18 @@ dance/util/vba/sort_vba.py
 # document the lambdas
 dance/util/doc_lambda.py
 
+target="data/test_wb.xlsm"
+
 # run the main build
-dance/setup/create_wb.py data/test_wb.xlsm -o
+dance/setup/create_wb.py $target -o
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "create_wb failed"
   exit $RC
 fi
+
+# Calc props
+dance/setup/calc_props.py -w $target
 
 # load preserved values
 dance/preserve_changed.py -l
@@ -28,7 +33,7 @@ dance/preserve_changed.py -l
 # pull in the ytd reprojections
 dance/ytd.py -l -f
 
-# use script to open and save, avoiding timeout
-# this allows Excel to compute the formulas
+# use script to open and save
+# this allows Excel to compute the formulas and setup some hidden defined names
 osascript ./dance/util/excel_save.scpt
 
