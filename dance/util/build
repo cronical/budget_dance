@@ -24,9 +24,6 @@ if [ $RC -ne 0 ]; then
   exit $RC
 fi
 
-# Calc props
-dance/setup/calc_props.py -w $target
-
 # load preserved values
 dance/preserve_changed.py -l
 
@@ -37,3 +34,5 @@ dance/ytd.py -l -f
 # this allows Excel to compute the formulas and setup some hidden defined names
 osascript ./dance/util/excel_save.scpt
 
+# Calc props after excel sets the calcId
+dance/setup/calc_props.py -w $target
