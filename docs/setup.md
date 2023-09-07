@@ -141,11 +141,14 @@ The data definitions are purpose built to support the target table, but there ar
 
 ##### Supported Types
 
+The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build.
+
+The types `md_*` act on exported Moneydance files.
 
 |Type|Purpose|
 |:--|:---|
-|json_index| Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table has a unique key.|
-|json_records| Imports entire table previously exported via `dance/util/extract_table.py` using the `-o index` option. Suitable when the table does not have a unique key.|
+|json_index| Imports entire table. Suitable when the table has a unique key.|
+|json_records| Imports entire table. Suitable when the table does not have a unique key.|
 |md_529_distr|Get the 529 plan distribution records from Moneydance export and summarize so data items can be put in spreadsheet|
 |md_acct|Processes the account extract from Moneydance|
 |md_bal|Processes the balances extract from Moneydance|
