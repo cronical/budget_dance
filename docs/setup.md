@@ -141,7 +141,7 @@ The data definitions are purpose built to support the target table, but there ar
 
 ##### Supported Types
 
-The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build.
+The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build. For the templates, additional definition is provided in the `setup.yaml` config file.
 
 The types `md_*` act on exported Moneydance files.
 
@@ -150,10 +150,10 @@ The types `md_*` act on exported Moneydance files.
 |json_index| Imports entire table. Suitable when the table has a unique key.|
 |json_records| Imports entire table. Suitable when the table does not have a unique key.|
 |md_529_distr|Get the 529 plan distribution records from Moneydance export and summarize so data items can be put in spreadsheet|
-|md_acct|Processes the account extract from Moneydance|
-|md_bal|Processes the balances extract from Moneydance|
+|md_acct|Processes the latest balances report from Moneydance to set up the accounts table|
+|md_bal|Processes the balances reports from Moneydance to set up the balances table|
 |md_hsa_disb|Get the HSA disbursement records from Moneydance export and summarize so data items can be put in spreadsheet|
-|md_iande_actl|Processes the income and expense extract from Moneydance to create the iande and current sheets|
+|md_iande_actl|Processes the income and expense report from Moneydance to create the iande and current sheets|
 |md_invest_actl|Sets up the investment actual transfers|
 |md_invest_iande_work|Read investment income and expense actual data from file into a dataframe|
 |md_ira_distr|Get the IRA distribution records from Moneydance export and summarize so data items can be put in spreadsheet|

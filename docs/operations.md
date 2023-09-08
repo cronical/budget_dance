@@ -42,10 +42,10 @@
 1. Extract the retirement values and the transfers plan data 
 
     ```bash
-    (.venv) george@GeorgesacStudio budget % dance/util/extract_table.py -t tbl_retir_vals -w data/test_wb.xlsm
+    (.venv) george@GeorgesacStudio budget % dance/extract_table.py -t tbl_retir_vals -w data/test_wb.xlsm
     2023-07-19 20:02:21,229 - extract_table - INFO - Source workbook is data/test_wb.xlsm
     2023-07-19 20:02:21,560 - extract_table - INFO - Wrote to data/retire_template.tsv
-    (.venv) george@GeorgesacStudio budget % dance/util/extract_table.py -t tbl_transfers_plan -w data/test_wb.xlsm
+    (.venv) george@GeorgesacStudio budget % dance/extract_table.py -t tbl_transfers_plan -w data/test_wb.xlsm
     2023-07-19 20:02:34,639 - extract_table - INFO - Source workbook is data/test_wb.xlsm
     2023-07-19 20:02:34,961 - extract_table - INFO - Wrote to data/transfers_plan.json
     ```
@@ -72,39 +72,58 @@ Copy the above numbers into the table and add the year
 ```
 
 
-## Refreshing Actual Data
+## Export Functions
 
-The following support the need to refresh data. These are usually applied annually although the year-to-date feature allows interim updates.
+There are three commands to export data.  These write to files that are then used to reload or rebuild the workbook.
 
-### Bank 
-bank_actl_load.py
+### Extract Table
 
-### Income and Expense
+Use `dance/extract_table.py` to copy the contents of an existing worksheet table the external file. The external file is defined in the data section of the configuration. Eligible tables are 
 
-The `dance/iande_actl_load.py` module loads data into either `iande` or `current`.  
+- templates
+- json records
+- json index
 
-After refreshing the `current` table, it may or may not be desirable to reload the prior re-projection data using [ytd.py](#year-to-date).
+```zsh
+dance/extract_table.py -h
+usage: extract_table.py [-h] [--workbook WORKBOOK] [--data_only] (--table TABLE | --all | --list)
 
-```bash
-usage: iande_actl_load.py [-h] [-s {iande,current}] [-p PATH] [-w WORKBOOK]
-                          [-f]
-
-Copies data from input file into tab "iande" or "current".
+Copies table data from workbook and stores as a json or tsv output file.
 
 options:
   -h, --help            show this help message and exit
-  -s {iande,current}, --sheet {iande,current}
-                        which sheet - iande or current
-  -p PATH, --path PATH  The path and name of the input file. If not given will
-                        use "data/iande.tsv" or "data/iande_ytd.tsv" depending
-                        on sheet
-  -w WORKBOOK, --workbook WORKBOOK
-                        Target workbook
-  -f, --force           Use -f to ignore warning
-
+  --workbook WORKBOOK, -w WORKBOOK
+                        Source workbook
+  --data_only, -d       To get data not formulas
+  --table TABLE, -t TABLE
+                        Source table name, include tbl_
+  --all, -a             Extract all eligible tables
+  --list, -l            List all eligible tables
 ```
 
-#### Year-to-date and reprojection
+For example, this copies the aux table from a worksheet called test_wb.xlsm to a data file.
+
+```zsh
+% dance/extract_table.py -w data/test_wb.xlsm -t tbl_aux
+2023-06-21 14:23:19,716 - extract_table - INFO - Wrote to data/aux.json
+```
+
+Extract all:
+
+```zsh
+dance/extract_table.py -w data/test_wb.xlsm -a
+2023-09-08 07:21:19,911 - extract_table - INFO - Source workbook is data/test_wb.xlsm
+2023-09-08 07:21:20,206 - extract_table - INFO - Wrote to data/transfers_plan.json
+2023-09-08 07:21:20,504 - extract_table - INFO - Wrote to data/retire_template.tsv
+...
+2023-09-08 07:21:23,525 - extract_table - INFO - Wrote to data/gen_state.json
+2023-09-08 07:21:23,824 - extract_table - INFO - Wrote to data/state_tax_facts.json
+2023-09-08 07:21:24,137 - extract_table - INFO - Wrote to data/part_b.json
+```
+
+### Preserve
+
+### YTD - Current year reforecast
 
 During the year it is handy from time to time to replace the modeled values with reprojected values. The current tab and the `ytd.py` program allow for this.
 
@@ -125,6 +144,42 @@ options:
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/ytd_data.json
 ```
 
+## Import functions
+
+The following support the need to refresh data. These are usually applied annually although the year-to-date feature allows interim updates.
+
+### Setup
+
+Setup is the ultimate import since it rebuilds the entire workbook. See [Setup](./setup.md).
+
+### Bank 
+
+bank_actl_load.py
+
+### Income and Expense
+
+The `dance/iande_actl_load.py` module loads data into either `iande` or `current`.  
+
+After refreshing the `current` table, it may or may not be desirable to reload the prior re-projection data using [ytd.py](#ytd---current-year-reforecast).
+
+```bash
+usage: iande_actl_load.py [-h] [-s {iande,current}] [-p PATH] [-w WORKBOOK]
+                          [-f]
+
+Copies data from input file into tab "iande" or "current".
+
+options:
+  -h, --help            show this help message and exit
+  -s {iande,current}, --sheet {iande,current}
+                        which sheet - iande or current
+  -p PATH, --path PATH  The path and name of the input file. If not given will
+                        use "data/iande.tsv" or "data/iande_ytd.tsv" depending
+                        on sheet
+  -w WORKBOOK, --workbook WORKBOOK
+                        Target workbook
+  -f, --force           Use -f to ignore warning
+
+```
 
 ### Investments
 
@@ -164,9 +219,6 @@ options:
 
 transfers_actl_load.py
 
-# Setup
-
-See [Setup](./setup.md).
 
 # Utility
 
@@ -174,30 +226,3 @@ See [Setup](./setup.md).
 
 The Python code, `util/index_tables.py` enumerates and indexs the tables (something oddly missing in Excel due to the fact that it is worksheet oriented). The index is stored on the utility worksheet.
 
-### Extract Table
-
-Use `dance/util/extract_table.py` to copy the contents of an existing worksheet table to a `json` formatted file. Similarly, template files can be recreated from the worksheet table.
-
-```zsh
-usage: extract_table.py [-h] [--workbook WORKBOOK] --table TABLE [--output OUTPUT] [--data_only]
-
-Copies table data from workbook and stores as a json or tsv output file.
-
-options:
-  -h, --help            show this help message and exit
-  --workbook WORKBOOK, -w WORKBOOK
-                        Source workbook
-  --table TABLE, -t TABLE
-                        Source table name, include tbl_
-  --output OUTPUT, -o OUTPUT
-                        Name of the output file. Default is folder of workbook and configured data path
-  --data_only, -d       To get data not formulas
-```
-
-
-For example, this copies the aux table from a worksheet called test_wb.xlsm to a data file.
-
-```zsh
-% dance/util/extract_table.py -w data/test_wb.xlsm -t tbl_aux -o records
-2023-06-21 14:23:19,716 - extract_table - INFO - Wrote to data/aux.json
-```

@@ -55,7 +55,7 @@ Preferred format uses hyphen not underscores or spaces to separate words. Abbrev
 
 ### JSON input files
 
-The following files can be prepared from an existing worksheet with the [`dance/util/extract_table.py` utility](./operations.md#extract-table), or they can be created manually. They are named according to the table that they support. 
+The following files can be prepared from an existing worksheet with the [`dance/extract_table.py` utility](./operations.md#extract-table), or they can be created manually. They are named according to the table that they support. 
 
 |File|Orientation|
 |:--|:--|
@@ -120,7 +120,7 @@ Processing occurs specific to the type. In the case of taxes, indentation must b
 - retire_template.tsv
 - taxes_template.tsv
 
-The above files can be prepared from an existing worksheet with the [`dance/util/extract_table.py` utility](./operations.md#extract-table), or they can be created manually.
+The above files can be prepared from an existing worksheet with the [`dance/extract_table.py` utility](./operations.md#extract-table), or they can be created manually.
 
 
 [^1]: The most recent is best so as to contain all current accounts. This is used to create the Accounts worksheet.  The balances are not used, except that when they are zero, the account will be ignored unless it is specifically mentiond in the `include_zeros` section of the YAML.

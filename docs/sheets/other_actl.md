@@ -4,7 +4,7 @@ This sheet holds several tables of other actuals.
 
 ## Manually input actual items
 
-Mostly values needed for tax calcs. A number of entries are needed to determine taxes.  When easiest, these are input on this table: `tbl_manual_actl`. A Moneydance report `W2-exclusions` extracts the amounts that can be excluded from the W2s.  This relies on the Pre-tax and pre-tax tags. These should be input manually.
+Mostly values needed for tax calcs. A number of entries are needed to determine taxes.  When easiest, these are input on this table: `tbl_manual_actl`. A Moneydance report `W2-exclusions` provides the amounts that can be excluded from the W2s.  This relies on the Pre-tax and pre-tax tags. These should be input manually.
 
 Computes the actual 401K contributions to post to the iande tab.
 

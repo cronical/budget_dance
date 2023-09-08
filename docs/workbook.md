@@ -109,7 +109,7 @@ The modern lambda functions seem to be preferable to VBA. Eventually this should
 
 The functions are stored as defined names in Excel.  They are defined in the `lambdas:` section of the `setup.yaml` file.
 
-The following list is extracted from that file by `util.doc_lambdas.py`.
+The following list is sourced from that file by `util.doc_lambdas.py`.
 
 [List of LAMBDA functions](./functions/excel_lambdas.md)
 

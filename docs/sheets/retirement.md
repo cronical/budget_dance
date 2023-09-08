@@ -41,7 +41,7 @@ For items that start with SS, the codes are looked up in the Social Security tab
 
 ### Data Source
 
-These values are sourced from `data/retir_template.tsv`.  If the values are changed, the template can be re-written using the extract utility.
+These values are sourced from `data/retir_template.tsv`.  If the values are changed, the template can be re-written using the extract_table utility.
 
 ## Retirement Medical
 
@@ -59,4 +59,4 @@ The values from this table get carried into the forecast in `tbl_iande`.
 
 ### Data Source
 
-These values are sourced from `data/retire_medical_template.tsv`.  If the values are changed, the template can be re-written using the extract utility.
+These values are sourced from `data/retire_medical_template.tsv`.  If the values are changed, the template can be re-written using the extract_table utility.
