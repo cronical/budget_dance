@@ -11,16 +11,16 @@ This system extends the family's historical financials into the future.  It allo
 
 ![Demo](./images/tgt/iande_top_view.png "Display of the IandE tab")
 
-The accounting system is Moneydance.  The long term planning is via Microsoft 365 Excel.
+The accounting system is Moneydance.  The long term planning is via Microsoft 365 Excel. [Python is the glue](./python.md).
 
 ## Data
 
-- The data for historical (actual) periods is based on data exported from Moneydance.
-- Data for planning is controlled via a set of external files.
+The data for historical (actual) periods is based on data exported from Moneydance. Data for planning is controlled via a set of external files. The data files are described on the [Data Files page](./data_files.md).
 
-The workbook is built from the above by Python programs controlled by an extensive configuration file.
 
 ## Workbook
+
+The workbook is built from the above data by Python programs controlled by an extensive configuration file.
 
 [Workbook](workbook.md)
 
@@ -32,8 +32,10 @@ The workbook is built from the above by Python programs controlled by an extensi
 
 [Operations](operations.md)
 
-## How Python is used
+## Use cases
 
-[Python is the glue](./python.md)
+Some worked examples are on the [use cases page](./use_cases.md).
+
+
 
 
