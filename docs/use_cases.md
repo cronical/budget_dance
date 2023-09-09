@@ -14,8 +14,8 @@
     3. This will produce a total line on the `iande` table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
 ![example](images/tgt/rollover_2.png)
 
-1. Use the aux table to compute the net changes to the target IRA account.   
-    1. User the hier_insert_paths key to insert something like
+1. Use the folding feature of the aux table to compute the net changes to the target IRA account by creating two lines for the IRA - one for rollover and one for withdrawals.     
+    1. User the hier_insert_paths key to insert something like `IRA:Rollover` and `IRA:Withdrawal`, so that `aux` ends up with rows like this:
     ![example](images/tgt/rollover_3.png)
     1. Set the formulas for withdraws to pull from retirement
     ```
