@@ -30,9 +30,33 @@ dance/preserve_changed.py -l
 # pull in the ytd reprojections
 dance/ytd.py -l -f
 
-# use script to open and save
+# open, calculate and save
 # this allows Excel to compute the formulas and setup some hidden defined names
-osascript ./dance/util/excel_save.scpt
+
+# the following does seem to cause the calculation to run on load
+# but upon save, this parameter is removed
+dance/setup/calc_props.py fullCalcOnLoad 1
+dance/experimental/reveal.py
+xmllint --format tmp/xl/workbook.xml | grep '<calcPr' # can't seem to get --xpath to work
+
+# open $target
+# sleep 10
+# testing if above causes to complete the calculations
+# without: Save command issued before calc finishes
+# attempt to detect after calculate event in vba works sometimes in Windows Excel but not at all in mac Excel
+# planned to get rid of vba anyway, so not pursuing further.
+# osascript ./dance/util/excel_save.applescript
+
+echo "Opening the file.  Please save and exit and press enter on this screen when done"
+open $target
+vared -p 'Press enter when calc is done and saved: ' -c tmp
+
+dance/experimental/reveal.py
+
+xmllint --format tmp/xl/workbook.xml | grep '<calcPr'
 
 # Calc props after excel sets the calcId
-dance/setup/calc_props.py -w $target
+dance/setup/calc_props.py fullPrecision 0 -w $target # 0 means Set precision as displayed
+
+# run checks to see if calcs completed.  If not 100% then probably they didn't. Try again.
+tests/cross_check.py -g balances
