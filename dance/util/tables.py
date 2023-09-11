@@ -185,6 +185,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
   tx=[table_info['name'] for table_info in tables].index(table_name)
   sg=config['sheets'][target_sheet]['sheet_group']
   table_style=config['sheet_groups'][sg]['table_style']
+  ffy=get_f_fcast_year(wb,config)
   try:
     table_info=tables[tx]
   except IndexError as e:
@@ -212,6 +213,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
     ws.cell(table_start_row,column=table_start_col+cx).value=cn
   # place the values
   fin_format=BUILTIN_FORMATS[41] #''_(* #,##0_);_(* \\(#,##0\\);_(* "-"_);_(@_)'
+  fin_format2=BUILTIN_FORMATS[43] # r'_(* #,##0.00_);_(* \(#,##0.00\);_(* "-"??_);_(@_)'
   first_field=None #first non-formula field - used to determine if its a rate
   for ix,values in df.iterrows(): # the indexes (starting at zero), and the data values
     for cx,cn in enumerate( df.columns):
@@ -241,9 +243,11 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
 
         # formats for Y columns  
         if cn.startswith('Y')and cn[1:].isnumeric(): 
-          # by default use the fin format
-          ws.cell(row=rix ,column=cix).number_format=fin_format
-          
+          # by default use the one of the fin formats
+          if ffy>int(cn[1:]):
+            ws.cell(row=rix ,column=cix).number_format=fin_format2 # 2 decimals for actual
+          else:
+            ws.cell(row=rix ,column=cix).number_format=fin_format # no decimals for forecast
           # determine if format should be overwritten: for percentage or integer
           # check table title, then line name - last word is key
           fmt_map={'ratios':FORMAT_PERCENTAGE_00,'rate':FORMAT_PERCENTAGE_00,
@@ -286,12 +290,15 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
       '''utility to aid with setting up groups'''
       return e[0]
     groups.sort(key=getlev)
+    fold_at=3 # default fold
+    if 'fold_at' in table_info:
+      fold_at=table_info['fold_at']
     for grp in groups:
       # use the start of the group to blank out numeric columns
       for cix,cn in enumerate(df.columns):
         if cn[0]=='Y':
           ws.cell(row=grp[1],column=cix).number_format='###'
-      ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>2)
+      ws.row_dimensions.group(grp[1],grp[2],outline_level=grp[0], hidden=grp[0]>=fold_at)
 
 
   # making the table
@@ -435,6 +442,8 @@ def columns_for_table(wb,sheet,table_name,config):
     hide_these=[]
     if 'hidden' in table_info:
       hide_these=table_info['hidden']
+    if 'hide_years' in config: # global years to hide
+      hide_these+=["Y%d"% y for y in config['hide_years']]
     df['hidden']= df.name.isin(hide_these)
     return df
 
