@@ -223,6 +223,8 @@ def subtotal_formulas(df,groups):
         addrs=address_phrase(let,collapse_adjacent(agg_rows[gx]))
         if code >0:
           formula='={}({})'.format(func,addrs)
+          if code==9: # try to keep out decimals from messing up zero formatting.
+            formula='=ROUND({},2)'.format(formula[1:])
         if code <0:
           tbl="tbl_{}_tax".format(func.split('_')[1].lower())
           formula='={}({}[],{})'.format(func,tbl,addrs)
