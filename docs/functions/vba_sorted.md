@@ -5,7 +5,6 @@ Attribute VB_Name = "Module1"
 Public Const dbg As Boolean = False
 Option Base 0
 
-
 Function ANN(anny_start As Date, duration As Integer, anny_rate As Double, prior_end_bal As Double, this_year As Integer, month_factor As Double) As Double
 'return a year's value for an annuity stream based on the prior year's end balance
 'this version leaves all the Excel dependencies visible to Excel
