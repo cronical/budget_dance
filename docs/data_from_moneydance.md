@@ -1,80 +1,34 @@
-# Data from Moneydance
+# Generating reports for data
 
-## Copy Income and Expense from Moneydance
+Each of the reports [reports table](./data_files.md) should be run for the appropriate period and the output exported as a .tsv file and saved in the data folder or a subfolder, under the name given in the [table](./data_files.md)
 
-1. In Moneydance run `Income & Expense by Year`
-2. Save as `data/iande.tsv` 
-3. Close spreadsheet and run the program  `iande-actl-load.py` 
-4. Ensure that the formulas on the year are set to `getval...`
-5. Check that income, tax and expense totals match to report: 
-   * start at level 3 and drill down to find problems.
+The `dance/build` shell script will completely rebuild the worksheet. Or the following utilities can rebuild portions.
+
+|Utility|Purpose|
+|---|---|
+|`dance/iande-actl-load.py`||
+|`dance/transfers_actl_load.py`||
+|`dance/invest_actl_load.py`||
+|`dance/accounts_load.py`||
+|`dance/balances_load.py`||
+|`dance/bank_actl_load.py`||
+|`dance/iande_actl_load.py`||
+|`dance/invest_actl_load.py`||
+|`dance/invest_iande_load.py`||
+|`dance/other_actls.py`||
+|`dance/retire_load.py`||
+|`dance/taxes_load.py`||
+|`dance/transfers_actl_load.py`||
+
+
+
+
+
    * IRA distributions are problematic [see note IRA-Txbl-Distr](./sheets/other_actl.md#ira-distributions).
-   * If there are new categories - you will need to insert a line
 
 ## First pass on the taxes 
 
 The first pass does not rely on the tax forms, those come later - basically the bits that are not accounted for are entered into the manual_actl tab.
-
-1. Check W2 exclusions on aux
-2. Change the column for the year to use the actuals
-3. Carefully check the progression of the logic
-
-## Copy transfers data from Moneydance
-
-1. Run report in Moneydance [currently called Transfers-to-fcast](./report_configs.md#transfers-to-fcast) for all actual periods.
-2. Press Save button and choose Tab delimited and save as `data/transfers.tsv`
-3. (If a year has been completed run the Bank balance export procedure)
-4. If `fcast.xlsm` is open, save your work and close the file.
-5. Open a terminal window at the project root.
-6. Run `python transfers_actl_load.py`
-7. Re-open the spreadsheet and save it to force balances to recalc and be stored.
-
-```bash
-> dance/transfers_actl_load.py
-2022-08-19 12:49:34,546 - transfers_actl_load - INFO - loaded dataframe from data/transfers.tsv
-2022-08-19 12:49:34,839 - tables - INFO - Read table tbl_iande_actl from data/fcast.xlsm
-2022-08-19 12:49:34,839 - tables - INFO -   300 rows and 6 columns
-2022-08-19 12:49:35,124 - transfers_actl_load - INFO - loaded workbook from data/fcast.xlsm
-2022-08-19 12:49:35,162 - transfers_actl_load - INFO - First forecast year is: 2022
-2022-08-19 12:49:35,470 - books - INFO - deleted worksheet transfers_actl
-2022-08-19 12:49:35,470 - books - INFO - created worksheet transfers_actl
-2022-08-19 12:49:35,499 - tables - INFO - table tbl_transfers_actl added to transfers_actl
-```
-
-## Bank balance export procedure
-
-The method used is the difference of progressive balances.  This is done for each year.  
-
-1. In Moneydance run the `Account Balances` report selecting only banks and credit cards.  
-2. Save the file as tab-separated under `budget/data` as `bank-bal-YYYY`.
-3. These files are consumed by the `transfers_actl_load.py` routine.
-
-## Investment actuals
-
-The Tranfers to Investment Accounts by Year report is saved as `invest-x.tsv`. The Investment Performance report for each year is saved under `invest-p-yyyy.tsv` for each year. These are processed by `invest_actl_load.py`. At each year end:
-
-1. Run [Tranfers to Investment Accounts by Year](./report_configs.md#tranfers-to-investment-accounts-by-year) and save as `invest_x.tsv`
-1. For each year:
-   2. Run `Investment Performance` report for the year and save under `invest-p-yyyy.tsv`
-   3. If `fcast.xlsm` is open, save your work and close the file.
-   5. Open a terminal window at the project root.
-   6. Run `invest_actl_load.py`
-   7. Re-open the spreadsheet and save it to force balances to recalc and be stored.
-
-```bash
->dance/invest_actl_load.py 
-2022-08-19 13:49:22,563 - invest_actl_load - INFO - loaded dataframe from data/invest_x.tsv
-2022-08-19 13:49:22,563 - invest_actl_load - INFO - Starting investment actual load
-2022-08-19 13:49:22,824 - tables - INFO - Read table tbl_accounts from data/fcast.xlsm
-2022-08-19 13:49:22,824 - tables - INFO -   27 rows and 10 columns
-2022-08-19 13:49:22,834 - invest_actl_load - INFO - Processing 2018
-2022-08-19 13:49:22,846 - invest_actl_load - INFO - Processing 2019
-2022-08-19 13:49:22,856 - invest_actl_load - INFO - Processing 2020
-2022-08-19 13:49:22,867 - invest_actl_load - INFO - Processing 2021
-2022-08-19 13:49:23,145 - books - INFO - deleted worksheet invest_actl
-2022-08-19 13:49:23,145 - books - INFO - created worksheet invest_actl
-2022-08-19 13:49:23,175 - tables - INFO - table tbl_invest_actl added to invest_actl
-```
 
 ## Validate balances for a year
 
@@ -88,43 +42,6 @@ The routine `balance_check.py` is available to see how the values from the `Acco
 
 
 
-## Add an account
-
-It may be best to do this by recreating the worksheet but the following suggests how to do it manually.
-
-1. On the accounts tab insert a row in the table
-2. Fill in all fields (notes is optional). Usually, the account name is used for the actl_source
-3. Create the rows on the balances table as follows:
-      1. Unhide all columns and sort by account name
-      1. Insert 9 new rows
-      1. Copy the 9 value types into column B 
-      1. Put the account name in all 9 of the new rows in the AcctName field
-      1. Construct the Key (concatenate the values of ValType and AcctName) - it needs to be be values not a formula
-      1. Copy actual formulas and forecast formulas from another account
-
-## Rename an account
-
-It turns out to be useful to have an account naming convention.  The convention is 
-	*type - owner - firm*
-where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is JNT or the owner's initials.
-
-Notes 
-
-- BND is for - gov't bonds where TRY is for treasury - direct
-
-Here's what has to be done to rename an account.
-
-1. The account name can be changed in Moneydance using the Tools -> Accounts menu.
-
-2. It must be changed in the spreadsheet at the following locations
-      1. tbl_accounts - it occurs in the A column and may occur in the G column
-      1. tbl_balances - it occurs in the AcctName and Key columns
-3. Depending on the account it may occur in the following location
-      1. tbl_retir, 
-      1. tbl_retir_parms
-      1. tbl_invest_actl
-
-4. The following should be refreshed: tbl_transfers_actl by running the procedure
 
 ## Accounting
 

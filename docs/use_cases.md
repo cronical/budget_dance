@@ -1,5 +1,22 @@
 # Use-case procedures
 
+## Add or rename an account
+
+Once the accounts are the way you want in Moneydance, recreate the workbook.
+
+If this is done during the year (typical) then export the account balances report as of the latest date and store it under the name of the first forecast year. Modify the data/path key in `setup.yaml` for the accounts table to point to this file.
+
+## Rename an account
+
+It turns out to be useful to have an account naming convention.  The convention is 
+	*type - owner - firm*
+where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is JNT or the owner's initials.
+
+Notes 
+
+- BND is for - gov't bonds where TRY is for treasury - direct
+
+
 ## How to model a rollover from a 401K to an IRA
 
 ### Structure

@@ -4,17 +4,13 @@
 
 1. Annual time series going from past actual into future forecast
 1. Uses Excel Tables and structured references for readability and usability
-1. Build of the workbook is defined for initial and annual updates
+1. Build of the workbook is defined for initialization and periodic updates
     - Controlled by a definition file, including formulas
     - Preservation of input data is supported so re-building can be done
-    - Substitutions for generics such as "this column" are provided at [build time](#build-time-column-substitutions)
-        - Avoids volatile functions and over large dependencies
-        - This impairs ease of revising formulas in rows, but produces performant spreadsheet
+1. Avoids volatile functions and over large dependencies by using [build time](#build-time-column-substitutions) substitutions for generics such as "this column"[^1].
 1. Bias toward use of modern array oriented Excel functions
-    - Excel Lambda functions are in use to make calculations more readable.
+    - Excel Lambda functions[^2] are in use to make calculations more readable.
     - Tables don't support dynamic arrays - array functions reduced to a single value
-    - Progress is underway to remove VBA functions that rely on retrieving data
-    - Some VBA calculations are expected to remain.
 1. Use of "folding" technique to make navigation easier and calculations less obtuse
     - Replaces the SUBTOTAL(9,...) technique with aggregation by SUM, PROD, MIN, MAX & special tax calculations
     - Unlike SUBTOTAL(9,...) uses the inner level aggregations not the interior leaf values.  
@@ -47,17 +43,17 @@ For more information: [worksheets](./worksheets.md)
 
 ## Excel Calculations
 
-The advent of array functions in Office 365 allows for fairly succinct and readable formulas, which do not suffer from the problem of dependency updates.  Generally, by referencing only the needed columns true dependency loops can be avoided.  
+Array functions in Office 365 allow for fairly readable formulas, which do not suffer from the problem of dependency updates.  Generally, by referencing only the needed columns true dependency loops can be avoided.  
 
 Getting this right turned out to be a bit tricky.  Some techniques are discussed in [Idioms](./idioms.md).  The winning technique is to isolate the columns used at build time, so that entire tables are not needed to be referenced.
 
-By the way, the original plan was to use Visual Basic (functions and macros) allows for calculations to be done in a more readable manner.  But there was a downside in that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  
+The original plan was to use Visual Basic (functions and macros) allowing for readable calculations. But there was a downside in that Excel cannot use its dependency trees to know what needs to occur when the macros reference or update a value with this method.  
 
 ## Build-time column substitutions
 
 The winning technique is to isolate the columns used at build time, so that entire tables are not needed to be referenced. 
 
-Both the indirect and indexing methods have serious drawbacks, so another method was created. This allows the formula to be written with a generic year, which will be substituted at build time.
+Both the indirect and indexing methods have serious drawbacks, so the substitution method was created. This allows the formula to be written with a generic year, which will be substituted at build time.
 
 ```title="formula as written in setup.yaml"
 formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
@@ -67,13 +63,13 @@ formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
 =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y2022])
 ```
 
-There are three regular expression rules in `xl_formulas.py` that do the substitution.  
+There are three types of substituion[^3]:  
 
 1. Indicates a single year with the form `Ynnnn`.
 2. Indicates an offset, picking out a prior column. The form is `Ynnnn-m`, which will use the year `m` years before nnnn. 
 3. Indicates a range of columns.  The form is `m<Ynnnn`. This produces a range of columns for the `m` years prior.
 
-This method is much faster and does not create unwarranted dependencies. Further it is much easier to read these formulas. Its drawback is that each column in the time series has a different formula. 
+This method is much faster and does not create unwarranted dependencies. It is also much easier to read these formulas. Its drawback is that each column in the time series has a different formula[^1].
 
 ## Folding
 
@@ -107,13 +103,11 @@ A glossary of Excel array idioms is available. [Idioms](./idioms.md)
 
 The modern lambda functions seem to be preferable to VBA. Eventually this should allow the removal of much of the original VBA.
 
-The functions are stored as defined names in Excel.  They are defined in the `lambdas:` section of the `setup.yaml` file.
+The functions are stored as defined names in Excel.  They are defined in the `lambdas:` section of the `setup.yaml` file[^4].
 
 The following list is sourced from that file by `util.doc_lambdas.py`.
 
 [List of LAMBDA functions](./functions/excel_lambdas.md)
-
-Note that a few steps are needed to get formulas using `LAMBDA` and `LET` into good order.  The logic can be found in `util.xl_formulas.prepare_formula`.
 
 #### Notes about using LAMBDAs in defined names
 
@@ -155,3 +149,8 @@ With the approach indicated in [Excel Calculations](#calculations) these are bei
 ### Documentation Conventions
 
 By convention in the documentation we call the workbook `fcast.xlsm`, although it could be anything.
+
+[^1]: This does impair ease of revising formulas in rows, but produces performant spreadsheet
+[^2]: Progress is underway to remove VBA functions that rely on retrieving data, but some VBA calculations are expected to remain.
+[^3]: Substitutions are implemented as regular expression rules in `xl_formulas.py` 
+[^4]: Note that a few steps are needed to get formulas using `LAMBDA` and `LET` into good order.  The logic can be found in `util.xl_formulas.prepare_formula`.

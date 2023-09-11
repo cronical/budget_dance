@@ -33,6 +33,7 @@ The following values are global in nature:
 |:--|:---|---|
 |start_year |Integer of 1st year to use for time series| 2018
 |end_year |Last Year of the time series| 2030
+|hide_years|List the years to hide on all sheets as numbers| 2018
 |year_column_width|Column size for years| 12
 |first_forecast_year |First year that is considered a forecast. Prior years are considered actual| 2022
 |zoom_scale|Scaling factor for all sheets| 135 # how to scale the worksheets
@@ -90,6 +91,7 @@ The table definition consists of various fields, some of which are optional and/
 
 |Item|Purpose|Default|
 |:--|:---|---|
+|**name**|The name for the table in Excel, by convention starting with tbl_|
 |**title**|The title that is place above the table in Excel||
 |**columns**|A list of the column definitions (see [below](#column-definitions)) that are included in the table|
 |title_row|When there is more than one table, locates this table on the sheet. If tables are spread horizontally, then subsequent tables will need an entry.|1 for the first table, then automatically places a space before the next table.
@@ -102,6 +104,8 @@ The table definition consists of various fields, some of which are optional and/
 |highlights|Specify Excel conditional formatting|
 |[dyno_fields](#build-time-created-fields)|a way to determine values at build time|
 |[edit_checks](#edit-checks)|Sets data validation in Excel for table columns|
+|preserve|Indicates what from a table to be "preserved" and how (only method "sparse" implemented). non-year-cols lists any columns other than forecast years to be preserved.|
+|fold_at |For tables that fold, an integer indicating the level at which to leave the fold closed.|3|
 
 #### Column definitions
 
