@@ -17,6 +17,12 @@
       "type": "integer",
       "exclusiveMaximum": 70
     },
+    "hide_years":{
+      "type":"array",
+      "items":{
+        "type": "integer"
+      }
+    },
     "first_forecast_year": {
       "type": "integer",
       "exclusiveMinimum": 2010,
@@ -348,7 +354,8 @@
         "actual_only":{"type":"boolean"},
         "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}},
         "edit_checks":{"type":"array","items":{"$ref":"#$defs/edit_check"}},
-        "preserve":{"$ref":"#/$defs/preserve"}
+        "preserve":{"$ref":"#/$defs/preserve"},
+        "fold_at":{"type":"integer"}
       },
       "required":["name","title","include_years","columns"]
     }
