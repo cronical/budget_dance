@@ -51,6 +51,36 @@ Public Sub ConsumeAfterCalculate()
     End If
 End Sub
 
+# this_column_name
+
+Function this_col_name() As String
+'return the caller's column name, assuming the cell is in a table.
+'Otherwise generates a #VALUE  error
+'Use to make formulas more portable
+
+    Dim point As Range
+    Dim list_ojb As ListObject
+    Dim cols As ListColumns
+    Dim offset As Integer, col_ix As Integer
+    
+    Set point = Application.caller
+    Set list_obj = point.ListObject
+    Set cols = list_obj.ListColumns
+    offset = list_obj.Range(1, 1).Column - 1
+    col_ix = offset + point.Column
+    this_col_name = cols(col_ix)
+End Function
+
+# log
+
+Sub log(txt As String)
+    fn = ThisWorkbook.Path & "/fcast_log.txt"
+    Open ThisWorkbook.Path & "/log.txt" For Append As #1
+    Print #1, (Format(Now, "mm/dd/yyyy HH:mm:ss: ") & txt)
+    Close #1
+End Sub
+
+
 # applescript bits
 
 tell application "Microsoft Excel"
