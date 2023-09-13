@@ -11,7 +11,7 @@ from dance.util.tables import df_for_table_name
 logger=get_logger(__file__)
 comment=Comment('Estimated based on year to date data.','ytd.py')
 if __name__ == '__main__':
-  defaults={'workbook':'data/test_wb.xlsm','storage':'./data/ytd_data.json'}# TODO fcast
+  defaults={'workbook':'data/test_wb.xlsx','storage':'./data/ytd_data.json'}# TODO fcast
   parser = argparse.ArgumentParser(description ='Copies data from ytd tab to file or from file to ytd tab and iande.')
   parser.add_argument('-s','--save',help='saves data from the current tab to the file',action='store_true')
   parser.add_argument('-l','--load',help='loads the file data to the current tab',action='store_true')
@@ -33,7 +33,7 @@ if __name__ == '__main__':
       json.dump(data,f,ensure_ascii=False,indent=2)
     logger.info('Wrote %d items to %s'%(len(key_val),args.path))
   if args.load or args.forward:
-    wb=load_workbook(filename = args.workbook,keep_vba=True)
+    wb=load_workbook(filename = args.workbook)
     with open (args.path,encoding='utf-8')as f:
       df=pd.read_json(f,orient='index')
 

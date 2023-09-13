@@ -29,18 +29,18 @@ options:
   --list, -l            List all eligible tables
 ```
 
-For example, this copies the aux table from a worksheet called test_wb.xlsm to a data file.
+For example, this copies the aux table from a worksheet called test_wb.xlsx to a data file.
 
 ```zsh
-% dance/extract_table.py -w data/test_wb.xlsm -t tbl_aux
+% dance/extract_table.py -w data/test_wb.xlsx -t tbl_aux
 2023-06-21 14:23:19,716 - extract_table - INFO - Wrote to data/aux.json
 ```
 
 Extract all:
 
 ```zsh
-dance/extract_table.py -w data/test_wb.xlsm -a
-2023-09-08 07:21:19,911 - extract_table - INFO - Source workbook is data/test_wb.xlsm
+dance/extract_table.py -w data/test_wb.xlsx -a
+2023-09-08 07:21:19,911 - extract_table - INFO - Source workbook is data/test_wb.xlsx
 2023-09-08 07:21:20,206 - extract_table - INFO - Wrote to data/transfers_plan.json
 2023-09-08 07:21:20,504 - extract_table - INFO - Wrote to data/retire_template.tsv
 ...
@@ -73,7 +73,7 @@ options:
   -s, --save            saves data from the current tab to the file
   -l, --load            loads the file data workbook
   -w WORKBOOK, --workbook WORKBOOK
-                        Target workbook. Default=data/test_wb.xlsm
+                        Target workbook. Default=data/test_wb.xlsx
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/preserve.json
 ```
 
@@ -104,7 +104,7 @@ options:
   -l, --load            loads the file data to the current tab
   -f, --forward         carries the projected values to the first forecast year in the iande table
   -w WORKBOOK, --workbook WORKBOOK
-                        Target workbook. Default=data/test_wb.xlsm
+                        Target workbook. Default=data/test_wb.xlsx
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/ytd_data.json
 ```
 

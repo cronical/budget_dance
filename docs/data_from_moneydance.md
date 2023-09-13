@@ -32,7 +32,7 @@ The first pass does not rely on the tax forms, those come later - basically the 
 
 ## Validate balances for a year
 
-The routine `balance_check.py` is available to see how the values from the `Account Balances` report in Moneydance match to those in `fcast.xlsm`. 
+The routine `balance_check.py` is available to see how the values from the `Account Balances` report in Moneydance match to those in `test_wb.xlsx`. 
 
 1. In Moneydance run the `Account Balances` report selecting all accounts. 
 2. Save the report  under the names: `data/acct-bals-yyyy.tsv`.

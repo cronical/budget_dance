@@ -15,8 +15,8 @@ from util.logs import get_logger
 def main():
   logger=get_logger(__file__)
 
-  target='data/fcast.xlsm'
-  wb=load_workbook(filename = target,keep_vba=True)
+  target='data/test_wb.xlsx'
+  wb=load_workbook(filename = target)
   sheets=wb.worksheets
   data = []
 

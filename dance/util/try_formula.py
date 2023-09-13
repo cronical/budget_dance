@@ -4,7 +4,7 @@ from openpyxl.worksheet.formula import ArrayFormula
 from dance.util.tables import load_workbook, df_for_table_name
 from dance.util.xl_formulas import filter_parser,eval_criteria
 
-source='data/test_wb.xlsm'
+source='data/test_wb.xlsx'
 table_name='tbl_transfers_plan'
 ws_name='transfers_plan'
 
@@ -21,14 +21,14 @@ base=3
 col='F'
 
 # turns out you don't need to populate the array
-#wb = load_workbook(filename = source, read_only=False, keep_vba=True,data_only=True)
+#wb = load_workbook(filename = source, read_only=False,data_only=True)
 #ws=wb[ws_name]
 #for ix,row in ref_df.iterrows():
 #    ws[col+str(base+ix)]= row[field]
 #wb.save(source)
 #print('saved values')
 
-wb = load_workbook(filename = source, read_only=False, keep_vba=True)
+wb = load_workbook(filename = source, read_only=False)
 ws=wb[ws_name]
 
 # needs the prefixes - otherwise excel complains and strips out formula

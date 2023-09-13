@@ -63,7 +63,7 @@ def load_sparse(workbook,path):
   '''copy items from saved json file back into various tables
   Only writes values that differ from what is aready in the sheet'''
   comment=Comment('Preserved from previous run of preservation utility','BudgetDance')
-  wb=load_workbook(filename = workbook,keep_vba=True)
+  wb=load_workbook(filename = workbook)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
   counters={}
@@ -89,7 +89,7 @@ def load_sparse(workbook,path):
   wb.save(args.workbook)
 
 if __name__ == '__main__':
-  defaults={'workbook':'data/test_wb.xlsm','storage':'./data/preserve.json'}# TODO fcast
+  defaults={'workbook':'data/test_wb.xlsx','storage':'./data/preserve.json'}# TODO fcast
   parser = argparse.ArgumentParser(description ='Copies changed data from tables to file or from file to various tables')
   group=parser.add_mutually_exclusive_group(required=True)
   group.add_argument('-s','--save',help='saves data from the current tab to the file',action='store_true')

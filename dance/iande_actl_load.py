@@ -98,7 +98,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   logger.debug('Preparing data for {}'.format(target_sheet))
   # get the workbook from file
   try:
-    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+    wb = load_workbook(filename = workbook, read_only=False)
     logger.debug('loaded workbook from {}'.format(workbook))
     config=read_config()
   except FileNotFoundError:
@@ -166,7 +166,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande" or "current".')
   parser.add_argument('-s','--sheet',choices=['iande','current'],default='iande',help='which sheet - iande or current')
   parser.add_argument('-p','--path',default= None,help='The path and name of the input file. If not given will use "data/iande.tsv" or "data/iande_ytd.tsv" depending on sheet')
-  parser.add_argument('-w','--workbook',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
+  parser.add_argument('-w','--workbook',default='data/test_wb.xlsx',help='Target workbook')# TODO fcast
   parser.add_argument('-f','--force', action='store_true', default=False, help='Use -f to ignore warning')
   
   args=parser.parse_args()
@@ -181,7 +181,7 @@ if __name__ == '__main__':
   data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast='Y%04d'%ffy)
   data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
   data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
-  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb = load_workbook(filename = args.workbook, read_only=False)
   wkb=fresh_sheet(wkb,args.sheet)
   wkb= write_table(wkb,target_sheet=args.sheet,df=data,table_name=table,groups=fold_groups)
   attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())

@@ -3,7 +3,7 @@ from openpyxl import load_workbook
 from openpyxl.workbook.defined_name import DefinedName
 from dance.util.xl_formulas import prepare_formula
 
-wb=load_workbook('data/test_wb.xlsm',keep_vba=True)
+wb=load_workbook('data/test_wb.xlsx')
 dns=wb.defined_names
 for dn in dns:
     print(dns[dn])

@@ -12,7 +12,7 @@ from dance.util.files import read_config
 from dance.util.tables import df_for_table_name
 
 
-def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
+def bank_cc_changes(data_info,target_file='data/test_wb.xlsx',table_map=None):
   '''Reads the account data files available in the data folder, combines them and produces the net change due to transfers per year.
   Source files are stored as .tsv under the data folder with a name 'acct-bal-<year>'
   The logic is to take the year on year delta (less the interest)
@@ -80,7 +80,7 @@ def bank_cc_changes(data_info,target_file='data/fcast.xlsm',table_map=None):
 def main():
   '''If called from the command line prints result'''
   changes= bank_cc_changes(data_info={'file_sets':{'balances':'./data/acct-bals/'}},
-                           target_file="data/test_wb.xlsm")
+                           target_file="data/test_wb.xlsx")
   print(changes)
 
 if __name__ == '__main__':

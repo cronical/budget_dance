@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 '''Initialize the workbook'''
 import argparse
-from os import getcwd ,mkdir
+from os import getcwd #,mkdir
 from os.path import exists, sep
-from shutil import copy2,rmtree
+#from shutil import copy2,rmtree
 from sys import exit
-import zipfile
+#import zipfile
 
-from openpyxl import load_workbook
+from openpyxl import Workbook # load_workbook
 
-from dance.util.files import zip_up
+#from dance.util.files import zip_up
 from dance.util.logs import get_logger
 from dance.setup.lambdas import write_lambdas
 from dance.setup.setup_tabs import refresh_sheets
@@ -17,7 +17,8 @@ from dance.setup.setup_tabs import refresh_sheets
 
 
 def create(filename,overwrite=False):
-  '''Create the excel file, insert the vba project and then add in the worksheets.
+  '''Create the excel file, then add in the worksheets.
+  Previously: insert the vba project 
   The vba project requires some special handling.  It has references to the worksheets.
   The vba code has previously been extracted and is inserted by unzipping the xslm file and replacing certain parts before rezipping it.
   It appears that this will get confused under circumstances where the worksheet list from the overlay does not match that in the stored vba project.
@@ -32,35 +33,36 @@ def create(filename,overwrite=False):
     if not overwrite:
       logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
       exit(-1)
-  wb=load_workbook('data/empty_template.xlsm',keep_vba=True)
+  #wb=load_workbook('data/empty_template.xlsm')
+  wb=Workbook()
   wb.save(filename)
   logger.debug('initial file saved as {}'.format(filename))
 
 
 
-  logger.debug('starting copy of vba')
-  if exists('./tmp'):
-    rmtree('./tmp')
-  with zipfile.ZipFile(filename, 'r') as z:
-    z.extractall('./tmp/')
+  #logger.debug('starting copy of vba')
+  #if exists('./tmp'):
+  #  rmtree('./tmp')
+  #with zipfile.ZipFile(filename, 'r') as z:
+  #  z.extractall('./tmp/')
 
   # In addition to the vba project (which is in an OLE2 format)
   # relationships and content types need to be correctly configured
   # shared strings seems to be required by openpyxl if the others are provided
-  to_copy=['./tmp/xl/vbaProject.bin','./tmp/xl/_rels/workbook.xml.rels','./tmp/[Content_Types].xml',
-  './tmp/xl/sharedStrings.xml']
-  for dst in to_copy:
-    src='./vba/'+dst.split(sep)[-1]
-    copy2(src,dst)
-    logger.debug('copied {} to {}'.format(src,dst))
+  #to_copy=['./tmp/xl/vbaProject.bin','./tmp/xl/_rels/workbook.xml.rels','./tmp/[Content_Types].xml',
+  #'./tmp/xl/sharedStrings.xml']
+  #for dst in to_copy:
+  #  src='./vba/'+dst.split(sep)[-1]
+  #  copy2(src,dst)
+  #  logger.debug('copied {} to {}'.format(src,dst))
 
-  zip_up(filename,'tmp')
-  logger.info('Initialized {} with vba'.format(filename))
+  #zip_up(filename,'tmp')
+  #logger.info('Initialized {} with vba'.format(filename))
   #cleanup
-  tmp='./tmp'
-  rmtree(tmp)
-  mkdir(tmp)
-  logger.debug('cleaned up {}'.format(tmp))
+  #tmp='./tmp'
+  #rmtree(tmp)
+  #mkdir(tmp)
+  #logger.debug('cleaned up {}'.format(tmp))
 
   write_lambdas(filename)
   refresh_sheets(filename,overwrite)

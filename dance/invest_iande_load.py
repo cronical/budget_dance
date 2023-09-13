@@ -40,7 +40,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   '''
     # get the workbook from file
   try:
-    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+    wb = load_workbook(filename = workbook, read_only=False)
     logger.info('loaded workbook from {}'.format(workbook))
     config=read_config()
   except FileNotFoundError:
@@ -96,14 +96,14 @@ def prepare_invest_iande_ratios(df):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Prepares income and expense data to insert into  "tbl_invest_iande_work". ')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook') # TODO change to fcast.xlsm
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Target workbook') # TODO change to test_wb.xlsx
   parser.add_argument('--path','-p',default= 'data/invest-iande.tsv',help='The path and name of the input file')
 
   args=parser.parse_args()
   config=read_config()
   ffy=config['first_forecast_year']
   sheet='invest_iande_work'
-  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb = load_workbook(filename = args.workbook, read_only=False)
   wkb=fresh_sheet(wkb,sheet)
   title_row=1
   for table_info in config['sheets'][sheet]['tables']:

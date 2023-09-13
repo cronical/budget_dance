@@ -45,7 +45,7 @@ def table_as_df(wb,table_name):
 
   return table, ws_name,ref
 
-def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=False,table_map=None):
+def df_for_table_name(table_name=None, workbook='data/test_wb.xlsx',data_only=False,table_map=None):
   '''Opens the file, and extracts a table as a Pandas dataframe
 
   args:
@@ -61,7 +61,7 @@ def df_for_table_name(table_name=None, workbook='data/fcast.xlsm',data_only=Fals
 
   '''
   try:
-    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True, data_only=data_only)
+    wb = load_workbook(filename = workbook, read_only=False, data_only=data_only)
     if table_map is None:
       ws=wb['utility']
       ref=ws.tables['tbl_table_map'].ref
@@ -82,8 +82,8 @@ def df_for_table_name_for_update(table_name=None):
   '''Opens the file, and extracts a table as a dataFrame with the first column as the dataframe index
   returns dataframe, worksheet, range_ref and workbook
   since its going to be updated don't allow data only '''
-  source='data/fcast.xlsm'
-  wb = load_workbook(filename = source, read_only=False, keep_vba=True)
+  source='data/test_wb.xlsx'
+  wb = load_workbook(filename = source, read_only=False)
   logger.info('Loaded workbook from {}'.format(source))
   ws=wb['utility']
   ref=ws.tables['tbl_table_map'].ref

@@ -14,7 +14,7 @@ def main():
   logger=get_logger(__file__)
   logger.debug('current working directory is %s',os.getcwd())
 
-  with zipfile.ZipFile('data/test_wb.xlsm', 'r') as z: # TODO remove hardcoded name
+  with zipfile.ZipFile('data/test_wb.xlsx', 'r') as z: # TODO remove hardcoded name
     z.extractall('./tmp/')
 
   #make sure the vba project is not already there

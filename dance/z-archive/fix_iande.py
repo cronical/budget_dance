@@ -10,9 +10,9 @@ from openpyxl.worksheet.table import Table
 import openpyxl.utils.cell as ut
 from util.logs import get_logger
 logger=get_logger(__file__)
-source='data/fcast.xlsm'
+source='data/test_wb.xlsx'
 target = 'fcast2.xlsm'
-wb = load_workbook(filename = source, read_only=False, keep_vba=True)
+wb = load_workbook(filename = source, read_only=False)
 logger.info('loaded workbook from {}'.format(source))
 sheet_name= 'iande'
 new_sheet_name='iande_2'

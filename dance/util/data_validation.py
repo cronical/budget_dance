@@ -7,10 +7,10 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from dance.util.sheet import df_for_range
 from dance.util.tables import df_for_table_name,load_workbook,ws_for_table_name
 
-source='data/test_wb.xlsm'
+source='data/test_wb.xlsx'
 table_name='tbl_transfers_plan'
 columns=['From_Account','To_Account']
-wb = load_workbook(filename = source, read_only=False, keep_vba=True)
+wb = load_workbook(filename = source, read_only=False)
 utility=wb['utility']
 table_map = df_for_range(worksheet=utility,range_ref=utility.tables['tbl_table_map'].ref)
 ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)

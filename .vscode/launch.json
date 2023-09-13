@@ -13,31 +13,14 @@
       "console": "integratedTerminal",
       "justMyCode": true
     },
-    {
-      "name": "oledump args",
-      "type": "python",
-      "request": "launch",
-      "program": "util/oledump.py",
-      "console": "integratedTerminal",
-      "args": ["-r","-v","--vbadecompress", "./tmp/vbaProject/VBA/Module1"],
-      "justMyCode": true
-    },
-    {
-      "name": "sort_vba args",
-      "type": "python",
-      "request": "launch",
-      "program": "dance/util/vba/sort_vba.py",
-      "console": "integratedTerminal",
-      "args": ["-i","vba/fcast.vb","-o","vba/fcast_sorted.vb","-x","docs/functions/vba_index.md","-s","docs/functions/vba_sorted.md"],
-      "justMyCode": true
-    },
+
     {
       "name": "create_wb args",
       "type": "python",
       "request": "launch",
       "program": "dance/setup/create_wb.py",
       "console": "integratedTerminal",
-      "args": ["data/test_wb.xlsm","-o"],
+      "args": ["data/test_wb.xlsx","-o"],
       "justMyCode": true
     },
     {

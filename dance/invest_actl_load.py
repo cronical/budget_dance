@@ -297,7 +297,7 @@ def parse_share_info(share_info):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Target workbook')# TODO fcast
   parser.add_argument('--input','-i',default= 'data/invest-x.tsv',help='The path to the balances files')
   parser.add_argument('--balances','-b',default= 'data/acct-bals/',help='The path to the balances files')
   parser.add_argument('--performance','-f',default= 'data/invest-p/',help='The path to the performance reports')
@@ -311,7 +311,7 @@ if __name__ == '__main__':
   data=read_and_prepare_invest_actl(workbook=args.workbook,data_info=data_info)
   table_info=read_config()['sheets'][sheet]['tables'][0]
   data=dyno_fields(table_info,data) # get the taxable status
-  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb = load_workbook(filename = args.workbook, read_only=False)
   wkb=fresh_sheet(wkb,sheet)
   wkb= write_table(wkb,target_sheet=sheet,df=data,table_name=table)
   attrs=col_attrs_for_sheet(wkb,sheet,read_config())

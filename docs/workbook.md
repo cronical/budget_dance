@@ -148,7 +148,7 @@ With the approach indicated in [Excel Calculations](#calculations) these are bei
 
 ### Documentation Conventions
 
-By convention in the documentation we call the workbook `fcast.xlsm`, although it could be anything.
+By convention in the documentation we call the workbook `test_wb.xlsx`, although it could be anything.
 
 [^1]: This does impair ease of revising formulas in rows, but produces performant spreadsheet
 [^2]: Progress is underway to remove VBA functions that rely on retrieving data, but some VBA calculations are expected to remain.

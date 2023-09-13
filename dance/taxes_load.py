@@ -23,7 +23,7 @@ def prepare_taxes(data_info,workbook):
   df=nest_by_cat(df,'Line')
   assert 8>=df.level.max(), 'Highest level is %d.  Excel max is 8'%df.level.max()
   df,groups=folding_groups(df)
-  wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+  wb = load_workbook(filename = workbook, read_only=False)
   col_def=columns_for_table(wb,'taxes','tbl_taxes',read_config())
   df=conform_table(df,col_def['name'])  
   df=subtotal_formulas(df,groups)
@@ -31,7 +31,7 @@ def prepare_taxes(data_info,workbook):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description ='Prepares the taxes table from the input template')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsm',help='Target workbook')# TODO fcast
+  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Target workbook')# TODO fcast
   parser.add_argument('--path','-p',default= 'data/taxes_template.tsv',help='The path and name of the input file')
   args=parser.parse_args()
   prepare_taxes(data_info={'path':args.path},workbook=args.workbook)

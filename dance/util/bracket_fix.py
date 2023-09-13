@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-'''Take the IRS format of tax bracket and format it for inclusion in the fcast.xlsm tax table
+'''Take the IRS format of tax bracket and format it for inclusion in the test_wb.xlsx tax table
 
 # See https://www.irs.gov/pub/irs-pdf/i1040gi.pdf
 # Section called YYYY Tax Computation Worksheet - Line 16
@@ -15,7 +15,7 @@ Note the file should be unicode since it has an em-dash in the first column
 import argparse
 import pandas as pd
 def main():
-  parser = argparse.ArgumentParser(description ='Take the IRS format of tax bracket as a comma separated file and format it for inclusion in the fcast.xlsm tax table. ')
+  parser = argparse.ArgumentParser(description ='Take the IRS format of tax bracket as a comma separated file and format it for inclusion in the test_wb.xlsx tax table. ')
   parser.add_argument('file_name', nargs=1)
   args=parser.parse_args()
 
