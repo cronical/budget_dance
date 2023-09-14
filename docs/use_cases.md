@@ -63,7 +63,7 @@ Notes
 1. Extract the retirement values and the transfers plan data 
 
     ```bash
-    (.venv) george@GeorgesacStudio budget % dance/extract_table.py -t tbl_retir_vals -w data/test_wb.xlsx
+    (.venv) george@GeorgesacStudio budget % dance/extract_table.py -t tbl_retir_vals 
     2023-07-19 20:02:21,229 - extract_table - INFO - Source workbook is data/test_wb.xlsx
     2023-07-19 20:02:21,560 - extract_table - INFO - Wrote to data/retire_template.tsv
     (.venv) george@GeorgesacStudio budget % dance/extract_table.py -t tbl_transfers_plan -w data/test_wb.xlsx
