@@ -82,7 +82,7 @@ def prepare_balances_folding(years,in_df,workbook):
 
   assert 8>=df.level.max(), 'Highest level is %d.  Excel max is 8'%df.level.max()
   df,groups=folding_groups(df)
-  wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+  wb = load_workbook(filename = workbook, read_only=False)
   col_def=columns_for_table(wb,'balances','tbl_balances',read_config())
   df=conform_table(df,col_def['name'])  
   df=subtotal_formulas(df,groups)

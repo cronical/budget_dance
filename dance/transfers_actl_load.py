@@ -17,9 +17,10 @@ from dance.util.files import  tsv_to_df,read_config
 from dance.util.tables import get_f_fcast_year,write_table,columns_for_table
 from dance.util.logs import get_logger
 
+config=read_config() 
 logger=get_logger(__file__)
 
-def read_transfers_actl(data_info,target_file='data/fcast.xlsm',table_map=None):
+def read_transfers_actl(data_info,target_file,table_map=None):
   '''  Read data from files into a dataframe
 
   args:
@@ -120,7 +121,7 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   '''
   # get the workbook from file
   try:
-    wb = load_workbook(filename = workbook, read_only=False, keep_vba=True)
+    wb = load_workbook(filename = workbook, read_only=False)
     logger.info('loaded workbook from {}'.format(workbook))
     config=read_config()
   except FileNotFoundError:
@@ -237,8 +238,9 @@ def prepare_transfers_actl(workbook,df,f_fcast=None):
   return gr_df,groups
 
 if __name__ == '__main__':
+  default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies data from input file into tab "transfers_actl". ')
-  parser.add_argument('--workbook','-w',default='data/fcast.xlsm',help='Target workbook')
+  parser.add_argument('--workbook','-w',default=default_wb,help=f'Target workbook. Default: {default_wb}')
   parser.add_argument('--path','-p',default= 'data/transfers.tsv',help='The path and name of the input file')
   parser.add_argument('--ffy', '-y',help='first forecast year. Must be provided if workbook does not have value. Default None.')
   args=parser.parse_args()
@@ -246,7 +248,7 @@ if __name__ == '__main__':
   transfers_actl,fold_groups=prepare_transfers_actl(args.workbook,df)
   sheet='transfers_actl'
   table='tbl_'+sheet
-  wkb = load_workbook(filename = args.workbook, read_only=False, keep_vba=True)
+  wkb = load_workbook(filename = args.workbook, read_only=False)
   wkb=fresh_sheet(wkb,sheet)
   wkb= write_table(wkb,target_sheet=sheet,df=transfers_actl,table_name=table,groups=fold_groups)
   attrs=col_attrs_for_sheet(wkb,sheet,read_config())

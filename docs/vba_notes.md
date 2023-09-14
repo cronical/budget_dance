@@ -85,10 +85,31 @@ End Sub
 
 tell application "Microsoft Excel"
 	activate
-	set my_file to POSIX file "/Users/george/argus/budget/data/test_wb.xlsm"
+	set my_file to POSIX file "/Users/george/argus/budget/data/test_wb.xlsx"
 	open my_file
 end tell
 set stamp to get the current date
 set output to stamp & " - excel_save: Opened excel file."
 log output
 delay 10
+
+# debug 
+
+    {
+      "name": "oledump args",
+      "type": "python",
+      "request": "launch",
+      "program": "util/oledump.py",
+      "console": "integratedTerminal",
+      "args": ["-r","-v","--vbadecompress", "./tmp/vbaProject/VBA/Module1"],
+      "justMyCode": true
+    },
+    {
+      "name": "sort_vba args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/util/vba/sort_vba.py",
+      "console": "integratedTerminal",
+      "args": ["-i","vba/fcast.vb","-o","vba/fcast_sorted.vb","-x","docs/functions/vba_index.md","-s","docs/functions/vba_sorted.md"],
+      "justMyCode": true
+    },

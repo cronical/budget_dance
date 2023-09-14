@@ -3,8 +3,9 @@ from openpyxl.formatting import Rule
 from openpyxl.styles import Font, PatternFill
 from openpyxl.styles.differential import DifferentialStyle
 from openpyxl import load_workbook
-fn='data/test_wb.xlsm'
-wb=load_workbook(fn,keep_vba=True)
+from dance.util.files import read_config
+fn=read_config()['workbook']
+wb=load_workbook(fn)
 ws=wb['taxes']
 dxf= DifferentialStyle(font=Font(bold=True),fill=PatternFill(start_color='EE1111',end_color='EE1111'))
 rule=Rule(type='expression',dxf=dxf,stopIfTrue=False)

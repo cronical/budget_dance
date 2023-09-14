@@ -36,7 +36,7 @@ def refresh_sheets(target_file,overwrite=False):
   logger=get_logger(__file__)
   config=read_config()
   years=range(config['start_year'],1+config['end_year'])
-  wb=load_workbook(filename = target_file,keep_vba=True)
+  wb=load_workbook(filename = target_file)
   
   sheets=wb.sheetnames
   logger.debug('{} existing sheets in {}'.format(len(sheets),target_file))

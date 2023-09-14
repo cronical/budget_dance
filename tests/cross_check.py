@@ -149,7 +149,7 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None):
     values.append(series)
   tester.run_test(test_group,values[0],values[1])
 
-def verify(workbook='data/test_wb.xlsm',test_group='*'):
+def verify(workbook='data/test_wb.xlsx',test_group='*'):
   '''Various checks'''
   test_groups='cross_check,balances,cash_flow,taxes'.split(',')
   if test_group!='*':
@@ -232,7 +232,7 @@ def verify(workbook='data/test_wb.xlsm',test_group='*'):
     heading(test_group,'-')
 
     # computed balances match exported balances
-    df=balance_test_pairs('data/test_wb.xlsm')
+    df=balance_test_pairs(workbook)
     cols=df.columns
     tester.run_test(test_group,df[cols[0]],df[cols[1]])
     results(test_group=test_group,tester=tester)
@@ -273,7 +273,7 @@ if __name__=='__main__':
   # execute only if run as a script
   parser = argparse.ArgumentParser(description ='This program runs functional tests \
     by test group (or all).')
-  parser.add_argument('-workbook',default='data/test_wb.xlsm',help='provide an alternative workbook')
+  parser.add_argument('-workbook',default='data/test_wb.xlsx',help='provide an alternative workbook')
   parser.add_argument('-group',default='*',help='specify a single test group or * for all')
   args=parser.parse_args()
   verify(workbook=args.workbook,test_group=args.group)

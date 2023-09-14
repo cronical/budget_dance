@@ -12,6 +12,7 @@ from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name, table_as_df
 
+config=read_config() 
 logger=get_logger(__file__)
 
 def is_formula(item):
@@ -63,7 +64,7 @@ def load_sparse(workbook,path):
   '''copy items from saved json file back into various tables
   Only writes values that differ from what is aready in the sheet'''
   comment=Comment('Preserved from previous run of preservation utility','BudgetDance')
-  wb=load_workbook(filename = workbook,keep_vba=True)
+  wb=load_workbook(filename = workbook)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
   counters={}
@@ -89,16 +90,15 @@ def load_sparse(workbook,path):
   wb.save(args.workbook)
 
 if __name__ == '__main__':
-  defaults={'workbook':'data/test_wb.xlsm','storage':'./data/preserve.json'}# TODO fcast
+  defaults={'workbook':config['workbook'],'storage':'./data/preserve.json'}
   parser = argparse.ArgumentParser(description ='Copies changed data from tables to file or from file to various tables')
   group=parser.add_mutually_exclusive_group(required=True)
   group.add_argument('-s','--save',help='saves data from the current tab to the file',action='store_true')
   group.add_argument('-l','--load',help='loads the file data workbook',action='store_true')
-  parser.add_argument('-w','--workbook',default=defaults['workbook'],help='Target workbook. Default='+defaults['workbook'])
+  parser.add_argument('-w','--workbook',default=defaults['workbook'],help='Target workbook. Default: '+defaults['workbook'])
   parser.add_argument('-p','--path',default=defaults['storage'] ,help='The path and name of the storage file. Default='+defaults['storage'])
   args=parser.parse_args()
-  config=read_config()
-
+  
   
   if args.save:
     save_sparse(config,args.workbook,args.path)

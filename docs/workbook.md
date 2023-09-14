@@ -146,10 +146,6 @@ With the approach indicated in [Excel Calculations](#calculations) these are bei
 
 - Actual account names are generally of the form *type-who-firm* where type is one of 401K, 529, BKG, BND, ESP, HSA, IRA, IRA Roth, LON, MUT.
 
-### Documentation Conventions
-
-By convention in the documentation we call the workbook `fcast.xlsm`, although it could be anything.
-
 [^1]: This does impair ease of revising formulas in rows, but produces performant spreadsheet
 [^2]: Progress is underway to remove VBA functions that rely on retrieving data, but some VBA calculations are expected to remain.
 [^3]: Substitutions are implemented as regular expression rules in `xl_formulas.py` 

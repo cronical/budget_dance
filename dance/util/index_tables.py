@@ -1,4 +1,4 @@
-"""Utility to map all the tables in the workbook to their worksheets
+"""DEPRECATED Utility to map all the tables in the workbook to their worksheets
 
 Gathers all the tables names across all worksheets
 and cross references them to their worksheets
@@ -11,12 +11,14 @@ from openpyxl.worksheet.table import Table
 from openpyxl.utils import get_column_letter
 import pandas as pd
 from util.logs import get_logger
+from dance.util.files import read_config
+
 
 def main():
   logger=get_logger(__file__)
 
-  target='data/fcast.xlsm'
-  wb=load_workbook(filename = target,keep_vba=True)
+  target=read_config()['workbook']
+  wb=load_workbook(filename = target)
   sheets=wb.worksheets
   data = []
 

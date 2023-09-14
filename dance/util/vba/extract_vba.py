@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Extract the vba from the excel file so it can be stored in source control.
+'''DEPRECATED Extract the vba from the excel file so it can be stored in source control.
 
   requires: the unarchiver command line utility, unar to handle the OLE compression
   '''
@@ -8,13 +8,14 @@ from shutil import rmtree, copy2
 import zipfile
 from dance.util.vba.oledump import FindAll, SearchAndDecompress
 from dance.util.logs import get_logger
+from dance.util.files import read_config
 
 def main():
   '''Pulls out certain components from the Excel file'''
   logger=get_logger(__file__)
   logger.debug('current working directory is %s',os.getcwd())
 
-  with zipfile.ZipFile('data/test_wb.xlsm', 'r') as z: # TODO remove hardcoded name
+  with zipfile.ZipFile(read_config()['workbook'], 'r') as z: 
     z.extractall('./tmp/')
 
   #make sure the vba project is not already there
