@@ -31,6 +31,7 @@ The following values are global in nature:
 
 |Item|Purpose|Example|
 |:--|:---|---|
+|workbook|The name of the workbook including path from project folder. Used as the default for most programs.|data/test_wb.xlsx|
 |start_year |Integer of 1st year to use for time series| 2018
 |end_year |Last Year of the time series| 2030
 |hide_years|List the years to hide on all sheets as numbers| 2018
