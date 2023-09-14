@@ -17,7 +17,7 @@ from dance.util.tables import (columns_for_table, conform_table,
                                df_for_table_name, write_table)
 from dance.util.xl_formulas import dyno_fields
 
-
+config=read_config()
 logger=get_logger(__file__)
 
 def read_passthru_accts(data_info):
@@ -230,7 +230,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   # put the data into the spreadsheet
   wb=load_workbook(filename =workbook)
   table.reset_index(inplace=True) # puts the key back into 1st column
-  col_def=columns_for_table(wb,'invest_actl','tbl_invest_actl',read_config())
+  col_def=columns_for_table(wb,'invest_actl','tbl_invest_actl',config)
   table=conform_table(table,col_def['name'])
 
   return table
@@ -296,8 +296,9 @@ def parse_share_info(share_info):
   return result
 
 if __name__ == '__main__':
+  default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies data from input files into tab "invest_actl". ')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Target workbook')# TODO fcast
+  parser.add_argument('--workbook','-w',default=default_wb,help=f'Target workbook. Default: {default_wb}')
   parser.add_argument('--input','-i',default= 'data/invest-x.tsv',help='The path to the balances files')
   parser.add_argument('--balances','-b',default= 'data/acct-bals/',help='The path to the balances files')
   parser.add_argument('--performance','-f',default= 'data/invest-p/',help='The path to the performance reports')

@@ -3,10 +3,11 @@
 import argparse
 
 from openpyxl import load_workbook
-from openpyxl.workbook.properties import CalcProperties
 
+from dance.util.files import read_config
 from dance.util.logs import get_logger
 supported=['fullPrecision','fullCalcOnLoad']
+config=read_config()
 logger=get_logger(__file__)
 
 def calc_properties(target_file,calcId,option,value):
@@ -26,10 +27,11 @@ def calc_properties(target_file,calcId,option,value):
 
 if __name__=='__main__':
     # execute only if run as a script
+  default_wb=config['workbook']    
   parser = argparse.ArgumentParser(description ='write the calculation option to file')
   parser.add_argument('option',choices=supported,help='Which of '+ ','.join(supported))
   parser.add_argument('value',type=int,choices=[0,1],help="0 for false, 1 for true")
-  parser.add_argument('-workbook', default='data/test_wb.xlsx',help='provide the name of the existing workbook')
+  parser.add_argument('-workbook', default=default_wb,help=f'Target workbook. Default: {default_wb}')
   parser.add_argument('-calcId',type=int,default=191029,help='value to set for calcID')
   args=parser.parse_args()
   calc_properties(args.workbook,args.calcId,args.option,args.value)

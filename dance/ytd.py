@@ -8,10 +8,13 @@ import pandas as pd
 from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name
+
+config=read_config() 
 logger=get_logger(__file__)
+
 comment=Comment('Estimated based on year to date data.','ytd.py')
 if __name__ == '__main__':
-  defaults={'workbook':'data/test_wb.xlsx','storage':'./data/ytd_data.json'}# TODO fcast
+  defaults={'workbook':config['workbook'],'storage':'./data/ytd_data.json'}
   parser = argparse.ArgumentParser(description ='Copies data from ytd tab to file or from file to ytd tab and iande.')
   parser.add_argument('-s','--save',help='saves data from the current tab to the file',action='store_true')
   parser.add_argument('-l','--load',help='loads the file data to the current tab',action='store_true')
@@ -20,7 +23,6 @@ if __name__ == '__main__':
   parser.add_argument('-w','--workbook',default=defaults['workbook'],help='Target workbook. Default='+defaults['workbook'])
   parser.add_argument('-p','--path',default=defaults['storage'] ,help='The path and name of the storage file. Default='+defaults['storage'])
   args=parser.parse_args()
-  config=read_config()
   ffy=config['first_forecast_year']
   if args.save:
     df= df_for_table_name('tbl_current',args.workbook,data_only=True)# key is in index

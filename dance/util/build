@@ -1,21 +1,15 @@
 #!/bin/zsh
 
-FILE='./data/~$test_wb.xlsx'
+target=`yq -r .workbook data/setup.yaml` # requires yq and jq to read config file in shell
+
+FILE=$(echo $target | sed s/$target:t/~\$$target:t/) # Excel's temp file name
 if [[ -f "$FILE" ]]; then
     echo "$FILE exists indicating target is open."
     exit 1
 fi
 
-#
-# pull latest vba from fcast.xlms and build the test spreadsheet and open it
-# removing VBA
-# dance/util/vba/extract_vba.py    
-# dance/util/vba/sort_vba.py
-
 # document the lambdas
 dance/util/doc_lambda.py
-
-target="data/test_wb.xlsx"
 
 # run the main build
 dance/setup/create_wb.py $target -o

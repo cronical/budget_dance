@@ -5,34 +5,13 @@
   "description": "Validates setup.yaml",
   "type": "object",
   "properties": {
-    "start_year": {
-      "type": "integer",
-      "exclusiveMinimum": 2010
-    },
-    "end_year": {
-      "type": "integer",
-      "exclusiveMaximum": 2070
-    },
-    "year_column_width": {
-      "type": "integer",
-      "exclusiveMaximum": 70
-    },
-    "hide_years":{
-      "type":"array",
-      "items":{
-        "type": "integer"
-      }
-    },
-    "first_forecast_year": {
-      "type": "integer",
-      "exclusiveMinimum": 2010,
-      "exclusiveMaximum": 2070
-    },
-    "zoom_scale": {
-      "type": "integer",
-      "exclusiveMinimum": 39,
-      "exclusiveMaximum": 301
-    },
+    "workbook":{"type":"string"},
+    "start_year": {"type": "integer","exclusiveMinimum": 2010},
+    "end_year": {"type": "integer","exclusiveMaximum": 2070},
+    "year_column_width": {"type": "integer","exclusiveMaximum": 70},
+    "hide_years":{"type":"array","items":{"type": "integer"}},
+    "first_forecast_year": {"type": "integer","exclusiveMinimum": 2010,"exclusiveMaximum": 2070},
+    "zoom_scale": {"type": "integer","exclusiveMinimum": 39,"exclusiveMaximum": 301},
     "lambdas":{
       "type":"array",
       "items": {

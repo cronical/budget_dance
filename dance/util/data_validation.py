@@ -4,10 +4,11 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import coordinate_from_string
 from openpyxl.worksheet.datavalidation import DataValidation
+from dance.util.files import read_config
 from dance.util.sheet import df_for_range
 from dance.util.tables import df_for_table_name,load_workbook,ws_for_table_name
-
-source='data/test_wb.xlsx'
+config=read_config() 
+source=config['workbook']
 table_name='tbl_transfers_plan'
 columns=['From_Account','To_Account']
 wb = load_workbook(filename = source, read_only=False)

@@ -83,8 +83,9 @@ def eligible_tables():
   return eligible
 
 if __name__ == '__main__':
+  default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies table data from workbook and stores as a json or tsv output file.')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Source workbook')
+  parser.add_argument('--workbook','-w',default=default_wb,help=f'Source workbook. Default: {default_wb}')
   parser.add_argument('--data_only', '-d',action='store_true', default=False, help='To get data not formulas')
   me_grp=parser.add_mutually_exclusive_group(required=True)
   me_grp.add_argument('--table', '-t',help='Source table name, include tbl_')

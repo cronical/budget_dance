@@ -21,7 +21,7 @@ Copies table data from workbook and stores as a json or tsv output file.
 options:
   -h, --help            show this help message and exit
   --workbook WORKBOOK, -w WORKBOOK
-                        Source workbook
+                        Source workbook. Default: data/test_wb.xlsx
   --data_only, -d       To get data not formulas
   --table TABLE, -t TABLE
                         Source table name, include tbl_
@@ -29,17 +29,17 @@ options:
   --list, -l            List all eligible tables
 ```
 
-For example, this copies the aux table from a worksheet called test_wb.xlsx to a data file.
+For example, this copies the aux table from the default workbook to a data file.
 
 ```zsh
-% dance/extract_table.py -w data/test_wb.xlsx -t tbl_aux
+% dance/extract_table.py -t tbl_aux
 2023-06-21 14:23:19,716 - extract_table - INFO - Wrote to data/aux.json
 ```
 
 Extract all:
 
 ```zsh
-dance/extract_table.py -w data/test_wb.xlsx -a
+dance/extract_table.py -a
 2023-09-08 07:21:19,911 - extract_table - INFO - Source workbook is data/test_wb.xlsx
 2023-09-08 07:21:20,206 - extract_table - INFO - Wrote to data/transfers_plan.json
 2023-09-08 07:21:20,504 - extract_table - INFO - Wrote to data/retire_template.tsv
@@ -60,10 +60,7 @@ The values are store in or retrieved rom external storage (typically `./data/pre
 
 
 ```zsh
-dance/preserve_changed.py 
-usage: preserve_changed.py [-h] (-s | -l) [-w WORKBOOK] [-p PATH]
-preserve_changed.py: error: one of the arguments -s/--save -l/--load is required
-(.venv) george@GeorgesacStudio budget % dance/preserve_changed.py -h
+dance/preserve_changed.py -h 
 usage: preserve_changed.py [-h] (-s | -l) [-w WORKBOOK] [-p PATH]
 
 Copies changed data from tables to file or from file to various tables
@@ -73,7 +70,7 @@ options:
   -s, --save            saves data from the current tab to the file
   -l, --load            loads the file data workbook
   -w WORKBOOK, --workbook WORKBOOK
-                        Target workbook. Default=data/test_wb.xlsx
+                        Target workbook. Default: data/test_wb.xlsx
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/preserve.json
 ```
 

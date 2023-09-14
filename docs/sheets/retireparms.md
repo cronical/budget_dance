@@ -14,7 +14,7 @@ The values need to be entered for amounts available at different ages.
 It is sourced from `data/social_security.json`, which can be re-written with
 
 ```zsh
-dance/extract_table.py -t tbl_social_security -w data/test_wb.xlsx
+dance/extract_table.py -t tbl_social_security 
 ```
 
 ## mcare_opt
@@ -36,6 +36,6 @@ Setup sources this from: data/mcare_opt.json
 To rewrite that file based on changes in the workbook
 
 ```zsh
- dance/extract_table.py -t tbl_mcare_opt -w data/test_wb.xlsx
+ dance/extract_table.py -t tbl_mcare_opt 
 ```
 

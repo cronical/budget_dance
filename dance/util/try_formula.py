@@ -1,10 +1,11 @@
 '''Discover logic to set array formula'''
 
 from openpyxl.worksheet.formula import ArrayFormula
+from dance.util.files import read_config
 from dance.util.tables import load_workbook, df_for_table_name
 from dance.util.xl_formulas import filter_parser,eval_criteria
 
-source='data/test_wb.xlsx'
+source=read_config()['workbook']
 table_name='tbl_transfers_plan'
 ws_name='transfers_plan'
 

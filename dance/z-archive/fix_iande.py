@@ -3,14 +3,14 @@
 A one time fix to a programming error, but it could be useful again, so leaving it around
 """
 
-import pandas as pd
-import numpy as np
+
 from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table
 import openpyxl.utils.cell as ut
 from util.logs import get_logger
+from dance.util.files import read_config
 logger=get_logger(__file__)
-source='data/test_wb.xlsx'
+source=read_config()['workbook']
 target = 'fcast2.xlsm'
 wb = load_workbook(filename = source, read_only=False)
 logger.info('loaded workbook from {}'.format(source))

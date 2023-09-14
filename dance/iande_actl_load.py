@@ -16,6 +16,7 @@ from dance.util.tables import (columns_for_table, df_for_table_name,
 from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref
 from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 
+config=read_config() 
 logger=get_logger(__file__)
 
 
@@ -163,17 +164,17 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
 
 if __name__ == '__main__':
+  default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande" or "current".')
   parser.add_argument('-s','--sheet',choices=['iande','current'],default='iande',help='which sheet - iande or current')
   parser.add_argument('-p','--path',default= None,help='The path and name of the input file. If not given will use "data/iande.tsv" or "data/iande_ytd.tsv" depending on sheet')
-  parser.add_argument('-w','--workbook',default='data/test_wb.xlsx',help='Target workbook')# TODO fcast
+  parser.add_argument('-w','--workbook',default=default_wb,help=f'Target workbook. Default: {default_wb}')
   parser.add_argument('-f','--force', action='store_true', default=False, help='Use -f to ignore warning')
   
   args=parser.parse_args()
   path=args.path
   if path is None:
     path={'iande':'data/iande.tsv','current':'data/iande_ytd.tsv'}[args.sheet]
-  config=read_config()
   ffy=config['first_forecast_year']
   table_info=config['sheets'][args.sheet]['tables'][0]
   data=read_iande_actl(data_info={'path':path})

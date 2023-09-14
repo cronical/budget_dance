@@ -15,6 +15,7 @@ from dance.util.tables import  columns_for_table, write_table,get_f_fcast_year,c
 from dance.util.logs import get_logger
 from dance.util.xl_formulas import actual_formulas,forecast_formulas,dyno_fields,this_row
 
+config=read_config() 
 logger=get_logger(__file__)
 
 def y_years(col_name):
@@ -95,8 +96,9 @@ def prepare_invest_iande_ratios(df):
 
 
 if __name__ == '__main__':
+  default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Prepares income and expense data to insert into  "tbl_invest_iande_work". ')
-  parser.add_argument('--workbook','-w',default='data/test_wb.xlsx',help='Target workbook') # TODO change to test_wb.xlsx
+  parser.add_argument('--workbook','-w',default=default_wb,help=f'Target workbook. Default: {default_wb}')
   parser.add_argument('--path','-p',default= 'data/invest-iande.tsv',help='The path and name of the input file')
 
   args=parser.parse_args()
