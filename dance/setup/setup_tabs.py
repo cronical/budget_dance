@@ -4,16 +4,18 @@ May be modified to add new tabs and re-run.  Unless overwrite is selected, does 
 '''
 import argparse
 from json import JSONDecodeError 
+from requests.exceptions import ConnectTimeout, ReadTimeout
 from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import Font
+from openpyxl.styles.colors import Color
 
 import pandas as pd
 from numpy import nan
 import yaml
 
-from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes
+from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes,tab_color
 from dance.util.logs import get_logger
 from dance.setup.local_data import read_data, read_gen_state
 from dance.util.files import read_config
@@ -74,7 +76,9 @@ def refresh_sheets(target_file,overwrite=False):
           del wb[sheet_name]
           ws=wb.create_sheet(sheet_name)
           logger.debug('sheet {} deleted and recreated'.format(sheet_name))
-      ws.sheet_properties.tabColor= color
+
+      ws.sheet_properties.tabColor= tab_color(color)
+
       table_location=1 # add to this for each subsequent table
       for table_info in sheet_info['tables']:
 
@@ -142,11 +146,13 @@ def refresh_sheets(target_file,overwrite=False):
               data_info['api_key']=api_keys[key_name]
               logger.debug('API key retrieved from private data')
             try:
-              data=remote_data.request(data_info)
+              data=remote_data.request(table_info)
               logger.debug('pulled data from remote')
-            except JSONDecodeError :
-              logger.error('Remote data not available, possible maintenance window')
-              data={1970:	5.60}
+            except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout) as e :
+              logger.error('*** Remote data problem, possible maintenance window')
+              logger.error(e.msg)
+              logger.error('*** Skipping table: %s'%table_info['name'])
+              continue
           if source=='local': 
             data,groups=read_data(data_info,years,ffy,target_file=target_file,table_map=table_map,
             title_row=table_info.get('title_row',1))
