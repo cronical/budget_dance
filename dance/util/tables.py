@@ -16,6 +16,7 @@ from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.files import read_config
 from dance.util.sheet import df_for_range
+from dance.util.ui import tab_color
 from dance.util.xl_eval import filter_parser,eval_criteria
 from dance.util.xl_formulas import is_formula,prepare_formula
 
@@ -360,44 +361,45 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
     # set range to without the heading
     top_left=f'{get_column_letter(key_values["start_col"])}{table_start_row+1}'
     rng=f'{top_left}:{bot_right}'
-    for _,cf in table_info['highlights'].items():
+    defaults={'font':{'bold':False,'italic':False, 'color':'000000'},
+              'fill':{'bgcolor':'000000'},
+              'border':{'edges':None,'style':None,'color': '000000'}
+              }
+    for _,defn in table_info['highlights'].items():
       font=fill=border=None
-      # ignore unsupported options
-      if 'font' in cf:
-        # only support bold, italic and color
-        codes={'bold':False,'italic':False, 'color':'000000'}
-        for fnt_code, fnt_val in cf['font'].items():
-          codes[fnt_code]=fnt_val
-        font=Font(bold=codes['bold'],italic=codes['italic'],color=codes['color'])
-      if 'fill' in cf:
-        codes={'bgcolor':'000000'} # only option
-        for fill_code, fill_val in cf['fill'].items():
-          codes[fill_code]=fill_val
-        fill=PatternFill(start_color=codes['bgcolor'],end_color=codes['bgcolor'])
-      if 'border' in cf:
-        codes={'edges':None,'style':None,'color': '000000'}
-        for bord_code,bord_val in cf['border'].items():
-          codes[bord_code]=bord_val
-        if codes['edges'] is not None:
-          edges=codes['edges']
-          if isinstance(edges,str):
-            edges=[edges]
-          side=Side(border_style=codes['style'],color=codes['color'])
-          edge_codes={ 'left':None,'right':None,'top':None,'bottom':None}
-          for edge in edges:
-            edge_codes[edge]=side
-          border=Border(left=edge_codes['left'],right=edge_codes['right'],top=edge_codes['top'],bottom=edge_codes['bottom'])
+      for element,style in defn.items():
+        if element in defaults.keys(): # ignore unsupported options
+          codes=defaults[element]
+          for code, val in style.items():
+            if code in ['color','bgcolor']:
+              val=tab_color(val)
+            codes[code]=val
+          match element:
+            case 'font':
+              font=Font(bold=codes['bold'],italic=codes['italic'],color=codes['color'])
+            case 'fill':
+              fill=PatternFill(start_color=codes['bgcolor'],end_color=codes['bgcolor'])
+            case 'border':
+              if codes['edges'] is not None:
+                edges=codes['edges']
+                if isinstance(edges,str):
+                  edges=[edges]
+                side=Side(border_style=codes['style'],color=codes['color'])
+                edge_codes={ 'left':None,'right':None,'top':None,'bottom':None}
+                for edge in edges:
+                  edge_codes[edge]=side
+                border=Border(left=edge_codes['left'],right=edge_codes['right'],top=edge_codes['top'],bottom=edge_codes['bottom'])
 
       dxf= DifferentialStyle(font=font,fill=fill,border=border)
-      if 'keys' in cf:
-        for key in cf['keys']:
-          formula=cf['formula'].format(key)
+      if 'keys' in defn:
+        for key in defn['keys']:
+          formula=defn['formula'].format(key)
           rule=Rule(type='expression',dxf=dxf,stopIfTrue=False)
           rule.formula=[formula]
           ws.conditional_formatting.add(rng,rule)
       else:
         rule=Rule(type='expression',dxf=dxf,stopIfTrue=False)
-        rule.formula=[cf['formula']]
+        rule.formula=[defn['formula']]
         ws.conditional_formatting.add(rng,rule)
 
   return wb

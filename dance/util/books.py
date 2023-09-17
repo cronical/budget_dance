@@ -3,17 +3,19 @@ from openpyxl.utils.cell import get_column_letter
 
 from dance.util.logs import get_logger
 from dance.util.tables import columns_for_table
-
-def fresh_sheet(wb,sheet_name,tab_color='58BD2D'):
+from dance.util.ui import tab_color
+  
+def fresh_sheet(wb,sheet_name,color='58BD2D'):
   '''Create or refresh a worksheet in a workbook.
 
   Removes the named sheet (if it exists) from the work book and created a fresh one at the same location (or at the end)
-  If not already existing will create the new sheet at the end. Copies tab color if the sheet already exists.
+  If not already existing will create the new sheet at the end. Copies tab config_color if the sheet already exists.
 
   args:
     wb: An openpyxl workbook
     sheet_name: The name of the worksheet
-    tab_color: An RGB color as a 6 character hex string. Only used if the worksheet does not already exist
+    color: Only used if the worksheet does not already exist. 
+    Either index into theme pallette or and rgb color string.
 
   Returns: the workbook
   '''
@@ -22,12 +24,14 @@ def fresh_sheet(wb,sheet_name,tab_color='58BD2D'):
   if sheet_name in wb.sheetnames:
     ix= wb.sheetnames.index(sheet_name)
     ws = wb[sheet_name]
-    tab_color=ws.sheet_properties.tabColor
+    tc=ws.sheet_properties.tabColor
     wb.remove(ws)
     logger.info('deleted worksheet {}'.format(sheet_name))
+  else:
+    tc=tab_color(color)
   ws=wb.create_sheet(sheet_name,ix)
   logger.info('created worksheet {}'.format(sheet_name))
-  ws.sheet_properties.tabColor=tab_color
+  ws.sheet_properties.tabColor=tc
   return wb
 
 def col_attrs_for_sheet(wb,sheet,config):
