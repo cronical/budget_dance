@@ -86,8 +86,10 @@
       "required":["edges","style","color"]
     },
     "color": {
-      "type": "string",
-      "pattern": "[a-fA-F0-9]{6}"
+      "oneOf":[
+        {"type": "string","pattern": "[a-fA-F0-9]{6}" },
+        {"type": "integer","minimum": 0, "maximum":9}
+      ]
     },
     "column": {
       "type": "object",
@@ -128,8 +130,9 @@
       "type": "object",
       "properties": {
         "source": {"type":"string","enum":["internal","local","remote","none"]},
-        "site_code": {"type":"string"},
+        "site_code": {"type":"string","enum":["BLS","FEDREG"]},
         "api_key": {"type":"string"},
+        "url": {"type":"string"},
         "parameters": {"$ref":"#/$defs/parameter"},
         "type": {
           "type":"string",
@@ -164,15 +167,12 @@
     "data_table": {
       "type": "object",
       "properties": {
-        "find_method": {
-          "type": "string"
-        },
+        "find_method": {"type": "string", "enum":["caption","xml"]},
         "method_parms": {
           "type": "object",
           "properties": {
-            "text": {
-              "type": "string"
-            }
+            "text": {"type": "string"},
+            "xpath":{"type": "string"}
           }
         }
       }
