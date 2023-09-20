@@ -1,0 +1,3 @@
+- Example for forecast Social Security Tax
+- Base - MIN takes the lower of the payroll gross and the cap
+- The Rate is applied to that result with PRODUCT

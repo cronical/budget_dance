@@ -1,0 +1,1346 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../setup/">
+      
+      
+        <link rel="next" href="../vba_notes/">
+      
+      
+      <link rel="icon" href="../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.2">
+    
+    
+      
+        <title>Use-case procedures - Budget Dance</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0e669242.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#use-case-procedures" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Budget Dance" class="md-header__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Budget Dance
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Use-case procedures
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Budget Dance" class="md-nav__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Budget Dance
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tool links accounting data with long term plans
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_from_moneydance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generating reports for data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../idioms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Some Excel idioms & notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../preserve/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preserve definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../python/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Use of Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../report_configs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Moneydance report definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting up the spreadsheet
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Use-case procedures
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Use-case procedures
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add-or-rename-an-account" class="md-nav__link">
+    Add or rename an account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rename-an-account" class="md-nav__link">
+    Rename an account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-model-a-rollover-from-a-401k-to-an-ira" class="md-nav__link">
+    How to model a rollover from a 401K to an IRA
+  </a>
+  
+    <nav class="md-nav" aria-label="How to model a rollover from a 401K to an IRA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-bonds" class="md-nav__link">
+    I-bonds
+  </a>
+  
+    <nav class="md-nav" aria-label="I-bonds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure_1" class="md-nav__link">
+    Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data_1" class="md-nav__link">
+    Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-year-new-tax-rates" class="md-nav__link">
+    New year - new tax rates
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vba_notes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workbook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Design of the workbook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../worksheets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Worksheets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" >
+        
+          <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_14">
+            <span class="md-nav__icon md-icon"></span>
+            Functions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/excel_lambdas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defined Excel Lambda functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/preserve/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tables with preserve defined
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/vba_index/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA Code Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/vba_sorted/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA Code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" >
+        
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Sheets
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            Sheets
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    accounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/aux/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    aux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/balances/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    balances
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/cap_gain/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    capgn
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/current/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    current
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/gen_tables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    gen_tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/iande/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iande
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/iande_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iande-actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/invest_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    invest_actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/invest_iande_work/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    invest_iande_work
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/other_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    other_actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/retirement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    retirement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/retireparms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    retireparms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/tax_tables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tax_tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/taxes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    taxes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/transfers_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    transfers-actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/transfers_plan/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    transfers_plan
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheets/utility/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    utility
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add-or-rename-an-account" class="md-nav__link">
+    Add or rename an account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rename-an-account" class="md-nav__link">
+    Rename an account
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-model-a-rollover-from-a-401k-to-an-ira" class="md-nav__link">
+    How to model a rollover from a 401K to an IRA
+  </a>
+  
+    <nav class="md-nav" aria-label="How to model a rollover from a 401K to an IRA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-bonds" class="md-nav__link">
+    I-bonds
+  </a>
+  
+    <nav class="md-nav" aria-label="I-bonds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure_1" class="md-nav__link">
+    Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data_1" class="md-nav__link">
+    Data
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-year-new-tax-rates" class="md-nav__link">
+    New year - new tax rates
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="use-case-procedures">Use-case procedures</h1>
+<h2 id="add-or-rename-an-account">Add or rename an account</h2>
+<p>Once the accounts are the way you want in Moneydance, recreate the workbook.</p>
+<p>If this is done during the year (typical) then export the account balances report as of the latest date and store it under the name of the first forecast year. Modify the data/path key in <code>setup.yaml</code> for the accounts table to point to this file.</p>
+<h2 id="rename-an-account">Rename an account</h2>
+<p>It turns out to be useful to have an account naming convention.  The convention is 
+    <em>type - owner - firm</em>
+where type is 401K, 529, BKG, ESP, HSA, IRA, IRA Roth, MUT, BND<br/>and owner is JNT or the owner's initials.</p>
+<p>Notes </p>
+<ul>
+<li>BND is for - gov't bonds where TRY is for treasury - direct</li>
+</ul>
+<h2 id="how-to-model-a-rollover-from-a-401k-to-an-ira">How to model a rollover from a 401K to an IRA</h2>
+<h3 id="structure">Structure</h3>
+<ol>
+<li>
+<p>To prevent this from being taxed:</p>
+<ol>
+<li>Ensure additional rows are created on the <code>iande</code> table, in the distributions area using the <code>hier_insert_paths</code> key. In the following example the second set of rows are created under <code>Rollover</code>.
+<img alt="example" src="../images/tgt/rollover_1.png" /></li>
+<li>Populate these rows with a forecast formula such as:
+  <div class="highlight"><pre><span></span><code><span id="__codeline-0-1"><span class="l l-Scalar l-Scalar-Plain">=-SUM(FILTER(INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]=&quot;ROLLOVER&quot;),0))</span>
+</span></code></pre></div></li>
+<li>This will produce a total line on the <code>iande</code> table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
+<img alt="example" src="../images/tgt/rollover_2.png" /></li>
+</ol>
+</li>
+<li>
+<p>Use the folding feature of the aux table to compute the net changes to the target IRA account by creating two lines for the IRA - one for rollover and one for withdrawals.     </p>
+<ol>
+<li>User the hier_insert_paths key to insert something like <code>IRA:Rollover</code> and <code>IRA:Withdrawal</code>, so that <code>aux</code> ends up with rows like this:
+<img alt="example" src="../images/tgt/rollover_3.png" /></li>
+<li>Set the formulas for withdraws to pull from retirement
+<div class="highlight"><pre><span></span><code><span id="__codeline-1-1">=-XLOOKUP(INDEX(TEXTSPLIT([@Key],&quot;:&quot;),1),tbl_retir_vals[Item],INDIRECT(&quot;tbl_retir_vals[&quot;&amp;this_col_name()&amp;&quot;]&quot;))
+</span></code></pre></div></li>
+<li>Set the formula for rollovers to pull from the <code>transfers_plan</code> (assume only positive rollovers):
+<div class="highlight"><pre><span></span><code><span id="__codeline-2-1">=SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]=INDEX(TEXTSPLIT([@Key],&quot;:&quot;),1))*(tbl_transfers_plan[Y_Year]=this_col_name()),0))
+</span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>Configure the IRA accounts on balances to pull the <code>Add/Wdraw</code> line from <code>aux</code>.</p>
+<div class="highlight"><pre><span></span><code><span id="__codeline-3-1">=XLOOKUP(TRIM([@AcctName])&amp;&quot; - TOTAL&quot;,tbl_aux[Key],INDIRECT(&quot;tbl_aux[&quot;&amp;this_col_name()&amp;&quot;]&quot;))
+</span></code></pre></div>
+</li>
+</ol>
+<h3 id="data">Data</h3>
+<ol>
+<li>On the retirement table:<ol>
+<li>set ROLLOVER as the code</li>
+<li>set <code>Start Date</code> as January 1st of the rollover year</li>
+<li>set <code>Anny Rate</code> as zero. If its in mid-year you can fuss with the rate to get the desired amount. If you use the last day of the year, it should be the same as the market gain rate on the balances table.</li>
+<li>note the exact amount to be rolled over </li>
+</ol>
+</li>
+<li>On the balances table set the mkt gn rate as zero.</li>
+<li>
+<p>Enter the amount rolled over into the <code>transfers_plan</code> table as a transfer from bank accounts to the target account.</p>
+<ol>
+<li>Realized int/gains and fees, if any, on this account, need to be addressed, for example, by zeroing out the year's value for the expense ratios for that account. </li>
+</ol>
+</li>
+<li>
+<p>Extract the retirement values and the transfers plan data </p>
+<div class="highlight"><pre><span></span><code><span id="__codeline-4-1"><span class="o">(</span>.venv<span class="o">)</span><span class="w"> </span>george@GeorgesacStudio<span class="w"> </span>budget<span class="w"> </span>%<span class="w"> </span>dance/extract_table.py<span class="w"> </span>-t<span class="w"> </span>tbl_retir_vals<span class="w"> </span>
+</span><span id="__codeline-4-2"><span class="m">2023</span>-07-19<span class="w"> </span><span class="m">20</span>:02:21,229<span class="w"> </span>-<span class="w"> </span>extract_table<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Source<span class="w"> </span>workbook<span class="w"> </span>is<span class="w"> </span>data/test_wb.xlsx
+</span><span id="__codeline-4-3"><span class="m">2023</span>-07-19<span class="w"> </span><span class="m">20</span>:02:21,560<span class="w"> </span>-<span class="w"> </span>extract_table<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Wrote<span class="w"> </span>to<span class="w"> </span>data/retire_template.tsv
+</span><span id="__codeline-4-4"><span class="o">(</span>.venv<span class="o">)</span><span class="w"> </span>george@GeorgesacStudio<span class="w"> </span>budget<span class="w"> </span>%<span class="w"> </span>dance/extract_table.py<span class="w"> </span>-t<span class="w"> </span>tbl_transfers_plan<span class="w"> </span>-w<span class="w"> </span>data/test_wb.xlsx
+</span><span id="__codeline-4-5"><span class="m">2023</span>-07-19<span class="w"> </span><span class="m">20</span>:02:34,639<span class="w"> </span>-<span class="w"> </span>extract_table<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Source<span class="w"> </span>workbook<span class="w"> </span>is<span class="w"> </span>data/test_wb.xlsx
+</span><span id="__codeline-4-6"><span class="m">2023</span>-07-19<span class="w"> </span><span class="m">20</span>:02:34,961<span class="w"> </span>-<span class="w"> </span>extract_table<span class="w"> </span>-<span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Wrote<span class="w"> </span>to<span class="w"> </span>data/transfers_plan.json
+</span></code></pre></div>
+</li>
+<li>
+<p>Rerun the build</p>
+</li>
+</ol>
+<h2 id="i-bonds">I-bonds</h2>
+<p>U.S. Treasury offers a product called i-bond, which allows for the deferral of taxes on the interest, until the bond is cashed out. In order to account for this:</p>
+<h3 id="structure_1">Structure</h3>
+<ol>
+<li>Create a new category in Moneydance <code>Income:I:Invest income:Int:Defered Tax</code></li>
+<li>Modify the taxes table to create a row for <code>Released deferred interest</code> and a row on the state taxes to subtract it <code>Interest on US gov obl</code>. Make sure indented properly.<ol>
+<li>To avoid an extra build, put in the key value for these lines in column A.</li>
+</ol>
+</li>
+<li>Run the <code>extract_table.py</code> utility to capture the new lines for the taxes table in a revised template.</li>
+<li>To get the actual values/lines to show up on the <code>iande</code> table and in the 'rlzd int/gn' row on the balances table, and the invest_iande work tables:<ol>
+<li>Recreate <code>iande.tsv</code> <code>invest_actl.tsv</code>, and <code>invest_iande.tsv</code> files.</li>
+<li>Run build.</li>
+</ol>
+</li>
+</ol>
+<h3 id="data_1">Data</h3>
+<ol>
+<li>On the invest_iande_work tab, filter both the tables to select the category <code>Int:Defered-tax</code>.  Modify the ratios with the expected rate for the duration. Compute the total interest over the duration. That will be needed for taxes.</li>
+<li>Put the total interest computed above in the right year on the two new tax rows(positive &amp; negative)</li>
+<li>Put the interest and principal in a line in the <code>transfers_planned</code> table.</li>
+<li>Save the file.</li>
+<li>Run the <code>preserve_changed.py</code> utility - to preserve the input ratios and taxable interest.</li>
+<li>Run build.</li>
+<li>This should now have correct balances for all years, including zero when cashed out, as well as taxable impact on the distribution year.</li>
+</ol>
+<h2 id="new-year-new-tax-rates">New year - new tax rates</h2>
+<p>Pull the IRS data as a .csv file. Use <code>bracket_fix.py</code> to transform into the correct format.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span id="__codeline-5-1">dance/bracket_fix.py<span class="w"> </span>data/2022_tax_brackets_irs.csv<span class="w"> </span>
+</span><span id="__codeline-5-2"><span class="m">0</span>,0.10,0
+</span><span id="__codeline-5-3"><span class="m">20549</span>.0,0.12,410.8800000000001
+</span><span id="__codeline-5-4"><span class="m">83550</span>.0,0.22,8766.0
+</span><span id="__codeline-5-5"><span class="m">178150</span>.0,0.24,12329.0
+</span><span id="__codeline-5-6"><span class="m">340100</span>.0,0.32,39537.0
+</span><span id="__codeline-5-7"><span class="m">431900</span>.0,0.35,52494.0
+</span><span id="__codeline-5-8"><span class="m">647850</span>.0,0.37,65451.0
+</span><span id="__codeline-5-9">Copy<span class="w"> </span>the<span class="w"> </span>above<span class="w"> </span>numbers<span class="w"> </span>into<span class="w"> </span>the<span class="w"> </span>table<span class="w"> </span>and<span class="w"> </span>add<span class="w"> </span>the<span class="w"> </span>year
+</span></code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.78eede0e.min.js"></script>
+      
+    
+  </body>
+</html>

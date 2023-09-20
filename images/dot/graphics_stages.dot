@@ -1,0 +1,22 @@
+# how graphics are processed
+digraph{
+  node[shape=rect]
+   screencap editor redacted  
+  node[shape=component]
+    graphviz
+    im_label
+    im_scale
+    im_border
+    im_smush
+  node [shape=ellipse]
+  editor->{dot,sidebars}
+  sidebars->im_label->sidebars
+  screencap->{raw,safe}
+  dot->graphviz->safe
+  {sidebars,bordered}->im_smush
+  raw->redacted->safe
+  {safe}->im_scale->scaled->im_border->bordered
+  {bordered,im_smush}->stage->tgt
+
+
+}

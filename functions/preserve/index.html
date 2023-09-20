@@ -1,0 +1,1984 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../excel_lambdas/">
+      
+      
+        <link rel="next" href="../vba_index/">
+      
+      
+      <link rel="icon" href="../../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.2">
+    
+    
+      
+        <title>Tables with preserve defined - Budget Dance</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0e669242.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tables-with-preserve-defined" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Budget Dance" class="md-header__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Budget Dance
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tables with preserve defined
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Budget Dance" class="md-nav__button md-logo" aria-label="Budget Dance" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Budget Dance
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tool links accounting data with long term plans
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data_files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data_from_moneydance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generating reports for data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../idioms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Some Excel idioms & notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../preserve/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preserve definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Use of Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../report_configs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Moneydance report definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting up the spreadsheet
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use_cases/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Use-case procedures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vba_notes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workbook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Design of the workbook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../worksheets/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Worksheets
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_14" checked>
+        
+          <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_14">
+            <span class="md-nav__icon md-icon"></span>
+            Functions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../excel_lambdas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defined Excel Lambda functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Tables with preserve defined
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Tables with preserve defined
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_accounts" class="md-nav__link">
+    tbl_accounts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_balances" class="md-nav__link">
+    tbl_balances
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_iande" class="md-nav__link">
+    tbl_iande
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_current" class="md-nav__link">
+    tbl_current
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_aux" class="md-nav__link">
+    tbl_aux
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_retir_vals" class="md-nav__link">
+    tbl_retir_vals
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_retir_medical" class="md-nav__link">
+    tbl_retir_medical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_pens_facts" class="md-nav__link">
+    tbl_pens_facts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_social_security" class="md-nav__link">
+    tbl_social_security
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_mcare_opt" class="md-nav__link">
+    tbl_mcare_opt
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_manual_actl" class="md-nav__link">
+    tbl_manual_actl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_payroll_savings" class="md-nav__link">
+    tbl_payroll_savings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_roth_contributions" class="md-nav__link">
+    tbl_roth_contributions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_529_distr" class="md-nav__link">
+    tbl_529_distr
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_ira_distr" class="md-nav__link">
+    tbl_ira_distr
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_hsa_disb" class="md-nav__link">
+    tbl_hsa_disb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_bank_sel_invest" class="md-nav__link">
+    tbl_bank_sel_invest
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_invest_iande_values" class="md-nav__link">
+    tbl_invest_iande_values
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_invest_iande_ratios" class="md-nav__link">
+    tbl_invest_iande_ratios
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_taxes" class="md-nav__link">
+    tbl_taxes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_cap_gn" class="md-nav__link">
+    tbl_cap_gn
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_fed_tax" class="md-nav__link">
+    tbl_fed_tax
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_ct_tax" class="md-nav__link">
+    tbl_ct_tax
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_rmd_1" class="md-nav__link">
+    tbl_rmd_1
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_rmd_3" class="md-nav__link">
+    tbl_rmd_3
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_people" class="md-nav__link">
+    tbl_people
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_gen_state" class="md-nav__link">
+    tbl_gen_state
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_state_tax_facts" class="md-nav__link">
+    tbl_state_tax_facts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_part_b" class="md-nav__link">
+    tbl_part_b
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_infl" class="md-nav__link">
+    tbl_infl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_table_map" class="md-nav__link">
+    tbl_table_map
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vba_index/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA Code Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vba_sorted/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VBA Code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" >
+        
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Sheets
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            Sheets
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    accounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/aux/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    aux
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/balances/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    balances
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/cap_gain/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    capgn
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/current/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    current
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/gen_tables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    gen_tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/iande/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iande
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/iande_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iande-actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/invest_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    invest_actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/invest_iande_work/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    invest_iande_work
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/other_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    other_actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/retirement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    retirement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/retireparms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    retireparms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/tax_tables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    tax_tables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/taxes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    taxes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/transfers_actl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    transfers-actl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/transfers_plan/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    transfers_plan
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheets/utility/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    utility
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_accounts" class="md-nav__link">
+    tbl_accounts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_balances" class="md-nav__link">
+    tbl_balances
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_iande" class="md-nav__link">
+    tbl_iande
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_current" class="md-nav__link">
+    tbl_current
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_aux" class="md-nav__link">
+    tbl_aux
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_retir_vals" class="md-nav__link">
+    tbl_retir_vals
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_retir_medical" class="md-nav__link">
+    tbl_retir_medical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_pens_facts" class="md-nav__link">
+    tbl_pens_facts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_social_security" class="md-nav__link">
+    tbl_social_security
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_mcare_opt" class="md-nav__link">
+    tbl_mcare_opt
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_manual_actl" class="md-nav__link">
+    tbl_manual_actl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_payroll_savings" class="md-nav__link">
+    tbl_payroll_savings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_roth_contributions" class="md-nav__link">
+    tbl_roth_contributions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_529_distr" class="md-nav__link">
+    tbl_529_distr
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_ira_distr" class="md-nav__link">
+    tbl_ira_distr
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_hsa_disb" class="md-nav__link">
+    tbl_hsa_disb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_bank_sel_invest" class="md-nav__link">
+    tbl_bank_sel_invest
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_invest_iande_values" class="md-nav__link">
+    tbl_invest_iande_values
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_invest_iande_ratios" class="md-nav__link">
+    tbl_invest_iande_ratios
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_taxes" class="md-nav__link">
+    tbl_taxes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_cap_gn" class="md-nav__link">
+    tbl_cap_gn
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_fed_tax" class="md-nav__link">
+    tbl_fed_tax
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_ct_tax" class="md-nav__link">
+    tbl_ct_tax
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_rmd_1" class="md-nav__link">
+    tbl_rmd_1
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_rmd_3" class="md-nav__link">
+    tbl_rmd_3
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_people" class="md-nav__link">
+    tbl_people
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_gen_state" class="md-nav__link">
+    tbl_gen_state
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_state_tax_facts" class="md-nav__link">
+    tbl_state_tax_facts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_part_b" class="md-nav__link">
+    tbl_part_b
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_infl" class="md-nav__link">
+    tbl_infl
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tbl_table_map" class="md-nav__link">
+    tbl_table_map
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="tables-with-preserve-defined">Tables with preserve defined</h1>
+<h2 id="tbl_accounts">tbl_accounts</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>sparse</td>
+</tr>
+</tbody>
+</table>
+<p>|non-year-cols|Income Txbl, Active, No Distr Plan, Near Mkt Rate, Rate Cap, Reinv Rate, Notes</p>
+<h2 id="tbl_balances">tbl_balances</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>sparse</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_iande">tbl_iande</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>sparse</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_current">tbl_current</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_aux">tbl_aux</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_retir_vals">tbl_retir_vals</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_retir_medical">tbl_retir_medical</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_pens_facts">tbl_pens_facts</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_social_security">tbl_social_security</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_mcare_opt">tbl_mcare_opt</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_manual_actl">tbl_manual_actl</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_payroll_savings">tbl_payroll_savings</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_roth_contributions">tbl_roth_contributions</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_529_distr">tbl_529_distr</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_ira_distr">tbl_ira_distr</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_hsa_disb">tbl_hsa_disb</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_bank_sel_invest">tbl_bank_sel_invest</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_invest_iande_values">tbl_invest_iande_values</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_invest_iande_ratios">tbl_invest_iande_ratios</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>sparse</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_taxes">tbl_taxes</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>sparse</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_cap_gn">tbl_cap_gn</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_fed_tax">tbl_fed_tax</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_ct_tax">tbl_ct_tax</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_rmd_1">tbl_rmd_1</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_rmd_3">tbl_rmd_3</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_people">tbl_people</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_gen_state">tbl_gen_state</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_state_tax_facts">tbl_state_tax_facts</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_part_b">tbl_part_b</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>full</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_infl">tbl_infl</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tbl_table_map">tbl_table_map</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.78eede0e.min.js"></script>
+      
+    
+  </body>
+</html>
