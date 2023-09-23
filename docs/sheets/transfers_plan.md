@@ -6,7 +6,7 @@ The fields are transaction year, a source (from) account and a target (to) accou
 
 There is data validation on the account names to ensure they are valid and active. The complete list is generated at build time as a range out to the right. This is necessary because the drop down list function doesn't yet support dynamic arrays.
 
-![image](../images/tgt/data_validation.png)
+![image](../assets/images/data_validation.png)
 
 These data are summarized and carried on the the balances tab in future years on the Add/Wdraw lines by the following Excel formula:
 

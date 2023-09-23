@@ -27,7 +27,7 @@ Tables are housed on various worksheets which are grouped and color coded.
 Many of the tables represent a set of annual time series.  The data elements are typically financial values associated with a year.  For instance, the balances table tracks how balances change year by year.
 The view below selects just the end balance row.
 
-![Income and Expense time series](./images/tgt/time_series.png)
+![Income and Expense time series](./assets/images/time_series.png)
 
 Other columns are labeled with appropriate short column labels.
 
@@ -37,7 +37,7 @@ An index of tables is maintained on the 'utility' worksheet, which allows the wo
 
 Tables are distributed over a set of worksheets. Sometimes a worksheet holds more than one table.
 
-![Tabs](./images/tgt/tabs.png)
+![Tabs](./assets/images/tabs.png)
 
 For more information: [worksheets](./worksheets.md)
 
@@ -75,7 +75,7 @@ This method is much faster and does not create unwarranted dependencies. It is a
 
 By folding we mean using the row grouping feature of Excel, where the final row of a group contains the aggregation of the items folded under it. 
 
-![Folding example](./images/tgt/folding_concept.png)
+![Folding example](./assets/images/folding_concept.png)
 
 The aggregation is performed on the last line of the group as indicated by the word occuring after the final hyphen.
 The aggregation methods TOTAL, MIN, MAX, PRODUCT, FED_TAX, CT_TAX.
@@ -91,7 +91,7 @@ This methods allows the folding to do things like sum the results of subordinate
 
 For example, consider the calculation of social security withholding. Row 67 is the min of rows 65 and 66 and is itself combined  with 68 as a product into 69. The product calculation does not involve the lower level values on 65, and 66.
 
- ![Aggregation example](./images/tgt/folding_ss_example.png)
+ ![Aggregation example](./assets/images/folding_ss_example.png)
 
 ## Idioms
 

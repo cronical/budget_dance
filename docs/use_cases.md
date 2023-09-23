@@ -23,17 +23,17 @@ Notes
 
 1. To prevent this from being taxed:
     1. Ensure additional rows are created on the `iande` table, in the distributions area using the `hier_insert_paths` key. In the following example the second set of rows are created under `Rollover`.
-![example](images/tgt/rollover_1.png)
+![example](assets/images/rollover_1.png)
     1. Populate these rows with a forecast formula such as:
       ```yaml
       =-SUM(FILTER(INDIRECT("tbl_retir_vals["&this_col_name()&"]"),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]="ROLLOVER"),0))
       ```
     3. This will produce a total line on the `iande` table that nets out the rollover.  Assuming taxes references that, the result is that the rollover won't be taxed.
-![example](images/tgt/rollover_2.png)
+![example](assets/images/rollover_2.png)
 
 1. Use the folding feature of the aux table to compute the net changes to the target IRA account by creating two lines for the IRA - one for rollover and one for withdrawals.     
     1. User the hier_insert_paths key to insert something like `IRA:Rollover` and `IRA:Withdrawal`, so that `aux` ends up with rows like this:
-    ![example](images/tgt/rollover_3.png)
+    ![example](assets/images/rollover_3.png)
     1. Set the formulas for withdraws to pull from retirement
     ```
     =-XLOOKUP(INDEX(TEXTSPLIT([@Key],":"),1),tbl_retir_vals[Item],INDIRECT("tbl_retir_vals["&this_col_name()&"]"))

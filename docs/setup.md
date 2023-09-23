@@ -15,7 +15,7 @@
 
 The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free; they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
 
-![apikey](./images/tgt/api_key.png)
+![apikey](./assets/images/api_key.png)
 
 ## The setup control file
 
@@ -185,7 +185,7 @@ Note: include only those lines that are not headings or totals. Headings and tot
 
 In this example, we aggregate based on the MIN function to plan the distributions from the health savings accounts
 
-![alt_agg](./images/tgt/alt_agg.png)
+![alt_agg](./assets/images/alt_agg.png)
 
 #### Actual and Forecast Formulas
 
@@ -284,7 +284,7 @@ For instance the following formula selects the active accounts with no distribut
 
 The result is stored under a heading of CHOICES.  The data validation is a list with a source of `=$F$3#`.  The # indicates the entire result set.
 
-![image](./images/tgt/data_validation.png)
+![image](./assets/images/data_validation.png)
 
 The following formula (shown wrapped) uses dynamic array functions, but due to the `openpyxl` limitation it results in a CSE formula, which is fine since it produces a single value.
 
@@ -305,7 +305,7 @@ After an Excel session when the file is saved, Excel will rewrite the document s
 
 Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
 
-![dyno_fields](./images/tgt/dyno_field.png)
+![dyno_fields](./assets/images/dyno_field.png)
 
 the `matches` list is a list of values to be matched agains the field. There is a special case if just a single *, meaning all.
 

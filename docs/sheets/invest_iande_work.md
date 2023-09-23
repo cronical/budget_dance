@@ -2,7 +2,7 @@
 
 This sheet refers to Income and Expenses that relate to investments. There are two tables: the values and the ratios. The left part of the values table refers to actual values for several categories. These are converted to ratios in the left part of the second sheet, so that forecasts can be derived. 
 
-![Concept](../images/src/iiw_concept.svg)
+![Concept](../assets/images/iiw_concept.png)
 
 Each table consists of the same lines.  The values in the 1st table represent income and expenses for each account.  Those in the 2nd table hold the ratio to the `start bal`. These are computed in the case of actuals
 

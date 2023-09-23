@@ -174,7 +174,7 @@ HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
 
 ||||||
 |---|:---:|---|:---:|---|
-|![boolean](./images/tgt/trans_to_net_1.png)|X|![values](./images/tgt/trans_to_net_2.png)|=|![result](./images/tgt/trans_to_net_3.png)|
+|![boolean](./assets/images/trans_to_net_1.png)|X|![values](./assets/images/trans_to_net_2.png)|=|![result](./assets/images/trans_to_net_3.png)|
 
 
 
@@ -188,7 +188,7 @@ BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*
 
 The result is then multiplied by the year selection to get all net of all the transactions for the account and year, as shown here:
 
-![result](./images/tgt/trans_to_net_4.png)
+![result](./assets/images/trans_to_net_4.png)
 
 ### Final sum
 

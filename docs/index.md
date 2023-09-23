@@ -9,7 +9,7 @@ This system extends the family's historical financials into the future.  It allo
 - U.S. Federal and state income taxes. The tax calculator is far from general.
 
 
-![Demo](./images/tgt/iande_top_view.png "Display of the IandE tab")
+![Demo](./assets/images/iande_top_view.png "Display of the IandE tab")
 
 The accounting system is Moneydance.  The long term planning is via Microsoft 365 Excel. [Python is the glue](./python.md).
 

@@ -36,4 +36,4 @@ The future value of a number of tax parameters are unknown. So the current value
 
 This uses the template `data/taxes_template.tsv` to layout the hierarchy. This is done using the Moneydance style of indenting.
 
-![tax template](../images/tgt/taxes_template.png)
+![tax template](../assets/images/taxes_template.png)
