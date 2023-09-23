@@ -1,0 +1,26 @@
+digraph {
+  graph [
+    label = "Forecasting Investment Income & Expense\n\n"
+    labelloc= t
+    rankdir="TB"
+    splines=curved
+    fontname = "helvetica"
+    pad=.25
+    bgcolor= beige
+    size = 2.5
+  ]
+  node [fontname = "helvetica"];
+
+  # accounts
+  node [shape=rect]
+    "1. Actual Values" 
+    "4. Forecast Values"
+    "2. Actual Ratios"
+    "3. Forecast Ratios"
+  
+  {rank=same; "1. Actual Values";  "4. Forecast Values"}
+  {rank=same; "2. Actual Ratios";  "3. Forecast Ratios"}
+
+  "1. Actual Values"->"2. Actual Ratios"->"3. Forecast Ratios"
+  "3. Forecast Ratios"->"4. Forecast Values" [dir=back]
+}

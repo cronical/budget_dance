@@ -1,0 +1,19 @@
+#!/bin/zsh
+# use imagemagick to create logo
+s=1024 # side of square
+w=96 # stroke width
+((a=w/2))#offset for center of stroke
+((i=((s*12)/16))) #size of inner square
+((b=i-a))
+((d=s-a))
+((c=d-(i-w)))
+echo "a: $a, b: $b, c: $c, d: $d, w: $w, i: $i, s: $s"
+output=src/logo/logo.png
+magick -size "$s"x"$s" xc:transparent -fill transparent \
+  -stroke '#CE6633' \
+  -draw "stroke-width $w rectangle $a,$a,$b,$b" \
+  -stroke "#86C157" \
+  -draw "stroke-width $w rectangle $c,$c,$d,$d"     $output
+
+identify $output
+open $output

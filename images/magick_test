@@ -1,0 +1,36 @@
+#!/bin/zsh
+# processing of images
+# expects to run in images folder
+
+fn=src/std/iande_top_view_sidebar.png
+fn=src/redacted/iande_top_view.png
+#magick $fn -background Khaki -splice 0x18 -gravity North -annotate +0+2 "Sample" test.png
+
+#montage src/sidebars/iande_top_view_sidebar.png -shadow +3+5 -background none test.png
+
+fn=iande_top_view
+# use gif as the temp file as it doesn't put the label in the metadata, causing an echo in the montage step, below
+magick -pointsize 16 -font Helvetica -background khaki \
+-fill blue label:@src/sidebars/"$fn".txt \
+-bordercolor khaki -border 20x20 \
+src/sidebars/"$fn".gif
+
+# montage step adds the shadow
+magick montage src/sidebars/"$fn"_sidebar.gif -tile x1 \
+-shadow -geometry +3+5 -background none \
+-alpha set -bordercolor none -border 40x20 \
+src/sidebars/"$fn".png
+
+# scale
+magick src/safe/"$fn".png -resize 640x640\> \
+src/scaled/"$fn".png
+
+# border
+magick src/scaled/"$fn".png -bordercolor navyblue -border 1 \
+-alpha set -bordercolor none -border 40x20 \
+src/bordered/"$fn".png
+
+# place next to sidebar
+magick convert -gravity center +smush 40 src/bordered/"$fn".png src/sidebars/"$fn".png tgt/"$fn".png
+
+#open test.png

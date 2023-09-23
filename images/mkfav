@@ -1,0 +1,27 @@
+#!/bin/zsh
+# prepare favicon and distribute it and the logo to the right folder in docs
+# mkdocs build copies to ultimate destination in site
+
+src=src/logo/
+sf=logo.png
+tgt=../docs/assets/images
+
+# logo as it is
+cp "$src$sf" "$tgt/$sf"
+
+echo "Info about the source"
+identify "$src$sf"
+magick "$src$sf"  -background white \
+      \( -clone 0 -resize 16x16 -extent 16x16 \) \
+      \( -clone 0 -resize 32x32 -extent 32x32 \) \
+      \( -clone 0 -resize 48x48 -extent 48x48 \) \
+      \( -clone 0 -resize 64x64 -extent 64x64 \) \
+      -delete 0 -alpha off -colors 256 "$tgt/favicon.png"
+
+# the above creates favicon-0.png... favicon-3.png
+# pick one for the actual favicon
+
+cp "$tgt/favicon-2.png" "$tgt/favicon.png"
+
+echo "Info about the favicon"
+identify "$tgt/favicon*"

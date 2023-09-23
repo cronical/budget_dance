@@ -1,0 +1,23 @@
+# how graphics are processed
+digraph{
+  node[shape=rect]
+   screencap editor redacted  
+  node[shape=component]
+    graphviz
+    im_label
+    im_scale
+    im_border
+    im_smush
+    im_convert
+  node [shape=ellipse]
+  editor->{"images/dot","images/src/sidebars"}
+  "images/src/sidebars"->im_label->"images/src/sidebars"
+  screencap->{"images/src/raw","images/src/safe"}
+  "images/dot"->graphviz->"images/src/safe"
+  {"images/src/sidebars","images/src/bordered"}->im_smush
+  "images/src/raw"->redacted->"images/src/safe"
+  {"images/src/safe"}->im_scale->"images/src/scaled"->im_border->"images/src/bordered"
+  {"images/src/bordered",im_smush}->"images/src/stage"->"docs/assets/images"
+  "images/src/logo" -> im_convert -> "docs/assets/images"
+
+}
