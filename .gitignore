@@ -8,10 +8,10 @@ data-z-archive/**
 private/**
 site/**
 tmp/**
-docs/images/src/raw/**
-docs/images/src/scaled/**
-docs/images/src/bordered/**
-docs/images/src/stage/**
+images/src/raw/**
+images/src/scaled/**
+images/src/bordered/**
+images/src/stage/**
 vba/[Content_Types].xml
 vba/vbaProject.bin
 vba/workbook.xml.rels
