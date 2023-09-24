@@ -12,7 +12,7 @@ fi
 dance/util/doc_lambda.py
 
 # run the main build
-dance/setup/create_wb.py $target -o
+dance/setup/create_wb.py $target -o # -p
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "create_wb failed"
