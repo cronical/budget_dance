@@ -27,7 +27,7 @@ def prepare_retire_medical(data_info):
   return df
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description ='Prepares the retirement table from the input template')
+  parser = argparse.ArgumentParser(description ='Prepares the retirement income or medical table from the input template')
   parser.add_argument('type',choices=['i','m'],help='i for income, m for medical')
   parser.add_argument('--path','-p',default= 'data/retire_template.tsv',help='The path and name of the input file')
   args=parser.parse_args()
