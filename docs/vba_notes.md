@@ -1,5 +1,7 @@
 # VBA notes
 
+All VBA has been stripped out.  This page simply captures some of the bits that seemed worth preserving.
+
 ## Attempt to complete calculation
 
 ### clsAppEvents

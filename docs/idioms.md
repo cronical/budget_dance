@@ -4,41 +4,33 @@
 
 ### Getting the column name
 
-The VBA function `this_col_name()` has been replaced by the lambda function THIS_COL_HDR.
+The lambda function THIS_COL_HDR is used internal to a table to identify the column name.  Call with tbl_xxx[#Headers]
 
-Alternatively, native way to locate this column name is (this only works when selecting data from this table or a table with the same set of columns)
+Alternatively, native way to locate this column name is (this only works when the table starts in Excel column 1)
 
 ```
 =INDEX(tbl_balances[#Headers],COLUMN())
 ```
 
-Note, that the table name can be elided to reference the table the cell is in.  Excel displays the table name in the formula even if is not provided.
+Note, that the table name can be elided to reference the table the cell is in.  Excel displays the just table name in the formula even if it is not provided. But its best to provide the full expression the `setup.yaml`.
 
 ```
 INDEX([#Headers],COLUMN())
 ```
 
-To locate the column of a different table
+To locate the column of a different table, the offset can be determined with `XMATCH`:
 
 ```
-XMATCH(this_col_name(),tbl_retir_vals[#Headers])
+XMATCH(THIS_COL_HDR[#tbl_balances[#Headers]],tbl_retir_vals[#Headers])
 ```
 
-### Use the indirect method to locate this column.
+### Use of the structured [#Data] notation
 
-Getting the column can be done with indirect, but that will slow things down since INDIRECT is a "volitile" function, which triggers recalculation at every change. 
+Using this formulation creates a dependency on the whole table, which is fine for looking up values that themselves don't depend on other tables. But it is not appropriate for year-to-year calculations, as it will create circular logic.
 
-```title="Refer to this column using a VBA function"
-INDIRECT("tbl_balances["&this_col_name()&"]")
-```
+#### Getting data column with Index or Choosecols
 
-```title="Refer to this column by indexing the headers"
-INDIRECT("tbl_balances["&INDEX([#Headers],COLUMN())&"]")
-```
-
-### Index or Choosecols
-
-Another way is using a non-structured approach. These phrases require the [#Data] bit when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
+These phrases require the [#Data] phrase when entered via openpyxl, even though it disappears in Excel when edited. Otherwise you get a name error.
 
 `=INDEX(tbl_aux[#Data],0,COLUMN())`
 
@@ -54,16 +46,17 @@ The following picks a year column from balances by locating the year in the head
   )
 ```
 
-These depend on the whole table, though, where the INDIRECT method depends only on the column.
+## The last column name and data
 
+### The last data column
 
-## The last column
+Takes the last data column. Useful for actual only tables that you want to propagate the last values from.
 
 ```
-CHOOSECOLS(tbl_manual_actl,-1)
+CHOOSECOLS(tbl_manual_actl[#Data],-1)
 ```
 
-## The last column field name
+### The last column field name
 
 Useful to get the last actual, for instance.
 
@@ -71,25 +64,18 @@ Useful to get the last actual, for instance.
 =TAKE(tbl_manual_actl[#Headers],1,-1)
 ```
 
-## Value in prior column for this row
-
-```title="Use OFFSET"
-=OFFSET(INDIRECT(ADDRESS(ROW(),COLUMN())),0,-1,1,1)
-```
-
-But... OFFSET is a volatile function, causing performance problems. So instead use the [build time method](#get-prior-cells-on-this-row).
-
-
 ## Lookup
 
 Use a value from this table to find a value in another table. The 4th parameter is the default if not found.
+=XLOOKUP("Medicare withholding rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
+
 
 ```title="Locate a value with a common key"
-XLOOKUP([@AcctName],tbl_retir_vals[Item],INDIRECT("tbl_retir_vals["&this_col_name()&"]"),0)
+=XLOOKUP("Medicare withholding rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
 ```
-Here get the value for a year from the retirement table based on the account name.
+Here get the value for forecast rate using the lastest actual rate.
 
-## Construct a key
+### Constructing a key
 
 Often the exact key has to be constructed.  Excel uses double quotes for strings and `&` for concatenation.  TRIM is needed if the field is, say, indented.
 
@@ -99,7 +85,7 @@ Often the exact key has to be constructed.  Excel uses double quotes for strings
 
 ## Delimited strings to arrays
 
-Often the field value may have delimiters and you need to pick out one of the sections.  User the TEXTSPLIT and INDEX functions. For instance to pick out the 2nd item of the field `key`. Note the delimiter can be longer than a single character.
+Often the field value may have delimiters and you need to pick out one of the sections.  Use the TEXTSPLIT and INDEX functions. For instance to pick out the 2nd item of the field `key`. Note the delimiter can be longer than a single character.
 
 ```title="Picking values between delimiters"
 INDEX(TEXTSPLIT([@key]," - "),2)
@@ -125,17 +111,12 @@ ISNUMBER(MATCH(tbl_balances[ValType],{"Start Bal","Add/Wdraw","Reinv Amt","Fees"
 
 Filters produce more than one row so the results have to be aggregated by SUM, PRODUCT, MIN or the like.
 
-Criteria are all required with multiplied together with *. To allow either criterion, use +.
+Criteria that are all required are multiplied together with *. To allow either criterion, use +.
 
-In this example several rows are selected to compute the end balance.
+In this example several rows are selected to compute the end balance. THE Y1234 is replaced at build time for each year column.
 
 ```title="Filter with criteria 'anded'"
-SUM(FILTER(INDIRECT("tbl_balances["&this_col_name()&"]"),(tbl_balances[AcctName]=tbl_balances[@AcctName])*ISNUMBER(MATCH(tbl_balances[ValType],{"Start Bal","Add/Wdraw","Reinv Amt","Fees","Unrlz Gn/Ls"},0))))
-```
-
-In another example, two items are multiplied:
-```title="Pick two rows and multiply them"
-PRODUCT(FILTER(INDIRECT("tbl_balances["&this_col_name()&"]"),(tbl_balances[AcctName]=tbl_balances[@AcctName])*((tbl_balances[ValType]="Reinv Rate")+(tbl_balances[ValType]="Rlz Int/Gn"))))
+=SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=1)))
 ```
 
 ### If filter can be empty
@@ -143,7 +124,7 @@ PRODUCT(FILTER(INDIRECT("tbl_balances["&this_col_name()&"]"),(tbl_balances[AcctN
 If the result can be empty then use the if_empty parameter
 
 ```title="Last parm of FILTER is 0 to allow empty set"
-=-SUM(FILTER(INDIRECT("tbl_retir_vals["&this_col_name()&"]"),(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]="ROLLOVER"),0))
+=ROUND(SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Account]=[@AcctName])*(tbl_invest_iande_values[IorE]="I"),0)),0)
 ```
 
 ## Convert transaction format to net change
@@ -177,13 +158,12 @@ HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount])
 |![boolean](./assets/images/trans_to_net_1.png)|X|![values](./assets/images/trans_to_net_2.png)|=|![result](./assets/images/trans_to_net_3.png)|
 
 
-
 ### Add across rows
 
-The BYROW and LAMBDA functions are used. Each row is passed into lambda as the parameter `row`, which is then summed. the `_xlpm.` is needed as Excel uses that to identify the parameter name.  It is actually stored in the internal XML but not displayed in the Excel user interface.
+The BYROW and LAMBDA functions are used. Each row is passed into lambda as the parameter `row`, which is then summed.
 
 ```title="Sum by row"
-BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(_xlpm.row,SUM(_xlpm.row)))
+=BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN()))
 ```
 
 The result is then multiplied by the year selection to get all net of all the transactions for the account and year, as shown here:
@@ -244,11 +224,12 @@ after all these are set is fairly easy to use CHOOSEROWS to select the right dat
 
 ## Tax calculations 
 
-Not implemented but kind of cool
+There is a set of lambda functions that work together to assist in tax calculations. These culuminate in TX_CT and TX_FED which are inserted on the proper lines due to folding. The file `taxes_template.tsv` contains lines that call for this type of aggregation:
 
-```title="Federal tax calc for a year and a taxable income value"
-=ROUND(SUM(BYCOL(FILTER(tbl_fed_tax,(tbl_fed_tax[Year]=2022)*(tbl_fed_tax[Range]<260361)),LAMBDA(column,MAX(column)))*{0,0,260361,-1}),0)
-```
+- Initial Tax Calculation - CT_TAX
+- Fed tax - FED_TAX
+
+Other states could be patterned off the TX_CT method.
 
 ## Conditional Formatting limits
 

@@ -115,12 +115,6 @@ The following list is sourced from that file by `util.doc_lambdas.py`.
 
 1. Do not use table names in the formulas as that creates a hidden defined name with that value, causing the real table to get "_1" appended to its name.
 
-### Visual Basic for Applications (VBA)
-
-There are VBA functions in this worksheet.  These are listed in the [VBA index](./functions/vba_index.md).  The [full source](./functions/vba_sorted.md) is also imported here as part of the build process.  
-
-With the approach indicated in [Excel Calculations](#calculations) these are being removed where not used.  Some may still be useful, but the reference to other cells should be replaced.
-
 ## Conventions
 
 ### Excel conventions

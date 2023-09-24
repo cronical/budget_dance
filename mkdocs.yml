@@ -17,6 +17,49 @@ theme:
   logo: assets/images/logo.png
   favicon: assets/images/favicon.png
 
+nav:
+  - Home: index.md
+  - Workbook: 
+    - workbook.md
+    - Worksheets:
+      - "Accounts & Balances":
+        - Accounts: sheets/accounts.md
+        - Balances: sheets/balances.md
+        - "Transfers plan": sheets/transfers_plan.md
+      - "Income, Expense & Cashflow":
+        - "All years": sheets/iande.md
+        - "Current year": sheets/current.md
+        - "Auxilliary calculations": sheets/aux.md
+        - "Impact of investments": sheets/invest_iande_work.md
+      - Retirement: 
+        - "Income & medical plan": sheets/retirement.md
+        - "Retirement parameters": sheets/retireparms.md
+      - "Various Actuals":
+        - "Investments Actuals": sheets/invest_actl.md
+        - "Transfers Actuals": sheets/transfers_actl.md
+        - "Other Actuals": sheets/other_actl.md
+      - taxes:
+        - "Tax tables": sheets/tax_tables.md
+        - "Capital gains": sheets/cap_gain.md
+        - Taxes: sheets/taxes.md
+      - "General": sheets/gen_tables.md
+    - Formulas:
+      - "Helpers (Lambdas)": functions/excel_lambdas.md
+      - Idioms: idioms.md
+      - Anti-patterns: anti_patterns.md
+  - Data: 
+    - "Data files": data_files.md
+    - "Report definitions": report_configs.md
+    - "Accounting notes": accounting.md
+    - "Validation": validation.md
+  - Setup: 
+    - Summary: setup_summary.md
+    - "API Key": setup_api.md
+    - "Setup control file": setup_control.md
+    - "Python environment": python.md  
+  - Operations: 
+    - "Export/Import Cycle": operations.md
+    - "Use cases": use_cases.md
 markdown_extensions:
   - footnotes
   - pymdownx.highlight:

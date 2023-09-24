@@ -1,31 +1,20 @@
-# Setting up the spreadsheet
+# The setup control file
 
-## Summary of steps
-
-1. Prepare data files. See [Data Files](./data_files.md).
-    1. Save certain reports from Moneydance to the `data` folder.
-    1. Prepare other imput files as json or tsv
-1. [Acquire a registration key](#api-key) for the bureau of labor statistics (for inflation data)
-1. Edit the [control file](#the-setup-control-file) as described below.
-1. Validate the file against the schema.  I use VS Code extension `YAML Language Support by Red Hat`
-1. Run `dance/setup/create_wb.py`
-
-
-## API key
-
-The system copies the inflation data to faciliatate planning.  To do this an API key is needed.  This is free; they only want an email address.  Register here: <https://data.bls.gov/registrationEngine/>.  The API key should be stored in ./private/api_keys.yml. The rows of this file are expected to be simply a site code and the key value, such as below:
-
-![apikey](./assets/images/api_key.png)
-
-## The setup control file
-
-The control file is `.data/setup.yaml`.  To reference the schema insert the following line at the top:
+The control file is `./data/setup.yaml`.  To reference the schema insert the following line at the top:
 
   ```
   # yaml-language-server: $schema=../dance/setup/setup_schema.json
   ```
 
-### Global Settings
+  Or, in Visual Code, set a reference in `settings.json`:
+
+  ```
+      "yaml.schemas": {
+        "./dance/setup/setup_schema.json":"setup.yaml"
+        },
+  ```
+
+## Global Settings
 
 The following values are global in nature:
 
@@ -48,7 +37,7 @@ lambdas:
     comment: Return the age attained by an account owner with inits in a given year
 ```
 
-### Sheet groups
+## Sheet groups
 
 Sheets are grouped together in sheet groups using the `sheet_group` definitions.  Each sheet is assigned to a group and thus shares the color and table style.
 
@@ -63,7 +52,7 @@ sheet_groups:
   ...
 ```
 
-### Sheets
+## Sheets
 
 This section defines the layout and sometimes the data to be loaded into the sheet. It is a list of definition of each sheet.  So at that level it looks like:
 
@@ -75,7 +64,7 @@ sheets:
   ...
 ```
 
-### Table Definitions
+## Table Definitions
 
 Within each sheet are the list of tables. Most sheets only have one.  Here's an example with two:
 
@@ -108,7 +97,7 @@ The table definition consists of various fields, some of which are optional and/
 |preserve|Indicates what from a table to be "preserved" and how (only method "sparse" implemented). non-year-cols lists any columns other than forecast years to be preserved.|
 |fold_at |For tables that fold, an integer indicating the level at which to leave the fold closed.|3|
 
-#### Column definitions
+### Column definitions
 
 The following support column definitions
 
@@ -120,7 +109,7 @@ The following support column definitions
 |number_format|number from [openpyxl chart](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html) |
 
 
-#### Data definitions
+### Data definitions
 
 The data definitions are purpose built to support the target table, but there are some elements that are common.  Some data definitions are closely related, so, to prevent duplication, the yaml reference/override notation is used (& and *).  
 
@@ -144,7 +133,7 @@ The data definitions are purpose built to support the target table, but there ar
 |hier_alt_agg|This optional field allows aggregation to occur by any of the following methods: MIN, MAX, PRODUCT. The default is TOTAL. This is a mapping between lines and one of the aggregation types.|
 |template|Used in the cases where a template is used to generate the table. For the extract operation, this specifies the fields which are to be pulled from the table.  In the case of folding, it specifies the field to fold on and the indent depth|
 
-##### Supported Types
+#### Supported Types
 
 The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build. For the templates, additional definition is provided in the `setup.yaml` config file.
 
@@ -171,7 +160,7 @@ The types `md_*` act on exported Moneydance files.
 |tax_template|Prepares the taxes worksheet based on a template|
 
 
-##### Inserting Rows
+#### Inserting Rows
 
 An optional key is used to define new rows to be inserted on sheets that use the folding/subtotaling method.
 
@@ -187,7 +176,7 @@ In this example, we aggregate based on the MIN function to plan the distribution
 
 ![alt_agg](./assets/images/alt_agg.png)
 
-#### Actual and Forecast Formulas
+### Actual and Forecast Formulas
 
 There are three optional keys to allow formulas to be established for the years section: `actl_formulas`, `all_col_formulas`, and `fcst_formulas`.  They work the same way but apply to different columns, as their names indicate.
 
@@ -272,7 +261,7 @@ Using the `is_in` comparator:
                 value_field: Type
 ```
 
-##### Array formulas
+#### Array formulas
 
 It is not possible to use dynamic arrays fully as they are not well supported (yet?) by `openpyxl`. However, some effort has been made to allow for control-shift-enter (CSE) arrays. These work best when the formula summarizes to a single cell or results in a single column of results in a fixed size array.  This has been tested for use with data validation.
 
@@ -301,7 +290,7 @@ The lambda function needs its parameters prefixed with _xlpm.  The code handles 
 
 After an Excel session when the file is saved, Excel will rewrite the document so that the internal XML files have new schemas listed.  Further, if a CSE formula is edited, it may be converted to a dynamic array formula, and, in that case, an internal `metadata.xml` file is created to support the dynamic arrays.  If `openpyxl` later rewrites the file, the `metadata.xml` and the references to it in the dynamic array formulas will be lost.  This has the effect of converting back to a CSE formula.
 
-#### Build-time created fields
+### Build-time created fields
 
 Some tables need a way to determine values at build time. The `dyno_fields` section may be directly under the table.
 
@@ -314,7 +303,7 @@ The target field should be previously defined, but it is filled in by this logic
 - constant - a value that is always the same
 - formula - an Excel formula
 
-##### Formula Specifics
+#### Formula Specifics
 
 - Always start the formula with a leading equals sign.
 - Constants are fine, but remember to use the leading equals sign
@@ -322,7 +311,7 @@ The target field should be previously defined, but it is filled in by this logic
 - Refer to this column with the VBA function `this_col_name()`
 - Many VBA functions are designed to be used in formulas
 
-#### Highlights
+### Highlights
 
 For example the following puts a line between the actual and forecast periods. The anchor, (ampersand) allows other tables to use the same by using `*past_future`. 
 
@@ -337,7 +326,7 @@ For example the following puts a line between the actual and forecast periods. T
           color: B50000
 ```
 
-#### Edit Checks
+### Edit Checks
 
 This provides a way to use a dynamic array filter in Excel to create a data validation list (a drop down menu) for a set of columns.
 
@@ -351,17 +340,17 @@ This provides a way to use a dynamic array filter in Excel to create a data vali
 The formula will be placed to the right of the table and the a data validation will reference it for each of the columns.  In this example the active accounts with no distribution plan will be displayed as the drop down choices for the to listed columns.
 
 
-### Specific Sheets & Tables
+## Specific Sheets & Tables
 
-#### Inflation
+### Inflation
 
 You may want to consider a different series.  The default is all items in U.S. city average, all urban consumers, not seasonally adjusted.
 
-#### Required minimum distributions
+### Required minimum distributions
 
 At the time of writing the best source seems to be the Federal Register.  This does not need to edited unless the source changes.  
 
-#### Accounts
+### Accounts
 
 The data section in the `setup.yaml` needs the following sub-sections:
 

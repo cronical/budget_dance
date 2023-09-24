@@ -24,11 +24,7 @@ Used to populate untaxed income lines in iande.
 
 Used to populate `Income:J:Distributions:IRA` lines on iande.
 
-This table is needed to handle the accounting difficulty that arises with IRA distributions.  The gross amount is taxable and thus needs to be included in the tax calculation.  However, the tax amounts go to the state and federal expense lines and the net goes to the receiving bank.  There is no place to declare income.
-
-The solution allows a uniform way of handling the data (at the cost of a bit of special handling). 
-
-The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
+This table is needed to handle the accounting difficulty that arises with IRA distributions.  [See accounting note on IRA-Txbl-Distr](../accounting.md#iras).
 
 This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv` file. It is then imported via special handling in `IRA_distr` processes the transactions to create a table `tbl_ira_distr`. The  `Income:J:Distributions:IRA`  line on the `tbl_iande` pulls from that table.  From there it flows to the `taxes` tab.  
 

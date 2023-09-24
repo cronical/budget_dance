@@ -107,13 +107,35 @@ options:
 
 ## Import functions
 
+The `dance/util/build` shell script will completely rebuild the worksheet. Or the following utilities can rebuild portions. Use the `-h` option to see arguments.
+
+|Utility|Purpose|
+|---|---|
+|`dance/iande-actl-load.py`|Copies data from input file into tab "iande" or "current"|
+|`dance/invest_actl_load.py`|Copies data from input files into "invest_actl" table|
+|`dance/invest_iande_load.py`|Prepares income and expense data to insert into  "tbl_invest_iande_work"|
+|`dance/retire_load.py`|Prepares the retirement income or medical table from the input template|
+|`dance/taxes_load.py`|Prepares the taxes table from the input template|
+|`dance/transfers_actl_load.py`|Copies data from input file into "transfers_actl" table|
+
+The following have alternate functions:
+
+|Utility|Purpose|
+|---|---|
+|`dance/bank_actl_load.py`|If called from the command line, prints changes in account values due to transfers to/from bank and credit cards|
+
+
+The following do not (yet) have main routines:
+
+|Utility|Purpose|
+|---|---|
+|`dance/accounts_load.py`||
+|`dance/balances_load.py`||
+|`dance/other_actls.py`||
+
 The following support the need to refresh data. These are usually applied annually although the year-to-date feature allows interim updates.
 
-See also [extract](#extract-table), [preserve](#preserve), [ytd](#ytd---current-year-reforecast), and [setup](./setup.md).
-
-### Bank 
-
-bank_actl_load.py
+See also [extract](#extract-table), [preserve](#preserve), [ytd](#ytd---current-year-reforecast), and [setup](./setup_summary.md).
 
 ### Income and Expense
 
