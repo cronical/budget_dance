@@ -9,7 +9,6 @@ from sys import exit
 
 from openpyxl import Workbook # load_workbook
 
-from pyinstrument import Profiler
 
 #from dance.util.files import zip_up
 from dance.util.logs import get_logger
@@ -76,15 +75,19 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description ='initialize the forecast spreadsheet')
   parser.add_argument('out_file', help='provide the name of the output file')
   parser.add_argument('-o','--overwrite',default=False, action='store_true',help='force overwrite if file already exists')
+  parser.add_argument('-p','--profile',default=False,action='store_true',help='Use performance profiler')
   args=parser.parse_args()
-  profiler = Profiler()
-  profiler.start()
+  if args.profile:
+    from pyinstrument import Profiler
+    profiler = Profiler()
+    profiler.start()
 
   # code you want to profile
   create(args.out_file,args.overwrite)
 
-  profiler.stop()
-
-  profiler.print()
+  if args.profile:
+    profiler.stop()
+    profiler.print()
+    
   exit(0)
   

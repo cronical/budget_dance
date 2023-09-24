@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 '''Try to add qualifiers for let and lambda'''
+from itertools import compress
 import re
 import logging
 from openpyxl.formula import Tokenizer
-import pandas as pd
 from dance.util.logs import get_logger
 logger=get_logger(__file__,logging.INFO)
 
@@ -11,42 +11,43 @@ moduli={"LAMBDA":1,"LET":2} # which parameters we keep
 sf='|'.join(moduli.keys())
 SUPPORTED_FNS='(%s)'%sf # regex style
 
-def mark_parms(df,start_row=0,caller_scope=None):
-  '''walk through the dataframe starting at index ix,
-  dataframe is value,type,subtype,parameter, with sequential index
-  the index must point to a row in the dataframe
+def mark_parms(values,types,subtypes,parms,start_row=0,caller_scope=None):
+  '''walk through lists values,types,subtypes,parms which are of the same length, starting at index start_row
+  return boolean flag, revised parms
+  the index must point to a row in the 
   caller_scope is None unless the function in the formula that is calling is one of the supported functions
-  modifies parameter colum for operands that meet criteria to be True
-  returns next index and modified dataframe
+  modifies parms flag for operands that meet criteria to be True
+  returns next index and modified parms
   '''
   comma_count=0
   ix=start_row
-  val,typ,subtyp,_ = df.loc[ix]
   scope=None
-  while ix < df.shape[0]:
-    val,typ,subtyp,_ = df.loc[ix]
+  while ix < len(values):
+    val=values[ix]
+    typ=types[ix]
+    subtyp=subtypes[ix]
     logger.debug('%s, %s, %s, %d'%(val,typ,subtyp,ix))  
     if (subtyp=='OPEN'):
       if (typ=='FUNC') :
         scope= re.search(SUPPORTED_FNS,val,re.IGNORECASE) # will be None if not found
         # otherwise to get the function:           scope.group(0), 
-      ix,df=mark_parms(df,ix+1,scope) # 
+      ix,parms=mark_parms(values,types,subtypes,parms,ix+1,scope) # 
 
     else:  
       if subtyp=='CLOSE':
-          return (ix+1),df
+          return (ix+1),parms
       if typ=='SEP' and caller_scope is not None:
         comma_count +=1
         ix += 1
         continue
       ix += 1
     if typ in['OPERAND',"FUNC"]:
-      if df.at[ix-1,'subtype']=='RANGE' and caller_scope is not None:   
+      if subtypes[ix-1]=='RANGE' and caller_scope is not None:   
         # the range clause prevents final parameter from being captured (as it is the result of the formula)
         if 0==comma_count%moduli[caller_scope.group(0).upper()]:  # only for LET (not sure about LAMBDA) TODO
-          df.at[ix-1,'parameter']=True # ix has already be incremented
+          parms[ix-1]=True # ix has already be incremented
 
-  return ix,df
+  return ix,parms
 
 def get_params(formula):
   '''Given a formula return the parameters that need to be prefaced by _xlpm.
@@ -56,13 +57,16 @@ def get_params(formula):
   except IndexError:
     logger.error("Bad formula: %s"% formula)
     raise IndexError("Bad formula")  
-  toks=[]
+  values=[]
+  types=[]
+  subtypes=[]
   for t in tok.items:
-    toks.append({"value":t.value,"type":t.type,"subtype":t.subtype})
-  df= pd.DataFrame(toks)
-  df['parameter']=False
-  _,df=mark_parms(df)
-  params=list(pd.unique(df.loc[df.parameter,'value']))
+    values.append(t.value)
+    types.append(t.type)
+    subtypes.append(t.subtype)
+  parms=[False]*len(values)
+  _,parms=mark_parms(values,types,subtypes,parms)
+  params=list(compress(values,parms))
   return params  
 
 def repl_params(formula,params):
