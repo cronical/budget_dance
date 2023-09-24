@@ -20,8 +20,11 @@ from dance.util.ui import tab_color
 from dance.util.xl_eval import filter_parser,eval_criteria
 from dance.util.xl_formulas import is_formula,prepare_formula
 
-config=read_config()
 logger=get_logger(__file__)
+try:
+  config=read_config()
+except FileNotFoundError as e:
+  raise FileNotFoundError('config file not found ') from e
 
 def ws_for_table_name(table_map=None,table_name=None):
   '''Return name of worksheet holding table given a data frame holding the table'''
@@ -181,10 +184,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
   raises: IndexError if table not in config for the given sheet
   '''
   df.reset_index(drop=True,inplace=True) # rely on the index to figure row on sheet.
-  try:
-    config=read_config()
-  except FileNotFoundError as e:
-    raise FileNotFoundError('workbook or config file not found ') from e
+
   tables=config['sheets'][target_sheet]['tables']
   tx=[table_info['name'] for table_info in tables].index(table_name)
   sg=config['sheets'][target_sheet]['sheet_group']
