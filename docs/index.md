@@ -26,7 +26,7 @@ The workbook is built from the above data by Python programs controlled by an ex
 
 ## Getting Started
 
-[Getting Started](setup.md)
+[Getting Started](./setup_summary.md)
 
 ## Operations
 
