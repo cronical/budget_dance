@@ -69,7 +69,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   ref=ws.tables['tbl_accounts'].ref
   accounts_df=df_for_range(ws,ref)
   ia_df=vals_df.loc[vals_df.index <0] # zero rows, same cols
-  ia_df=ia_df.append(pd.DataFrame(accounts_df.index[accounts_df.Type=='I'],columns=['Account']))
+  ia_df=pd.concat([ia_df,pd.DataFrame(accounts_df.index[accounts_df.Type=='I'],columns=['Account'])])
   ia_df['Category']="Unrlz Gn/Ls"
   vals_df=pd.concat([vals_df,ia_df])
   vals_df.reset_index(drop=True,inplace=True)
