@@ -67,7 +67,7 @@ def request(table_info):
         # regrettably, they put an extra field in sometimes for pagination?
         # this double query method is a work around - iterparse might be better
         df=pd.read_xml(url,xpath=xpath+'[not(PRTPAGE)]',names=cols)
-        df['Age']=df.Age.str.replace('\+','') # last row has 120+
+        df['Age']=df.Age.str.replace('+','') # last row has 120+
         df['Age']=df.Age.astype(int)
         try:
           df2=pd.read_xml(url,xpath=xpath+'[PRTPAGE]',names=['PRTPAGE']+cols)
