@@ -148,9 +148,9 @@ def refresh_sheets(target_file,overwrite=False):
             try:
               data=remote_data.request(table_info)
               logger.debug('pulled data from remote')
-            except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout) as e :
+            except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout) as e:
               logger.error('*** Remote data problem, possible maintenance window')
-              logger.error(e.msg)
+              logger.error(str(e))
               logger.error('*** Skipping table: %s'%table_info['name'])
               continue
           if source=='local': 
