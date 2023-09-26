@@ -1,4 +1,0 @@
-- Excel allows 8 levels
-- Each group is led by a title line with no data
-- It ends with the same title plus the aggregate method:
-- TOTAL, MIN, MAX, PRODUCT, FED_TAX, CT_TAX

@@ -1,4 +1,0 @@
-- Time series columns are labeled with 'Y' + year.    
-- Left of the first forecast year, data is actual.
-- To the right it is forecast.  
-- Red line marks the change from actual to forecast.
