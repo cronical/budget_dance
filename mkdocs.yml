@@ -22,6 +22,7 @@ nav:
   - Workbook: 
     - workbook.md
     - Worksheets:
+      - "Index of worksheets": worksheets.md
       - "Accounts & Balances":
         - Accounts: sheets/accounts.md
         - Balances: sheets/balances.md
@@ -43,6 +44,7 @@ nav:
         - "Capital gains": sheets/cap_gain.md
         - Taxes: sheets/taxes.md
       - "General": sheets/gen_tables.md
+      - Utility: sheets/utility.md
     - Formulas:
       - "Helpers (Lambdas)": functions/excel_lambdas.md
       - Idioms: idioms.md
@@ -54,6 +56,7 @@ nav:
     - "Validation": validation.md
   - Setup: 
     - Summary: setup_summary.md
+    - Libraries: libraries.md
     - "API Key": setup_api.md
     - "Setup control file": setup_control.md
     - "Python environment": python.md  
