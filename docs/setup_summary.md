@@ -1,5 +1,6 @@
 # Summary of steps
 
+1. Install libraries. See [Libraries](./libraries.md).
 1. Prepare data files. See [Data Files](./data_files.md).
     1. Save certain reports from Moneydance to the `data` folder.
     1. Prepare other imput files as json or tsv
