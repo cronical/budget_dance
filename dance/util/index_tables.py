@@ -10,7 +10,7 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table
 from openpyxl.utils import get_column_letter
 import pandas as pd
-from util.logs import get_logger
+from dance.util.logs import get_logger
 from dance.util.files import read_config
 
 
