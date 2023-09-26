@@ -22,7 +22,7 @@ from dance.util.files import read_config
 from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
 from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
-import remote_data
+from dance.setup.remote_data import request
 
 def include_year(table_info,first_forecast_year,proposed_year):
   '''return True if proposed year should be displayed'''
@@ -146,7 +146,7 @@ def refresh_sheets(target_file,overwrite=False):
               data_info['api_key']=api_keys[key_name]
               logger.debug('API key retrieved from private data')
             try:
-              data=remote_data.request(table_info)
+              data=request(table_info)
               logger.debug('pulled data from remote')
             except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout) as e:
               logger.error('*** Remote data problem, possible maintenance window')
