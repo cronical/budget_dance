@@ -1,10 +1,44 @@
 # Accounting Notes
 
+## Movement of money
+
+The general theory is that 
+
+1. Income arrives in bank accounts
+1. Expenses are paid through bank or credit card accounts
+1. Credit cards are paid via bank accounts
+2. Transfers in and out of investment accounts should go through a bank account.
+
+## Banks
+
+In Moneydance, there can be many bank accounts.  All of these are summarized into a single Bank Accounts planning account.  
+
+### Passthru
+
+In the chart of accounts Passthru is set up as a bank account, although it is entirely fictional.  Under this are sub-accounts, to help track various movements.  
+
+1. A good example is an payroll deductions, which end up in another account, like a 401K.  Since both payroll and 401K systems allow transactions to be downloaded, it is convenient to run the offsetting transactions through a passthru subaccount, especially since the records show up at different times.  By doing this, each source can be reconciled independently.
+2. Another use case is to handle separate dividend and dividend reinvested transactions for some brokers: A account passthru account may be used to support the way the broker handles re-investments.  The passthru account mimics the brokerage "reinvestment program", in that the dividends are sent out of the account to "reinvestment program" (aka our passthru subaccount) and then brought back in with a BuyXfr transaction on a date which may be the same as the dividend or different.  
+
+Of course, these transactions have to be doubled - i.e. one into the passthru account and one out.  In cases where this is not done, then provisions have to be made in the report definitions (e.g. the reports that transfer money in and out of investment accounts)
+
+## Credit Cards
+
+Similar to banks, credit cards are clubbed together for budgeting purposes. 
+
 ## Balances
 
 The computation of balances depends on the ability to determine the changes to the accounts.  
 
-## IRAs
+### Tax advantaged accounts
+
+## 529 Accounts
+
+The tag `529-Distr` is used to identify actual distributions.
+
+## Health Savings Accounts (HSA)
+
+## IRA Accounts
 
 IRA distributions are problematic.
 

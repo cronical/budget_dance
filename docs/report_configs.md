@@ -4,7 +4,7 @@ This page describes the reports which are used to generate the actual data.
 
 ## 401, HSA, ESP payroll data
 
-A "Transfers, Detailed" report selecting checking accounts, all passthru accounts.  Due to odd circumstances such as return of excess 401K contributions, and employer HSA contributions, some income & expense accounts were added.
+A "Transfers, Detailed" report selecting checking accounts, all passthru accounts.  Due to odd circumstances such as return of excess 401K contributions, and employer HSA contributions, some income & expense accounts may be added.
 
 ## 529-Distr
 
@@ -65,10 +65,16 @@ Source accounts: All bank, credit card, income, expense and all HSA accounts. Ta
 
 This report can be run once for all actual year periods.  It provides transfers in/out of the investment accounts.
 
-Source accounts: All Bank (except any accounts that acts as a passthru account to handle separate dividend and dividend reinvested transactions), All Credit Card + certain categories
+Source accounts: 
+
+- All Bank except[^1]
+- All Credit Card
+- Certain categories[^2]
+
 Target accounts: All Investment
 
-A account passthru account may be used to support the strange way the broker handles re-investments.  It has to be excluded from true transfers.
+[^1]: Except any accounts that acts as a passthru account to handle separate dividend and dividend reinvested transactions - see [Passthru](./accounting.md#passthru)). Such accounts have to be excluded from true transfers. 
+[^2]: Normally funds to/from investments go through bank accounts (or passthru accounts).  But if that is not the case, direct movement to income or expense categories should be accounted for here.  For instance if an RMD is paid out of an IRA and the brokerage withhold income taxes, the income tax category could be listed here.
 
 ## Transfers-to-fcast
 

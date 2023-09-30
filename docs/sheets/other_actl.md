@@ -34,6 +34,6 @@ Used to populate untaxed income lines in iande.
 
 ## Bank transfers to/from selected investments
 
-Used by cash flow calcs on IandE.
+Used by cash flow calcs on IandE.  These values are similar to the add/wdraw values on `tbl_invest_actl`, but will differ by amounts that flow directly to/from income or expense lines.  An example of that is an inheritance.  If there are no such lines, this table can be omitted and the cash flow calcs derived directly from `tbl_invest_actl`.
 
 
