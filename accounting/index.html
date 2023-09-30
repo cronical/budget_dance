@@ -1158,15 +1158,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#balances" class="md-nav__link">
-    Balances
+  <a href="#movement-of-money" class="md-nav__link">
+    Movement of money
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#iras" class="md-nav__link">
-    IRAs
+  <a href="#banks" class="md-nav__link">
+    Banks
+  </a>
+  
+    <nav class="md-nav" aria-label="Banks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#passthru" class="md-nav__link">
+    Passthru
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credit-cards" class="md-nav__link">
+    Credit Cards
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#balances" class="md-nav__link">
+    Balances
+  </a>
+  
+    <nav class="md-nav" aria-label="Balances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tax-advantaged-accounts" class="md-nav__link">
+    Tax advantaged accounts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#529-accounts" class="md-nav__link">
+    529 Accounts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-savings-accounts-hsa" class="md-nav__link">
+    Health Savings Accounts (HSA)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ira-accounts" class="md-nav__link">
+    IRA Accounts
   </a>
   
 </li>
@@ -1474,15 +1535,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#balances" class="md-nav__link">
-    Balances
+  <a href="#movement-of-money" class="md-nav__link">
+    Movement of money
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#iras" class="md-nav__link">
-    IRAs
+  <a href="#banks" class="md-nav__link">
+    Banks
+  </a>
+  
+    <nav class="md-nav" aria-label="Banks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#passthru" class="md-nav__link">
+    Passthru
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credit-cards" class="md-nav__link">
+    Credit Cards
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#balances" class="md-nav__link">
+    Balances
+  </a>
+  
+    <nav class="md-nav" aria-label="Balances">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tax-advantaged-accounts" class="md-nav__link">
+    Tax advantaged accounts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#529-accounts" class="md-nav__link">
+    529 Accounts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-savings-accounts-hsa" class="md-nav__link">
+    Health Savings Accounts (HSA)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ira-accounts" class="md-nav__link">
+    IRA Accounts
   </a>
   
 </li>
@@ -1517,9 +1639,32 @@
 
 
 <h1 id="accounting-notes">Accounting Notes</h1>
+<h2 id="movement-of-money">Movement of money</h2>
+<p>The general theory is that </p>
+<ol>
+<li>Income arrives in bank accounts</li>
+<li>Expenses are paid through bank or credit card accounts</li>
+<li>Credit cards are paid via bank accounts</li>
+<li>Transfers in and out of investment accounts should go through a bank account.</li>
+</ol>
+<h2 id="banks">Banks</h2>
+<p>In Moneydance, there can be many bank accounts.  All of these are summarized into a single Bank Accounts planning account.  </p>
+<h3 id="passthru">Passthru</h3>
+<p>In the chart of accounts Passthru is set up as a bank account, although it is entirely fictional.  Under this are sub-accounts, to help track various movements.  </p>
+<ol>
+<li>A good example is an payroll deductions, which end up in another account, like a 401K.  Since both payroll and 401K systems allow transactions to be downloaded, it is convenient to run the offsetting transactions through a passthru subaccount, especially since the records show up at different times.  By doing this, each source can be reconciled independently.</li>
+<li>Another use case is to handle separate dividend and dividend reinvested transactions for some brokers: A account passthru account may be used to support the way the broker handles re-investments.  The passthru account mimics the brokerage "reinvestment program", in that the dividends are sent out of the account to "reinvestment program" (aka our passthru subaccount) and then brought back in with a BuyXfr transaction on a date which may be the same as the dividend or different.  </li>
+</ol>
+<p>Of course, these transactions have to be doubled - i.e. one into the passthru account and one out.  In cases where this is not done, then provisions have to be made in the report definitions (e.g. the reports that transfer money in and out of investment accounts)</p>
+<h2 id="credit-cards">Credit Cards</h2>
+<p>Similar to banks, credit cards are clubbed together for budgeting purposes. </p>
 <h2 id="balances">Balances</h2>
 <p>The computation of balances depends on the ability to determine the changes to the accounts.  </p>
-<h2 id="iras">IRAs</h2>
+<h3 id="tax-advantaged-accounts">Tax advantaged accounts</h3>
+<h2 id="529-accounts">529 Accounts</h2>
+<p>The tag <code>529-Distr</code> is used to identify actual distributions.</p>
+<h2 id="health-savings-accounts-hsa">Health Savings Accounts (HSA)</h2>
+<h2 id="ira-accounts">IRA Accounts</h2>
 <p>IRA distributions are problematic.</p>
 <p>The gross amount is taxable and thus needs to be included in the tax calculation.  However, the tax amounts go to the state and federal expense lines and the net goes to the receiving bank.  There is no place to declare income.</p>
 <p>The solution allows a uniform way of handling the data (at the cost of a bit of special handling). </p>

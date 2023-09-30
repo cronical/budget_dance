@@ -1305,6 +1305,26 @@
     Global Settings
   </a>
   
+    <nav class="md-nav" aria-label="Global Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambdas" class="md-nav__link">
+    Lambdas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#themes" class="md-nav__link">
+    Themes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1606,6 +1626,26 @@
     Global Settings
   </a>
   
+    <nav class="md-nav" aria-label="Global Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lambdas" class="md-nav__link">
+    Lambdas
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#themes" class="md-nav__link">
+    Themes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1793,14 +1833,9 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">workbook</td>
-<td style="text-align: left;">The name of the workbook including path from project folder. Used as the default for most programs.</td>
-<td>data/test_wb.xlsx</td>
-</tr>
-<tr>
-<td style="text-align: left;">start_year</td>
-<td style="text-align: left;">Integer of 1st year to use for time series</td>
-<td>2018</td>
+<td style="text-align: left;">bank_interest</td>
+<td style="text-align: left;">Moneydance category used to convey bank interest to the account balances</td>
+<td>Income:I:Invest income:Int:Bank</td>
 </tr>
 <tr>
 <td style="text-align: left;">end_year</td>
@@ -1808,9 +1843,34 @@
 <td>2030</td>
 </tr>
 <tr>
+<td style="text-align: left;">first_forecast_year</td>
+<td style="text-align: left;">First year that is considered a forecast. Prior years are considered actual</td>
+<td>2022</td>
+</tr>
+<tr>
 <td style="text-align: left;">hide_years</td>
 <td style="text-align: left;">List the years to hide on all sheets as numbers</td>
 <td>2018</td>
+</tr>
+<tr>
+<td style="text-align: left;">lambdas</td>
+<td style="text-align: left;">Excel lambda functions are defined here</td>
+<td><a href="#lambdas">See Lambdas</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">start_year</td>
+<td style="text-align: left;">Integer of 1st year to use for time series</td>
+<td>2018</td>
+</tr>
+<tr>
+<td style="text-align: left;">theme</td>
+<td style="text-align: left;">Set the formatting theme from files in <code>themes/</code></td>
+<td>Berlin</td>
+</tr>
+<tr>
+<td style="text-align: left;">workbook</td>
+<td style="text-align: left;">The name of the workbook including path from project folder. Used as the default for most programs.</td>
+<td>data/test_wb.xlsx</td>
 </tr>
 <tr>
 <td style="text-align: left;">year_column_width</td>
@@ -1818,32 +1878,21 @@
 <td>12</td>
 </tr>
 <tr>
-<td style="text-align: left;">first_forecast_year</td>
-<td style="text-align: left;">First year that is considered a forecast. Prior years are considered actual</td>
-<td>2022</td>
-</tr>
-<tr>
 <td style="text-align: left;">zoom_scale</td>
 <td style="text-align: left;">Scaling factor for all sheets</td>
 <td>135 # how to scale the worksheets</td>
 </tr>
-<tr>
-<td style="text-align: left;">bank_interest</td>
-<td style="text-align: left;">Moneydance category used to convey bank interest to the account balances</td>
-<td>Income:I:Invest income:Int:Bank</td>
-</tr>
-<tr>
-<td style="text-align: left;">lambdas</td>
-<td style="text-align: left;">Excel lambda functions are defined here</td>
-<td></td>
-</tr>
 </tbody>
 </table>
+<h3 id="lambdas">Lambdas</h3>
+<p>Defined as a list of dictionaries, each of which contains a name, a comment, and the formula.  For example:</p>
 <div class="highlight"><pre><span></span><code><span id="__codeline-2-1"><span class="nt">lambdas</span><span class="p">:</span>
 </span><span id="__codeline-2-2"><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AGE</span>
 </span><span id="__codeline-2-3"><span class="w">    </span><span class="nt">formula</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">=LAMBDA(inits,yr,ROUNDDOWN(((DATE(yr,12,31)-DOB(inits))/365.25),0))</span>
 </span><span id="__codeline-2-4"><span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Return the age attained by an account owner with inits in a given year</span>
 </span></code></pre></div>
+<h3 id="themes">Themes</h3>
+<p>The themes are stored in the <code>themes/</code> folder and are copied based on their name. The schema lists a few that are copied from Excel. </p>
 <h2 id="sheet-groups">Sheet groups</h2>
 <p>Sheets are grouped together in sheet groups using the <code>sheet_group</code> definitions.  Each sheet is assigned to a group and thus shares the color and table style.</p>
 <div class="highlight"><pre><span></span><code><span id="__codeline-3-1"><span class="nt">sheet_groups</span><span class="p">:</span>

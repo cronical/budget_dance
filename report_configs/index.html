@@ -1671,7 +1671,7 @@
 <h1 id="moneydance-report-definitions">Moneydance report definitions</h1>
 <p>This page describes the reports which are used to generate the actual data.</p>
 <h2 id="401-hsa-esp-payroll-data">401, HSA, ESP payroll data</h2>
-<p>A "Transfers, Detailed" report selecting checking accounts, all passthru accounts.  Due to odd circumstances such as return of excess 401K contributions, and employer HSA contributions, some income &amp; expense accounts were added.</p>
+<p>A "Transfers, Detailed" report selecting checking accounts, all passthru accounts.  Due to odd circumstances such as return of excess 401K contributions, and employer HSA contributions, some income &amp; expense accounts may be added.</p>
 <h2 id="529-distr">529-Distr</h2>
 <p>529 Distributions depend on the tag <code>529-Distr</code> being used to make distributions but not inheritance or transfers.  Thus on the iande table it defrays the college expenses.</p>
 <h2 id="account-balances">Account Balances</h2>
@@ -1704,14 +1704,29 @@
 <p>Source accounts: All bank, credit card, income, expense and all HSA accounts. Target Accounts: All asset, liability &amp; loan. The HSA accounts (a subset of investments) are needed since they sometimes transfer to the medical providers.</p>
 <h2 id="tranfers-to-investment-accounts-by-year">Tranfers to Investment Accounts by Year</h2>
 <p>This report can be run once for all actual year periods.  It provides transfers in/out of the investment accounts.</p>
-<p>Source accounts: All Bank (except any accounts that acts as a passthru account to handle separate dividend and dividend reinvested transactions), All Credit Card + certain categories
-Target accounts: All Investment</p>
-<p>A account passthru account may be used to support the strange way the broker handles re-investments.  It has to be excluded from true transfers.</p>
+<p>Source accounts: </p>
+<ul>
+<li>All Bank except<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></li>
+<li>All Credit Card</li>
+<li>Certain categories<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></li>
+</ul>
+<p>Target accounts: All Investment</p>
 <h2 id="transfers-to-fcast">Transfers-to-fcast</h2>
 <p>Source accounts: All bank, All Income, All Credit Card, All Expense
 Target accounts: All Load, All Asset, All Liability</p>
 <p>Security and Investments are handled via the performance report</p>
 <p>This requires that if the Passthru account is used, it must only be used to transfer funds to/from banks.  In other words there is an assumption that it does not mask any movement to/from income or expense items.  Those must be directly in the investment account.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Except any accounts that acts as a passthru account to handle separate dividend and dividend reinvested transactions - see <a href="../accounting/#passthru">Passthru</a>). Such accounts have to be excluded from true transfers.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>Normally funds to/from investments go through bank accounts (or passthru accounts).  But if that is not the case, direct movement to income or expense categories should be accounted for here.  For instance if an RMD is paid out of an IRA and the brokerage withhold income taxes, the income tax category could be listed here.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
