@@ -12,6 +12,7 @@
     "hide_years":{"type":"array","items":{"type": "integer"}},
     "first_forecast_year": {"type": "integer","exclusiveMinimum": 2010,"exclusiveMaximum": 2070},
     "zoom_scale": {"type": "integer","exclusiveMinimum": 39,"exclusiveMaximum": 301},
+    "theme":{"type": "string","enum":["Office Theme","Badge","Berlin","Vapor Trail"]},
     "lambdas":{
       "type":"array",
       "items": {
