@@ -5,11 +5,17 @@
   In order to populate the results of the Excel calculations.'''
 import argparse
 import json
+import sys
 import pandas as pd
 
+from dance.util.files import read_config
+from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name
 from tests.balance_check import balance_test_pairs
 from tests.helpers import get_row_set
+
+config=read_config()
+logger=get_logger(__file__)
 
 class Tester:
   '''Does the comparisons and keeps track of counts'''
@@ -47,21 +53,20 @@ class Tester:
     group_stat[1]+=zeros.sum()
     msg=msg % self.test_count 
     msg+=' --> %d out of %d pass'%(zeros.sum(),len(zeros))
-    print (msg+ignore_msg)
+    logger.info (msg+ignore_msg)
     if zeros.sum()!=len(zeros):
       df=df.loc[~ zeros]
       df.columns=['Expected','Found','Difference']
-      print(df)
-      print('')
-
+      logger.info(df)
 
 def heading(label,punc):
-  '''print a heading'''
+  '''show a heading'''
   n=(72-len(label))//2
   msg= ((punc*n)+' '+label+' ' + (punc*n))
-  print(msg)
+  logger.info(msg)
 
 def results(test_group,tester):
+  '''returns 0 if all tests pass, otherwise 100*ratio of successes to test count'''
   punc='-'
   stats=tester.get_stats()
   if test_group=='*':
@@ -74,10 +79,14 @@ def results(test_group,tester):
       success+=s
   else:
     count,success=stats[test_group]
-  msg=  test_group+ ': %d out of %d (%.2f %%)'%(success,count,100*success/count)
+  score=100*success/count
+  msg=  test_group+ ': %d out of %d (%.2f %%)'%(success,count,score)
   n=(72-len(msg))//2
   msg= (punc*n)+' '+msg +' '+(punc*n)+'\n'
-  print(msg)
+  logger.info(msg)
+  if score==100:
+    return 0
+  return score
 
 def legend(table_name,filter,agg=None):
   '''return a usable legend constructed from the table name and filter'''
@@ -149,7 +158,7 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None):
     values.append(series)
   tester.run_test(test_group,values[0],values[1])
 
-def verify(workbook='data/test_wb.xlsx',test_group='*'):
+def verify(workbook=None,test_group='*'):
   '''Various checks'''
   test_groups='cross_check,balances,cash_flow,taxes'.split(',')
   if test_group!='*':
@@ -235,7 +244,7 @@ def verify(workbook='data/test_wb.xlsx',test_group='*'):
     df=balance_test_pairs(workbook)
     cols=df.columns
     tester.run_test(test_group,df[cols[0]],df[cols[1]])
-    results(test_group=test_group,tester=tester)
+    score=results(test_group=test_group,tester=tester)
     # ========================================
   test_group='cash_flow'
   if test_group in test_groups:
@@ -260,20 +269,20 @@ def verify(workbook='data/test_wb.xlsx',test_group='*'):
     for key,values in ktv[table].items():
       if key.lower().startswith('ignore'):
         ignore=values
-        print(f'IGNORING: {ignore}')
+        logger.info(f'IGNORING: {ignore}')
         continue
       row_to_value(workbook=workbook,table=table,
       test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1,ignore=ignore)
 
   # =========================================
-  results(test_group='*',tester=tester)
-
+  score=results(test_group='*',tester=tester)
+  sys.exit(score)
 
 if __name__=='__main__':
   # execute only if run as a script
   parser = argparse.ArgumentParser(description ='This program runs functional tests \
     by test group (or all).')
-  parser.add_argument('-workbook',default='data/test_wb.xlsx',help='provide an alternative workbook')
+  parser.add_argument('-workbook',default=config['workbook'],help='provide an alternative workbook')
   parser.add_argument('-group',default='*',help='specify a single test group or * for all')
   args=parser.parse_args()
   verify(workbook=args.workbook,test_group=args.group)
