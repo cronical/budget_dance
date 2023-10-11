@@ -116,3 +116,45 @@ dance/bracket_fix.py data/2022_tax_brackets_irs.csv
 647850.0,0.37,65451.0
 Copy the above numbers into the table and add the year
 ```
+
+## Add a row to taxes
+
+In this example, installation of solar panels requires a new tax credit for a future year.  Eventually it will become actual, but starts as forecast.
+
+The accounting plan is as follows. The purchase is broken into two parts - the amount that modifies the basis of the real estate, and the amount that is the tax credit.  For the year of purchase we put the tax credit into the `Other Assets` account, then we take it back out in the year when the taxes are filed, the next year.
+
+Modify the tax template. 
+
+- Unhide the leading fields. 
+- Insert a row using Excel (line 177 here). 
+- The `key` field will be recreated from the template during the build, but if you like you can create it as the fully qualified value of the `line` field. You will need this for the forecast formula match clause. 
+- The tax doc reference is optional, but helps keep you sane. 
+- The `Source`, `Tab` and `Sign` fields are used to populate the actuals. Here we choose to use a new row with the same name in the manual_actl table.
+
+![Insert tax line](./assets/images/tx_ln_insert.png)
+
+Put the reference into the `manual_actl` table:
+
+![man actl](./assets/images/tx_ln_manual_actl.png)
+
+Now create the data in the transfers plan.    We use the notes field as a tag to support getting the values for the tax line we created above.
+
+![transfers](./assets/images/tx_ln_xfer_plan.png)
+
+Save the file and extract the tables with each of the following commands:
+```zsh
+dance/extract_table.py -t tbl_taxes
+dance/extract_table.py -t tbl_transfers_plan
+dance/extract_table.py -t tbl_manual_actl
+```
+
+Now put modify the forecast section taxes in `setup.yaml`. The formula to capture the amount in the new line in on the `taxes` table sums up values from the `transfer_plan` based on the "to" account, the "tag", and the year.
+
+``` yaml
+    - base_field: Key # Solar tax credit
+        matches:
+        - Fed total tax:Tax credits:Residential Clean Energy Credit
+        formula: =SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]="Other Asset")*(tbl_transfers_plan[Notes]="Solar tax credit")*(tbl_transfers_plan[Y_Year]="Y1234"),0))
+```
+
+Finally, run the `build` and verify its working as desired.
