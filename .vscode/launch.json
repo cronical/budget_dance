@@ -38,7 +38,7 @@
       "request": "launch",
       "program": "dance/extract_table.py",
       "console": "integratedTerminal",
-      "args": ["-w","data/test_wb.xlsm","-a"],
+      "args": ["-l"],
       "justMyCode": true
     },
     {
