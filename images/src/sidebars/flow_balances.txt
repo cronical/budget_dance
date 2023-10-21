@@ -1,0 +1,3 @@
+- For all time periods end balances computed
+- First year balance is a number
+    - pulled from earliest data during build

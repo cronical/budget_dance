@@ -1,0 +1,36 @@
+digraph {
+  graph [
+    label = "Balances data flows\n"
+    labelloc= t
+    rankdir="TB"
+    newrank=true
+    size=2.5
+  ]
+  node [fontname = "helvetica"
+    shape=rect
+    style=filled
+    fillcolor=bisque];
+
+  subgraph cluster_0 {
+    label="Year N"
+    "Start Bal n"
+    "Changes n"
+    "End Bal n"
+  }
+  subgraph cluster_1 {
+    label="Year N+1"
+    "Start Bal n+1"
+    "Changes n+1"
+    "End Bal n+1"
+  }
+    {rank=same; "Start Bal n"; "Start Bal n+1"}
+    {rank=same; "End Bal n"; "End Bal n+1"}
+    {rank=same; "Changes n"; "Changes n+1"}
+
+    "Start Bal n"  ->
+    "Changes n" ->
+    "End Bal n" ->
+    "Start Bal n+1"  ->
+    "Changes n+1" ->
+    "End Bal n+1" 
+}

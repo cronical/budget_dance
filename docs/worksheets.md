@@ -1,5 +1,7 @@
 # Worksheets
 
+## Index
+
   The worksheets are grouped together with colored tabs.  The groups are as follows:
   
 |Group|Sheet|Purpose|
@@ -28,3 +30,10 @@
 ||[gen_tables](./sheets/gen_tables.md)|state tax information, Medicare Part B premiums, inflation, and a general state mangement|
 ||[utility](./sheets/utility.md)|Used by VBA functions to locate tables.
 
+## Significant calculation flows
+
+### Retirement Distributions
+
+Investment accounts such as IRAs and 401Ks yield distributions based on the prior year's balance.  These values are then used to change the current year balance and income for the current year, which will then impact taxes.
+
+![flow](./assets/images/flow_retir_distr.png)

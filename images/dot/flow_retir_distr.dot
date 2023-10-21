@@ -1,0 +1,72 @@
+digraph {
+  graph [
+    label = "Retirement Distribution data flows\n"
+    labelloc= b
+    rankdir="TB"
+    newrank=true
+    size=3.5
+    penwidth=2
+  ]
+  node [fontname = "helvetica"
+    shape=rect
+    style=filled
+    fillcolor=bisque];
+
+  subgraph cluster_0 {
+    label="Balances Year N-1"
+    color=aqua
+    "End Bal n-1"
+  }
+  subgraph cluster_1 {
+    label="Retirement Year N"
+    color=forestgreen
+    "Distr amount"
+  }
+  subgraph cluster_3 {
+    graph [labelloc=t]
+    label="Aux Year N"
+    color=gold
+    "Withdrawals" ->
+    "Net Change"
+  }
+  subgraph cluster_2 {
+    graph [labelloc=b]
+    label="Balances Year N"
+    color=blue
+    "Add/Wdraw" ->
+    "End Bal n"
+  }
+    subgraph cluster_4 {
+    graph [labelloc=t]
+    label="IandE Year N"
+    color=goldenrod
+    "J:Distributions"
+  }
+    subgraph cluster_5{
+      graph [labelloc=b]
+      color=palevioletred
+      label="Taxes Year N"
+      "Pensions &\nAnnuities"
+    }
+    {rank=same
+      "End Bal n-1"
+      "Distr amount"
+    }
+
+    {rank=same
+      "Add/Wdraw" 
+      "Withdrawals"
+      "J:Distributions"
+    }
+
+    "End Bal n-1" ->
+    "Distr amount" -> {
+    "Add/Wdraw"
+    "Withdrawals"
+    "J:Distributions"
+    }
+    "Net Change" ->
+    "Add/Wdraw" -> 
+    "J:Distributions" ->
+    "Pensions &\nAnnuities"
+}

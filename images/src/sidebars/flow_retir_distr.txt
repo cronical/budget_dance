@@ -1,0 +1,7 @@
+- Election codes depend on prior end balance:
+  - ANN, RMD, ROLLOVER 
+- Use Aux to combine
+  -  withdrawals and contributions (401Ks)
+  -  in bound rollovers and withdrawals (IRAs)
+- Net change amount changes balance
+- Taxable distributions pass through IandE

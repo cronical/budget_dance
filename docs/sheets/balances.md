@@ -1,4 +1,12 @@
-# balances
+# Balances
+
+## Flow through time
+
+The data values progress left to right as expected.
+
+![balance flow](../assets/images/flow_balances.png)
+
+## Changes within a year
 
 This table uses the "folding" techique in order to calculate the ending balance. To support this the three leading fields are:
 
