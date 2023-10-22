@@ -113,5 +113,14 @@
       "args": ["-l"],
       "justMyCode": true
     },         
-  ]
+    {
+      "name": "bracket_fix args",
+      "type": "python",
+      "request": "launch",
+      "program": "dance/util/bracket_fix.py",
+      "console": "integratedTerminal",
+      "args": ["data/tax_rates/2023_tax_brackets_irs.csv"],
+      "justMyCode": true
+    }
+    ]
 }

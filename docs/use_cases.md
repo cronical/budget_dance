@@ -101,20 +101,22 @@ U.S. Treasury offers a product called i-bond, which allows for the deferral of t
 
 ## New year - new tax rates
 
-Pull the IRS data as a .csv file. Use `bracket_fix.py` to transform into the correct format.
+Pull the IRS data as a .csv file. Use `bracket_fix.py` to transform into the correct format. If the file name does not start with the year as below, use the -y option. After modifying the table, remember to [extract](./operations.md#extract-table) it.
 
 For example:
 
 ```zsh
-dance/bracket_fix.py data/2022_tax_brackets_irs.csv 
-0,0.10,0
-20549.0,0.12,410.8800000000001
-83550.0,0.22,8766.0
-178150.0,0.24,12329.0
-340100.0,0.32,39537.0
-431900.0,0.35,52494.0
-647850.0,0.37,65451.0
-Copy the above numbers into the table and add the year
+    dance/util/bracket_fix.py data/tax_rates/2023_tax_brackets_irs.csv 
+    Year    Range  Rate  Subtract
+    2023      0.0  0.10       0.0
+    2023  22000.0  0.12     440.0
+    2023  89450.0  0.22    9385.0
+    2023 190750.0  0.24   13200.0
+    2023 364200.0  0.32   42336.0
+    2023 462500.0  0.35   56211.0
+    2023 693750.0  0.37   70086.0
+    The above numbers copied into paste buffer.
+    Paste into the table
 ```
 
 ## Add a row to taxes
