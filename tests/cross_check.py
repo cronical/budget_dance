@@ -84,6 +84,7 @@ def results(test_group,tester):
   n=(72-len(msg))//2
   msg= (punc*n)+' '+msg +' '+(punc*n)+'\n'
   logger.info(msg)
+  score=int(score)
   if score==100:
     return 0
   return score

@@ -60,13 +60,19 @@ def save_sparse(config,workbook,path):
     json.dump(out,f,ensure_ascii=False,indent=2)
   logger.info('Wrote %d items to %s'%(len(out),args.path))
 
-def load_sparse(workbook,path):
+def load_sparse(config,workbook,path):
   '''copy items from saved json file back into various tables
-  Only writes values that differ from what is aready in the sheet'''
+  Only writes values that differ from what is aready in the sheet and are in forecast periods'''
   comment=Comment('Preserved from previous run of preservation utility','BudgetDance')
   wb=load_workbook(filename = workbook)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
+  years=df_points.col.str.extract("Y(\d{4})").squeeze()
+  sel=years.isnull() # mark items that are not years
+  keep=years.loc[~sel].apply(int)>=config['first_forecast_year']
+  sel.loc[~sel]=keep
+  logger.info(f"Removing {(~sel).sum()} rows that are prior to the first forecast year")
+  df_points=df_points.loc[sel]
   counters={}
   for table in pd.unique(df_points.table):
     counters[table]=0
@@ -104,4 +110,4 @@ if __name__ == '__main__':
     save_sparse(config,args.workbook,args.path)
 
   if args.load :
-    load_sparse(args.workbook,args.path)
+    load_sparse(config,args.workbook,args.path)

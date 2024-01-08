@@ -59,7 +59,7 @@ dance/util/logs.py "Saved"
 #xmllint --format tmp/xl/theme/theme1.xml | grep "<a:clrScheme"
 
 # run checks to see if calcs completed.  
-tests/cross_check.py -g balances
+tests/cross_check.py -g balances 
 
 ret=$?
 if [ $ret -ne 0 ]; then

@@ -1,15 +1,12 @@
 # Accounting Notes
 
-## Movement of money
+## Accounts
 
-The general theory is that 
+### Opening and Closing of Accounts
 
-1. Income arrives in bank accounts
-1. Expenses are paid through bank or credit card accounts
-1. Credit cards are paid via bank accounts
-2. Transfers in and out of investment accounts should go through a bank account.
+The reference table in the spreadsheet is derived from the most recent data in the `acct-bals/` folder.  So adding accounts will work naturally. When accounts are closed their balance in Moneydance goes to zero.  By default, to avoid clutter, zero balance accounts are not included in the spreadsheet. In order to avoid the problem the account should be listed in the `include-zeros` section of the `setup.yaml` file.  
 
-## Banks
+### Banks
 
 In Moneydance, there can be many bank accounts.  All of these are summarized into a single Bank Accounts planning account.  
 
@@ -20,11 +17,24 @@ In the chart of accounts Passthru is set up as a bank account, although it is en
 1. A good example is an payroll deductions, which end up in another account, like a 401K.  Since both payroll and 401K systems allow transactions to be downloaded, it is convenient to run the offsetting transactions through a passthru subaccount, especially since the records show up at different times.  By doing this, each source can be reconciled independently.
 2. Another use case is to handle separate dividend and dividend reinvested transactions for some brokers: A account passthru account may be used to support the way the broker handles re-investments.  The passthru account mimics the brokerage "reinvestment program", in that the dividends are sent out of the account to "reinvestment program" (aka our passthru subaccount) and then brought back in with a BuyXfr transaction on a date which may be the same as the dividend or different.  
 
+1. For true transfers such as supporting a purchase or a sale, BuyXfr and SellXfr don't achieve the desired result. This is because the Transfers report does not include them. You must break out such events into two transactions -- one for the buy or sell and one for the transfer.
+
 Of course, these transactions have to be doubled - i.e. one into the passthru account and one out.  In cases where this is not done, then provisions have to be made in the report definitions (e.g. the reports that transfer money in and out of investment accounts)
 
 ## Credit Cards
 
 Similar to banks, credit cards are clubbed together for budgeting purposes. 
+
+## Movement of money
+
+The general theory is that 
+
+1. Income arrives in bank accounts
+1. Expenses are paid through bank or credit card accounts
+1. Credit cards are paid via bank accounts
+2. Transfers in and out of investment accounts should go through a bank account via an `xfr` transaction. 
+
+
 
 ## Balances
 

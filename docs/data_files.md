@@ -42,7 +42,7 @@ The Periods column has the following meaning:
 |:--|:--|:--|:--|:--|
 |401, HSA, ESP payroll data|Transfers-X|payroll_to_savings.tsv|tbl_payroll_savings|md_pr_sav|
 |529-Distr|All Years|529-distr.tsv|tbl_529_distr|md_529_distr|
-|Account Balances|Each Year|acct-bals-*yyyy*.tsv|tbl_accounts[^1], tbl_balances, bank_actl_load.py|md_acct, md_bal2|
+|Account Balances|Each Year|acct-bals/yyyy*.tsv|tbl_accounts[^1], tbl_balances, bank_actl_load.py|md_acct, md_bal2|
 |HSA - disbursements - 2|Transfers-X|hsa-disbursements.tsv|tbl_hsa_disb|md_hsa_disb|
 |IRA-Distr|All Years|ira-distr.tsv|tbl_ira_distr|md_ira_distr|
 |Income & Expense by Year|Annual|iande.tsv|tbl_iande,tbl_iande_actl|md_iande_actl|

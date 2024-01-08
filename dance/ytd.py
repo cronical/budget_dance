@@ -2,6 +2,8 @@
 '''Save or load YTD values'''
 import argparse
 import json
+import sys
+
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 import pandas as pd
@@ -24,6 +26,7 @@ if __name__ == '__main__':
   parser.add_argument('-p','--path',default=defaults['storage'] ,help='The path and name of the storage file. Default='+defaults['storage'])
   args=parser.parse_args()
   ffy=config['first_forecast_year']
+  tgt_year='Y%04d'%ffy
   if args.save:
     df= df_for_table_name('tbl_current',args.workbook,data_only=True)# key is in index
     ytd_fld_ix=list(df.columns.str.startswith('Y')).index(True)
@@ -38,11 +41,13 @@ if __name__ == '__main__':
     wb=load_workbook(filename = args.workbook)
     with open (args.path,encoding='utf-8')as f:
       df=pd.read_json(f,orient='index')
+      if not df.columns[0].startswith(tgt_year):
+        logger.warning(f"Skipping YTD load since year is {tgt_year} and year to date data is as of {df.columns[0]}")
+        sys.exit(-1)
 
     row_offset=3 # 1 to change origin, 1 for title, 1 for heading
     col_offset=2 # 1 to change origin, 1 since key is in the index not a field
 
-  tgt_year='Y%04d'%ffy
   counters={}
   for control in (
     {'select':args.load,'tab':'current','sources':['Factor','Add'],'targets':['Factor','Add']},

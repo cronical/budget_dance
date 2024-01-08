@@ -4,6 +4,7 @@ Update the table 'tbl_invest_actl'
 '''
 import argparse
 import os
+import sys
 
 import pandas as pd
 from dateutil.parser import parse
@@ -204,8 +205,14 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
         - remember to re-run/save performance report
       - Transfers that do not pass through a bank (or items in the transfers report used to generate the invest_x.tsv file)
       - The Transfers, Detailed report for just the account and year can be helpful.
+      - Transfers to/from investment accounts should use xfr not buyxfr or sellxfr.
       ...''')
-      assert False
+      yn='Q'
+      while not yn in 'YN':
+        yn = input("Continue? (N/y):").strip().upper()+'N'
+        if yn=='N':
+          sys.exit(-1)
+      logger.info(f'Continuing, with known Investment balance error for {file_name}')
     else:
       logger.info('Investment balance checks OK for {}'.format(file_name))
     

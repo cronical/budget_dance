@@ -39,6 +39,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     case 'md_acct':
       df= read_accounts(data_info)
       df= prepare_account_tab(data_info,df)
+      pass
     case 'md_bal2':
       df=read_balances(data_info,target_file)
       df,groups=prepare_balances_folding(years,df,workbook=target_file)
