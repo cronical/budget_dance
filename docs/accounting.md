@@ -58,6 +58,8 @@ The solution allows a uniform way of handling the data (at the cost of a bit of 
 
 The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
 
+![How it should look](assets/images/ira-txbl-distr.png)
+
 ## Investments
 
 The performance report provides opening and closing balances, income, gains and something called "Return Amount". It does not indicate unrealized gains per se.  The "Return Amount" is essentially a plug to get to the ending balance.  Note - income needs to be marked MiscInc (not transfer to the income category)

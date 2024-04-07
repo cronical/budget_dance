@@ -1,0 +1,3 @@
+- taxes go directly to tax category
+- net amount goes to passthru to
+- offset the downloaded bank amount
