@@ -15,3 +15,4 @@ images/src/stage/**
 vba/[Content_Types].xml
 vba/vbaProject.bin
 vba/workbook.xml.rels
+*_template.bak
