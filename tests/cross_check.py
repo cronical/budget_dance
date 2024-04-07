@@ -57,7 +57,7 @@ class Tester:
     if zeros.sum()!=len(zeros):
       df=df.loc[~ zeros]
       df.columns=['Expected','Found','Difference']
-      logger.info(df)
+      print(df)
 
 def heading(label,punc):
   '''show a heading'''
