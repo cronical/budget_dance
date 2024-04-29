@@ -4,7 +4,12 @@
 
 Once the accounts are the way you want in Moneydance, recreate the workbook.
 
-If this is done during the year (typical) then export the account balances report as of the latest date and store it under the name of the first forecast year. Modify the data/path key in `setup.yaml` for the accounts table to point to this file.
+If this is done during the year (typical) then 
+
+1. export the account balances report as of the latest date and store it under the name of the first forecast year. 
+1. Modify the data/path key in `setup.yaml` for the accounts table to point to this file.
+1. If needed add it to the list of accounts under `include_zeros`.
+1. Rebuild the file with `dance/util/build`
 
 ## Rename an account
 
@@ -72,6 +77,25 @@ Notes
     ```
 
 1. Rerun the build
+
+## Add an Inherited IRA
+
+1. Moneydance
+    1. The account should be created in Moneydance and exported according to [adding account](#add-or-rename-an-account)
+1. In accounts
+    1. Put the account name in the `force_active` key. (Since it will have a zero balance, it would default to inactive if this is not set)
+    1. Under `dyno_fields` add to list to show distribution plan exists
+1. For retirement
+    1. Add the IRA name and distribution plan to `retir_template.tsv`.
+    1. The retire tab is not preserved, (should it be?) so in setup.yaml set first_item parm to set the 1st year withdrawal.
+1. In aux
+    1. Inherit and Withdrawal rows should be added to the `hier_insert_paths` key
+    1. Add the account to the `matches` key of the `fcst_formulas` section for the IRA withdrawal sections
+    1. After running `build`, input the value of the IRA in the aux table under account:inherit.  Preserve this with `preserve_changed.py -s`.
+1. For iande:
+    1. Add entries in hier_insert_paths for the J: and Y: items 
+    1. Add account name to the fcst_formula retir_vals for the new account.
+
 
 ## I-bonds
 

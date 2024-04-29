@@ -86,9 +86,9 @@ dance/preserve_changed.py -s
 
 ### YTD - Current year reforecast
 
-During the year it is handy from time to time to replace the modeled values with reprojected values. The current tab and the `ytd.py` program allow for this.
+During the year it is handy from time to time to replace the modeled values with reprojected values. The `current` tab and the `ytd.py` program allow for this.
 
-The command line program `ytd.py` allows the contents of the ytd table to be saved into a file.  The data can be reloaded into the table after a refresh and the reprojected values can be copied into the correct cells in the iande table.
+The command line program `ytd.py` allows the contents of the `current` (year-to-date) table to be saved into a file.  The data can be reloaded into the table after a refresh and the reprojected values can be copied into the correct cells in the `iande` table.
 
 ``` bash
 usage: ytd.py [-h] [-s] [-l] [-f] [-w WORKBOOK] [-p PATH]
@@ -103,6 +103,14 @@ options:
   -w WORKBOOK, --workbook WORKBOOK
                         Target workbook. Default=data/test_wb.xlsx
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/ytd_data.json
+```
+
+So, for instance, modify the table to reproject some lines, save the file and run the save and forward functions.  The save, so it will be restored upon a re-build, and the forward to copy the values into the current year of the `iande` table.
+
+``` zsh
+dance/ytd.py -s -f
+2024-04-07 12:56:37,503 - ytd - INFO - Wrote 7 items to ./data/ytd_data.json
+2024-04-07 12:56:37,884 - ytd - INFO - Wrote 2 values into table tbl_iande
 ```
 
 ## Import functions
