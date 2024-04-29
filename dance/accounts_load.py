@@ -58,7 +58,8 @@ def read_accounts(data_info):
   df.dropna(how='any',subset='Account',inplace=True) # remove blank rows
   df.reset_index(drop=True,inplace=True)
   logger.debug('{} non-blank rows'.format(len(df)))
-  df['Account']=df['Account'].str.strip()
+
+
 
   # establish category for each row
   df['category']=''
@@ -68,6 +69,23 @@ def read_accounts(data_info):
       cat=row['Account']
       df.loc[ix,'Notes']='' # to allow selecting securities later
     df.loc[ix,'category']=cat
+
+  # if an account has been created but has no securities the moneydance provides the header row but not the total row
+  # find those make them into total rows.
+  def ls(s):
+    return(len(s)-len(s.lstrip(' ')))
+  level=df.Account.apply(lambda x:ls(x))
+  candidates=df.loc[(level==0) & (df.category=='Investment Accounts')].Account.str.replace(" - Total","").value_counts()
+  singletons=candidates.loc[candidates==1].index.tolist()
+  sel=df.Account.isin(singletons)
+  for ix, row in df.loc[sel].iterrows():
+    row['Account']+=" - Total"
+    df.loc[ix+.5]=row
+  df.sort_index(inplace=True)
+  df.reset_index(inplace=True)
+  pass
+
+  df['Account']=df['Account'].str.strip()
 
   # build a boolean grid to track where each account is handled
   attr=['is_total','keep']
@@ -93,8 +111,11 @@ def read_accounts(data_info):
   logger.debug('{} totals identified'.format(tot_rows.sum()))
 
   # flag the investment total rows except total for all investments.
-  i_tots=tot_rows & (df['category']=='Investment Accounts') & (df['Account'] !='Investment Accounts - Total')
+  sel = (df['category']=='Investment Accounts') & (df['Account'] !='Investment Accounts - Total')
+  i_tots=tot_rows & sel
   i_totals=df.loc[i_tots,'Account'].tolist()
+
+
   logger.debug('{} investment accounts identified'.format(len(i_totals)))
 
   # establish the account level by use of the headings and totals
@@ -139,7 +160,7 @@ def read_accounts(data_info):
       sal=list(reversed(sal))+sal # reflect across the midpoint so as to also mark the header
       sel.loc[sa[sal].index]=False # turn them off
       dups+=[acct_key]
-    assert sum(sel)==2, 'too many name conflicts on {}'.format(acct_key)
+    assert sum(sel) == 2, 'too many name conflicts on {}'.format(acct_key)
 
     # now that there is no name conflict mark dispostion of the rows
     start,end=tuple(df.loc[sel,[]].index)
