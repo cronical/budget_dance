@@ -210,7 +210,7 @@ The second construction allows for queries against several fields.  These are "a
 |query|The query is a list of objects with the following fields.|
 |- field|A field name in this table|
 |- compare_to|A value to compare to, either a string or a number|
-|- compare_with|A comparison like "=", starts, not_starting, is_in. YAML requires the equals to be quoted. If is_in is used, there should be a list|
+|- compare_with|A comparison like "=", starts, not_starting, not_ending is_in. YAML requires the equals to be quoted. The codes not_ending and is_in require a list a list|
 |- look_up|Allows for the values to be looked up from another table. It requires three addtional subfields: table, index_on and value_field.
 
 
@@ -269,6 +269,23 @@ Using the `is_in` comparator:
                 index_on: AcctName
                 value_field: Type
 ```
+
+The `not_ending` method actually splits the text based on ' - ' and takes the last item for comparison.  This is used to detect the folded subtotal rows.  This is used to set all rows to "=0" (except the summaries) to prevent preserve_changes from copying every zero
+
+            ```
+            - query: 
+                - field: Key
+                  compare_to:
+                  - CT_TAX
+                  - FED_TAX
+                  - MAX
+                  - MIN
+                  - PRODUCT
+                  - TOTAL
+                  compare_with: "not_ending"
+              formula: =0
+
+            ```
 
 #### Array formulas
 
