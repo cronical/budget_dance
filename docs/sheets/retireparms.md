@@ -32,7 +32,7 @@ Medical plan options and selection. This is the menu of medical plan choices.
 
 ### Data source
 
-Setup sources this from: data/mcare_opt.json 
+This is sourced from: `data/mcare_opt.json` 
 To rewrite that file based on changes in the workbook
 
 ```zsh

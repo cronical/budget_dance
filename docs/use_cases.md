@@ -7,7 +7,7 @@ Once the accounts are the way you want in Moneydance, recreate the workbook.
 If this is done during the year (typical) then 
 
 1. export the account balances report as of the latest date and store it under the name of the first forecast year. 
-1. Modify the data/path key in `setup.yaml` for the accounts table to point to this file.
+1. Modify the data/path key in `config.yaml` for the accounts table to point to this file.
 1. If needed add it to the list of accounts under `include_zeros`.
 1. Rebuild the file with `dance/util/build`
 
@@ -87,7 +87,7 @@ Notes
     1. Under `dyno_fields` add to list to show distribution plan exists
 1. For retirement
     1. Add the IRA name and distribution plan to `retir_template.tsv`.
-    1. The retire tab is not preserved, (should it be?) so in setup.yaml set first_item parm to set the 1st year withdrawal.
+    1. The retire tab is not preserved, (should it be?) so in config.yaml set first_item parm to set the 1st year withdrawal.
 1. In aux
     1. Inherit and Withdrawal rows should be added to the `hier_insert_paths` key
     1. Add the account to the `matches` key of the `fcst_formulas` section for the IRA withdrawal sections
@@ -174,7 +174,7 @@ dance/extract_table.py -t tbl_transfers_plan
 dance/extract_table.py -t tbl_manual_actl
 ```
 
-Now put modify the forecast section taxes in `setup.yaml`. The formula to capture the amount in the new line in on the `taxes` table sums up values from the `transfer_plan` based on the "to" account, the "tag", and the year.
+Now put modify the forecast section taxes in `config.yaml`. The formula to capture the amount in the new line in on the `taxes` table sums up values from the `transfer_plan` based on the "to" account, the "tag", and the year.
 
 ``` yaml
     - base_field: Key # Solar tax credit

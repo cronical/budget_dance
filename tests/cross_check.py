@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Tools for verifying the result of setup and hunting down problems
+'''Tools for verifying the result of spreadsheet creation and hunting down problems
 
   This requires that the workbook has been opened by Excel and saved.
   In order to populate the results of the Excel calculations.'''

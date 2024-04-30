@@ -7,7 +7,7 @@
 
     {
       "name": "Python: Current File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
@@ -15,17 +15,17 @@
     },
 
     {
-      "name": "create_wb args",
-      "type": "python",
+      "name": "create args",
+      "type": "debugpy",
       "request": "launch",
-      "program": "dance/setup/create_wb.py",
+      "program": "dance/book/create.py",
       "console": "integratedTerminal",
       "args": ["data/test_wb.xlsx","-o"],
       "justMyCode": true
     },
     {
       "name": "iande_actl_load args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/iande_actl_load.py",
       "console": "integratedTerminal",
@@ -34,7 +34,7 @@
     },
     {
       "name": "extract_table args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/extract_table.py",
       "console": "integratedTerminal",
@@ -43,7 +43,7 @@
     },
     {
       "name": "invest_actl_load args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/invest_actl_load.py",
       "console": "integratedTerminal",
@@ -52,7 +52,7 @@
     },
     {
       "name": "match_retro args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/util/match_retro.py",
       "console": "integratedTerminal",
@@ -61,7 +61,7 @@
     },  
     {
       "name": "balance_check args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/balance_check.py",
       "console": "integratedTerminal",
@@ -70,7 +70,7 @@
     },
     {
       "name": "retire_load args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/retire_load.py",
       "console": "integratedTerminal",
@@ -79,7 +79,7 @@
     },
     {
       "name": "ytd args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
@@ -88,7 +88,7 @@
     },    
     {
       "name": "tests",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "tests/cross_check.py",
       "console": "integratedTerminal",
@@ -97,7 +97,7 @@
     },    
     {
       "name": "transfers_actl_load",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/transfers_actl_load.py",
       "console": "integratedTerminal",
@@ -106,7 +106,7 @@
     },
     {
       "name": "preserve_changed args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/preserve_changed.py",
       "console": "integratedTerminal",
@@ -115,7 +115,7 @@
     },         
     {
       "name": "bracket_fix args",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "dance/util/bracket_fix.py",
       "console": "integratedTerminal",

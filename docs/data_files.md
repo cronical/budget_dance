@@ -14,7 +14,7 @@ Files are of the following types:
 
 - Tab separated values with extension .tsv
 - JSON with extension .json.  These are typically exports from tables defined in Excel. There are two types depending on the 'orientation'.  
-- YAML - used for the setup config definitions
+- YAML - used for the configuration definitions
 
 ### File names
 

@@ -91,7 +91,7 @@ def read_config():
   raises FileNotFoundError
   '''
   logger=get_logger(__file__)
-  fn='data/setup.yaml'
+  fn='data/config.yaml'
   try:
     with open(fn) as y:
       config=yaml.load(y,yaml.Loader)

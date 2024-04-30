@@ -20,6 +20,6 @@ Social security withholding is a good example. Setting up the nesting as follows
 
 The year column references, such as Y2023, are provided for each column at build time as are the aggregation formulas.
 
-### Setup
+### Definitions
 
-The rows are defined in `setup.yaml` using the `data:hier_insert_paths:` and `data:hier_alt_agg:` keys.
+The rows are defined in `config.yaml` using the `data:hier_insert_paths:` and `data:hier_alt_agg:` keys.

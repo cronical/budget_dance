@@ -12,7 +12,7 @@ Alternatively, native way to locate this column name is (this only works when th
 =INDEX(tbl_balances[#Headers],COLUMN())
 ```
 
-Note, that the table name can be elided to reference the table the cell is in.  Excel displays the just table name in the formula even if it is not provided. But its best to provide the full expression the `setup.yaml`.
+Note, that the table name can be elided to reference the table the cell is in.  Excel displays the just table name in the formula even if it is not provided. But its best to provide the full expression the `config.yaml`.
 
 ```
 INDEX([#Headers],COLUMN())
@@ -238,6 +238,6 @@ Conditional formatting formulas cannot use structured references, including bare
 ## Looking for non-native formulas
 
 ```bash
- grep formula: data/setup.yaml | grep -v 'XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT'
+ grep formula: data/config.yaml | grep -v 'XLOOKUP\|LET\|FILTER\|FORECAST\|OFFSET\|BYROW\|INDIRECT'
 ```
 

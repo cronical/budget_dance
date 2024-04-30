@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../setup/test_schema.json
+# yaml-language-server: $schema=../book/test_schema.json
 fcst_formulas:
   -  xl_formula: sdfs
      matches: dog

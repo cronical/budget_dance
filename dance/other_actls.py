@@ -37,7 +37,7 @@ def payroll_savings(data_info):
   df['Amount']=df.Amount.astype(float)
   col = 'Date'
   df[col] = pd.to_datetime(df[col])
-  df=setup_year(df)  # create the year field to allow for pivot
+  df=add_yyear_col(df)  # create the year field to allow for pivot
   sel= (df.Amount > 0) != (df.Description.str.upper().str.contains('EXCESS')) # remove payments but not return of excess
   df=df.loc[~ sel].copy() # remove the transfers in (except for any return of excess)
   df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() # remove transfer from devenir to fidelity
@@ -58,7 +58,7 @@ def roth_contributions(data_info):
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
   df.drop(columns=['Check#','Tags','C'],inplace=True)
   df.dropna(how='any',inplace=True) # blank rows & total
-  df=setup_year(df)  # create the year field to allow for pivot
+  df=add_yyear_col(df)  # create the year field to allow for pivot
   summary= df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum')
   summary.fillna(value=0,inplace=True)
   summary=-summary.loc[summary.index.str.startswith('401K')]
@@ -112,7 +112,7 @@ def sel_inv_transfers(data_info,workbook=None,table_map=None):
   sel= df['Category'].str[:2].isin(['I:'])
   sel = sel  & ~ (df.Account.isin(no_reinv)) 
   df=df.loc[~sel]
-  df=setup_year(df)
+  df=add_yyear_col(df)
 
   suma= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum').reset_index()
   return suma
@@ -134,7 +134,7 @@ def five_29_distr(data_info):
   sel=df.Account.str.startswith('CHET') | df.Account.str.startswith('529')
   df=df.loc[sel].copy()
   df.Amount=-df.Amount
-  df=setup_year(df)
+  df=add_yyear_col(df)
   summary=df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
   summary.fillna(value=0,inplace=True)
   summary=summary.reset_index()    
@@ -157,14 +157,14 @@ def IRA_distr(data_info):
     Only has columns where data exists
 
   Raises: ValueError if final-rmd and a normal distribution occur in same year.
-          It logically could but the current setup does not support it.
+          It logically could but is not currently supported.
   '''
   distr_base_cat='Income:J:Distributions:IRA:'
   
   filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Category,Description,Tags,C'.split(','))
   df.dropna(how='any',inplace=True) # total and blank rows
-  df=setup_year(df)
+  df=add_yyear_col(df)
 
   # amounts taken from each IRA - this is gross, i.e. prior to taking out taxes
   by_ira=df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
@@ -206,7 +206,7 @@ def hsa_disbursements(data_info):
   acct.fillna(method= 'ffill',inplace=True)#propogate accounts
   df['Target Account']=acct
   df=df.loc[df.Date.notna()] # remove headings and totals
-  df=setup_year(df)  # create the year field to allow for pivot
+  df=add_yyear_col(df)  # create the year field to allow for pivot
 
   sel = ~ df.Description.str.upper().str.contains('EXCESS') # remove return of excess records
   df=df.loc[sel]
@@ -230,13 +230,13 @@ def med_liab_pmts(data_info):
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
   df.drop(columns=['Check#','Tags','C'],inplace=True)
   df.dropna(how='any',inplace=True) # blank rows & total
-  df=setup_year(df)  # create the year field to allow for pivot
+  df=add_yyear_col(df)  # create the year field to allow for pivot
   summary= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
   summary.fillna(value=0,inplace=True)
   summary=summary.reset_index()
   pass
 
-def setup_year(df):
+def add_yyear_col(df):
   '''Convert the date field and create a year field, returning revised dataframe'''
   df=df.copy()
   df.loc[:,'Year']=df['Date'].dt.year.astype(int)

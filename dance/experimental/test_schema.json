@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://argus.com/budget/dance/setup/test_schema.json",
+  "$id": "https://argus.com/budget/dance/book/test_schema.json",
   "title": "Place to explore",
   "type": "object",
   "properties": {

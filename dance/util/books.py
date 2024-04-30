@@ -1,4 +1,4 @@
-'''Work book oriented utilities'''
+'''Workbook oriented utilities'''
 from openpyxl.utils.cell import get_column_letter
 
 from dance.util.logs import get_logger
@@ -8,7 +8,7 @@ from dance.util.ui import tab_color
 def fresh_sheet(wb,sheet_name,color='58BD2D'):
   '''Create or refresh a worksheet in a workbook.
 
-  Removes the named sheet (if it exists) from the work book and created a fresh one at the same location (or at the end)
+  Removes the named sheet (if it exists) from the workbook and created a fresh one at the same location (or at the end)
   If not already existing will create the new sheet at the end. Copies tab config_color if the sheet already exists.
 
   args:

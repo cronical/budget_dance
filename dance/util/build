@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-target=`yq -r .workbook data/setup.yaml` # requires yq and jq to read config file in shell
+target=`yq -r .workbook data/config.yaml` # requires yq and jq to read config file in shell
 
 FILE=$(echo $target | sed s/$target:t/~\$$target:t/) # Excel's temp file name
 if [[ -f "$FILE" ]]; then
@@ -12,10 +12,10 @@ fi
 dance/util/doc_lambda.py
 
 # run the main build
-dance/setup/create_wb.py $target -o # -p
+dance/book/create.py $target -o # -p
 RC=$?
 if [ $RC -ne 0 ]; then
-  echo "create_wb failed"
+  echo "create failed"
   exit $RC
 fi
 
@@ -27,18 +27,18 @@ dance/ytd.py -l -f
 
 # Setting the workbook theme as one of the items in the themes folder
 dance/util/reveal.py
-theme=`yq -r .theme data/setup.yaml`
+theme=`yq -r .theme data/config.yaml`
 cp "themes/$theme.xml" tmp/xl/theme/theme1.xml
 dance/util/reseal.py
 
 # Calc property going forward
-dance/setup/calc_props.py fullPrecision 0 -w $target # 0 means Set precision as displayed
+dance/book/calc_props.py fullPrecision 0 -w $target # 0 means Set precision as displayed
 
 # open, calculate and save
-# this allows Excel to compute the formulas and setup some hidden defined names
+# this allows Excel to compute the formulas and establish some hidden defined names
 
 # is the following needed?
-dance/setup/calc_props.py fullCalcOnLoad 1
+dance/book/calc_props.py fullCalcOnLoad 1
 
 dance/util/logs.py "Opening the file." 
 open $target

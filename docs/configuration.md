@@ -1,16 +1,16 @@
-# The setup control file
+# The configuration file
 
-The control file is `./data/setup.yaml`.  To reference the schema insert the following line at the top:
+The control file is `./data/config.yaml`.  To reference the schema insert the following line at the top:
 
   ```
-  # yaml-language-server: $schema=../dance/setup/setup_schema.json
+  # yaml-language-server: $schema=../dance/book/config_schema.json
   ```
 
   Or, in Visual Code, set a reference in `settings.json`:
 
   ```
       "yaml.schemas": {
-        "./dance/setup/setup_schema.json":"setup.yaml"
+        "./dance/book/config_schema.json":"config.yaml"
         },
   ```
 
@@ -144,7 +144,7 @@ The data definitions are purpose built to support the target table, but there ar
 
 #### Supported Types
 
-The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build. For the templates, additional definition is provided in the `setup.yaml` config file.
+The types `json_index, json_records, *_template` are supported by the extract utility, so the values can be edited in Excel and saved off to be used in the next build. For the templates, additional definition is provided in the `config.yaml` config file.
 
 The types `md_*` act on exported Moneydance files.
 
@@ -378,7 +378,7 @@ At the time of writing the best source seems to be the Federal Register.  This d
 
 ### Accounts
 
-The data section in the `setup.yaml` needs the following sub-sections:
+The data section in the `config.yaml` needs the following sub-sections:
 
 |Item|Description|
 |:--|:--|

@@ -10,7 +10,7 @@ import pandas as pd
 from dateutil.parser import parse
 from openpyxl import load_workbook
 
-from dance.other_actls import setup_year
+from dance.other_actls import add_yyear_col
 from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
 from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
@@ -43,7 +43,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   args:
     workbook: name of the workbook (to get the accounts and fees data from)
     data_info: dict that has a value for path used to locate the input file
-    table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
+    table_map: the dict that maps tables to worksheets. Required during initialization as it is not yet stored in file
 
   returns: dataframe with 6 rows per investment (add/wdraw, rlz int/gn, unrlz gn/ls, Income, Gains, Fees)
     The add/wdraw value is principal transfered, so interest payments have been removed if they are not reinvested.
@@ -272,7 +272,7 @@ def get_cap_gains(data_info):
           # the main action row will have a nan in the Realized column. 
           # and thus won't be included in the summary, since its accounted for on the block record with the duration
   del df['Unnamed: 8']
-  df=setup_year(df)
+  df=add_yyear_col(df)
   #df1=df.loc[~pd.isnull(df.Duration)]
   df.loc[df.Action=='SellXfr','Action']='Sell'
   df.loc[df.Action=='Sell','Action']='Realized'

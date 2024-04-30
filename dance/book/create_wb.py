@@ -8,8 +8,8 @@ from sys import exit
 from openpyxl import Workbook # load_workbook
 
 from dance.util.logs import get_logger
-from dance.setup.lambdas import write_lambdas
-from dance.setup.setup_tabs import refresh_sheets
+from dance.book.lambdas import write_lambdas
+from dance.book.add_sheets import refresh_sheets
 
 def create(filename,overwrite=False):
   '''Create the excel file, then add in the worksheets.

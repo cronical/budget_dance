@@ -31,7 +31,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
     workbook: name of the workbook (where to get the accounts data and the unrealized values used to calc market gn rates)
     data_info: dict that has a value for path used to locate the input file, which contains transaction data for a series of years
     f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
-    table_map: the dict that maps tables to worksheets. Required for the initial setup as it is not yet stored in file
+    table_map: the dict that maps tables to worksheets. Required during initialization as it is not yet stored in file
 
   returns:  A summarized dataframe which has years for columns, where summed values are.
     It also has columns for the Investment account name and the I and E category.
@@ -91,7 +91,7 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
 def prepare_invest_iande_ratios(df):
   '''Zero out the values in the values dataframe to create the ratios frame'''
   ys=[c for c in df.columns if c.startswith('Y') ]
-  df[ys]=0 # ratios to be completed by setup.yaml  
+  df[ys]=0 # ratios to be completed by config.yaml  
   return df
 
 

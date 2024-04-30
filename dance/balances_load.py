@@ -23,7 +23,7 @@ def read_balances(data_info,target_file):
   return bal_df
 
 def prepare_balances_folding(years,in_df,workbook):
-  '''Setup a folding version of the balances table to avoid dependencies in the same column.
+  '''Prepare a folding version of the balances table to avoid dependencies in the same column.
   args:
     years: iterable with the numeric years to be appended to the columns
     in_df: a dataframe with at least the Account and Current Balance columns
@@ -35,7 +35,7 @@ def prepare_balances_folding(years,in_df,workbook):
  
   lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active','No Distr Plan']
 
-  # the actual and the forecast formulas specified in setup.yaml - except for the opening balance
+  # the actual and the forecast formulas specified in config.yaml - except for the opening balance
 
 # wrap with account name and account name -  TOTAL
   suffixes=',:Start Bal,:Add/Wdraw,:Retain,:Retain:Rlz Int/Gn,:Retain:Reinv Rate,:Retain - PRODUCT,'

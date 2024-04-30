@@ -13,7 +13,7 @@ from dance.util.tables import columns_for_table,conform_table
 config=read_config()
 
 def prepare_taxes(data_info,workbook):
-  '''setup the taxes dataframe'''
+  '''prepare the taxes dataframe'''
   string_fields='Line,Agg_method,Tax_doc_ref,Notes,Source,Tab'.split(',')
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False,string_fields=string_fields)
 

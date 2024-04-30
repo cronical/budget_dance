@@ -4,7 +4,7 @@
 
 ### Opening and Closing of Accounts
 
-The reference table in the spreadsheet is derived from the most recent data in the `acct-bals/` folder.  So adding accounts will work naturally. When accounts are closed their balance in Moneydance goes to zero.  By default, to avoid clutter, zero balance accounts are not included in the spreadsheet. In order to avoid the problem the account should be listed in the `include-zeros` section of the `setup.yaml` file.  
+The reference table in the spreadsheet is derived from the most recent data in the `acct-bals/` folder.  So adding accounts will work naturally. When accounts are closed their balance in Moneydance goes to zero.  By default, to avoid clutter, zero balance accounts are not included in the spreadsheet. In order to avoid the problem the account should be listed in the `include-zeros` section of the `config.yaml` file.  
 
 ### Banks
 

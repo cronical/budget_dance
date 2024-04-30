@@ -143,7 +143,7 @@ The following do not (yet) have main routines:
 
 The following support the need to refresh data. These are usually applied annually although the year-to-date feature allows interim updates.
 
-See also [extract](#extract-table), [preserve](#preserve), [ytd](#ytd---current-year-reforecast), and [setup](./setup_summary.md).
+See also [extract](#extract-table), [preserve](#preserve), [ytd](#ytd---current-year-reforecast), and [configuration](./configuration_summary.md).
 
 ### Income and Expense
 

@@ -1,4 +1,4 @@
-'''Utility to add tabs to the workbook and sets the tab colors
+'''Utility to add sheets (tabs) to the workbook and sets the tab colors
 
 May be modified to add new tabs and re-run.  Unless overwrite is selected, does not replace or delete any tabs, only adds them
 '''
@@ -17,12 +17,12 @@ import yaml
 
 from dance.util.books import col_attrs_for_sheet,set_col_attrs,freeze_panes,tab_color
 from dance.util.logs import get_logger
-from dance.setup.local_data import read_data, read_gen_state
+from dance.book.local_data import read_data, read_gen_state
 from dance.util.files import read_config
 from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
 from dance.util.tables import first_not_hidden,write_table,columns_for_table,conform_table
 from dance.util.xl_formulas import actual_formulas,forecast_formulas, dyno_fields
-from dance.setup.remote_data import request
+from dance.book.remote_data import request
 
 def include_year(table_info,first_forecast_year,proposed_year):
   '''return True if proposed year should be displayed'''

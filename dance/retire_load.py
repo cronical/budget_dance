@@ -10,7 +10,7 @@ import pandas as pd
 from dance.util.files import tsv_to_df
 
 def prepare_retire(data_info):
-  '''setup the retir_vals dataframe'''
+  '''prepare the retir_vals dataframe'''
   string_fields='Item,Election,Start Date'.split(',')
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False,string_fields=string_fields)
   df['Start Date']=pd.to_datetime(df['Start Date'])
@@ -18,7 +18,7 @@ def prepare_retire(data_info):
   return df
 
 def prepare_retire_medical(data_info):
-  '''setup the retir_medical dataframe'''
+  '''prepare the retir_medical dataframe'''
   string_fields='Item,Package,Start Date,End Date'.split(',')
   df=tsv_to_df(data_info['path'],skiprows=3,nan_is_zero=False,string_fields=string_fields)
   df['Start Date']=pd.to_datetime(df['Start Date'])

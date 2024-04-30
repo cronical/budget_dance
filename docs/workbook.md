@@ -55,7 +55,7 @@ The winning technique is to isolate the columns used at build time, so that enti
 
 Both the indirect and indexing methods have serious drawbacks, so the substitution method was created. This allows the formula to be written with a generic year, which will be substituted at build time.
 
-```title="formula as written in setup.yaml"
+```title="formula as written in config.yaml"
 formula: =XLOOKUP([@Key],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
 ```
 
@@ -103,7 +103,7 @@ A glossary of Excel array idioms is available. [Idioms](./idioms.md)
 
 The modern lambda functions seem to be preferable to VBA. Eventually this should allow the removal of much of the original VBA.
 
-The functions are stored as defined names in Excel.  They are defined in the `lambdas:` section of the `setup.yaml` file[^4].
+The functions are stored as defined names in Excel.  They are defined in the `lambdas:` section of the `config.yaml` file[^4].
 
 The following list is sourced from that file by `util.doc_lambdas.py`.
 
