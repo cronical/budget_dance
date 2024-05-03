@@ -44,7 +44,7 @@ lambdas:
 
 ### Themes
 
-The themes are stored in the `themes/` folder and are copied based on their name. The schema lists a few that are copied from Excel. 
+The themes are stored in the `dance/themes/` folder and are copied based on their name. The schema lists a few that are copied from Excel. 
 
 ## Sheet groups
 
