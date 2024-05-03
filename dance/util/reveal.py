@@ -6,11 +6,14 @@ import zipfile
 from dance.util.files import read_config
 from dance.util.logs import get_logger
 
-logger=get_logger(__file__)
-filename=read_config()['workbook']
+def extract(filename):
+  if exists('./tmp'):
+    rmtree('./tmp')
+  with zipfile.ZipFile(filename, 'r') as z:
+    z.extractall('./tmp/')
 
-if exists('./tmp'):
-  rmtree('./tmp')
-with zipfile.ZipFile(filename, 'r') as z:
-  z.extractall('./tmp/')
-logger.info("%s unzipped in ./tmp"%filename)
+if __name__=="__main__":
+  logger=get_logger(__file__)
+  filename=read_config()['workbook']
+  extract(filename)
+  logger.info("%s unzipped in ./tmp"%filename)

@@ -95,6 +95,16 @@ Notes
 1. For iande:
     1. Add entries in hier_insert_paths for the J: and Y: items 
     1. Add account name to the fcst_formula retir_vals for the new account.
+1. For invest_iande_work:
+    1. Provide for any account fees, for example:
+
+        ```
+        - base_field: Key # forecast fees for new items with no history
+            matches:
+            - IRA - GBD - FID:Investing:Account Fees 
+            formula: =AVERAGE(tbl_invest_iande_ratios[@5<Y1234])
+            first_item: -0.0075,-0.0075,-0.0075,-0.0075,-0.0075
+        ```    
 
 
 ## I-bonds

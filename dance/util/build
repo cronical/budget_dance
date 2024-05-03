@@ -26,10 +26,7 @@ dance/preserve_changed.py -l
 dance/ytd.py -l -f
 
 # Setting the workbook theme as one of the items in the themes folder
-dance/util/reveal.py
-theme=`yq -r .theme data/config.yaml`
-cp "themes/$theme.xml" tmp/xl/theme/theme1.xml
-dance/util/reseal.py
+dance/util/theme.py
 
 # Calc property going forward
 dance/book/calc_props.py fullPrecision 0 -w $target # 0 means Set precision as displayed
@@ -52,11 +49,6 @@ sleep 1 # avoid:  execution error: Microsoft Excel got an error: Parameter error
 osascript -e 'tell app "Microsoft Excel" to save' 
 osascript -e 'tell app "Microsoft Excel" to quit' 
 dance/util/logs.py "Saved"
-
-# skip diagnostics
-#dance/experimental/reveal.py
-#xmllint --format tmp/xl/workbook.xml | grep '<calcPr'
-#xmllint --format tmp/xl/theme/theme1.xml | grep "<a:clrScheme"
 
 # run checks to see if calcs completed.  
 tests/cross_check.py -g balances 

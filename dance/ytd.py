@@ -15,7 +15,7 @@ config=read_config()
 logger=get_logger(__file__)
 
 comment=Comment('Estimated based on year to date data.','ytd.py')
-if __name__ == '__main__':
+def main():
   defaults={'workbook':config['workbook'],'storage':'./data/ytd_data.json'}
   parser = argparse.ArgumentParser(description ='Copies data from ytd tab to file or from file to ytd tab and iande.')
   parser.add_argument('-s','--save',help='saves data from the current tab to the file',action='store_true')
@@ -82,3 +82,5 @@ if __name__ == '__main__':
       logger.info('Wrote %d values into table %s'%(counters[table],table))
       wb.save(args.workbook)
       
+if __name__ == '__main__':
+  main()
