@@ -277,7 +277,7 @@ def verify(workbook=None,test_group='*'):
 
   # =========================================
   score=results(test_group='*',tester=tester)
-  sys.exit(score)
+  return score
 
 if __name__=='__main__':
   # execute only if run as a script
@@ -286,4 +286,5 @@ if __name__=='__main__':
   parser.add_argument('-workbook',default=config['workbook'],help='provide an alternative workbook')
   parser.add_argument('-group',default='*',help='specify a single test group or * for all')
   args=parser.parse_args()
-  verify(workbook=args.workbook,test_group=args.group)
+  score=verify(workbook=args.workbook,test_group=args.group)
+  sys.exit(score)

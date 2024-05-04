@@ -2,7 +2,7 @@
 '''Initialize the workbook'''
 import argparse
 from os import getcwd #,mkdir
-from os.path import exists
+from os.path import exists, split, join
 from sys import exit
 
 from openpyxl import Workbook # load_workbook
@@ -13,6 +13,7 @@ from dance.book.add_sheets import refresh_sheets
 
 def create(filename,overwrite=False):
   '''Create the excel file, then add in the worksheets.
+  Raises error if file is open by Excel
   '''
   logger=get_logger(__file__)
   logger.debug('current working directory is {}'.format(getcwd()))
@@ -20,6 +21,11 @@ def create(filename,overwrite=False):
     if not overwrite:
       logger.error('File name {} already exists, use -o to force overwrite'.format(filename))
       exit(-1)
+  # check for open file
+  path,file=split(filename)
+  temp_file=join(path,"~$"+file)
+  if exists(temp_file):
+    raise ValueError(f"{temp_file} exists indicating target is open.")
   wb=Workbook()
   wb.save(filename)
   logger.debug('initial file saved as {}'.format(filename))

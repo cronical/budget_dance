@@ -9,7 +9,7 @@ from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util import reveal, reseal
 
-def set():
+def set_theme():
   """ Perform the set """
   logger=get_logger(__file__)
   config=read_config()
@@ -37,4 +37,4 @@ def locate():
   return path
 
 if __name__=='__main__':
-  set()
+  set_theme()

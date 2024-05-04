@@ -1,10 +1,11 @@
 #!/bin/zsh
-
+# DEPRECATED - USE build_book.py
+#
 target=`yq -r .workbook data/config.yaml` # requires yq and jq to read config file in shell
 
 FILE=$(echo $target | sed s/$target:t/~\$$target:t/) # Excel's temp file name
 if [[ -f "$FILE" ]]; then
-    echo "$FILE exists indicating target is open."
+    echo 
     exit 1
 fi
 

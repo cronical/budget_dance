@@ -93,9 +93,9 @@ def load_sparse(config,workbook,path):
           # when this is run after ytd.py but not if its run 1st!!!
           counters[table]+=1
     logger.info('Wrote %d values into table %s'%(counters[table],table))
-  wb.save(args.workbook)
+  wb.save(workbook)
 
-if __name__ == '__main__':
+def main():
   defaults={'workbook':config['workbook'],'storage':'./data/preserve.json'}
   parser = argparse.ArgumentParser(description ='Copies changed data from tables to file or from file to various tables')
   group=parser.add_mutually_exclusive_group(required=True)
@@ -104,10 +104,12 @@ if __name__ == '__main__':
   parser.add_argument('-w','--workbook',default=defaults['workbook'],help='Target workbook. Default: '+defaults['workbook'])
   parser.add_argument('-p','--path',default=defaults['storage'] ,help='The path and name of the storage file. Default='+defaults['storage'])
   args=parser.parse_args()
-  
-  
+    
   if args.save:
     save_sparse(config,args.workbook,args.path)
 
   if args.load :
     load_sparse(config,args.workbook,args.path)
+
+if __name__ == '__main__':
+  main()

@@ -1,7 +1,7 @@
 '''Utilities dealing with worksheet tables.'''
 import re
 import pandas as pd
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from openpyxl.formatting import Rule
 from openpyxl.styles import Font, Alignment, PatternFill, Side,Border
 from openpyxl.styles.numbers import BUILTIN_FORMATS,FORMAT_PERCENTAGE_00,FORMAT_NUMBER
@@ -51,12 +51,12 @@ def table_as_df(wb,table_name):
 
   return table, ws_name,ref
 
-def df_for_table_name(table_name, workbook,data_only=False,table_map=None):
-  '''Opens the file, and extracts a table as a Pandas dataframe
+def df_for_table_name(table_name:str, workbook:str|Workbook, data_only:bool=False, table_map:dict=None):
+  '''Extracts a table from a workbook as a Pandas dataframe. 
 
   args:
-    table_name:
-    workbook:
+    table_name: the name of the table
+    workbook: a string of the workbook file path and name, or a Workbook already loaded
     data_only: True to get the data not the formula
     table_map: in case the utility tab is not yet available, provide a dict mapping tables to worksheets
 
@@ -67,21 +67,35 @@ def df_for_table_name(table_name, workbook,data_only=False,table_map=None):
 
   '''
 
-  try:
-    wb = load_workbook(filename = workbook, read_only=False, data_only=data_only)
-    if table_map is None:
+  if isinstance(workbook,str):# if workbook is a string then read file
+    try:
+      wb = load_workbook(filename = workbook, read_only=False, data_only=data_only)
+      logger.debug('Read table {} from {}'.format(table_name,workbook))
+    except FileNotFoundError as error:
+      raise ValueError(f'workbook({workbook}), ro worksheet({table_name}) not available') from error
+  else: # if its not a string, it should be a workbook
+    if isinstance(workbook,Workbook):
+      wb=workbook
+    else:
+      raise ValueError('Provided workbook must be a string or a Workbook') 
+  if table_map is None:
+    try:
       ws=wb['utility']
       ref=ws.tables['tbl_table_map'].ref
-      table_map = df_for_range(worksheet=ws,range_ref=ref)
-    else: # convert working form to stored form
-      table_map=pd.DataFrame([(k,v) for k,v in table_map.items()],columns=['Table','Worksheet'])
-      table_map.set_index('Table',inplace=True)
-    ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
-    ws=wb[ws_name]
-    table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
-  except (FileNotFoundError,KeyError) as error:
-    raise ValueError('workbook({}), worksheet({}) or internal structures not available'.format(workbook,table_name)) from error
-  logger.debug('Read table {} from {}'.format(table_name,workbook))
+    except KeyError as error:
+      raise ValueError('Table map not available')from error
+    table_map = df_for_range(worksheet=ws,range_ref=ref)
+  else: # convert working form to stored form
+    table_map=pd.DataFrame([(k,v) for k,v in table_map.items()],columns=['Table','Worksheet'])
+    table_map.set_index('Table',inplace=True)
+
+
+
+
+
+  ws_name =ws_for_table_name(table_map=table_map, table_name=table_name)
+  ws=wb[ws_name]
+  table=df_for_range(worksheet=ws,range_ref=ws.tables[table_name].ref)
   logger.debug('  {} rows and {} columns'.format(table.shape[0],table.shape[1]))
   return table
 

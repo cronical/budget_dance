@@ -50,4 +50,5 @@ excludes = ["dance/experimental/"]
 
 [project.scripts]
 ytd = "dance.ytd:main"
+build_book = "dance.util.build_book:main"
 

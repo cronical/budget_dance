@@ -95,6 +95,9 @@ def sel_inv_transfers(data_info,workbook=None,table_map=None):
     ta=row['Target Account'].strip()
     if ta.startswith('TRANSFERS')| ta.startswith('TOTAL'):
       continue
+    if ta.endswith("-Other"):
+      logger.error(f"{filename} contains {ta}. Must not contain other. Fix in Moneydance.")
+      raise ValueError("Cannot process as this breaks odd/even logic for totals")
     if ta.endswith('TOTAL'):
       stack.pop()   
     else:
@@ -249,7 +252,10 @@ if __name__=='__main__':
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
-  # sel_inv_transfers(data_info={'path':'data/trans_bkg.tsv'})
+  from dance.util.files import read_config
+  config=read_config()
+  workbook=config['workbook']
+  sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
   
