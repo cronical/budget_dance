@@ -41,9 +41,9 @@ The calculations are designed to work even if the rows are filtered.  But sortin
 
 ## Rlz Int/Gn line 
 
-For actuals, this value derives from the investment performance report via the [invest_actl worksheet](#invest-actl).
+For actuals, this value derives from the investment performance report via the [invest_actl worksheet](./invest_actl.md).
 
 This report does not break out the income types.  If the accounting is done properly then the breakout for a particular investment account can be achieved via an income/expense report that selects that account. The value of the performance report 'Income' column total is equal to the value of the Investment Income report line Income - TOTAL.
 
-For forecast periods, the [investment income and expense](#invest_iande_work) values are derived from adjusted extrapolated historical rates on line item basis. These values are then summed one way for the balances and another way for the [iande](#iande) tab.  
+For forecast periods, the [investment income and expense](./invest_iande_work.md) values are derived from adjusted extrapolated historical rates on line item basis. These values are then summed one way for the balances and another way for the [iande](./iande.md) tab.  
 

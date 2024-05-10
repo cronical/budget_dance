@@ -50,11 +50,16 @@ The Periods column has the following meaning:
 |Investment IandE|All Years|invest-iande.tsv|tbl_invest_iande_values, tbl_invest_iande_ratios|md_invest_iande_values|
 |Investment Performance|Each Year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]|md_invest_actl|
 |Roth-contributions2|All Years|roth_contributions.tsv|tbl_roth_contributions|md_roth|
+|Tagged Export|All Years|tagged.tsv|tbl_tag_sums|md_tag_sums|
 |Transfers BKG detailed|Transfers-X|trans_bkg.tsv|tbl_bank_sel_invest|md_sel_inv|
 |Transfers to Investment Accounts by Year|Transfers|invest-x.tsv|tbl_invest_actl|md_invest_actl|
 |Transfers-to-fcast|Transfers|transfers.tsv|tbl_transfers_actl|md_transfers_actl|
 
 Each of the reports should be run for the appropriate period(s) and the output saved as a .tsv file in the data folder or a subfolder, under the name given in the "Save as" column.
+
+The Income & Expense report should not check the `Use tax date` box.  This makes it consistent with the Investment Performance report which does not have a tax date box.  If the box is checked it can lead to consistency errors when transactions span year-end.  It also seems possible to rewrite those transactions to use the prior year, instead of the following year.
+
+Tagged sums was introduced to handle moving accounts between custodians - in particular HSA accounts, but it could probably be used to replace some other tables.
 
 ## JSON input files
 

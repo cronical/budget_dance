@@ -84,7 +84,7 @@ dance/preserve_changed.py -s
 2023-09-08 14:51:46,128 - preserve_changed - INFO - Wrote 372 items to ./data/preserve.json
 ```
 
-### YTD - Current year reforecast
+### Current year reforecast
 
 During the year it is handy from time to time to replace the modeled values with reprojected values. The `current` tab and the `ytd.py` program allow for this.
 
@@ -143,13 +143,13 @@ The following do not (yet) have main routines:
 
 The following support the need to refresh data. These are usually applied annually although the year-to-date feature allows interim updates.
 
-See also [extract](#extract-table), [preserve](#preserve), [ytd](#ytd---current-year-reforecast), and [configuration](./configuration_summary.md).
+See also [extract](#extract-table), [preserve](#preserve), [ytd](#current-year-reforecast), and [configuration](./configuration_summary.md).
 
 ### Income and Expense
 
 The `dance/iande_actl_load.py` module loads data into either `iande` or `current`.  
 
-After refreshing the `current` table, it may or may not be desirable to reload the prior re-projection data using [ytd.py](#ytd---current-year-reforecast).
+After refreshing the `current` table, it may or may not be desirable to reload the prior re-projection data using [ytd.py](#current-year-reforecast)
 
 ```bash
 usage: iande_actl_load.py [-h] [-s {iande,current}] [-p PATH] [-w WORKBOOK]

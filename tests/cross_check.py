@@ -6,6 +6,8 @@
 import argparse
 import json
 import sys
+import textwrap
+
 import pandas as pd
 
 from dance.util.files import read_config
@@ -28,7 +30,7 @@ class Tester:
     '''Get a dictionary of stats'''
     return self.stats
 
-  def run_test(self,test_group,expected,found,tolerance=0.5,ignore_years=[]):
+  def run_test(self,test_group,expected,found,tolerance=0.5,ignore_years=[],title=''):
     '''under the heading of a test_group, compare expected and found for columns showing which items vary
     expected and found are of type pd.Series with a name.
     By default look for exact match, but if tolerance provided then the difference should be less than or equal to the tolerance.
@@ -47,11 +49,12 @@ class Tester:
     cols=df.columns
     df['delta']=(df[cols[0]]-df[cols[1]]).round(2)
     zeros= df.delta.abs() <=tolerance
-    msg='%d '+' == '.join(cols)
+    short_cols=[textwrap.shorten(a,width=50,placeholder='...')for a in list(cols)]
+    fmt=f'%d. {title}: ' + ' == '.join(short_cols)
     self.test_count += 1
     group_stat[0]+=len(zeros)
     group_stat[1]+=zeros.sum()
-    msg=msg % self.test_count 
+    msg=fmt % self.test_count 
     msg+=' --> %d out of %d pass'%(zeros.sum(),len(zeros))
     logger.info (msg+ignore_msg)
     if zeros.sum()!=len(zeros):
@@ -97,7 +100,7 @@ def legend(table_name,filter,agg=None):
     legend += '.%s()'%agg
   return legend
 
-def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=0,ignore=[]):
+def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=0,ignore=[],title=''):
   '''
     args: workbook
           test_group
@@ -119,9 +122,9 @@ def row_to_value(workbook,test_group,tester,table,row_name,row_values,tolerance=
     expected[x]=v
   expected.drop(labels=ignore,inplace=True)
   found.drop(labels=ignore,inplace=True)
-  tester.run_test(test_group,expected,found,tolerance)
+  tester.run_test(test_group,expected,found,tolerance,title=title)
 
-def row_to_row(workbook,test_group,tester,table_lines,factors=None):
+def row_to_row(workbook,test_group,tester,table_lines,factors=None,title=''):
   '''
   Helper to test that two single rows match OR
   if the filter gets more than one row, the sum of those rows (times the factor) is used.
@@ -157,7 +160,7 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None):
       series=df.squeeze()
     series.name=legend(table,line,agg)
     values.append(series)
-  tester.run_test(test_group,values[0],values[1])
+  tester.run_test(test_group,values[0],values[1],title=title)
 
 def verify(workbook=None,test_group='*'):
   '''Various checks'''
@@ -173,53 +176,84 @@ def verify(workbook=None,test_group='*'):
   if test_group in test_groups:
     heading(test_group,'-')
 
-    # cap gains
-    test_lines={
-    'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
-    'tbl_invest_actl':'Gains'}
-    row_to_row(workbook,test_group,tester,test_lines)
-
     # IRA distributions
     test_lines={
       'tbl_retir_vals':'IRA - ',
       'tbl_iande':'Income:J:Distributions:IRA - TOTAL'}
-    row_to_row(workbook,test_group,tester,test_lines)
+    row_to_row(workbook,test_group,tester,test_lines,title="IRA Distributions")
   
     # Pensions
     test_lines={
       'tbl_retir_vals':'DB - ',
       'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
-    row_to_row(workbook,test_group,tester,test_lines)
+    row_to_row(workbook,test_group,tester,test_lines,title="Pensions")
 
     # bank interest
     test_lines={
       'tbl_balances':'Bank Accounts:Retain:Rlz Int/Gn',
       'tbl_iande': 'Income:I:Invest income:Int:Bank'
     }
-    row_to_row(workbook,test_group,tester,test_lines)
+    row_to_row(workbook,test_group,tester,test_lines,title="Bank interest")
 
-    # non bank interest
     df=df_for_table_name(table_name='tbl_invest_actl',data_only=True,workbook=workbook)
+
+    # sheltered
+    sel=(df.ValType=='Gains' ) & (df.Acct_txbl==0)
+    keys=df.loc[sel].index.to_list()
+    test_lines={
+      'tbl_invest_actl': keys,
+      'tbl_iande': 'Income:I:Invest income:CapGn:Shelt:Sales'
+    }
+    row_to_row(workbook,test_group,tester,test_lines,title="Non-txbl Gain from sales")
+    
+    # non sheltered
+    sel=(df.ValType=='Gains' ) & (df.Acct_txbl==1)
+    keys=df.loc[sel].index.to_list()
+    test_lines={
+      'tbl_invest_actl': keys,
+      'tbl_iande': 'Income:I:Invest income:CapGn:Sales'
+    }
+
+    row_to_row(workbook,test_group,tester,test_lines,title="Txbl gn from sales")
+
+    # cap gains
+    test_lines={
+    'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
+    'tbl_invest_actl':'Gains'}
+    row_to_row(workbook,test_group,tester,test_lines,title="All Cap Gns from sales")
+
+    # txbl account invest income
+    sel=(df.ValType=='Income' ) & (df.Acct_txbl==1)
+    keys=df.loc[sel].index.to_list()
+    test_lines={
+      'tbl_invest_actl': keys,
+      'tbl_iande': ['Income:I:Invest income:CapGn:Mut LT','Income:I:Invest income:CapGn:Mut ST','Income:I:Invest income:Div:Reg','Income:I:Invest income:Div:Tax-exempt',
+                    'Income:I:Invest income:Int:Defered-tax','Income:I:Invest income:Int:Reg','Income:I:Invest income:Int:Tax-exempt','Income:I:Invest income:Int:Tax-exempt Muni Accrued Int Paid']
+    }
+    row_to_row(workbook,test_group,tester,test_lines,title="Txbl account invest income")
+    pass
+
+    # Non-txbl invest income
     sel=(df.ValType=='Income' ) & (df.Acct_txbl==0)
     keys=df.loc[sel].index.to_list()
     test_lines={
       'tbl_invest_actl': keys,
       'tbl_iande': ['Income:I:Invest income:Int:Shelt','Income:I:Invest income:Div:Shelt','Income:I:Invest income:CapGn:Shelt:Distr']
     }
-    row_to_row(workbook,test_group,tester,test_lines)
+    row_to_row(workbook,test_group,tester,test_lines,title="Non-txbl invest income")
+    pass
 
-
-    # investment gains less accrued interest paid on i and e match rlz int/gn on balances
+    # iande invest income tot matches rlz int/gn on balances
     test_lines={
-      'tbl_iande':['Income:I:Invest income - TOTAL','Expenses:X:Investing:Non-Tax Muni Accrued Int Paid'],
+      'tbl_iande':'Income:I:Invest income - TOTAL',
       'tbl_balances':'Rlz Int/Gn'}
-    row_to_row(workbook,test_group,tester,test_lines,factors=[[1,-1],1])
+    row_to_row(workbook,test_group,tester,test_lines,title="iande invest income tot matches rlz int/gn on balances")
 
   # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
     test_lines={
     'tbl_iande':'Expenses:Y:Invest:Reinv',
     'tbl_balances':'Retain - PRODUCT'}
-    row_to_row(workbook,test_group,tester,test_lines)
+    row_to_row(workbook,test_group,tester,test_lines,title="iande reinvest matches balances retained")
 
     # HSA - compare add/wdraw balances with P/R savings less distrib
     aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
@@ -230,9 +264,13 @@ def verify(workbook=None,test_group='*'):
         ignore=['Y2018']
       expected=aw.loc[hsa]
       table,filter,agg=('tbl_iande',hsa,'diff')
-      found=get_row_set(workbook,table,'index','index',contains=filter).diff(axis=0).tail(1).squeeze()
+      hsa_rows=get_row_set(workbook,table,'index','index',contains=filter)
+      # if there is an account move, there may be an extra row
+      hsa_rows=hsa_rows.loc[~hsa_rows.index.str.contains('To Asst')]
+
+      found=hsa_rows.diff(axis=0).tail(1).squeeze()
       found.name=legend(table,filter,agg)
-      tester.run_test(test_group,expected,found,ignore_years=ignore)
+      tester.run_test(test_group,expected,found,ignore_years=ignore,title=f"{hsa} - add/wdraw matches P/R savings less distrib")
 
     results(test_group=test_group,tester=tester)
   # ========================================
@@ -244,7 +282,7 @@ def verify(workbook=None,test_group='*'):
     # computed balances match exported balances
     df=balance_test_pairs(workbook)
     cols=df.columns
-    tester.run_test(test_group,df[cols[0]],df[cols[1]])
+    tester.run_test(test_group,df[cols[0]],df[cols[1]],title="Computed balances match exported balances")
     score=results(test_group=test_group,tester=tester)
     # ========================================
   test_group='cash_flow'
@@ -258,7 +296,7 @@ def verify(workbook=None,test_group='*'):
     expected[0]=-42.06
     expected[1]=42.06
     expected.name='expected'
-    tester.run_test(test_group,expected,found)
+    tester.run_test(test_group,expected,found,title="Cash flow")
  # ========================================
   test_group='taxes'
   if test_group in test_groups:
@@ -273,7 +311,8 @@ def verify(workbook=None,test_group='*'):
         logger.info(f'IGNORING: {ignore}')
         continue
       row_to_value(workbook=workbook,table=table,
-      test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1,ignore=ignore)
+      test_group=test_group,tester=tester,row_name=key,row_values=values,tolerance=1,ignore=ignore,
+      title="Known value")
 
   # =========================================
   score=results(test_group='*',tester=tester)

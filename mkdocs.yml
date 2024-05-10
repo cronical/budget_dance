@@ -1,4 +1,5 @@
 site_name: Budget Dance
+site_dir: dance/docu
 theme:
   name: material
   palette: 
@@ -54,11 +55,11 @@ nav:
     - "Report definitions": report_configs.md
     - "Accounting notes": accounting.md
     - "Validation": validation.md
-  - Setup: 
-    - Summary: setup_summary.md
+  - Configuration: 
+    - Summary: configuration_summary.md
     - Libraries: libraries.md
-    - "API Key": setup_api.md
-    - "Setup control file": setup_control.md
+    - "API Key": configure_api.md
+    - "Configuration control file": configuration.md
     - "Python environment": python.md  
   - Operations: 
     - "Export/Import Cycle": operations.md

@@ -20,7 +20,7 @@ All history years must be available in order to compute the flows to/from bank a
 
 ## HSA - disbursements - 2
 
-These data are used to compute medical payments made from HSA accounts by year.
+These data are used to compute medical payments made from HSA accounts by year. 
 
 ## IRA-Distr
 

@@ -1,2 +1,12 @@
 [console_scripts]
+build_book = dance.util.build_book:main
+extract = dance.extract:main
+iande_actl_load = dance.iande_actl_load:main
+invest_actl_load = dance.iande_actl_load:main
+invest_iande_load = dance.invest_iande_load:main
+other_actls_load = dance.other_actls_load:main
+preserve_changed = dance.preserve_changed:main
+retire_load = dance.retire_load:main
+taxes_load = dance.taxes_load:main
+transfers_actl_load = dance.transfers_actl_load:main
 ytd = dance.ytd:main

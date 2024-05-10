@@ -1,1 +1,2 @@
 include dance/themes/*.xml
+include dance/docu/*.*

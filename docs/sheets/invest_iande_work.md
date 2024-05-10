@@ -34,4 +34,4 @@ The summarization is done on they Python side at load time.  The ratios are calc
 
 On the balances table the `Rlzd Int/Gn` and `Fees` lines are derived as sums from this table. 
 
-On the `iande` table the forecasts for investment income and expense are also summed up from the values in this table. Forecasts for these lines are calculated as the sum across all accounts for the line for forecast periods.  For actual periods those values will derive directly from the Moneydance [income and expense](#iande) report.
+On the `iande` table the forecasts for investment income and expense are also summed up from the values in this table. Forecasts for these lines are calculated as the sum across all accounts for the line for forecast periods.  For actual periods those values will derive directly from the Moneydance [income and expense](./iande.md) report.

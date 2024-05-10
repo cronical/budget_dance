@@ -219,6 +219,7 @@ def hsa_disbursements(data_info):
   summary.rename(columns={'Source Account':'Account'},inplace=True)
   summary.Account=summary.Account.str.strip()
   summary=pd.concat([summary.Account,-summary.drop('Account',axis=1)],axis=1)
+
   return summary
 
 def med_liab_pmts(data_info):
@@ -239,6 +240,55 @@ def med_liab_pmts(data_info):
   summary=summary.reset_index()
   pass
 
+def tagged_transactions(data_info):
+  ''' Process tagged records to create useful dataframe that summarizes by tags
+  which were saved as tsv file. Modify MD report "Tagged Export" to add new tags.
+  Starting with 'acct-move' but should be able to replace other tag logic.
+
+  Raises error if more than one tag is used on a transaction.
+
+  Returns dataframe with range index, a Tags column, an Account column and columns for the Y Years found in the input file
+  '''
+
+  filename=data_info['path']
+  df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
+  df.drop(columns=['Check#','C'],inplace=True)
+  df.dropna(how='any',inplace=True) # blank rows & total
+  for ix,row in df.iterrows():
+    # replace form tag, [tag] with just the first item (not sure why MD does this)
+    tags=row['Tags'].split(', [')
+    match len(tags):
+      case 1:
+        a=tags[0].replace('[','')
+        a=a.replace(']','')
+        df.at[ix,'Tags']=a
+        continue
+      case 2:
+        a,b=tags
+        b=b[:-1] # trailing bracket
+        if b==a:
+          df.at[ix,'Tags']=a
+      case _:
+        raise ValueError("Unexpect value in tags field")
+
+  if df.Tags.str.contains(',').sum()>0:
+    raise ValueError(f"The Tags field in file {filename} contains more than one tag on some records. Not supported.")
+  df=add_yyear_col(df)  # create the year field to allow for pivot
+  summary= df.pivot_table(index=['Tags','Account'],values='Amount',columns='Year',aggfunc='sum')
+  summary.fillna(value=0,inplace=True)
+  summary=summary.reset_index()
+
+  # clean up by getting rid of zeros (eg from passthru amounts getting offset)
+  sel=summary.drop(columns=['Tags','Account']).sum(axis=1)==0
+  pt=summary.loc[sel].Account.str.startswith('Passthru')
+  if pt.all():
+    summary=summary.loc[~sel]
+  else:
+    bad=', '.join(summary.loc[sel].loc[~pt].to_list())
+    raise ValueError(f"Zeros occurred in non-passthru account(s): {bad}.  Probably a mistake on a transaction.")
+  summary.rename(columns={'Tags':'Tag'},inplace=True) # MD can have multiple, but we force to single
+  return summary
+
 def add_yyear_col(df):
   '''Convert the date field and create a year field, returning revised dataframe'''
   df=df.copy()
@@ -248,14 +298,15 @@ def add_yyear_col(df):
 
 if __name__=='__main__':
   pass
+  from dance.util.files import read_config
+  config=read_config()
+  workbook=config['workbook']
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
-  from dance.util.files import read_config
-  config=read_config()
-  workbook=config['workbook']
-  sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
+  # sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
+  tagged_transactions(data_info={'path':'data/tagged.tsv'})
   

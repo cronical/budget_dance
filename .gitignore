@@ -19,3 +19,4 @@ vba/workbook.xml.rels
 build/**
 dist/**
 budget_dance.egg-info/**
+dance/docu/**

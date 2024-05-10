@@ -138,7 +138,7 @@ The data definitions are purpose built to support the target table, but there ar
 |table.find_method|caption - only supported method|remote|
 |table.method_parameters|parameters for the method, specifically the text to search for in the caption.|remote|
 |hier_separator|Typically set to colon.  The existence of this key indicates that the lines should be subtotaled and folded|iande,current,aux|
-|[hier_insert_paths](#inserting-rows-for-future-use) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande,current,aux|
+|[hier_insert_paths](#inserting-rows) |Some line items are do not yet exist or are not yet populated in Moneydance. This is a way to insert them within the hierarchy so they can be used for forecasting.|iande,current,aux|
 |hier_alt_agg|This optional field allows aggregation to occur by any of the following methods: MIN, MAX, PRODUCT. The default is TOTAL. This is a mapping between lines and one of the aggregation types.|
 |template|Used in the cases where a template is used to generate the table. For the extract operation, this specifies the fields which are to be pulled from the table.  In the case of folding, it specifies the field to fold on and the indent depth|
 

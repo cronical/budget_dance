@@ -27,5 +27,5 @@ These are configured under the `data:hier_insert_paths` key.
 
 It is possible to reforecast selected rows for the current (first forecast) year.  This is done on the `current` tab, which has the same rows as `iande`. When the values are posted to this tab, they are marked with a comment.
 
-The mechanism is described [here](../operations.md#year-to-date-and-reprojection).
+The mechanism is described [here](../operations.md#current-year-reforecast.
 

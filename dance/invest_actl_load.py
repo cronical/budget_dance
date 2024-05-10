@@ -131,8 +131,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     #get the rows in order
     df.loc[:,'Security']=df['Security'].fillna(value='')
     df=df.loc[df.Security.str.startswith('Total:')] # throw away the securities, just keep the accounts
-    df=df.loc[df.Security != 'Total: '] # remove grand total
-    df.loc[:,'Security']=df['Security'].str.replace('Total: ','') # just the account names
+    df=df.loc[df.Security.str.strip() != 'Total:'] # remove grand total
+    df.loc[:,'Security']=df['Security'].str.replace('Total:','').str.strip() # just the account names
 
     # prepare for joins with common index
     df.set_index('Security',inplace=True)

@@ -6,7 +6,7 @@ from dance.iande_actl_load import prepare_iande_actl, read_iande_actl,y_year
 from dance.invest_actl_load import read_and_prepare_invest_actl
 from dance.invest_iande_load import read_and_prepare_invest_iande,prepare_invest_iande_ratios
 from dance.other_actls import (IRA_distr, hsa_disbursements, payroll_savings,
-                               sel_inv_transfers, five_29_distr,roth_contributions)
+                               sel_inv_transfers, five_29_distr,roth_contributions,tagged_transactions)
 from dance.transfers_actl_load import (prepare_transfers_actl,
                                        read_transfers_actl)
 from dance.taxes_load import prepare_taxes
@@ -64,6 +64,8 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
       df=payroll_savings(data_info=data_info)
     case 'md_sel_inv':
       df=sel_inv_transfers(data_info=data_info,workbook=target_file,table_map=table_map)
+    case 'md_tag_sums':
+      df=tagged_transactions(data_info=data_info)
     case 'json_index': # a json file organized like: {index -> {column -> value}}
       df=pd.read_json(data_info['path'],orient='index')
       logger.debug('Read {}'.format(data_info['path']))
