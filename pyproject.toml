@@ -1,6 +1,6 @@
 [project]
 name = "budget-dance"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tool links accounting data with long term plans"
 authors = [
     {name = "George Dobbs", email = "george.dobbs@gmail.com"},

@@ -58,7 +58,7 @@ def save_sparse(config,workbook,path):
           logger.info('Found %d items from table %s'%(counters[table],table))
   with open (path,'w',encoding='utf-8') as f:
     json.dump(out,f,ensure_ascii=False,indent=2)
-  logger.info('Wrote %d items to %s'%(len(out),args.path))
+  logger.info('Wrote %d items to %s'%(len(out),path))
 
 def load_sparse(config,workbook,path):
   '''copy items from saved json file back into various tables

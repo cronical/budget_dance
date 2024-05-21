@@ -8,17 +8,19 @@ Invoke with `pdm build`.
 
 This puts a wheel in `argus/budget-dance/dist`.
 
-That can be installed.  Production is `~/budget-dance`.
+That can be installed.  
+
+Production is `~/budget-dance`.
 
 Target must be prepped with `python -m venv .venv`.
 
 In that folder, with the venv active use:
 
-`pip3 install /Users/george/argus/budget-dance/dist/budget_dance-0.1.0-py3-none-any.whl`
+`pip3 install /Users/george/argus/budget-dance/dist/budget_dance-n.n.n-py3-none-any.whl`
 
-The verion number above is 0.1.0 - that will change.
+where n.n.n is the verion number.
 
-Add on ` --force_reinstall` if not the first time.
+Add on ` --force_reinstall` if needed.  But new version is handled ok without that.
 
 Configuration of the build is in `pyproject.toml` and `MANIFEST.in` in the project root. 
 
