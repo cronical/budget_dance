@@ -4,6 +4,7 @@
 **/__pycache__/*
 .venv/**
 data/**
+!data/config.yaml
 data-z-archive/**
 private/**
 site/**

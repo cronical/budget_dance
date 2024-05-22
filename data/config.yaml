@@ -1,0 +1,2106 @@
+workbook: data/test_wb.xlsx
+start_year : 2018
+end_year : 2033
+hide_years:
+  - 2018
+  - 2019
+  - 2020
+year_column_width: 12
+first_forecast_year : 2024
+zoom_scale: 130 # how to scale the worksheets
+theme: Berlin
+lambdas:
+  - name: AGE
+    formula: =LAMBDA(inits,yr,ROUNDDOWN(((DATE(yr,12,31)-DOB(inits))/365.25),0))
+    comment: Return the age attained by an account owner with inits in a given year
+  - name: AGI
+    formula: =LAMBDA(ycol,XLOOKUP("Adjusted gross - TOTAL",tbl_taxes[Key],ycol))
+    comment: Returns the adjusted gross income for a year.  To be used in a table in a year col. Call with tbl_taxes[Ynnnn].
+  - name: DAY_COUNT
+    formula: =LAMBDA(arr,MAX(0,1+SUM({-1,1}*arr)))
+    comment: The number of days from the first date to the last date, inclusive. Call with 2 element array.
+  - name: DEFAULT_DATE
+    formula: =LAMBDA(d,IF(ISBLANK(d),HORIZON(),d))
+    comment: Given a value that is a date or blank, return the blank to the horizon, the given date (if not blank)
+  - name: DOB
+    formula: =LAMBDA(inits,XLOOKUP(inits,tbl_people[Initials],tbl_people[DOB]))
+    comment: Get date of birth for initials
+  - name: DIV0
+    formula: =LAMBDA(n,d,IF(d=0,0,n/d))
+    comment: Performs normal division except div by 0 returns 0.
+  - name: FCST_RATE
+    formula: =LAMBDA(py,ncr,MIN(IFERROR(AVERAGEIF(py,">0"),CHOOSECOLS(ncr,1)),CHOOSECOLS(ncr,2)))
+    comment: Calculate forecast rate given array of prior years and array of near mkt rate and rate cap.
+  - name: FIRST_LAST
+    formula: =LAMBDA(y,HSTACK(DATE(y,1,1),DATE(y,12,31)))
+    comment: Return the first and last date in a year, given an integer year.
+  - name: HORIZON
+    formula: =LAMBDA(DATE(0+RIGHT(TAKE(tbl_balances[#Headers],1,-1),4),12,31))
+    comment: Returns the last date in the planning horizon
+  - name: IIEV
+    formula: =LAMBDA(k,col,XLOOKUP(k,tbl_invest_iande_values[Key],col))
+    comment: Get the numerator for key k. Use in the invest iande ratios. Call with column in values.
+  - name: IIES 
+    formula: =LAMBDA(v,col,XLOOKUP(v &" - TOTAL",tbl_balances[Key],col))
+    comment: Except for 1st, opening balance for this acct v. Used in the investment iande ratios. Call with column in balances.
+  - name: IIEF 
+    formula: =LAMBDA(v,col,XLOOKUP(v &":Start Bal",tbl_balances[Key],col))
+    comment: For 1st only, opening balance for acct v. Used in the investment iande ratios. Call with column in balances.
+  - name: INT_YEAR
+    formula: =LAMBDA(yyear,INT(RIGHT(yyear,4)))
+    comment: Given a string in the form Ynnnn return nnnn as an integer
+  - name: LAST_TWO_PARTS
+    formula: =LAMBDA(key,TEXTJOIN(":",FALSE,TAKE(TEXTSPLIT(key,":"),1,-2)))
+    comment: Return the last two parts of a multipart key separated by colon, as a string with a colon separator.
+  - name: LE_BEN
+    formula: =LAMBDA(election,who,cy,LET(e,TEXTSPLIT(election,"-"),dy,0+TAKE(e,1,-1),g,AGE(who,dy),lead,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),lead-(cy-dy)))
+    comment: Life expectancy for a beneficiary (not a spouse). Call with election, who, current yr.
+  - name: LE_SELF
+    formula: =LAMBDA(who,yr,XLOOKUP(AGE(who,yr),tbl_rmd_3[Age],tbl_rmd_3[Distribution],0))
+    comment: Life expectancy for normal RMD (table 3), or zero if not yet aged enough. 
+  - name: LE_SPOUSE
+    formula: =LAMBDA(who,yr,LET(g,AGE(who,yr),le,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),le))
+    comment: Life expectancy for a spouse (not a beneficiary). Call with who, current year.
+  - name: MAX_MIN
+    formula: =LAMBDA(arr,HSTACK(MAX(CHOOSECOLS(arr,1)),MIN(CHOOSECOLS(arr,2))))
+    comment: Return the max of the 1st column and the min of the 2nd column
+  - name: MON_SEQ
+    formula: =LAMBDA(sd,ed,LET(sm,YM(sd),em,YM(ed),SEQUENCE(1,1+em-sm,sm)))
+    comment: Generate a sequence of base 12 numbers inclusive, given start_date, end_date.
+  - name: MON_THIS
+    formula: =LAMBDA(sd,ed,yr,SUM(IF(ISNUMBER(MATCH(SEQUENCE(1,12,12*yr),MON_SEQ(sd,ed),0)),1,0)))
+    comment: The number of months this year that fall in range between start_date, end_date.
+  - name: MONTHLY_PARTB
+    formula: =LAMBDA(arr,agi,yr,LET(rates,MC_RATES(arr,yr),m,CHOOSECOLS(rates,3),b,CHOOSECOLS(rates,4),XLOOKUP(agi,m,b,0,1)))
+    comment: Returns the monthly part B premium for this year. Called with the tbl_part_b[#Data], agi, this_year as the arguments.
+  - name: MONTHLY_PARTD
+    formula: =LAMBDA(arr,agi,yr,LET(rates,MC_RATES(arr,yr),m,CHOOSECOLS(rates,3),b,CHOOSECOLS(rates,5),XLOOKUP(agi,m,b,0,1)))
+    comment: Returns the monthly part D premium surcharge for this year.  Called with the tbl_part_b[#Data], agi, this_year as the arguments.
+  - name: MC_RATES
+    formula: =LAMBDA(all_rates,this_year,FILTER(all_rates,CHOOSECOLS(all_rates,1)=YEAR_FOR_TBL(all_rates,this_year)))
+    comment: Returns the best annual medicare rate table as an array. To be run in a table year column. Called with the tbl_part_b[#Data],this_year
+  - name: PER_LEFT
+    formula: =LAMBDA(sy,dur,ty,(dur-(ty-sy))*(ty>=sy)*(ty<(sy+dur)))
+    comment: Number of periods left on an annuity given start year, duration and this year
+  - name: PORTION_DAY
+    formula: =LAMBDA(s,e,y,DAY_COUNT(MAX_MIN(VSTACK(HSTACK(s,DEFAULT_DATE(e)),FIRST_LAST(y))))/(1+SUM(FIRST_LAST(y)*{-1,1})))
+    comment: DEPRECATED The number of days in this year where this row applies divided by 365 or 366 for leap years.
+  - name: PORTION
+    formula: =LAMBDA(s,e,y,MON_THIS(s,DEFAULT_DATE(e),y)/12)
+    comment: The number of months in this year where this row applies divided by 12.
+  - name: TX_CALC_A
+    formula: =LAMBDA(tt,ti,LET(m,ti-TX_PRV_BK(tt,ti),tx,TX_THS_BK(tt,ti)*EXPAND(m,1,2,1),SUM(tx)))
+    comment: Calc tax using add type tax table. Call with 3 col tax table, taxable income 
+  - name: TX_CALC_B
+    formula: =LAMBDA(tt,ti,cg,SUM(XLOOKUP(ti-cg,CHOOSECOLS(tt,1),CHOOSECOLS(tt,2,3),0,-1)*EXPAND((ti-cg),1,2,-1))+0.15*cg)
+    comment: Calc tax using subtract type tax table. Call with 3 col tax table, taxable income, capgn
+  - name: TX_CT
+    formula: =LAMBDA(tbl,yr,ti,TX_CALC_A(TX_TB(tbl,yr),ti))
+    comment: Compute CT income tax. Call with 4-col tx tbl, yr, txbl income
+  - name: TX_FED
+    formula: =LAMBDA(tbl,yr,ti,cg,TX_CALC_B(TX_TB(tbl,yr),ti,cg))
+    comment: Compute federal income tax. Call with 4-col tx tbl, yr, txbl income, cap gn
+  - name: TX_PRV_BK
+    formula: =LAMBDA(tt,ti,LET(b,DROP(tt,0,-2),TAKE(FILTER(b,b<ti),-1,1)))
+    comment: Return the high edge or the prior bracket. Call with 3 col tax table, taxable income .
+  - name: TX_TB
+    formula: =LAMBDA(arr,yr,DROP(FILTER(arr,CHOOSECOLS(arr,1)=yr),0,1))
+    comment: Return the 3 col tax table for a year. Call with the 4 col tax table, year
+  - name: TX_THS_BK
+    formula: =LAMBDA(tt,ti,XLOOKUP(ti,CHOOSECOLS(tt,1),CHOOSECOLS(tt,2,3),0,1))
+    comment: Return bracket 3rd and 4th col of this bracket. Call with 3 col tax table, taxable inc.
+  - name: THIS_COL_HDR
+    formula: =LAMBDA(h,CHOOSECOLS(h,COLUMN()-(TAKE(COLUMN(h),1,1)-1)))
+    comment: In a table, get this column's header name. Call with tbl_xxx[#Headers].
+  - name: YEAR_FOR_TBL
+    formula: =LAMBDA(arr,this_year,MIN(this_year,MAX(CHOOSECOLS(arr,1))))
+    comment: return current year or highest year in given table. For use in year columns. Call like this - YEAR_FOR_TBL(tbl_part_b,this_year)
+  - name: YM
+    formula: =LAMBDA(d,(MONTH(d)-1)+12*YEAR(d))
+    comment: Generate a base 12 number that represents the year and month.
+# The table styles are seen on the table tab in excel broken into Light, Medium and Dark.
+# The number seems to be the index in that list (top to bottom, left to right, origin 1)
+sheet_groups:
+  acct-bal:
+    color: 4
+    table_style: TableStyleMedium9
+  income-expense:
+    color: 5
+    table_style: TableStyleMedium10
+  retirement:
+    color: 6
+    table_style: TableStyleMedium11
+  actuals:
+    color: 7
+    table_style: TableStyleMedium12
+  taxes:
+    color: 8
+    table_style: TableStyleMedium13
+  tables:
+    color: 9
+    table_style: TableStyleMedium14
+sheets:
+  accounts:
+    sheet_group: acct-bal
+    tables:
+      - name: tbl_accounts
+        title: Accounts
+        include_years: false
+        columns:
+          - name: Account
+            width: 28
+          - name: Type
+            width: 12
+            horiz: center
+          - name: Income Txbl
+            width: 12
+            horiz: center
+          - name: Active
+            width: 12
+            horiz: center
+          - name: No Distr Plan # 1 if a no distribution plan feeds iande, zero otherwise
+            horiz: center
+          - name: Near Mkt Rate
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Rate Cap
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Reinv Rate
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Notes
+            width: 55
+        data: &acct_data_info
+          source: local
+          type: md_acct
+          path: ./data/acct-bals/2024.tsv
+          group:
+          - Bank Accounts
+          - Credit Cards
+          - Real Estate
+          - Other Asset
+          - Liabilities
+          - Mortgage Loans
+          - Non Mort Loans
+          no_details_for:
+          - Assets
+          - Loans
+          - Investment Accounts
+          include_zeros:
+          - 529 - ML
+          - BKG - JNT - CP1
+          - 401K - GBD MML - Pre-tax
+          - 401K - GBD MML - Roth
+          - 401K - VEC - UHG
+          - CHET - Ben
+          - HSA - GBD - Devenir
+          - HSA - G - Invest
+          - HSA - G - HSA Bank
+          - IRA - GBD - FID
+          - LON - JNT - HED
+          tax_free_keys:
+          - 401K
+          - CHET
+          - "529"
+          - HSA
+          - IRA
+          force_active:
+          - LON - JNT - HED
+          - IRA - GBD - FID
+        dyno_fields:
+          - base_field: Type # No Distr Plan - default to 1
+            matches:
+              - "*"
+            actions:
+              - target_field: No Distr Plan
+                constant: 1
+          - base_field: Account # 0 if distribution plan exists
+            matches:
+              - 401K - GBD - TRV
+              - 401K - VEC - UHG
+              - IRA - GBD - FID
+              - IRA - GBD - Vanguard
+              - IRA - VEC - ML
+              - IRA - VEC - Vanguard
+              - IRA Roth - GBD - Vanguard
+              - IRA Roth - VEC - Vanguard              
+            actions:
+              - target_field: No Distr Plan
+                constant: 0
+          - base_field: Type # near market rate Bank
+            matches: B
+            actions:
+              - target_field: Near Mkt Rate
+                constant: .03
+          - base_field: Account # near market rate Investment 2.0 %
+            matches:
+            - 401K - GBD - TRV
+            - 401K - VEC - UHG
+            - BKG - JNT - ML
+            - BKG - JNT - Vanguard
+            - CHET - Fidelity
+            - ESP - VEC - Fidelity
+            - HSA - GBD - Fidelity
+            - HSA - VEC - UHG
+            - IRA - GBD - Vanguard
+            - IRA - VEC - ML
+            - IRA - VEC - Vanguard
+            - IRA Roth - GBD - Vanguard
+            - IRA Roth - VEC - Vanguard
+            - MUT - JNT - T. Rowe Price             
+            actions:
+              - target_field: Near Mkt Rate
+                constant: 0.02
+          - base_field: Type # Rate cap 3.5% for income rate derivation
+            matches: I
+            actions:
+              - target_field: Rate Cap
+                constant: 0.035
+          - base_field: Account # rate cap 4%
+            matches:
+              - BKG - JNT - ML
+              - LON-JNT-HED
+            actions:
+              - target_field: Rate Cap
+                constant: 0.04
+          - base_field: Type # default 100% re-investment rate
+            matches: 
+              - I
+              - B
+            actions: 
+              - target_field: Reinv Rate
+                constant: 1.0
+          - base_field: Account # zero re-investment rate
+            matches:
+              - LON - JNT - HED
+            actions:
+              - target_field: Reinv Rate
+                constant: 0.0                                   
+        preserve:
+          method: sparse
+          non-year-cols:
+            - Income Txbl
+            - Active
+            - No Distr Plan
+            - Near Mkt Rate
+            - Rate Cap
+            - Reinv Rate
+            - Notes
+  balances:
+    sheet_group: acct-bal
+    tables:
+      - name: tbl_balances
+        title: Balances 
+        include_years: true
+        columns:
+        - name: Key
+          width: 38
+        - name: ValType
+          width: 12
+        - name: AcctName
+          width: 28
+        - name: Type
+          width: 12
+          horiz: center
+        - name: Income Txbl
+          horiz: center
+        - name: Active
+          horiz: center
+        - name: No Distr Plan
+          horiz: center
+        hidden:
+        - Key
+        - Type
+        - Income Txbl
+        - No Distr Plan
+        data:
+          <<: *acct_data_info
+          type: md_bal2
+          path: ./data/acct-bals/2017.tsv
+          hier_separator: ":"          
+        highlights: 
+          present: &past_future
+            formula: =A$2="Y"&YEAR(NOW()) # ref is to heading row
+            border:
+              edges: 
+              - left
+              style: medium
+              color: 3
+          end_bal:
+            formula: =$B3="End Bal" # row is 1st data row
+            border:
+              edges: 
+              - bottom
+              style: thin
+              color: 7          
+        dyno_fields:
+          - base_field: Key # Type
+            matches: 
+            - "*"
+            actions:
+              - target_field: Type
+                formula: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Type])
+          - base_field: Key # Income Txbl
+            matches: 
+            - "*"
+            actions:
+              - target_field: Income Txbl
+                formula: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Income Txbl])
+          - base_field: Key # Active
+            matches: 
+            - "*"
+            actions:
+              - target_field: Active
+                formula: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Active])
+          - base_field: Key # No Distr Plan
+            matches: 
+            - "*"
+            actions:
+              - target_field: No Distr Plan
+                formula: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[No Distr Plan])
+        actl_formulas:
+          - query: # Add/Wdraw - Investments
+            - field: ValType 
+              compare_with: "="
+              compare_to: Add/Wdraw          
+            - field: Type
+              compare_with: "="
+              compare_to: I
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP("Add/Wdraw" & [@AcctName],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+          - query: # Add/Wdraw - Banks & Credit Cards
+            - field: ValType
+              compare_with: "="
+              compare_to: Add/Wdraw          
+            - field: Type
+              compare_with: is_in
+              compare_to:
+              - B
+              - C
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP([@AcctName],tbl_transfers_actl[Account],tbl_transfers_actl[Y1234])
+          - query: # Add/Wdraw - Assets, Liabilities & Loans
+            - field: ValType
+              compare_with: "="
+              compare_to: Add/Wdraw          
+            - field: Type
+              compare_with: is_in
+              compare_to:
+              - A
+              - L
+              - N
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP([@AcctName] & " - TOTAL",tbl_transfers_actl[Account],tbl_transfers_actl[Y1234])
+          - base_field: ValType # Start Bal
+            matches: Start Bal
+            first_item: skip
+            formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
+          - base_field: ValType # Investment Start Bal
+            matches: I Start Bal 
+            formula: "=0" 
+          - query: # Bank actual interest
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Rlz Int/Gn"
+            - field: Type
+              compare_with: "="
+              compare_to: B 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP(XLOOKUP("bank_interest",tbl_gen_state[Item],tbl_gen_state[Value]),tbl_iande[Key],tbl_iande[Y1234])  
+          - query: # Investment actual realized gn 
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Rlz Int/Gn"
+            - field: Type
+              compare_with: "="
+              compare_to: I 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP("Rlz Int/Gn"&[@AcctName],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+          - query: # Investment actual unrealized gn goes into actual bucket
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Actl Unrlz"
+            - field: Type
+              compare_with: "="
+              compare_to: I 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP("Unrlz Gn/Ls"&[@AcctName],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+        all_col_formulas:
+          - base_field: ValType # Reinv Rate - default to account's Reinv Rate
+            matches: Reinv Rate
+            formula: =XLOOKUP( tbl_balances[@AcctName],tbl_accounts[Account],tbl_accounts[Reinv Rate])
+          - query: # Investment accounts may have fees. Do not include action fees since those are included as part of the realized gain.
+            - field: ValType # Fees
+              compare_with: "="
+              compare_to: Fees
+            - field: Type
+              compare_with: "="
+              compare_to: I
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP([@AcctName]& ":Investing:Account Fees",tbl_invest_iande_values[Key],tbl_invest_iande_values[Y1234],0)
+        fcst_formulas:
+          - query: # Bank forecast interest
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Rlz Int/Gn"
+            - field: Type
+              compare_with: "="
+              compare_to: B 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =XLOOKUP("Bank Interest - PRODUCT",tbl_aux[Key],tbl_aux[Y1234])
+          - query: # Investment fcst rlz gn 
+            - field: ValType 
+              compare_with: "="
+              compare_to: "Rlz Int/Gn"
+            - field: Type
+              compare_with: "="
+              compare_to: I 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            formula: =ROUND(SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Account]=[@AcctName])*(tbl_invest_iande_values[IorE]="I"),0)),0)
+          - query: # Investments Start Bal
+            - field: ValType
+              compare_with: "="
+              compare_to: "I Start Bal"
+            - field: Type
+              compare_with: "="
+              compare_to: I 
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type                
+            formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
+          - query: #  Mkt Gn Rate
+            - field: ValType
+              compare_with: "="
+              compare_to: Mkt Gn Rate
+            - field: Type
+              compare_with: "="
+              compare_to: I
+              look_up: 
+                table: tbl_accounts
+                index_on: AcctName
+                value_field: Type
+            first_item: =XLOOKUP([@AcctName],tbl_accounts[Account],tbl_accounts[Near Mkt Rate],0)*[@Active]
+            formula: =XLOOKUP([@AcctName]&":Unrlz Gn/Ls",tbl_invest_iande_ratios[Key],tbl_invest_iande_ratios[Y1234])
+          - query: # Add/Wdraw for active Roth IRAs - pull from retir_vals
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: 401K
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: HSA
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+              - field: No Distr Plan
+                compare_with: "="
+                compare_to: 0
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: No Distr Plan
+            formula: =-XLOOKUP([@AcctName],tbl_retir_vals[Item],tbl_retir_vals[Y1234])
+          - query: # # special case for Bank - treat as plug - its the net from iande
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: starts
+                compare_to: Bank
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+            formula: =XLOOKUP("TOTAL INCOME - EXPENSES",tbl_iande[Key],tbl_iande[Y1234])
+          - query: # # case for 401K plans and IRAs - pull from aux
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: IRA Roth
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: Bank
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+            formula: =XLOOKUP(TRIM([@AcctName])&" - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
+          - query: # # special case for Other Asset
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: starts
+                compare_to: Other Asset
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+            formula: =XLOOKUP(TRIM([@AcctName])&" - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
+          - query: # # special case for HSA plans
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: starts
+                compare_to: HSA
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+            formula: =-XLOOKUP(TRIM([@AcctName])& " - MIN",tbl_aux[Key],tbl_aux[Y1234])
+          - query: # Add/Wdraw if no distribution plan is via transfers_plan (but not Bank, other assets, HSA or 401K)
+              - field: ValType 
+                compare_with: "="
+                compare_to: "Add/Wdraw"
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: 401K
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: HSA
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: Bank
+              - field: Active
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: Active
+              - field: AcctName
+                compare_with: not_starting
+                compare_to: Other Asset
+              - field: No Distr Plan
+                compare_with: "="
+                compare_to: 1
+                look_up: 
+                  table: tbl_accounts
+                  index_on: AcctName
+                  value_field: No Distr Plan
+            formula: =SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())))
+            # the SUM phrase calculates the net change defined in the transfers_plan for this account, this year
+          - base_field: ValType # Start Bal
+            matches: Start Bal
+            formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
+        preserve:
+          method: sparse
+        fold_at: 1
+  transfers_plan:
+    sheet_group: acct-bal
+    tables:
+    - name: tbl_transfers_plan
+      title: Transfers Plan
+      include_years: false
+      columns:
+        - name: Y_Year
+          width: 12
+          horiz: center
+        - name: From_Account
+          width: 25
+        - name: To_Account
+        - name: Amount
+          width: 12
+          number_format: 1
+        - name: Notes
+          width: 35
+      edit_checks:
+        - for_columns:
+            - From_Account
+            - To_Account
+          formula: =SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)))
+      data:
+        source: local
+        type: json_records
+        path: data/transfers_plan.json
+  iande:
+    sheet_group: income-expense
+    tables:
+      - name: tbl_iande
+        title: Income and Expense
+        include_years: true
+        columns:
+        - name: Key
+          width: 70
+        - name: Account
+          width: 30
+        hidden:
+        - Key
+        data: &iande_data_info
+          source: local
+          type: md_iande_actl
+          path: ./data/iande.tsv
+          sheet: iande    
+          hier_insert_paths: &hier_ins_list
+            - Income:I:Invest income:CapGn:Sales
+            - Income:I:Invest income:CapGn:Shelt:Sales
+            - Income:I:Retirement income:Social Security:SS - GBD - SSA
+            - Income:I:Retirement income:Social Security:SS - VEC - SSA
+            - Income:I:Retirement income:Pension:DB - VEC - PNX
+            - Income:I:Retirement income:Pension:DB - GBD - TRV
+            - Income:I:Retirement income:Pension:DB - VEC - MML
+            - Income:I:Sheltered income:ER health acct contrib:ER HIA contribution - V
+            - Expenses:X:Health:Prem:Post Ret Med Ins - GBD
+            - Expenses:X:Health:Prem:Post Ret Med Ins - VEC
+            - Expenses:X:Health:OOP
+            - Income:J:Distributions:IRA:IRA - VEC - ML
+            - Income:J:Distributions:IRA:IRA - GBD - FID
+            - Income:J:Distributions:IRA:IRA - GBD - Vanguard
+            - Income:J:Distributions:IRA:IRA - VEC - Vanguard
+            - Income:J:Distributions:Roth:IRA Roth - GBD - Vanguard
+            - Income:J:Distributions:Roth:IRA Roth - VEC - Vanguard
+            - Income:J:Distributions:HSA:HSA - GBD - Fidelity
+            - Income:J:Distributions:HSA:HSA - GBD - Devenir
+            - Income:J:Distributions:HSA:HSA - VEC - UHG
+            - Income:J:Distributions:529:CHET - Fidelity
+            - Income:J:Distributions:529:CHET - Ben
+            - Income:J:Distributions:529:529 - ML
+            - Income:J:Distributions:401K:401k - GBD - TRV
+            - Income:J:Distributions:401K:401k - VEC - UHG
+            - Income:J:Distributions:401K:Rollover:401k - GBD - TRV
+            - Income:J:Distributions:401K:Rollover:401k - VEC - UHG
+            - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
+            - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
+            - Expenses:Y:Invest:Reinv
+            - Expenses:Y:Invest:Account Fees
+            - Expenses:Y:Invest:Action Fees
+            - Expenses:Y:Invest:Inherit:Normal
+            - Expenses:Y:Invest:Rollover:DB - GBD - MML
+            - Expenses:Y:Invest:Rollover:DB - GBD - TRV
+            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
+            - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
+            - Expenses:Y:To Asst:Invest:BKG - JNT - ML
+            - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
+            - Expenses:Y:To Asst:Invest:BND - GBD - TRY
+            - Expenses:Y:To Asst:Invest:BND - VEC - TRY
+            - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
+            - Expenses:Y:To Asst:Invest:IRA - GBD - FID
+            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Bank Accounts
+            - Expenses:Y:To Asst:Other Asset # includes depreciation
+            - Expenses:Y:To Asst:Real Estate # has included depreciation in 2014
+            - Expenses:Y:To Liab:Credit Cards
+            - Expenses:Y:To Liab:Liabilities # change in liabilities
+            - Expenses:Y:To Liab:Mortgage Loans # the principal
+            - Expenses:Y:To Liab:Non Mort Loans # the principal
+            - Expenses:Y:Payroll Savings:401K - GBD - TRV
+            - Expenses:Y:Payroll Savings:401K - GBD MML - Pre-tax
+            - Expenses:Y:Payroll Savings:401K - GBD MML - Roth
+            - Expenses:Y:Payroll Savings:401K - VEC - UHG
+            - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
+            - Expenses:Y:Payroll Savings:HSA - GBD - Devenir
+            - Expenses:Y:Payroll Savings:HSA - GBD - Fidelity
+            - Expenses:Y:Payroll Savings:HSA - VEC - UHG
+        highlights: # conditional formats appied to table
+          present: *past_future
+        actl_formulas:
+          # Patches to Income:I
+          - base_field: Key # Taxable Capital gains from sales
+            matches: Income:I:Invest income:CapGn:Sales
+            formula: =SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=1)))
+          - base_field: Key # Sheltered Capital gains from sales
+            matches: Income:I:Invest income:CapGn:Shelt:Sales
+            formula: =SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=0)))
+          - base_field: Key # normal IRA distributions
+            matches:
+            - Income:J:Distributions:IRA:IRA - VEC - ML
+            - Income:J:Distributions:IRA:IRA - GBD - Vanguard
+            - Income:J:Distributions:IRA:IRA - VEC - Vanguard
+            formula: =XLOOKUP([@Key],tbl_ira_distr[Category],tbl_ira_distr[Y1234],0)
+          - base_field: Key # HSA disbursements
+            matches:
+            - Income:J:Distributions:HSA:HSA - GBD - Fidelity
+            - Income:J:Distributions:HSA:HSA - GBD - Devenir
+            - Income:J:Distributions:HSA:HSA - VEC - UHG
+            formula: =XLOOKUP(trim([@Account]),tbl_hsa_disb[Account],tbl_hsa_disb[Y1234],0)
+          - base_field: Key # 529 plans
+            matches:
+            - Income:J:Distributions:529:CHET - Fidelity
+            - Income:J:Distributions:529:CHET - Ben
+            - Income:J:Distributions:529:529 - ML
+            formula: =XLOOKUP(trim([@Account]),tbl_529_distr[Account],tbl_529_distr[Y1234],0)
+          # load Expenses:Y
+          - base_field: Key # Inherit:Invest (not bank)
+            matches:
+              - Expenses:Y:Invest:Inherit:Normal
+            formula: =XLOOKUP("Income:I:Untaxed income:Inherit:Invest",tbl_iande[Key],tbl_iande[Y1234],0)
+          - base_field: Key # Life insurance cash value change
+            matches:
+            - Expenses:Y:To Asst:Life Ins Chg in CV
+            formula: =XLOOKUP("Income:I:Sheltered income:" & trim([@Account]),tbl_iande[Key],tbl_iande[Y1234],0)
+          - base_field: Key # Penison rollovers
+            matches:
+            - Expenses:Y:Invest:Rollover:DB - GBD - MML
+            - Expenses:Y:Invest:Rollover:DB - GBD - TRV
+            formula: =XLOOKUP("Income:I:Retirement income:Pension:" & trim([@Account]),tbl_iande[Key],tbl_iande[Y1234],0)
+          - base_field: Key # Add/Wdraw non-investments
+            matches:
+            - Expenses:Y:To Asst:Bank Accounts
+            - Expenses:Y:To Asst:Other Asset
+            - Expenses:Y:To Asst:Real Estate
+            - Expenses:Y:To Liab:Credit Cards
+            - Expenses:Y:To Liab:Mortgage Loans
+            - Expenses:Y:To Liab:Non Mort Loans
+            - Expenses:Y:To Liab:Liabilities
+            formula: =XLOOKUP(trim([@Account]& ":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234],0)
+          - base_field: Key # payroll savings plans
+            matches:
+            - Expenses:Y:Payroll Savings:401K - GBD - TRV
+            - Expenses:Y:Payroll Savings:401K - GBD MML - Pre-tax
+            - Expenses:Y:Payroll Savings:401K - GBD MML - Roth
+            - Expenses:Y:Payroll Savings:401K - VEC - UHG
+            - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
+            - Expenses:Y:Payroll Savings:HSA - GBD - Devenir
+            - Expenses:Y:Payroll Savings:HSA - GBD - Fidelity
+            - Expenses:Y:Payroll Savings:HSA - VEC - UHG
+            formula: =XLOOKUP(trim([@Account]),tbl_payroll_savings[Account],tbl_payroll_savings[Y1234],0)
+          - base_field: Key # invest:xfer
+            matches:
+            - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
+            - Expenses:Y:To Asst:Invest:BKG - JNT - ML
+            - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
+            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:BND - GBD - TRY
+            - Expenses:Y:To Asst:Invest:BND - VEC - TRY
+            formula: =XLOOKUP(trim([@Account]),tbl_bank_sel_invest[Account],tbl_bank_sel_invest[Y1234],0)
+          - base_field: Key # account moves (eg devenir to fidelity. this is the receiving side)
+            matches:
+            - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
+            formula: =SUMIFS(tbl_tag_sums[Y1234],tbl_tag_sums[Tag],"acct-move",tbl_tag_sums[Account],trim([@Account]))
+        all_col_formulas:
+          - base_field: Key # Reinvestment cashflow
+            matches:
+              - Expenses:Y:Invest:Reinv
+            formula: =SUM(FILTER(tbl_balances[Y1234],tbl_balances[ValType]="Reinv Amt"))
+          - base_field: Key # remove investing fees
+            matches: 
+              - Expenses:Y:Invest:Account Fees
+              - Expenses:Y:Invest:Action Fees
+            formula: =-XLOOKUP("Expenses:X:Investing:" & trim([@Account]) ,tbl_iande[Key],tbl_iande[Y1234],0)
+        fcst_formulas:
+          - base_field: Key # investment income
+            matches:
+            - Income:I:Invest income:CapGn:Mut LT
+            - Income:I:Invest income:CapGn:Mut ST
+            - Income:I:Invest income:CapGn:Shelt:Distr
+            - Income:I:Invest income:Div:Reg
+            - Income:I:Invest income:Div:Shelt
+            - Income:I:Invest income:Div:Tax-exempt
+            - Income:I:Invest income:Int:Defered-tax
+            - Income:I:Invest income:Int:Reg
+            - Income:I:Invest income:Int:Shelt
+            - Income:I:Invest income:Int:Tax-exempt            
+            formula: =SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Category]=LAST_TWO_PARTS([@Key]))))
+          - base_field: Key # inherited income - pass through p&l into balance sheet
+            matches: 
+            - Income:I:Untaxed income:Inherit:Invest
+            formula: =SUMIF(tbl_aux[Line],"*Inherit",tbl_aux[Y1234])
+          - base_field: Key # investment expenses (changes sign)
+            matches: 
+            - Expenses:X:Investing:Account Fees
+            - Expenses:X:Investing:Action Fees
+            formula: =-SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Category]=LAST_TWO_PARTS([@Key]))))
+          - base_field: Key # Bank interest
+            matches:
+              - Income:I:Invest income:Int:Bank
+            formula: =XLOOKUP("Bank Accounts:Retain:Rlz Int/Gn",tbl_balances[Key],tbl_balances[Y1234],0)
+          - base_field: Key # income items from retir_vals
+            matches:
+              - Income:I:Retirement income:Pension:DB - GBD - KofC
+              - Income:I:Retirement income:Pension:DB - GBD - PNX        
+              - Income:I:Retirement income:Pension:DB - VEC - PNX
+              - Income:J:Distributions:401K:401k - GBD - TRV
+              - Income:J:Distributions:401K:401k - VEC - UHG
+              - Income:J:Distributions:IRA:IRA - GBD - FID        
+              - Income:J:Distributions:IRA:IRA - VEC - ML        
+              - Income:J:Distributions:IRA:IRA - VEC - Vanguard              
+              - Income:J:Distributions:IRA:IRA - GBD - Vanguard        
+              - Income:I:Retirement income:Social Security:SS - GBD - SSA
+              - Income:I:Retirement income:Social Security:SS - VEC - SSA
+              - Income:J:Distributions:Roth:IRA Roth - GBD - Vanguard
+              - Income:J:Distributions:Roth:IRA Roth - VEC - Vanguard
+            formula: =XLOOKUP(TRIM([@Account]),tbl_retir_vals[Item],tbl_retir_vals[Y1234])
+          - base_field: Key # 401K rollovers - compute offset to normal distribution
+            matches:
+              - Income:J:Distributions:401K:Rollover:401k - GBD - TRV
+              - Income:J:Distributions:401K:Rollover:401k - VEC - UHG
+            formula: =-SUM(FILTER(tbl_retir_vals[Y1234],(tbl_retir_vals[Item]=TRIM([@Account]))*(tbl_retir_vals[Election]="ROLLOVER"),0))
+          - base_field: Key # HSA distributions
+            matches:
+            - Income:J:Distributions:HSA:HSA - GBD - Fidelity
+            - Income:J:Distributions:HSA:HSA - VEC - UHG            
+            formula: =-XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
+          - base_field: Key # post retirement insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Firm]="PRMEDINS")))
+          - base_field: Key # post retirement insurance costs costs from retir_vals - VEC
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - VEC
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="VEC")*(tbl_retir_medical[Firm]="PRMEDINS")))
+          - base_field: Key # out of pocket costs from retir_vals
+            matches: Expenses:X:Health:OOP
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],tbl_retir_medical[Type]="OOP"))
+          - base_field: Key # pension fed withholdings
+            matches:
+            - Expenses:T:Income Tax:Current Yr:Fed:Pens WH
+            formula: =round(XLOOKUP("distr_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("Income:I:Retirement income:Pension - TOTAL",tbl_iande[Key],tbl_iande[Y1234],0),2)
+          - base_field: Key # IRA fed withholdings
+            matches:
+            - Expenses:T:Income Tax:Current Yr:Fed:IRA WH
+            formula: =round(XLOOKUP("distr_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("Income:J:Distributions:IRA - TOTAL",tbl_iande[Key],tbl_iande[Y1234],0),2)
+          - base_field: Key # CT Pension withholdings
+            matches:
+            - Expenses:T:Income Tax:Current Yr:State:CT Tax:Pens WH
+            formula: =round(XLOOKUP("distr_CT_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("Income:I:Retirement income:Pension - TOTAL",tbl_iande[Key],tbl_iande[Y1234],0),2)
+          - base_field: Key # CT IRA withholdings
+            matches:
+            - Expenses:T:Income Tax:Current Yr:State:CT Tax:IRA WH
+            formula: =round(XLOOKUP("distr_CT_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("Income:J:Distributions:IRA - TOTAL",tbl_iande[Key],tbl_iande[Y1234],0),2)
+          - base_field: Key # Payroll savings from Aux
+            matches:
+            - Expenses:Y:Payroll Savings:401K - VEC - UHG
+            - Expenses:Y:Payroll Savings:401K - GBD - TRV
+            formula: =XLOOKUP(TRIM([@Account])&":contributions - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
+          - base_field: Key # Payroll savings and other moves to assets from add/wdraw on balances (not banks which are implied for the net)
+            matches:
+            - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
+            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
+            - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
+            - Expenses:Y:To Asst:Invest:BKG - JNT - ML
+            - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
+            - Expenses:Y:To Asst:Invest:BND - GBD - TRY
+            - Expenses:Y:To Asst:Invest:BND - VEC - TRY
+            - Expenses:Y:To Asst:Invest:IRA - GBD - FID
+            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Other Asset
+            - Expenses:Y:To Asst:Real Estate
+            formula: =XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
+          - base_field: Key # Social security benefit federal withholding - G
+            matches:
+            - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
+            formula: =round(XLOOKUP("ss_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("SS - GBD - SSA",tbl_retir_vals[Item],tbl_retir_vals[Y1234],0),2)
+          - base_field: Key # Social security benefit federal withholding - V
+            matches:
+            - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
+            formula: =round(XLOOKUP("ss_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("SS - VEC - SSA",tbl_retir_vals[Item],tbl_retir_vals[Y1234],0),2)
+          - base_field: Key # social security withholding
+            matches:
+            - Expenses:T:Soc Sec:Soc Sec - G
+            - Expenses:T:Soc Sec:Soc Sec - V
+            formula: =XLOOKUP("WH:Soc Sec:" & DROP(TEXTSPLIT([@Key]," - "),0,1) & " - PRODUCT",tbl_aux[Key],tbl_aux[Y1234])
+          - base_field: Key # medicare withholding
+            matches:
+            - Expenses:T:Medicare:Medicare - G
+            - Expenses:T:Medicare:Medicare - V
+            formula: =XLOOKUP("WH:Medicare:" & DROP(TEXTSPLIT([@Key]," - "),0,1) & " - PRODUCT",tbl_aux[Key],tbl_aux[Y1234])
+          - base_field: Key # Fed estimated taxes
+            matches: Expenses:T:Income Tax:Current Yr:Fed:Est pmts
+            formula: =0
+          - base_field: Key # CT estimated taxes
+            matches: Expenses:T:Income Tax:Current Yr:State:CT Tax:Est pmts
+            formula: =2000
+          - base_field: Key # prior year payments/refunds
+            matches:
+            - Expenses:T:Income Tax:Prior Year:Fed pmt (refund)
+            formula: =XLOOKUP("Federal tax due - TOTAL",tbl_taxes[Key],tbl_taxes[Y1234],0)
+          - base_field: Key # prior year payments/refunds
+            matches:
+            - Expenses:T:Income Tax:Prior Year:CT pmt (refund)
+            formula: =XLOOKUP("State tax due:CT - TOTAL",tbl_taxes[Key],tbl_taxes[Y1234],0)
+          - base_field: Key # best fit linear (most expenses)
+            matches:
+            - Expenses:X:Auto:AAA
+            - Expenses:X:Auto:EZ-Pass
+            - Expenses:X:Auto:Fuel
+            - Expenses:X:Auto:Insurance
+            - Expenses:X:Auto:Property Tax
+            - Expenses:X:Auto:Regis. & License
+            - Expenses:X:Auto:Service
+            - Expenses:X:Clothing:George Clothes
+            - Expenses:X:Clothing:Virginia Clothes
+            - Expenses:X:Depreciation
+            - Expenses:X:Donations:Charity Cash Contrib.
+            - Expenses:X:Donations:Political/other
+            - Expenses:X:EVERG:Books
+            - Expenses:X:EVERG:Entertain
+            - Expenses:X:EVERG:Pets
+            - Expenses:X:EVERG:Recreation
+            - Expenses:X:EVERG:Subscriptions
+            - Expenses:X:EVERG:Vacation:Vacation-Other
+            - Expenses:X:EVERG:Xmas
+            - Expenses:X:Food:Dining
+            - Expenses:X:Food:Groceries
+            - Expenses:X:Food:Lunches
+            - Expenses:X:Household:Maid
+            - Expenses:X:Household:Small Gear
+            - Expenses:X:Household:Supplies
+            - Expenses:X:Household:Yard & Garden
+            - Expenses:X:Housing:Homeowners Association
+            - Expenses:X:Housing:Tax related housing:RE taxes
+            - Expenses:X:Housing:Utilities:Electric
+            - Expenses:X:Housing:Utilities:Internet
+            - Expenses:X:Housing:Utilities:Oil
+            - Expenses:X:Housing:Utilities:Pool
+            - Expenses:X:Housing:Utilities:Propane
+            - Expenses:X:Housing:Utilities:Security System
+            - Expenses:X:Housing:Utilities:Sewer
+            - Expenses:X:Housing:Utilities:Taxes Fees & Surcharges
+            - Expenses:X:Housing:Utilities:TeleCell
+            - Expenses:X:Housing:Utilities:TeleCell:0262
+            - Expenses:X:Housing:Utilities:TeleCell:8220
+            - Expenses:X:Housing:Utilities:TeleCell:9359
+            - Expenses:X:Housing:Utilities:TeleCell:9755
+            - Expenses:X:Housing:Utilities:TeleCell:Family Plan
+            - Expenses:X:Housing:Utilities:Water
+            - Expenses:X:Insurance:Home Insurance
+            - Expenses:X:Misc:Bank Chrg
+            - Expenses:X:Misc:Deposits & Fees
+            - Expenses:X:Misc:Discounts
+            - Expenses:X:Misc:Haircuts
+            - Expenses:X:Misc:Incidentals
+            - Expenses:X:Misc:Postage
+            - Expenses:X:Misc:Sales Tax
+            - Expenses:X:Misc:tax prep
+            formula: =MAX(0,FORECAST.LINEAR(6,tbl_iande[@5<Y1234],SEQUENCE(1,5)))
+
+          - base_field: Key # tamped linear for repairs
+            matches:
+            - Expenses:X:Household:Repairs
+            formula: =MAX(0,FORECAST.LINEAR(6,tbl_iande[@5<Y1234],SEQUENCE(1,5)))
+            first_item: 4000,4200,4400,4600,4800
+          - base_field: Key # gifts
+            matches:
+            - Expenses:X:EVERG:Gifts
+            formula: =MAX(0,FORECAST.LINEAR(6,tbl_iande[@5<Y1234],SEQUENCE(1,5)))
+            first_item: 2000,2100,2200,2300,2400
+          - base_field: Key # college
+            matches: 
+              - Expenses:X:College
+              - Income:J:Distributions:529:CHET - Fidelity
+            formula: =-XLOOKUP("CHET - Fidelity:Add/Wdraw",tbl_balances[Key],tbl_balances[Y1234])
+        preserve:
+          method: sparse
+  current:
+    sheet_group: income-expense
+    tables:
+      - name: tbl_current
+        title: YTD and Reprojection
+        include_years: false
+        columns:
+        - name: Key
+          width: 70
+        - name: is_leaf
+          width: 12
+          number_format: 1
+        - name: Account 
+          width: 30
+        - name: YTD
+          width: 12
+        - name: Factor
+          number_format: 2
+        - name: Add
+          number_format: 3
+        - name: Year  
+          number_format: 3
+        hidden:
+        - Key
+        - is_leaf
+        data:
+          source: local
+          type: md_iande_actl
+          path: data/iande_ytd.tsv
+          sheet: current
+          hier_separator: ":"
+          hier_insert_paths: *hier_ins_list          
+        preserve:
+          method: none
+  aux:
+    sheet_group: income-expense
+    tables:
+      - name: tbl_aux
+        title: Aux calcs
+        include_years: true
+        columns:
+        - name: Key
+          width: 25
+        - name: Line
+          width: 35
+        hidden:
+        - Key
+        - Y2018
+        - Y2019
+        - Y2020
+        - Y2021
+        data:
+          source: none
+          hier_separator: ":"
+          hier_insert_paths:
+          - 401K - GBD - TRV:contributions:ER
+          - 401K - GBD - TRV:Withdrawal
+          - 401K - VEC - UHG:contributions:ER
+          - 401K - VEC - UHG:contributions:EE
+          - 401K - VEC - UHG:Withdrawal
+          - Bank Interest:Rate
+          - Bank Interest:Start Bal
+          - HSA - GBD - Fidelity:avail
+          - HSA - GBD - Fidelity:demand
+          - HSA - VEC - UHG:avail
+          - HSA - VEC - UHG:demand
+          - IRA - GBD - FID:Inherit
+          - IRA - GBD - FID:Withdrawal
+          - IRA - GBD - Vanguard:Rollover
+          - IRA - GBD - Vanguard:Withdrawal
+          - IRA - VEC - Vanguard:Rollover
+          - IRA - VEC - Vanguard:Withdrawal
+          - IRA - VEC - ML:Rollover
+          - IRA - VEC - ML:Withdrawal
+          - Other Asset:plans
+          - Other Asset:depreciation
+          - WH:Medicare:G:Base
+          - WH:Medicare:G:Rate
+          - WH:Medicare:V:Base
+          - WH:Medicare:V:Rate
+          - WH:Soc Sec:G:Base:Gross
+          - WH:Soc Sec:G:Base:Cap
+          - WH:Soc Sec:G:Rate
+          - WH:Soc Sec:V:Base:Gross
+          - WH:Soc Sec:V:Base:Cap
+          - WH:Soc Sec:V:Rate
+          hier_alt_agg:
+            "Bank Interest": PRODUCT
+            "HSA - GBD - Fidelity": MIN
+            "HSA - VEC - UHG": MIN
+            "WH:Medicare:G": PRODUCT
+            "WH:Medicare:V": PRODUCT
+            "WH:Soc Sec:G:Base": "MIN"
+            "WH:Soc Sec:V:Base": "MIN"
+            "WH:Soc Sec:G": PRODUCT
+            "WH:Soc Sec:V": PRODUCT
+        fcst_formulas:
+          - query: # Default all rows to "=0" to prevent preserve_changes from copying every zero
+              - field: Key
+                compare_to:
+                - CT_TAX
+                - FED_TAX
+                - MAX
+                - MIN
+                - PRODUCT
+                - TOTAL
+                compare_with: "not_ending"
+            formula: =0
+          - base_field: Key # Bank Interest Start Bal
+            matches: Bank Interest:Start Bal
+            formula: =XLOOKUP("Bank Accounts - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
+          - base_field: Key # Bank Interest Rate
+            matches: Bank Interest:Rate
+            formula: =.02 # TODO something reasonble.
+          - base_field: Key # 401K withdrawal gbd
+            matches: 401K - GBD - TRV:Withdrawal
+            formula: =-XLOOKUP("401K - GBD - TRV",tbl_retir_vals[Item],tbl_retir_vals[Y1234])
+          - base_field: Key # 401K add gbd
+            matches: 401K - GBD - TRV:contributions:ER
+            formula: =XLOOKUP("Income:I:Sheltered income:Match 401K - G",tbl_iande[Key],tbl_iande[Y1234])
+          - base_field: Key # 401K withdrawal vec
+            matches: 401K - VEC - UHG:Withdrawal
+            formula: =-XLOOKUP("401K - VEC - UHG",tbl_retir_vals[Item],tbl_retir_vals[Y1234])
+          - base_field: Key # 401K vec ee contributions, changes in other assets - from transfer_plans
+            matches: 
+            - 401K - VEC - UHG:contributions:EE
+            - Other Asset:plans
+            formula: =SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=INDEX(TEXTSPLIT([@Key],":"),1))*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())))
+          - base_field: Key # 401K vec er contributions
+            matches: 401K - VEC - UHG:contributions:ER
+            formula: =XLOOKUP("Income:I:Sheltered income:Match 401K - V",tbl_iande[Key],tbl_iande[Y1234])
+          - base_field: Key # draw down HSA - GBD as 100 percent of OOP
+            matches:
+            - HSA - GBD - Fidelity:demand
+            formula: =XLOOKUP("Expenses:X:Health:OOP",tbl_iande[Key],tbl_iande[Y1234])
+            first_item: 0,0,0,0,0
+          - base_field: Key # draw down HSA - VEC as 100 percent of total post retirement medical
+            matches:
+            - HSA - VEC - UHG:demand
+            formula: =XLOOKUP("Expenses:X:Health:Prem:Post Ret Med Ins - " & INDEX(TEXTSPLIT([@Key]," - "),2),tbl_iande[Key],tbl_iande[Y1234])
+          - base_field: Key # start of year HSA balance
+            matches:
+            - HSA - GBD - Fidelity:avail
+            - HSA - VEC - UHG:avail
+            #formula: =SUM(FILTER(tbl_balances[Y1234],ISNUMBER(SEARCH("HSA - "&INDEX(TEXTSPLIT([@key]," - "),2)&":Start Bal",tbl_balances[Key]))))
+            formula: =SUM(FILTER(tbl_balances[Y2023],ISNUMBER(SEARCH(INDEX(TEXTSPLIT([@Key],":"),1)&":Start Bal",tbl_balances[Key]))))
+          - base_field: Key # IRA withdrawals
+            matches:
+            - IRA - GBD - FID:Withdrawal
+            - IRA - GBD - Vanguard:Withdrawal
+            - IRA - VEC - Vanguard:Withdrawal
+            - IRA - VEC - ML:Withdrawal
+            formula: =-XLOOKUP(INDEX(TEXTSPLIT([@Key],":"),1),tbl_retir_vals[Item],tbl_retir_vals[Y1234])
+          - base_field: Key # IRA rollover additions
+            matches:
+            - IRA - GBD - Vanguard:Rollover
+            - IRA - VEC - Vanguard:Rollover
+            - IRA - VEC - ML:Rollover
+            # assume only positive rollovers
+            formula: =SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]=INDEX(TEXTSPLIT([@Key],":"),1))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())),0))
+          - base_field: Key # depreciation
+            matches: Other Asset:depreciation
+            formula: =-XLOOKUP("Expenses:X:Depreciation",tbl_iande[Key],tbl_iande[Y1234])
+          - base_field: Key # medicare & social security gross 
+            matches:
+            - WH:Medicare:G:Base
+            - WH:Medicare:V:Base
+            - WH:Soc Sec:G:Base:Gross
+            - WH:Soc Sec:V:Base:Gross
+            formula: =XLOOKUP(CHOOSECOLS(TEXTSPLIT([@Key],":"),3)&" - Earned income - TOTAL",TRIM(tbl_iande[Account]),tbl_iande[Y1234])
+          - base_field: Key # Medicare withholding rates from the latest actual
+            matches:
+            - WH:Medicare:G:Rate
+            - WH:Medicare:V:Rate
+            formula: =XLOOKUP("Medicare withholding rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
+          - base_field: Key # Social security withholding rates from the latest actual
+            matches:
+            - WH:Soc Sec:G:Rate
+            - WH:Soc Sec:V:Rate
+            formula: =XLOOKUP("Social Security FICA rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
+          - base_field: Key # Social security wage cap from the latest actual
+            matches:
+            - WH:Soc Sec:G:Base:Cap
+            - WH:Soc Sec:V:Base:Cap
+            formula: =XLOOKUP("Social Security Wage Cap",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
+        highlights: # conditional formats appied to table
+          present: *past_future
+        preserve:
+          method: sparse    
+        fold_at: 1
+  retirement:
+    sheet_group: retirement
+    tables:
+      - name: tbl_retir_vals
+        title: Retirement Income Plan
+        include_years: true
+        columns:
+        - name: Item
+          width: 28
+        - name: Who
+          width: 12
+        - name: Type
+          width: 12
+        - name: Firm
+          width: 18
+        - name: Election
+          width: 12
+        - name: Start Date
+          width: 12
+          number_format: 14 
+        - name: Anny Dur Yrs
+        - name: Anny Rate
+          number_format: 10
+        - name: Yearly
+          width: 12
+          number_format: 3
+        hidden: 
+        - Who
+        - Type
+        - Firm
+        data:
+          source: local
+          type: retire_template
+          path: data/retire_template.tsv
+          template:
+            fields:
+            - Item
+            - Election
+            - Start Date
+            - Anny Dur Yrs
+            - Anny Rate
+        dyno_fields:
+          - base_field: Election # pension lookup
+            matches:
+              - EE100
+            actions:
+              - target_field: Yearly
+                formula: =12*XLOOKUP([@Item],tbl_pens_facts[Pension],CHOOSECOLS(tbl_pens_facts[#Data],XMATCH(tbl_retir_vals[@Election],tbl_pens_facts[#Headers])),0)
+          - base_field: Election # social security lookup
+            matches:
+              - GBD66
+              - VEC62
+            actions:
+              - target_field: Yearly
+                formula: =@XLOOKUP([@Election],tbl_social_security[Key],tbl_social_security[Amount],0)*12
+        actl_formulas: 
+        - base_field: Item # IRA distributions
+          matches: 
+          - "IRA - GBD - Vanguard"
+          - "IRA - VEC - ML"
+          - "IRA - VEC - Vanguard"
+          - "IRA Roth - GBD - Vanguard"
+          - "IRA Roth - VEC - Vanguard"
+          formula: =@XLOOKUP("Income:J:Distributions:IRA:" & [@Item],tbl_iande[Key],tbl_iande[Y1234],0)
+        - base_field: Item # Pensions
+          matches:
+          - "DB - GBD - KOFC"
+          - "DB - GBD - MML"
+          - "DB - VEC - MML"
+          - "DB - GBD - PNX"
+          - "DB - VEC - PNX"
+          - "DB - GBD - TRV"
+          formula: =@XLOOKUP("Income:I:Retirement income:Pension:" & [@Item],tbl_iande[Key],tbl_iande[Y1234],0)
+        - base_field: Item # Social Security
+          matches:
+          - "SS - GBD - SSA"
+          - "SS - VEC - SSA"
+          formula: =@XLOOKUP("Income:I:Retirement income:Social Security:" & [@Item],tbl_iande[Key],tbl_iande[Y1234],0)
+        fcst_formulas:
+        - base_field: Election # Annuities
+          matches: 
+          - ANN
+          formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
+        - base_field: Item # Annuity with first_item for IRA - GBD - FID
+          matches: 
+          - IRA - GBD - FID
+          formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
+          first_item: 50000
+        - base_field: Election # Rollovers
+          matches:
+          - ROLLOVER
+          # prior year balance plus interest for this year
+          formula: =XLOOKUP(tbl_retir_vals[@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]) *(1+tbl_retir_vals[@[Anny Rate]])*(YEAR(tbl_retir_vals[@[Start Date]])=INT_YEAR("Y1234"))
+        - base_field: Election # RMD - self
+          matches:
+          - RMD
+          formula: =DIV0(XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),LE_SELF([@Who],INT_YEAR("Y1234")))
+        - base_field: Election # Inherited IRA Beneficiary
+          matches: 
+          - RMD-BEN-2018        
+          formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_BEN([@Election],[@Who],INT_YEAR("Y1234"))
+        - base_field: Election # IRA inherited as a spouse
+          matches: 
+          - RMD-SPOUSE        
+          formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_SPOUSE([@Who],INT_YEAR("Y1234"))
+        - base_field: Election # DB EE100, social security
+          matches: 
+          - EE100
+          - GBD66
+          - VEC62
+          formula: =PORTION([@[Start Date]],HORIZON(),INT_YEAR("Y1234"))*[@Yearly]
+        highlights: # conditional formats appied to table
+          present: *past_future
+        preserve:
+          method: full
+      - name: tbl_retir_medical
+        title: Retirement Medical
+        include_years: true
+        columns:
+        - name: Item
+          width: 28
+        - name: Who
+          width: 12
+        - name: Type
+          width: 12
+        - name: Firm
+          width: 18
+        - name: Package
+          width: 12
+        - name: Start Date
+          width: 12
+          number_format: 14 
+        - name: End Date
+          width: 12
+          number_format: 14
+        - name: Spare_1
+          number_format: 10
+        - name: Spare_2
+          width: 12
+          number_format: 3
+        hidden: 
+        - Who
+        - Type
+        - Firm
+        data:
+          source: local
+          type: retire_medical_template
+          path: data/retire_medical_template.tsv
+          template:
+            fields:
+            - Item
+            - Package
+            - Start Date
+            - End Date
+        fcst_formulas:
+        - base_field: Item # part B
+          matches:
+          - PARTB - GBD - PRMEDINS
+          - PARTB - VEC - PRMEDINS
+          formula: =ROUND(12 * MONTHLY_PARTB(tbl_part_b[#Data],AGI(tbl_taxes[Y1234-2]),INT_YEAR("Y1234")) * PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234")),0)
+        - base_field: Item # part D
+          matches:
+          - PARTD - GBD - PRMEDINS
+          - PARTD - VEC - PRMEDINS
+          formula: =ROUND(12 * MONTHLY_PARTD(tbl_part_b[#Data],AGI(tbl_taxes[Y1234-2]),INT_YEAR("Y1234")) * PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234")),0)
+        - base_field: Item # package costs (premium + deductible). 
+          matches:
+          - PKG - GBD - PRMEDINS
+          - PKG - VEC - PRMEDINS
+          formula: =SUMIFS(tbl_mcare_opt[Cost],tbl_mcare_opt[Who],[@Who],tbl_mcare_opt[Package],[@Package])* PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234"))
+        - base_field: Type # Out of pocket
+          matches:
+          - OOP
+          formula: =PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234"))*2000
+        highlights: # conditional formats appied to table
+          present: *past_future
+        preserve:
+          method: full
+  retireparms:
+    sheet_group: retirement
+    tables:
+      - name: tbl_pens_facts
+        title: Pension Facts
+        include_years: false
+        columns:
+        - name: Pension
+          width: 22
+        - name: COLA
+          width: 12
+        - name: Single
+          number_format: 3
+        - name: EE50
+          number_format: 3
+        - name: Spouse50
+          number_format: 3
+        - name: EE75
+          number_format: 3
+        - name: Spouse75
+          number_format: 3
+        - name: EE100
+          number_format: 3
+        - name: Spouse100
+          number_format: 3
+        - name: Lump
+          number_format: 3
+        - name: 10 year certain
+          number_format: 3
+        - name: Source of info
+          width: 30
+        data:
+          source: local
+          type: json_index
+          path: data/pension_facts.json
+        preserve:
+          method: full
+      - name: tbl_social_security
+        title: Social Security
+        include_years: false
+        columns:
+        - name: Key
+          width: 10
+        - name: Initials
+          width: 12
+        - name: Age Years
+          number_format: 3
+        - name: Plus Months
+          number_format: 3
+        - name: Amount
+          number_format: 3
+        data:
+          source: local
+          type: json_records
+          path: data/social_security.json
+        preserve:
+          method: full
+      - name: tbl_mcare_opt
+        title: Medical Options Selection
+        include_years: false
+        columns:
+        - name: Year
+          width: 12
+          number_format: 1
+        - name: Package
+        - name: Class
+          width: 25
+        - name: Who
+          width: 12
+        - name: Firm
+          width: 20
+        - name: Name
+        - name: ID
+        - name: Monthly
+          width: 12
+          number_format: 4
+        - name: Premium
+          number_format: 4
+        - name: Deductible
+          number_format: 4
+        - name: Cost  
+          number_format: 4
+        data:
+          source: local
+          type: json_records
+          path: data/mcare_opt.json       
+        dyno_fields:
+        - base_field: Who # total cost
+          matches:
+            - "*"
+          actions:
+            - target_field: Cost
+              formula: =[@Premium]+ [@Deductible]
+        preserve:
+          method: full
+  other_actl:
+    sheet_group: actuals
+    tables:
+      - name: tbl_manual_actl
+        title: Manually input actual items
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Item
+          width: 40
+        - name: Notes
+        data:
+          source: local
+          type: json_index
+          path: data/manual_actl.json
+        preserve:
+          method: full
+      - name: tbl_payroll_savings
+        title: Payroll Savings incl ER contributions
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Notes
+          width: 25
+        data: 
+          source: local
+          type: md_pr_sav
+          path: data/payroll_to_savings.tsv
+        preserve:
+          method: none
+      - name: tbl_roth_contributions
+        title: Roth IRA contributions
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Notes
+          width: 25
+        data:
+          source: local
+          type: md_roth
+          path: data/roth_contributions.tsv
+        preserve:
+          method: none
+      - name: tbl_529_distr
+        title: 529 plan distributions
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Notes
+          width: 25
+        data:
+          source: local
+          type: md_529_distr
+          path: data/529-distr.tsv      
+        preserve:
+          method: none
+      - name: tbl_ira_distr
+        title: IRA distributions
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Category
+          width: 35
+        - name: Notes
+          width: 25
+        data:
+          source: local
+          type: md_ira_distr
+          path: data/ira-distr.tsv
+        preserve:
+          method: none
+      - name: tbl_hsa_disb
+        title: HSA disbursements
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Notes
+          width: 25
+        data:
+          source: local
+          type: md_hsa_disb
+          path: data/hsa-disbursements.tsv
+        preserve:
+          method: none
+      - name: tbl_bank_sel_invest # bank transfers to/from selected investments
+        title: Bank transfers to/from selected investments
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Notes
+          width: 25
+        data:
+          source: local
+          type: md_sel_inv
+          path: data/trans_bkg.tsv    
+        preserve:
+          method: none
+
+      - name: tbl_tag_sums # 
+        title: Tag summary
+        include_years: true
+        actual_only: true
+        columns:
+        - name: Account
+          width: 35
+        - name: Tag
+          width: 25
+        data:
+          source: local
+          type: md_tag_sums
+          path: data/tagged.tsv
+        preserve:
+          method: none
+
+
+  transfers_actl:
+    sheet_group: actuals
+    tables:
+    - name: tbl_transfers_actl
+      title: Actual transfers between accounts
+      include_years: true
+      actual_only: true
+      columns:
+      - name: Account
+        width: 50
+      data:
+        source: local
+        type: md_transfers_actl
+        path: ./data/transfers.tsv
+        file_sets:
+          balances: ./data/acct-bals/
+        preserve:
+          method: none
+  invest_iande_work: # this gets actual income and expenses for investment including fees. Must come before invest_actl
+    sheet_group:  actuals
+    tables:
+      - name: tbl_invest_iande_values
+        title: Investment Income & Expenses
+        include_years: true
+        actual_only: false
+        columns: &iiw_cols
+        - name: Key
+          width: 35
+        - name: Account
+          width: 25
+        - name: Category
+          width: 20
+        - name: IorE
+          width: 12
+        hidden:
+        - Key
+        data:
+          source: local
+          type: md_invest_iande_values
+          path: data/invest-iande.tsv      
+        highlights: # conditional formats appied to table
+          present: *past_future
+        actl_formulas:
+          - base_field: Category
+            matches: Unrlz Gn/Ls
+            formula: =XLOOKUP([@Category]&[@Account],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
+        fcst_formulas:
+          - base_field: Key # forecast values
+            matches:
+              - "*"
+            formula: =XLOOKUP([@Key],[Key],tbl_invest_iande_ratios[Y1234])*IIES([@Account],tbl_balances[Y1234-1])
+        preserve:
+          method: none
+      - name: tbl_invest_iande_ratios
+        title: Investment Income & Expense Ratios
+        include_years: true
+        actual_only: false
+        columns: *iiw_cols
+        hidden:
+        - Key
+        - Category_Type
+        data:
+          source: local
+          type: md_invest_iande_values
+          path: data/invest-iande.tsv    
+        highlights: # conditional formats appied to table
+          present: *past_future
+        actl_formulas:
+          - base_field: Key
+            matches: "*"
+            formula: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIES([@Account],tbl_balances[Y1234-1]))
+            first_item: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIEF([@Account],tbl_balances[Y1234])) 
+        fcst_formulas:
+          - base_field: Key # forecast rates
+            matches:
+              - "*"
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Near Mkt Rate]:[Rate Cap]],0))
+          - base_field: Category # forecast cap gain rates
+            matches:
+              - Shelt:Distr
+              - CapGn:Mut LT
+              - CapGn:Mut ST
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Near Mkt Rate]:[Rate Cap]],0))
+            first_item: 0.0007,0.0008,0.0009
+          - base_field: Category # forecast fees
+            matches:
+              - Investing:Account Fees
+              - Investing:Action Fees
+            formula: =AVERAGE(tbl_invest_iande_ratios[@5<Y1234])
+          - base_field: Key # forecast fees for new items with no history
+            matches:
+              - IRA - GBD - FID:Investing:Account Fees 
+            formula: =AVERAGE(tbl_invest_iande_ratios[@5<Y1234])
+            first_item: -0.0075,-0.0075,-0.0075,-0.0075,-0.0075
+        preserve:
+          method: sparse
+  invest_actl: # this requires the fees info set above
+    sheet_group: actuals
+    tables:
+    - name: tbl_invest_actl
+      title: Investment gains, losses and transfers
+      include_years: true
+      actual_only: true
+      columns:
+      - name: Key
+        width: 35
+      - name: ValType
+        width: 18
+      - name: Account
+        width: 25
+      - name: Acct_txbl
+        width: 12
+      data:
+        source: local
+        type: md_invest_actl
+        path: data/invest-x.tsv
+        file_sets:
+          performance: data/invest-p/
+          balances: ./data/acct-bals/
+      dyno_fields:
+      - base_field: Account
+        matches:
+          - "*"
+        actions:
+          - target_field: Acct_txbl
+            formula: =XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[Income Txbl],0)
+        preserve:
+          method: none     
+  taxes:
+    sheet_group: taxes
+    tables:
+      - name: tbl_taxes
+        title: Federal and State Taxes
+        include_years: true
+        columns:
+        - name: Key
+          width: 40
+        - name: Line
+          width: 40
+        - name: Tax_doc_ref
+          width: 12
+        - name: Notes
+        - name: Source
+          width: 45
+        - name: Tab
+          width: 18
+        - name: Sign
+          width: 6
+        hidden:
+        - Key
+        - Tax_doc_ref
+        - Notes
+        - Source
+        - Tab
+        - Sign
+        data:
+          source: local
+          type: tax_template
+          path: data/taxes_template.tsv
+          template:
+            fold_spacing: 3
+            fold_field: Line
+            fields:
+            - Line
+            - Tax_doc_ref
+            - Notes
+            - Source
+            - Tab
+            - Sign
+        highlights: # conditional formats appied to table
+          present: *past_future
+          taxes_due:
+            formula: =$A3="{}" # braces replaced by keys, row is 1st data row
+            fill:
+              bgcolor: 4
+            keys:  
+              - "Federal tax due - TOTAL"
+              - "State tax due - TOTAL"
+          subtotals:
+            formula: =ISNUMBER(FIND("{}",$A3)) # in case of a trailing space
+            font:
+              bold: true
+            border:
+              edges: top
+              style: thin
+              color: 9
+            keys:
+              - Adjusted gross:Wages - TOTAL
+              - Adjusted gross:Taxable interest - TOTAL
+              - Adjusted gross:Ordinary dividends - TOTAL
+              - Adjusted gross:IRA distributions - TOTAL
+              - Adjusted gross:Pensions and annuities - TOTAL
+              - Adjusted gross:Social security benefits - PRODUCT
+              - Adjusted gross:CapGn or (loss) - TOTAL
+              - Deductions - TOTAL
+              - Net invest income Tax - PRODUCT
+              - Additional Medicare tax - PRODUCT
+              - Adjusted gross - TOTAL
+              - Taxable income - TOTAL
+              - CT income - TOTAL
+              - State tax due:CT:Taxes - TOTAL
+              - Fed total tax - TOTAL
+        actl_formulas:
+          - base_field: Tab # manual actuals
+            matches:
+              - tbl_manual_actl
+            formula: =XLOOKUP(TRIM([@Source]),tbl_manual_actl[Item],tbl_manual_actl[Y1234],0)*[@Sign]
+          - base_field: Tab # Lookup from roth contributions
+            matches:
+              - tbl_roth_contributions
+            formula: =XLOOKUP(TRIM([@Source]),tbl_roth_contributions[Account],tbl_roth_contributions[Y1234],0)*[@Sign]            
+        fcst_formulas:
+          - base_field: Key # Carry prior year's value for SALT limit, standard deduction, NII exclusion, NII rate, Excess Medicare threshhold and rate, SS Bene rates
+            matches:
+            - Adjusted gross:Social Security - taxable:Pct SS taxable
+            - Fed total tax:Fed tax:Taxable income:Deductions:Selected deductions:Itemized deductions:Limited SALT:SALT limit
+            - Fed total tax:Fed tax:Taxable income:Deductions:Selected deductions:Standard Deduction
+            - Fed total tax:Other taxes:Net invest income Tax:Capped net invest income:Capped NII:NII less cap:(NII Tax exclusion)
+            - Fed total tax:Other taxes:Net invest income Tax:Capped net invest income:Capped NII:Zero
+            - Fed total tax:Other taxes:Net invest income Tax:Net invest income tax rate
+            - Fed total tax:Other taxes:Additional Medicare tax:Excess medicare wages:Medicare wages less threshhold:(Wage threshhold)
+            - Fed total tax:Other taxes:Additional Medicare tax:Additional Medicare rate
+            - Fed total tax:Other taxes:Additional Medicare tax:Excess medicare wages:Zero
+            - State tax due:CT:Taxes:Initial Tax Calculation:CT income:CT subtractions:CT SS taxable amount:Percent of social security taxed in CT
+            formula: =tbl_taxes[@1<Y1234]
+          - base_field: Key # Solar tax credit
+            matches:
+            - Fed total tax:Tax credits:Residential Clean Energy Credit
+            formula: =-SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]="Other Asset")*(tbl_transfers_plan[Notes]="Solar tax credit")*(tbl_transfers_plan[Y_Year]="Y1234"),0))
+        all_col_formulas:
+        - base_field: Tab # Lookup from iande
+          matches:
+            - tbl_iande
+          formula: =XLOOKUP(TRIM([@Source]),tbl_iande[Key],tbl_iande[Y1234],0)*[@Sign]
+        - base_field: Key # patch error in 2022 taxes - did not adjust for accrued interest 
+          matches:
+            - State tax due:CT:Taxes:Initial Tax Calculation:CT income:CT subtractions:Tax-exempt Muni Accrued Int Paid
+          formula: =XLOOKUP(TRIM([@Source]),tbl_iande[Key],tbl_iande[Y1234],0)*[@Sign]
+          first_item: 0,0,0,0,0
+        - base_field: Tab # Lookup from taxes
+          matches:
+            - tbl_taxes
+          formula: =XLOOKUP(TRIM([@Source]),tbl_taxes[Key],tbl_taxes[Y1234],0)*[@Sign]
+        - base_field: Key # CT tax table
+          matches: State tax due:CT:Taxes:Initial Tax Calculation:CT tax table
+          formula: =MIN(INT_YEAR("Y1234"),MAX(tbl_ct_tax[Year]))
+        - base_field: Key # Fed tax table
+          matches: 
+          - Fed total tax:Fed tax:Fed tax table
+          formula: =MIN(INT_YEAR("Y1234"),MAX(tbl_fed_tax[Year]))
+        preserve:
+          method: sparse
+        fold_at: 2
+  capgn:
+    sheet_group: taxes
+    tables:
+      - name: tbl_cap_gn
+        title: For Current Year Tax Estimates
+        include_years: false
+        columns:
+        - name: Account
+          width: 24
+        - name: Security 
+          width: 75
+        - name: Quantity 
+          width: 18
+        - name: Acquisition Cost 
+        - name: Liquidation Amount 
+        - name: Short Term 
+        - name: Long Term 
+        - name: Total Realized Gain/Loss 
+        preserve:
+          method: none
+  tax_tables:
+    sheet_group: taxes
+    tables:
+      - name: tbl_fed_tax
+        title: Federal Tax Table Married Joint
+        include_years: false
+        columns:
+        - name: Year
+          width: 8
+        - name: Range
+          width: 14
+        - name: Rate
+        - name: Subtract
+        data:
+          source: local
+          type: json_records
+          path: data/tax_rates/fed_tax_rates.json
+        preserve:
+          method: none
+      - name: tbl_ct_tax
+        title: CT Tax Table Married Joint
+        include_years: false
+        start_col: 6
+        columns:
+        - name: Year
+          width: 8
+        - name: Range
+          width: 14
+        - name: Rate
+        - name: Base
+        title_row: 1
+        data:
+          source: local
+          type: json_records
+          path: data/tax_rates/ct_tax_rates.json    
+        preserve:
+          method: none
+      - name: tbl_rmd_1
+        title: Reqd Min Distr Table I
+        include_years: false
+        start_col: 11
+        columns:
+        - name: Age
+          width: 14
+        - name: Life Expectancy
+          width: 18
+        title_row: 1
+        data:
+          source: remote
+          site_code: FEDREG
+          url: https://www.federalregister.gov/documents/full_text/xml/2020/11/12/2020-24723.xml
+          table:
+            find_method: xml
+            method_parms:
+              xpath: //GPOTABLE[1]/ROW
+        preserve:
+          method: none
+      - name: tbl_rmd_3
+        title: Uniform Lifetime Table (RMD table III)
+        include_years: false
+        start_col: 14
+        columns:
+        - name: Age
+          width: 14
+        - name: Distribution
+          width: 18
+        title_row: 1
+        data:
+          source: remote
+          site_code: FEDREG
+          url: https://www.federalregister.gov/documents/full_text/xml/2020/11/12/2020-24723.xml
+          table:
+            find_method: xml
+            method_parms:
+              xpath: //GPOTABLE[2]/ROW
+        preserve:
+          method: none
+  gen_tables:
+    sheet_group: tables
+    tables:
+      - name: tbl_people
+        title: People
+        include_years: false
+        columns:
+        - name: Initials
+          width: 10
+        - name: Full name
+          width: 20
+        - name: DOB
+          number_format: 14
+        - name: Retire Date
+          number_format: 14
+        data:
+          source: local
+          type: json_index
+          path: data/people.json        
+        preserve:
+          method: full
+      - name: tbl_gen_state
+        title: General State
+        title_row: 20
+        start_col: 10
+        include_years: false
+        columns:
+        - name: Item
+          width: 18
+        - name: Value
+        - name: Comment
+          width: 30
+        data:
+          source: internal
+          type: json_index
+          name: general_state
+          path: data/gen_state.json
+        preserve:
+          method: full
+      - name: tbl_state_tax_facts
+        title: State Tax Facts
+        include_years: false
+        title_row: 7
+        columns:
+        - name: State
+          width: 18
+        - name: Top Rate
+          number_format: 2
+        - name: Adj to Eff
+        - name: Eff Rate
+          number_format: 2
+        - name: Brackets
+          width: 12
+        - name: Tax on SS
+          horiz: center
+        - name: 401K
+          horiz: center
+        - name: IRA
+          horiz: center
+        - name: Private Pension
+          horiz: center
+        - name: Div & Int Rate
+          width: 15
+          number_format: 2
+        - name: Rules
+          width: 40
+        - name: Sales Tax
+          number_format: 2
+          width: 12
+        data:
+          source: local
+          type: json_index
+          path: data/state_tax_facts.json
+        preserve:
+          method: full
+      - name: tbl_part_b
+        title: Part B Premium
+        include_years: false
+        title_row: 20
+        columns:
+        - name: Year
+          width: 14
+          number_format: '####'
+        - name: Range_low
+          number_format: 3
+        - name: Range_high
+          number_format: 3
+        - name: Part_B
+          number_format: 4
+        - name: Part_D_addl
+          number_format: 4
+        data:
+          source: local
+          type: json_records
+          path: data/part_b.json
+        preserve:
+          method: full
+      - name: tbl_infl
+        title: Historical Inflation
+        include_years: false
+        title_row: 20
+        start_col: 7
+        columns:
+        - name: Year
+          width: 18
+          number_format: '####' # no commas
+        - name: Annual CPI
+          number_format: 4 # #,##0.00
+        data:
+          source: remote
+          site_code: BLS
+          url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+          api_key: bls # ref in ./private/api_keys.yml
+          parameters:
+            start_year: 1970
+            end_year: 2022
+            seriesid: 
+            - CUUR0000SA0 # All items in U.S. city average, all urban consumers, not seasonally adjusted
+        preserve:
+          method: none
+  utility:
+    sheet_group: tables
+    tables:
+      - name: tbl_table_map
+        title: Table Locator
+        include_years: false
+        data:
+          source: internal
+          name: table_map
+        columns:
+        - name: Table
+          width: 20
+        - name: Worksheet
+        preserve:
+          method: none
+
