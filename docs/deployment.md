@@ -2,7 +2,9 @@
 
 This is barely working.
 
-Using python distribution manager with setuptools backend.
+Using python distribution manager (pdm) with setuptools backend.
+
+Set version manually, in `pyproject.toml`
 
 Invoke with `pdm build`.
 

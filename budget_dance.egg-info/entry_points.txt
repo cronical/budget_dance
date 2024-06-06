@@ -1,6 +1,6 @@
 [console_scripts]
 build_book = dance.util.build_book:main
-extract = dance.extract:main
+extract_table = dance.extract_table:main
 iande_actl_load = dance.iande_actl_load:main
 invest_actl_load = dance.iande_actl_load:main
 invest_iande_load = dance.invest_iande_load:main

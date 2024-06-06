@@ -119,7 +119,7 @@
       "request": "launch",
       "program": "dance/util/bracket_fix.py",
       "console": "integratedTerminal",
-      "args": ["data/tax_rates/2023_tax_brackets_irs.csv"],
+      "args": ["-y", "2024","data/tax_rates/2024_tax_brackets_irs.csv"],
       "justMyCode": true
     }
     ]

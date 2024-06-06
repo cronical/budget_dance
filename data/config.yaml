@@ -1,6 +1,6 @@
-workbook: data/test_wb.xlsx
+workbook: data/fcast.xlsx
 start_year : 2018
-end_year : 2033
+end_year : 2038
 hide_years:
   - 2018
   - 2019
@@ -29,10 +29,10 @@ lambdas:
     formula: =LAMBDA(n,d,IF(d=0,0,n/d))
     comment: Performs normal division except div by 0 returns 0.
   - name: FCST_RATE
-    formula: =LAMBDA(py,ncr,IFERROR(AVERAGEIF(py,">0"),CHOOSECOLS(ncr,1)))
+    formula: =LAMBDA(py,ncr,IFERROR(AVERAGEIF(py,"<>0"),CHOOSECOLS(ncr,1)))
     comment: Calculate forecast rate given array of prior years and default rate (not capped).
   - name: FCST_MKT_RATE
-    formula: =LAMBDA(py,ncr,MIN(IFERROR(AVERAGEIF(py,">0"),CHOOSECOLS(ncr,1)),CHOOSECOLS(ncr,2)))
+    formula: =LAMBDA(py,ncr,MIN(IFERROR(AVERAGEIF(py,"<>0"),CHOOSECOLS(ncr,1)),CHOOSECOLS(ncr,2)))
     comment: Calculate forecast rate given array of prior years and array of near mkt rate and rate cap.
   - name: FIRST_LAST
     formula: =LAMBDA(y,HSTACK(DATE(y,1,1),DATE(y,12,31)))
@@ -59,7 +59,7 @@ lambdas:
     formula: =LAMBDA(election,who,cy,LET(e,TEXTSPLIT(election,"-"),dy,0+TAKE(e,1,-1),g,AGE(who,dy),lead,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),lead-(cy-dy)))
     comment: Life expectancy for a beneficiary (not a spouse). Call with election, who, current yr.
   - name: LE_SELF
-    formula: =LAMBDA(who,yr,XLOOKUP(AGE(who,yr),tbl_rmd_3[Age],tbl_rmd_3[Distribution],0))
+    formula: =LAMBDA(who,yr,XLOOKUP(AGE(who,yr),RMD_Age(who),tbl_rmd_3[Distribution],0))
     comment: Life expectancy for normal RMD (table 3), or zero if not yet aged enough. 
   - name: LE_SPOUSE
     formula: =LAMBDA(who,yr,LET(g,AGE(who,yr),le,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),le))
@@ -91,6 +91,9 @@ lambdas:
   - name: PORTION
     formula: =LAMBDA(s,e,y,MON_THIS(s,DEFAULT_DATE(e),y)/12)
     comment: The number of months in this year where this row applies divided by 12.
+  - name: RMD_AGE
+    formula: =LAMBDA(who,tbl_rmd_3[Age]*(tbl_rmd_3[Age]>=XLOOKUP(who,tbl_people[Initials],tbl_people[RMD Start Age])))
+    comment: Zero out age in rmd_3 age column if less than RMD start age for 'who'. Used to set RMD start in LE_SELF
   - name: TX_CALC_A
     formula: =LAMBDA(tt,ti,LET(m,ti-TX_PRV_BK(tt,ti),tx,TX_THS_BK(tt,ti)*EXPAND(m,1,2,1),SUM(tx)))
     comment: Calc tax using add type tax table. Call with 3 col tax table, taxable income 
@@ -734,7 +737,6 @@ sheets:
             - Expenses:X:Health:Prem:Post Ret Med Ins - GBD
             - Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             - Expenses:X:Health:OOP
-            - Income:J:Distributions:TTE:BKG - TTE - ML
             - Income:J:Distributions:IRA:IRA - VEC - ML
             - Income:J:Distributions:IRA:IRA - GBD - ML
             - Income:J:Distributions:IRA:IRA - GBD - Vanguard
@@ -753,7 +755,8 @@ sheets:
             - Income:J:Distributions:401K:Rollover:401k - VEC - UHG
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
-            - Expenses:Y:Invest:Reinv
+            - Expenses:Y:Invest:Reinv:Gross
+            - Expenses:Y:Invest:Reinv:Trust Distribution
             - Expenses:Y:Invest:Account Fees
             - Expenses:Y:Invest:Action Fees
             - Expenses:Y:Invest:Inherit:Normal
@@ -766,6 +769,7 @@ sheets:
             - Expenses:Y:To Asst:Invest:BKG - TTE - ML
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
+            - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
             - Expenses:Y:To Asst:Invest:IRA - GBD - ML
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
@@ -849,9 +853,11 @@ sheets:
             formula: =XLOOKUP(trim([@Account]),tbl_payroll_savings[Account],tbl_payroll_savings[Y1234],0)
           - base_field: Key # invest:xfer
             matches:
+            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
+            - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
@@ -861,10 +867,14 @@ sheets:
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
             formula: =SUMIFS(tbl_tag_sums[Y1234],tbl_tag_sums[Tag],"acct-move",tbl_tag_sums[Account],trim([@Account]))
         all_col_formulas:
-          - base_field: Key # Reinvestment cashflow
+          - base_field: Key # Reinvestment gross
             matches:
-              - Expenses:Y:Invest:Reinv
+              - Expenses:Y:Invest:Reinv:Gross
             formula: =SUM(FILTER(tbl_balances[Y1234],tbl_balances[ValType]="Reinv Amt"))
+          - base_field: Key # Trust distribution - watch out: hard coded to single account
+            matches:
+              Expenses:Y:Invest:Reinv:Trust Distribution
+            formula: =XLOOKUP("BKG - TTE - ML:Distr - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # remove investing fees
             matches: 
               - Expenses:Y:Invest:Account Fees
@@ -923,14 +933,19 @@ sheets:
             - Income:J:Distributions:HSA:HSA - GBD - Fidelity
             - Income:J:Distributions:HSA:HSA - VEC - UHG            
             formula: =-XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
-          - base_field: Key # Trust distributions
-            matches:
-            - Income:J:Distributions:TTE:BKG - TTE - ML
-            formula: =-XLOOKUP(TRIM([@Account])&":Distr - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
-          - base_field: Key # post retirement insurance costs from retir_vals - GBD
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD
-            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Firm]="PRMEDINS")))
-          - base_field: Key # post retirement insurance costs costs from retir_vals - VEC
+             # Trust distributions are included in the investment income categories like div:reg
+
+          - base_field: Key # post retirement medigap insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Medigap
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PKG")))
+          - base_field: Key # post retirement Part B insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part B
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTB")))
+          - base_field: Key # post retirement Part D insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part D
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTD")))
+
+          - base_field: Key # post retirement insurance costs costs from retir_vals - VEC - no need yet to break out due to lack of actuals
             matches: Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="VEC")*(tbl_retir_medical[Firm]="PRMEDINS")))
           - base_field: Key # out of pocket costs from retir_vals
@@ -960,7 +975,6 @@ sheets:
           - base_field: Key # Payroll savings and other moves to assets from add/wdraw on balances (not banks which are implied for the net)
             matches:
             - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
-            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
@@ -1329,10 +1343,10 @@ sheets:
             actions:
               - target_field: Yearly
                 formula: =12*XLOOKUP([@Item],tbl_pens_facts[Pension],CHOOSECOLS(tbl_pens_facts[#Data],XMATCH(tbl_retir_vals[@Election],tbl_pens_facts[#Headers])),0)
-          - base_field: Election # social security lookup
+          - base_field: Item # social security lookup
             matches:
-              - GBD66
-              - VEC62
+            - SS - GBD - SSA
+            - SS - VEC - SSA
             actions:
               - target_field: Yearly
                 formula: =@XLOOKUP([@Election],tbl_social_security[Key],tbl_social_security[Amount],0)*12
@@ -1364,11 +1378,10 @@ sheets:
           matches: 
           - ANN
           formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
-        - base_field: Item # Annuity with first_item for IRA - GBD - ML
+        - base_field: Item # Annuity with allowance for first_item for IRA - GBD - ML
           matches: 
           - IRA - GBD - ML
           formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
-          first_item: 50000
         - base_field: Election # Rollovers
           matches:
           - ROLLOVER
@@ -1386,16 +1399,21 @@ sheets:
           matches: 
           - RMD-SPOUSE        
           formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_SPOUSE([@Who],INT_YEAR("Y1234"))
-        - base_field: Election # DB EE100, social security
+        - base_field: Election # Portion for year DB EE100
           matches: 
           - EE100
           - GBD66
           - VEC62
           formula: =PORTION([@[Start Date]],HORIZON(),INT_YEAR("Y1234"))*[@Yearly]
+        - base_field: Item # Portion for year: Social security
+          matches: 
+          - SS - GBD - SSA
+          - SS - VEC - SSA
+          formula: =PORTION([@[Start Date]],HORIZON(),INT_YEAR("Y1234"))*[@Yearly]
         highlights: # conditional formats appied to table
           present: *past_future
         preserve:
-          method: full
+          method: sparse
       - name: tbl_retir_medical
         title: Retirement Medical
         include_years: true
@@ -1677,8 +1695,6 @@ sheets:
           path: data/tagged.tsv
         preserve:
           method: none
-
-
   transfers_actl:
     sheet_group: actuals
     tables:
@@ -1731,7 +1747,7 @@ sheets:
               - "*"
             formula: =XLOOKUP([@Key],[Key],tbl_invest_iande_ratios[Y1234])*IIES([@Account],tbl_balances[Y1234-1])
         preserve:
-          method: none
+          method: sparse
       - name: tbl_invest_iande_ratios
         title: Investment Income & Expense Ratios
         include_years: true
@@ -2067,6 +2083,8 @@ sheets:
           number_format: 14
         - name: Retire Date
           number_format: 14
+        - name: RMD Start Age
+          number_format: 1
         data:
           source: local
           type: json_index
