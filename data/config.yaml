@@ -220,7 +220,6 @@ sheets:
           include_zeros:
           - 529 - ML
           - BKG - JNT - CP1
-          - BKG - TTE - ML
           - 401K - GBD MML - Pre-tax
           - 401K - GBD MML - Roth
           - 401K - VEC - UHG
@@ -237,7 +236,6 @@ sheets:
           - HSA
           - IRA
           force_active:
-          - BKG - TTE - ML
           - IRA - GBD - ML
           - LON - JNT - HED
         dyno_fields:
@@ -303,9 +301,8 @@ sheets:
             actions: 
               - target_field: Reinv Rate
                 constant: 1.0
-          - base_field: Account # zero re-investment rate - simplification for trust
+          - base_field: Account # zero re-investment rate 
             matches:
-              - BKG - TTE - ML
               - LON - JNT - HED
             actions:
               - target_field: Reinv Rate
@@ -669,11 +666,6 @@ sheets:
                   value_field: No Distr Plan
             formula: =SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())))
             # the SUM phrase calculates the net change defined in the transfers_plan for this account, this year
-          - base_field: Key # Override add/wdraw % for trust account 
-            # adjust here to retain capital gains
-            matches: 
-            - BKG - TTE - ML:Add/Wdraw
-            formula: =XLOOKUP(TRIM([@AcctName])&" - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: ValType # Start Bal
             matches: Start Bal
             formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
@@ -728,6 +720,7 @@ sheets:
           hier_insert_paths: &hier_ins_list
             - Income:I:Invest income:CapGn:Sales
             - Income:I:Invest income:CapGn:Shelt:Sales
+            - Income:I:Other income:Dobbs Trust
             - Income:I:Retirement income:Social Security:SS - GBD - SSA
             - Income:I:Retirement income:Social Security:SS - VEC - SSA
             - Income:I:Retirement income:Pension:DB - VEC - PNX
@@ -766,7 +759,6 @@ sheets:
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
-            - Expenses:Y:To Asst:Invest:BKG - TTE - ML
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
             - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
@@ -871,10 +863,6 @@ sheets:
             matches:
               - Expenses:Y:Invest:Reinv:Gross
             formula: =SUM(FILTER(tbl_balances[Y1234],tbl_balances[ValType]="Reinv Amt"))
-          - base_field: Key # Trust distribution - watch out: hard coded to single account
-            matches:
-              Expenses:Y:Invest:Reinv:Trust Distribution
-            formula: =XLOOKUP("BKG - TTE - ML:Distr - TOTAL",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # remove investing fees
             matches: 
               - Expenses:Y:Invest:Account Fees
@@ -986,7 +974,6 @@ sheets:
             formula: =XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
           - base_field: Key # invest inheritance
             matches:
-            - Expenses:Y:To Asst:Invest:BKG - TTE - ML
             - Expenses:Y:To Asst:Invest:IRA - GBD - ML
             formula: =XLOOKUP(TRIM([@Account])&":Inherit",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # Social security benefit federal withholding - G
@@ -1155,10 +1142,6 @@ sheets:
           - 401K - VEC - UHG:Withdrawal
           - Bank Interest:Rate
           - Bank Interest:Start Bal
-          - BKG - TTE - ML:Inherit # positive to increase 
-          - BKG - TTE - ML:Distr:Expense # Trust expenses (a positive) which are offset against income before distribution. Use the account fees to approximate the expenses 
-          - BKG - TTE - ML:Distr:Income # (negative to reflect pymt to benef)
-          - BKG - TTE - ML:Distr:Principal # also negative to distribute principal
           - HSA - GBD - Fidelity:avail
           - HSA - GBD - Fidelity:demand
           - HSA - VEC - UHG:avail
@@ -1211,14 +1194,6 @@ sheets:
           - base_field: Key # Bank Interest Rate
             matches: Bank Interest:Rate
             formula: =.02 # TODO something reasonble.
-          - base_field: Key # Trust expenses
-            matches:
-            - BKG - TTE - ML:Distr:Expense
-            formula: =-ROUND(SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Account]=CHOOSECOLS(TEXTSPLIT([@Key],":"),1))*(tbl_invest_iande_values[IorE]="X"),0)),0)
-          - base_field: Key # Trust income (includes cap gains - maybe shouldn't)
-            matches:
-            - BKG - TTE - ML:Distr:Income
-            formula: =-ROUND(SUM(FILTER(tbl_invest_iande_values[Y1234],(tbl_invest_iande_values[Account]=CHOOSECOLS(TEXTSPLIT([@Key],":"),1))*(tbl_invest_iande_values[IorE]="I"),0)),0)
           - base_field: Key # 401K withdrawal gbd
             matches: 401K - GBD - TRV:Withdrawal
             formula: =-XLOOKUP("401K - GBD - TRV",tbl_retir_vals[Item],tbl_retir_vals[Y1234])
