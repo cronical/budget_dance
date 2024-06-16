@@ -162,8 +162,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
 
   return df,groups
 
-
-if __name__ == '__main__':
+def main():
   default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies data from input file into tab "iande" or "current".')
   parser.add_argument('-s','--sheet',choices=['iande','current'],default='iande',help='which sheet - iande or current')
@@ -188,3 +187,6 @@ if __name__ == '__main__':
   attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())
   wkb=set_col_attrs(wkb,args.sheet,attrs)
   wkb.save(args.workbook)
+
+if __name__ == '__main__':
+  main()
