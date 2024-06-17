@@ -87,6 +87,15 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   lir_data=[]
   lir_index=[]
   for account,row in accounts.loc[accounts.index.str.startswith('LON')].iterrows():
+    for x,v in enumerate(row): # allow accounts to use formulas instead of constants to cut down on noise in preserve_changed
+      if isinstance(v,str):
+        if "="==v[0]:
+          try:
+            v=float(v[1:])
+          except ValueError as err:
+            logger.error(f"Configured value is non numeric: {v}")
+            raise ValueError from err
+          row[x]=v
     sel=(invest_iande.Account==account) & (invest_iande.Category.str.contains('Int:'))
     interest=invest_iande.loc[sel,y_columns].sum(axis=0).astype(float)
     adj= round(interest * (1-row['Reinv Rate']),2)

@@ -262,7 +262,7 @@ sheets:
             matches: B
             actions:
               - target_field: Near Mkt Rate
-                constant: .03
+                formula: =.03
           - base_field: Account # near market rate Investment 2.0 %
             matches:
             - 401K - GBD - TRV
@@ -281,32 +281,32 @@ sheets:
             - MUT - JNT - T. Rowe Price             
             actions:
               - target_field: Near Mkt Rate
-                constant: 0.02
+                formula: =0.02
           - base_field: Type # Rate cap 3.5% for unrlz gn
             matches: I
             actions:
               - target_field: Rate Cap
-                constant: 0.035
+                formula: =0.035
           - base_field: Account # rate cap 4%
             matches:
               - BKG - JNT - ML
               - LON - JNT - HED
             actions:
               - target_field: Rate Cap
-                constant: 0.04
+                formula: =0.04
           - base_field: Type # default 100% re-investment rate
             matches: 
               - I
               - B
             actions: 
               - target_field: Reinv Rate
-                constant: 1.0
+                formula: =1.0
           - base_field: Account # zero re-investment rate 
             matches:
               - LON - JNT - HED
             actions:
               - target_field: Reinv Rate
-                constant: 0.0                                   
+                formula: =0.0                                   
         preserve:
           method: sparse
           non-year-cols:
@@ -749,7 +749,6 @@ sheets:
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
             - Expenses:Y:Invest:Reinv:Gross
-            - Expenses:Y:Invest:Reinv:Trust Distribution
             - Expenses:Y:Invest:Account Fees
             - Expenses:Y:Invest:Action Fees
             - Expenses:Y:Invest:Inherit:Normal
@@ -843,17 +842,20 @@ sheets:
             - Expenses:Y:Payroll Savings:HSA - GBD - Fidelity
             - Expenses:Y:Payroll Savings:HSA - VEC - UHG
             formula: =XLOOKUP(trim([@Account]),tbl_payroll_savings[Account],tbl_payroll_savings[Y1234],0)
-          - base_field: Key # invest:xfer
+          - base_field: Key # move to assets including reinvestments
             matches:
             - Expenses:Y:To Asst:Invest:BKG - GBD - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
             - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
-            - Expenses:Y:To Asst:Invest:LON - JNT - HED
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
             formula: =XLOOKUP(trim([@Account]),tbl_bank_sel_invest[Account],tbl_bank_sel_invest[Y1234],0)
+          - base_field: Key # move to assets where there is no-reinvestment
+            matches:
+            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            formula: =XLOOKUP(TRIM([@Account])&":Add/Wdraw",tbl_balances[Key],tbl_balances[Y1234],0)
           - base_field: Key # account moves (eg devenir to fidelity. this is the receiving side)
             matches:
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
@@ -921,8 +923,6 @@ sheets:
             - Income:J:Distributions:HSA:HSA - GBD - Fidelity
             - Income:J:Distributions:HSA:HSA - VEC - UHG            
             formula: =-XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
-             # Trust distributions are included in the investment income categories like div:reg
-
           - base_field: Key # post retirement medigap insurance costs from retir_vals - GBD
             matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Medigap
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PKG")))
