@@ -21,3 +21,4 @@ build/**
 dist/**
 budget_dance.egg-info/**
 dance/docu/**
+budget_dance.egg-info/SOURCES.txt
