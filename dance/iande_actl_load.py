@@ -3,6 +3,7 @@
 Copies data from "data/iande.tsv" into tab "iande" after doing some checks.
 '''
 import argparse
+import os
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -172,11 +173,18 @@ def main():
   
   args=parser.parse_args()
   path=args.path
+  IANDE,CURRENT='iande.tsv','iande_ytd.tsv'
   if path is None:
-    path={'iande':'data/iande.tsv','current':'data/iande_ytd.tsv'}[args.sheet]
+    fn={'iande':IANDE,'current':CURRENT}[args.sheet]
+    path=os.path.join('data',fn)
   ffy=config['first_forecast_year']
   table_info=config['sheets'][args.sheet]['tables'][0]
   data=read_iande_actl(data_info={'path':path})
+  if args.sheet=='current': # expand to match the rows in the iande table
+    dir=os.path.split(path)[0]
+    ref=read_iande_actl(data_info={'path':os.path.join(dir,IANDE)})
+    ref=ref[['Account']]
+    data=ref.merge(data,on='Account',how='left')
   table='tbl_'+args.sheet
   data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast='Y%04d'%ffy)
   data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config

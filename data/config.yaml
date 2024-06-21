@@ -720,7 +720,7 @@ sheets:
           hier_insert_paths: &hier_ins_list
             - Income:I:Invest income:CapGn:Sales
             - Income:I:Invest income:CapGn:Shelt:Sales
-            - Income:I:Other income:Dobbs Trust
+            - Income:I:Other taxable income:Dobbs Trust
             - Income:I:Retirement income:Social Security:SS - GBD - SSA
             - Income:I:Retirement income:Social Security:SS - VEC - SSA
             - Income:I:Retirement income:Pension:DB - VEC - PNX
@@ -764,6 +764,7 @@ sheets:
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
             - Expenses:Y:To Asst:Invest:IRA - GBD - ML
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:MUT - JNT - T. Rowe Price
             - Expenses:Y:To Asst:Bank Accounts
             - Expenses:Y:To Asst:Other Asset # includes depreciation
             - Expenses:Y:To Asst:Real Estate # has included depreciation in 2014
@@ -969,6 +970,7 @@ sheets:
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:MUT - JNT - T. Rowe Price
             - Expenses:Y:To Asst:Other Asset
             - Expenses:Y:To Asst:Real Estate
             formula: =XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])

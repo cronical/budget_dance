@@ -29,7 +29,7 @@
       "request": "launch",
       "program": "dance/iande_actl_load.py",
       "console": "integratedTerminal",
-      "args": ["-w","data/test_wb.xlsm","-y","Y2022"],
+      "args": ["-s", "current"],
       "justMyCode": true
     },
     {
