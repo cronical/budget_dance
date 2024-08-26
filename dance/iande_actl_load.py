@@ -6,7 +6,7 @@ import argparse
 import os
 
 import pandas as pd
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from openpyxl.utils import get_column_letter
 
 from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
@@ -15,7 +15,7 @@ from dance.util.logs import get_logger
 from dance.util.tables import (columns_for_table, df_for_table_name,
                                get_f_fcast_year,  write_table)
 from dance.util.xl_formulas import actual_formulas, forecast_formulas, table_ref
-from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas
+from dance.util.row_tree import hier_insert,folding_groups,is_leaf,nest_by_cat,subtotal_formulas,set_level
 
 config=read_config() 
 logger=get_logger(__file__)
@@ -67,10 +67,32 @@ def y_year(df):
       df.rename(columns={cn:nn},inplace=True) 
   return df 
 
-def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_row=1,verbose=False):
-  '''prepare the dataframe for insertion into workbook. 
-    #Makes checks to ensure nothing of the forecast gets lost due to changed lines.
-    #Checks can be overridden by a flag.
+def current_inclusive(current: pd.DataFrame, wb:Workbook ,table_map:dict)-> pd.DataFrame:
+  '''For current iande, expand the row set to include what is already in the workbook for iande.
+  This allows reforecasting a row that does not yet exist in the year but has existed in past years.
+  
+  We use a left join, so this will exclude any rows in current that don't exist in iande.
+  This is desired since the ytd function will try to post values from current to iande.
+
+  The resulting dataframe has two non-null fields: Key and level.
+
+  Provide the ytd dataframe as current, and the workbook
+  Returns revised current dataframe with new rows.
+  '''
+
+  ref=df_for_table_name('tbl_iande',wb,table_map=table_map)[[]] # just the index
+  ref.index.name='Key'
+  ref=set_level(ref) 
+  current.set_index('Key',inplace=True)
+  del current['level'] # since its a left join, we can just use the ones from iande
+  current=ref.merge(current,on='Key',how='left')
+  current.reset_index(inplace=True)
+  return current
+
+def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_row=1,verbose=False,
+                       table_map:dict = None):
+  '''Prepare the dataframe for insertion into workbook. 
+
     Handles category nesting as groups with subtotals.
 
     args:
@@ -81,6 +103,7 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
       f_fcast: Optional. The first forecast year as Ynnnn. If none, will read from the workbook file. Default None.
       title_row: Optional. The row number in Excel for the title row (needed to compute subtotals). Default 1.
       verbose: True to report out all the lines that are in actl but not in iande. default False.
+      table_map is required when building the whole book (to support the current tab, using iande).
 
     returns:
       A dataframe and the groups (for folding)
@@ -113,30 +136,42 @@ def prepare_iande_actl(workbook,target_sheet,df,force=False,f_fcast=None,title_r
   assert len(tables)==1,'not exactly one table defined'
   tab_tgt=tables[0]['name']
 
-  df=nest_by_cat(df) # creates key, leaf and level fields
+  df=nest_by_cat(df) # creates key and level fields
   df=hier_insert(df,tables[0]) # insert any specified lines into hierarchy
+
+  if target_sheet=='current':
+    df=current_inclusive(df,wb,table_map=table_map)
+
   df=is_leaf(df)# mark rows that are leaves of the category tree
-  df,groups=folding_groups(df)
+  groups=folding_groups(df)
+  del df['level'] # clear out temp field  
 
   expected_cols=set(columns_for_table(wb,target_sheet,tab_tgt,config).name)
 
   match target_sheet:
     case 'iande':
       del df['is_leaf'] # clear out temp field
-      #test_required_lines(df,workbook,f_fcast,initialize_iande=True,force=force,verbose=verbose) # raises error if not good.
-      # adjust for iande, adding columns
+      
       for y in range(int(f_fcast[1:]),config['end_year']+1): # add columns for forecast years
         df['Y{}'.format(y)]=None
+
     case 'current':
+      # verify that year is the first forecast year
       as_of=df.columns[-1]
       as_of_datetime=pd.to_datetime(as_of.split(' - ')[-1])
       assert as_of_datetime.year==int(f_fcast[1:]),'YTD file is not for first forecast year'
+
+      # rename the ytd column to correct format
       yymmdd='%4d%02d%02d'%(as_of_datetime.year,as_of_datetime.month,as_of_datetime.day)
       df.rename(columns={as_of:yymmdd},inplace=True)
+
       expected_cols= (expected_cols-set(['YTD']))|set(['Y'+yymmdd]) 
-      df[['Factor','Add']]=None
+      df[['Factor','Add','Year']]=None
+
+      # set the formula for the total year
       formula='=IF(AND(ISBLANK([@Factor]),ISBLANK(@Add)),"",([@Y%s]*[@Factor])+[@Add])'%yymmdd
-      df['Year']=table_ref(formula)
+      df['Year']=table_ref(formula)          
+      pass
     
   df=y_year(df)  
   df=subtotal_formulas(df,groups)
@@ -180,16 +215,11 @@ def main():
   ffy=config['first_forecast_year']
   table_info=config['sheets'][args.sheet]['tables'][0]
   data=read_iande_actl(data_info={'path':path})
-  if args.sheet=='current': # expand to match the rows in the iande table
-    dir=os.path.split(path)[0]
-    ref=read_iande_actl(data_info={'path':os.path.join(dir,IANDE)})
-    ref=ref[['Account']]
-    data=ref.merge(data,on='Account',how='left')
   table='tbl_'+args.sheet
   data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast='Y%04d'%ffy)
+  wkb = load_workbook(filename = args.workbook, read_only=False)
   data=forecast_formulas(table_info,data,ffy) # insert forecast formulas per config
   data=actual_formulas(table_info,data,ffy) # insert actual formulas per config
-  wkb = load_workbook(filename = args.workbook, read_only=False)
   wkb=fresh_sheet(wkb,args.sheet)
   wkb= write_table(wkb,target_sheet=args.sheet,df=data,table_name=table,groups=fold_groups)
   attrs=col_attrs_for_sheet(wkb,args.sheet,read_config())

@@ -115,7 +115,8 @@ def refresh_sheets(target_file,overwrite=False):
               data=nest_by_cat(data,cat_field='Line') # creates key, leaf and level fields
               data=hier_insert(data,table_info,sep=data_info['hier_separator']) # insert any specified lines into hierarchy
               data=is_leaf(data)# mark rows that are leaves of the category tree
-              data,groups=folding_groups(data)
+              groups=folding_groups(data)
+              del data['level'] # clear out temp field  
               del data['is_leaf'] # clear out temp field
               title_row=1
               if 'title_row' in table_info:

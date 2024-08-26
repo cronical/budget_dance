@@ -60,7 +60,8 @@ def folding_groups(df):
   Whenever the level goes down from the previous level it may be a total
   Separate function allows use if heirarchical insert if needed.
   
-  returns modifed df and groups
+  returns list of groups which are [level, start, end]
+  caller may want to remove the level column
   '''
   groups=[] # level, start, end
   last_level=-1
@@ -84,8 +85,8 @@ def folding_groups(df):
         except ValueError as e:
           raise ValueError(f'{k} not found in keys'.format()) from e
     last_level=row['level']
-  del df['level'] # clear out temp field  
-  return df,groups
+  
+  return groups
 
 def multi_agg_subtotals(groups):
   '''for a each group determine what rows should be aggregated
@@ -163,40 +164,66 @@ def indent_leaf(path,sep=':',spaces=3):
   return result
 
 def is_leaf(df):
-  '''add a field, is_leaf, to a dataframe by marking leaf nodes with 1, other wise 0'''
+  '''add a field, is_leaf, to a dataframe by marking leaf nodes with 1, other wise 0.
+  Note: is_leaf is retained in Excel in the current table to allow computations.
+  Otherwise it is removed.
+  '''
   df.insert(loc=1,column='is_leaf',value=0) 
   sel= df.level >= df.level.shift(periods=-1,fill_value=0)
-  sel = sel & ~ df.Key.str.endswith('TOTAL')
+  sel = sel & ~ df.Key.str.endswith('TOTAL') # unsure with this should be all agg types.
   df.loc[sel,'is_leaf']=1
   return df
 
+def set_level(df,cat_field='Account',spaces_per_level=3):
+  '''Add a column to the dataframe containing the level (origin=1) for the field cat_field.
+  Determines level of each row in the category hierarchy.
+  
+  Can determine level based on 
+  1. the indentation of a Moneydance report or 
+  2. if the field Key exists, then based on the number of colons. 
+  The second method is to support merging the iande table already in the workbook with the ytd rows
+
+  return modified dataframe
+  '''
+  if df.index.name !='Key':
+    df['level']=((df[cat_field].str.len() - df[cat_field].str.lstrip().str.len()))/spaces_per_level # each level is indented 3 more spaces
+  else:
+    df['level']=df.index.str.count(':')
+
+  df['level']=df.level.astype(int)
+  return df
+
+
 def nest_by_cat(df,cat_field='Account',spaces_per_level=3):
-  '''create key of nested "category" names based on the field named in cat_field
+  '''Create key of nested "category" names based on the field named in cat_field
    determines level of each row in the category hierarchy
    and whether the row is a leaf node
-   returns df with key, is_leaf and level columns'''
+   returns df with Key and level columns'''
+  df=set_level(df,cat_field,spaces_per_level)
   if not 'Key' in df.columns:
     df.insert(loc=0,column='Key',value=None)
-  df['Key']=df[cat_field].str.lstrip() # used to define level
-  #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
-  df['level']=((df[cat_field].str.len() - df.Key.str.len()))/spaces_per_level # each level is indented 3 more spaces
-  df['level']=df.level.astype(int)
-  df['Key']=None # build up the keys by including parents
-  last_level=-1
-  pathparts=[]
-  pathpart=None
-  for ix,row in df[['level',cat_field]].iterrows():
-    lev=row['level']
-    if lev > last_level and pathpart is not None:
-      pathparts.append(pathpart)
-    if lev < last_level:
-      pathparts=pathparts[:-1]
-    pathpart=row[cat_field].strip()
-    a=pathparts.copy()
-    a.append(pathpart)
-    key=':'.join(a)
-    df.loc[ix,'Key']=key
-    last_level=lev
+  # df['Key']=df[cat_field].str.lstrip() # used to define level
+  # #create a level indicator, re-use the totals column which for 'level', to be removed later before inserting into wb
+  # df['level']=((df[cat_field].str.len() - df.Key.str.len()))/spaces_per_level # each level is indented 3 more spaces
+  # df['level']=df.level.astype(int)
+  #df['Key']=None 
+  
+    # build up the keys by including parents
+    last_level=-1
+    pathparts=[]
+    pathpart=None
+    for ix,row in df[['level',cat_field]].iterrows():
+      lev=row['level']
+      if lev > last_level and pathpart is not None:
+        pathparts.append(pathpart)
+      if lev < last_level:
+        pathparts=pathparts[:-1]
+      pathpart=row[cat_field].strip()
+      a=pathparts.copy()
+      a.append(pathpart)
+      key=':'.join(a)
+      df.loc[ix,'Key']=key
+      last_level=lev
   return df
 
 def subtotal_formulas(df,groups):
