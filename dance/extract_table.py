@@ -80,6 +80,7 @@ def eligible_tables():
         if orient not in ['records','index','template']:
           continue
         eligible.append(table_info['name'])   
+  eligible.sort()
   return eligible
 
 def main():
@@ -102,5 +103,5 @@ def main():
   else:
     extract(workbook=args.workbook,tables=tables,data_only=args.data_only)
 
-  if __name__ == '__main__':
-    main()
+if __name__ == '__main__':
+  main()
