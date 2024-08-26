@@ -1886,8 +1886,9 @@ sheets:
               - Adjusted gross:Taxable interest - TOTAL
               - Adjusted gross:Ordinary dividends - TOTAL
               - Adjusted gross:IRA distributions - TOTAL
+              - Adjusted gross:Other income - TOTAL
               - Adjusted gross:Pensions and annuities - TOTAL
-              - Adjusted gross:Social security benefits - PRODUCT
+              - Adjusted gross:Social Security - taxable - PRODUCT
               - Adjusted gross:CapGn or (loss) - TOTAL
               - Deductions - TOTAL
               - Net invest income Tax - PRODUCT
