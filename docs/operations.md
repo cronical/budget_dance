@@ -101,7 +101,7 @@ options:
   -l, --load            loads the file data to the current tab
   -f, --forward         carries the projected values to the first forecast year in the iande table
   -w WORKBOOK, --workbook WORKBOOK
-                        Target workbook. Default=data/test_wb.xlsx
+                        Target workbook. Default=data/fcast.xlsx
   -p PATH, --path PATH  The path and name of the storage file. Default=./data/ytd_data.json
 ```
 
@@ -112,6 +112,60 @@ dance/ytd.py -s -f
 2024-04-07 12:56:37,503 - ytd - INFO - Wrote 7 items to ./data/ytd_data.json
 2024-04-07 12:56:37,884 - ytd - INFO - Wrote 2 values into table tbl_iande
 ```
+
+#### Steps
+
+1. In Moneydance run the `Income & Expense YTD` report.  Save it as `..data/iande_ytd.tsv`. Then load the data into the closed workbook as follows:
+
+    ``` zsh
+    budget-dance % iande_actl_load -s current
+    2024-08-23 11:16:49,944 - iande_actl_load - INFO - loaded dataframe from data/iande_ytd.tsv
+    2024-08-23 11:16:49,956 - iande_actl_load - INFO - loaded dataframe from data/iande.tsv
+    2024-08-23 11:16:50,709 - books - INFO - deleted worksheet current
+    2024-08-23 11:16:50,709 - books - INFO - created worksheet current
+    2024-08-23 11:16:50,810 - tables - INFO - table tbl_current added to current
+    ```
+
+1. (optional) inspect and reload any saved values:
+
+    ```zsh
+    % cat data/ytd_data.json
+    {
+      "Expenses:X:Investing:Account Fees": {
+        "Y20240630": 4127.5,
+        "Factor": 2.4,
+        "Add": 1736.0,
+        "Year": 11642
+      }
+    }%
+    % ytd -l
+    2024-08-23 11:19:48,300 - ytd - INFO - Wrote 2 values into table tbl_current
+    ```
+
+1. Work with the current tab to reforcast. Edit and save the work book.
+
+    ```zsh
+    % open data/fcast.xlsx
+    ```
+
+1. Save the work by running:
+
+    ``` zsh
+    % ytd -s
+    2024-08-23 11:31:58,316 - ytd - INFO - Wrote 19 items to ./data/ytd_data.json
+    ```
+
+1. With the workbook closed, forward the results into the iande tab.
+
+    ``` zsh
+    % ytd -f
+    2024-08-23 11:34:31,976 - ytd - INFO - Wrote 19 values into table tbl_iande
+    ```
+
+1. Reopen the file and inspect the iande tab.
+
+
+
 
 ## Import functions
 
