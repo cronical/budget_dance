@@ -55,7 +55,7 @@ def main():
   if output.returncode!=0:
     logger.error(f"Command to launch excel failed with return code {output.returncode}")
   else:    
-    sleep(1)# avoid:  execution error: Microsoft Excel got an error: Parameter error. (-50)
+    sleep(2)# avoid:  execution error: Microsoft Excel got an error: Parameter error. (-50)
 
     for cmd in ('''tell app "Microsoft Excel" to save''','''tell app "Microsoft Excel" to quit'''):
       output=subprocess.run(["osascript","-e",cmd])
