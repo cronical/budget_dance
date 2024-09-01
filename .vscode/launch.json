@@ -83,7 +83,7 @@
       "request": "launch",
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
-      "args": ["-l","-f" ],
+      "args": ["-f" ],
       "justMyCode": true
     },    
     {

@@ -1,6 +1,6 @@
 workbook: data/fcast.xlsx
 start_year : 2018
-end_year : 2038
+end_year : 2046
 hide_years:
   - 2018
   - 2019
@@ -964,6 +964,7 @@ sheets:
           - base_field: Key # Payroll savings and other moves to assets from add/wdraw on balances (not banks which are implied for the net)
             matches:
             - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
+            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
@@ -1370,7 +1371,8 @@ sheets:
           formula: =DIV0(XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),LE_SELF([@Who],INT_YEAR("Y1234")))
         - base_field: Election # Inherited IRA Beneficiary
           matches: 
-          - RMD-BEN-2018        
+          - RMD-BEN-2018
+          - RMD-BEN-2024
           formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_BEN([@Election],[@Who],INT_YEAR("Y1234"))
         - base_field: Election # IRA inherited as a spouse
           matches: 
