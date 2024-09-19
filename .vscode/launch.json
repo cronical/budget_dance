@@ -83,7 +83,7 @@
       "request": "launch",
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
-      "args": ["-f" ],
+      "args": ["-w", "/Users/george/budget-dance/data/fcast.xlsx", "-l", "-f" ],
       "justMyCode": true
     },    
     {
