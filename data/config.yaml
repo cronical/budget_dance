@@ -1020,8 +1020,7 @@ sheets:
             - Expenses:X:Auto:Property Tax
             - Expenses:X:Auto:Regis. & License
             - Expenses:X:Auto:Service
-            - Expenses:X:Clothing:George Clothes
-            - Expenses:X:Clothing:Virginia Clothes
+            - Expenses:X:Clothing
             - Expenses:X:Depreciation
             - Expenses:X:Donations:Charity Cash Contrib.
             - Expenses:X:Donations:Political/other
