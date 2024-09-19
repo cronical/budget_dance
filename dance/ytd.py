@@ -119,7 +119,10 @@ def place_values(j_df, wb,  counters, control):
     if ws_name=='current':
       # recompute reprojected year, in case the excel calc has not yet run.
       yx=col_offset+list(tgt_df.columns.str.startswith('Y')).index(True) # locate the ytd date column in the latest tsv
-      j_df.at[ix,'Year']=ws.cell(row=rx,column=yx).value*values['Factor']+values['Add'] 
+      val=ws.cell(row=rx,column=yx).value
+      if val is None:
+        val=0
+      j_df.at[ix,'Year']=val*values['Factor']+values['Add'] 
   logger.info('Wrote %d values into table %s'%(counters[table],table))
   return wb,counters
       
