@@ -44,7 +44,7 @@ The computation of balances depends on the ability to determine the changes to t
 
 ## 529 Accounts
 
-The tag `529-Distr` is used to identify actual distributions.
+The tag `529-distr` is used to identify actual distributions.
 
 ## Health Savings Accounts (HSA)
 
@@ -58,7 +58,7 @@ The gross amount is taxable and thus needs to be included in the tax calculation
 
 The solution allows a uniform way of handling the data (at the cost of a bit of special handling). 
 
-The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
+The solution uses a Moneydance tag, `ira-txbl-distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. Note the old mixed case version is shown.
 
 ![How it should look](assets/images/ira-txbl-distr.png)
 
