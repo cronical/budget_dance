@@ -11,6 +11,15 @@
 # See https://portal.ct.gov/-/media/DRS/Forms/2022/Income/CT-1040-TCS_1222.pdf
 # Table B Initial Tax Calculation for 2022 Taxable Year
 
+# early source is
+# https://www.irs.gov/pub/irs-drop/rp-23-34.pdf
+# search for revenue procedure 2023 34 pdf
+# shows adjustments for 2024 in the additive form.
+# extract with tabula using lattice method
+# but you have to remove extra new lines manually.
+
+
+
 
 Note the file should be unicode since it has an em-dash in the first column
 '''
@@ -33,7 +42,12 @@ def subtract_table(df,year):
     ti=row[fields[0]]
     if 'or less' in ti: # CNBC version
       ti="$0 to "+ti.split(' ')[0]
-    digits=ti.split(' ')[0]# will include a comma and a $ sign
+    if ti.startswith('Not over'): # revenue procedure version
+      ti="$0 to "+ti.split(' ')[-1]
+    if ti.startswith('Over'): # revenue procedure version
+      digits=ti.split(' ')[1]
+    else:
+      digits=ti.split(' ')[0]# will include a comma and a $ sign
     lower=max(0,fix_punc(digits)-1)
     tax_formula=row[fields[1]].split('%')
     if len(tax_formula[1]) == 0:

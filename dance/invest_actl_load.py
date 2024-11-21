@@ -86,7 +86,16 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
   #adjust for loan interest received
   lir_data=[]
   lir_index=[]
-  for account,row in accounts.loc[accounts['Reinv Rate']<1].iterrows():
+  for account,row in accounts.loc[accounts.index.str.startswith('LON')].iterrows():
+    for x,v in enumerate(row): # allow accounts to use formulas instead of constants to cut down on noise in preserve_changed
+      if isinstance(v,str):
+        if "="==v[0]:
+          try:
+            v=float(v[1:])
+          except ValueError as err:
+            logger.error(f"Configured value is non numeric: {v}")
+            raise ValueError from err
+          row[x]=v
     sel=(invest_iande.Account==account) & (invest_iande.Category.str.contains('Int:'))
     interest=invest_iande.loc[sel,y_columns].sum(axis=0).astype(float)
     adj= round(interest * (1-row['Reinv Rate']),2)
@@ -116,7 +125,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     #read the internal date and check it.
 
     # now work with the performance data for a year
-    df=tsv_to_df (perf_file,skiprows=3,string_fields=string_fields)
+    # The last two columns are skipped - return and annualized return
+    # since these are not used and can produce the infinity symbol
+    df=tsv_to_df (perf_file,skiprows=3,string_fields=string_fields,usecols=range(8)) 
     # first check to see if the year is valid and its a full year
     orig=[df.columns[x] for x in [1,5]]
     open_close=[parse(x)for x in orig]
@@ -143,7 +154,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       for a in [x for x in df.index.to_list() if x not in accounts.index.to_list()]:
         print('  %s'%a)
       assert all(found)
-    df=df.drop(['Buys','Sales','Return %','Annual % (ROI)'],axis=1)# drop some columns we don't care about
+    df=df.drop(['Buys','Sales'],axis=1)# drop some columns we don't care about
     # all master accts, and all performance columns
     df=accounts.join(df)[df.columns]
     df.fillna(value=0,inplace=True) # zero out the perf values for accts in master not perf
@@ -157,6 +168,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     iiw=iiw.loc[iiw.isnull().all(axis=1).cumsum()==0] # drop the ratios
     iiw=iiw.loc[iiw.Category.isin(['Investing:Account Fees'])]#Not including 'Investing:Action Fees'
     iiw=iiw.reset_index().pivot_table(index='Account',values='Y'+fn_year,aggfunc='sum')# add both type of fees together
+
     df=df.join(iiw['Y'+fn_year],how='left').fillna(value=0)
     df.rename(columns={'Return Amount': 'Return_Amount','Y'+fn_year:'Fees'},inplace=True)
 
@@ -194,6 +206,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     if ~valid.all():
       logger.error('We have a problem getting the end balances. File = {}'.format(file_name))
       print(df.loc[~valid])
+      print ("Note:\ncheck=Open + Transfers + Realized + Unrealized +Fees - Loan Interest Received\n")
       print('''
       Things to look at
       - Merrill (IRA) reinvestment rounding problems - off by 1 or 2 cents.
@@ -208,7 +221,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       - Transfers to/from investment accounts should use xfr not buyxfr or sellxfr.
       ...''')
       yn='Q'
-      while not yn in 'YN':
+      while yn not in 'YN':
         yn = input("Continue? (N/y):").strip().upper()+'N'
         if yn=='N':
           sys.exit(-1)

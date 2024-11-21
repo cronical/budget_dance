@@ -21,7 +21,7 @@ def get_row_set(workbook,table_name,filter_on,index_on,in_list=None,starts_with=
     workbook - the workbook filename
     table_name - including the tbl_ prefix
     filter_on - either 'index' or a valid column name
-    index_on - either 'index' or a valid column name
+    index_on - either 'index' or a valid column name - used to set the result's index
     one of the filter methods
 
   returns: dataframe with the values from the index_on field as the index

@@ -15,11 +15,16 @@ In Moneydance, there can be many bank accounts.  All of these are summarized int
 In the chart of accounts Passthru is set up as a bank account, although it is entirely fictional.  Under this are sub-accounts, to help track various movements.  
 
 1. A good example is an payroll deductions, which end up in another account, like a 401K.  Since both payroll and 401K systems allow transactions to be downloaded, it is convenient to run the offsetting transactions through a passthru subaccount, especially since the records show up at different times.  By doing this, each source can be reconciled independently.
-2. Another use case is to handle separate dividend and dividend reinvested transactions for some brokers: A account passthru account may be used to support the way the broker handles re-investments.  The passthru account mimics the brokerage "reinvestment program", in that the dividends are sent out of the account to "reinvestment program" (aka our passthru subaccount) and then brought back in with a BuyXfr transaction on a date which may be the same as the dividend or different.  
 
 1. For true transfers such as supporting a purchase or a sale, BuyXfr and SellXfr don't achieve the desired result. This is because the Transfers report does not include them. You must break out such events into two transactions -- one for the buy or sell and one for the transfer.
 
 Of course, these transactions have to be doubled - i.e. one into the passthru account and one out.  In cases where this is not done, then provisions have to be made in the report definitions (e.g. the reports that transfer money in and out of investment accounts)
+
+### Suspense
+
+Similar to a passthru, but this is used to handle separate dividend and dividend reinvested transactions for some brokers (ML): 
+
+A account suspense account may be used to support the way the broker handles re-investments.  The suspense account mimics the brokerage "reinvestment program", in that the dividends are sent out of the account to "reinvestment program" (aka our passthru subaccount) and then brought back in with a BuyXfr transaction on a date which may be the same as the dividend or different.  
 
 ## Credit Cards
 
@@ -44,7 +49,7 @@ The computation of balances depends on the ability to determine the changes to t
 
 ## 529 Accounts
 
-The tag `529-Distr` is used to identify actual distributions.
+The tag `529-distr` is used to identify actual distributions.
 
 ## Health Savings Accounts (HSA)
 
@@ -58,7 +63,7 @@ The gross amount is taxable and thus needs to be included in the tax calculation
 
 The solution allows a uniform way of handling the data (at the cost of a bit of special handling). 
 
-The solution uses a Moneydance tag, `IRA-Txbl-Distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. 
+The solution uses a Moneydance tag, `ira-txbl-distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. Note the old mixed case version is shown.
 
 ![How it should look](assets/images/ira-txbl-distr.png)
 
@@ -80,6 +85,10 @@ To do this the investment fees need two categories.
 - Investing:Account Fees.  
 
 Only the account fee is selected in the Investment IandE report.  This allows the loading of investment actuals to add the account fees to the gains.  It also means that the transaction fees are not used to forecast future fees.  This is reasonable since they are by nature not asset based and the forecast method uses percentage of assets.
+
+### Technique
+
+The action fees default to the account default, which is wrong.  Batch change does not work since it applies to the normal category, not the fee category. In order to batch change these "go to otherside" on a transaction that has an fee.  Typically this is a sell transaction.  Isolate the ones you want in that account and batch change the account to Investing:Action Fees.
 
 ## Other Assets
 

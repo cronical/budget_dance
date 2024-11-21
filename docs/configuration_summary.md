@@ -7,4 +7,4 @@
 1. [Acquire a registration key](./configure_api.md/#api-key) for the bureau of labor statistics (for inflation data)
 1. Edit the [configuration file](./configuration.md) as described below.
 1. Validate the file against the schema.  I use VS Code extension `YAML Language Support by Red Hat`
-1. Run `dance/book/create.py` or better run `dance/util/build`.
+1. Run `dance/util/build_book.py`.

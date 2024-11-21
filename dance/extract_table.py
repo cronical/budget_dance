@@ -80,9 +80,10 @@ def eligible_tables():
         if orient not in ['records','index','template']:
           continue
         eligible.append(table_info['name'])   
+  eligible.sort()
   return eligible
 
-if __name__ == '__main__':
+def main():
   default_wb=config['workbook']
   parser = argparse.ArgumentParser(description ='Copies table data from workbook and stores as a json or tsv output file.')
   parser.add_argument('--workbook','-w',default=default_wb,help=f'Source workbook. Default: {default_wb}')
@@ -101,3 +102,6 @@ if __name__ == '__main__':
       print (table)
   else:
     extract(workbook=args.workbook,tables=tables,data_only=args.data_only)
+
+if __name__ == '__main__':
+  main()

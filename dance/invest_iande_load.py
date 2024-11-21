@@ -69,13 +69,31 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   ws=wb['accounts']
   ref=ws.tables['tbl_accounts'].ref
   accounts_df=df_for_range(ws,ref)
+
+  # all investment accounts get unrelaized gain rows
   ia_df=vals_df.loc[vals_df.index <0] # zero rows, same cols
   ia_df=pd.concat([ia_df,pd.DataFrame(accounts_df.index[accounts_df.Type=='I'],columns=['Account'])])
   ia_df['Category']="Unrlz Gn/Ls"
   vals_df=pd.concat([vals_df,ia_df])
-  ia_df['Category']="X:Investing:Account Fees"
-  df_all=ia_df.merge(vals_df,on=['Account','Category'],how='left',indicator=True) # find the ones that are not already there
-  vals_df=pd.concat([vals_df,df_all.loc[df_all._merge=='left_only',['Account','Category']]])
+
+  # now add other categories that if they don't exist
+  for cat in ["X:Investing:Account Fees",
+    "I:Invest income:CapGn:Mut LT",
+    "I:Invest income:CapGn:Mut ST",
+    "I:Invest income:CapGn:Shelt:Distr",
+    "I:Invest income:Div:Reg",
+    "I:Invest income:Div:Shelt",
+    "I:Invest income:Div:Tax-exempt",
+    "I:Invest income:Int:Defered-tax",
+    "I:Invest income:Int:Reg",
+    "I:Invest income:Int:Shelt",
+    "I:Invest income:Int:Tax-exempt"]:
+
+    ia_df['Category']=cat
+    df_all=ia_df.merge(vals_df,on=['Account','Category'],how='left',indicator=True) # find the ones that are not already there
+    vals_df=pd.concat([vals_df,df_all.loc[df_all._merge=='left_only',['Account','Category']]],ignore_index=True)
+    pass
+  pass
   vals_df.reset_index(drop=True,inplace=True)
 
   full_categories=list(vals_df.Category.str.split(':'))

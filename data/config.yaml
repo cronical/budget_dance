@@ -1,12 +1,13 @@
-workbook: data/test_wb.xlsx
+workbook: data/fcast.xlsx
 start_year : 2018
-end_year : 2033
+end_year : 2046
 hide_years:
   - 2018
   - 2019
   - 2020
+  - 2021
 year_column_width: 12
-first_forecast_year : 2024
+first_forecast_year : 2025
 zoom_scale: 130 # how to scale the worksheets
 theme: Berlin
 lambdas:
@@ -29,7 +30,10 @@ lambdas:
     formula: =LAMBDA(n,d,IF(d=0,0,n/d))
     comment: Performs normal division except div by 0 returns 0.
   - name: FCST_RATE
-    formula: =LAMBDA(py,ncr,MIN(IFERROR(AVERAGEIF(py,">0"),CHOOSECOLS(ncr,1)),CHOOSECOLS(ncr,2)))
+    formula: =LAMBDA(py,ncr,IFERROR(AVERAGEIF(py,"<>0"),CHOOSECOLS(ncr,1)))
+    comment: Calculate forecast rate given array of prior years and default rate (not capped).
+  - name: FCST_MKT_RATE
+    formula: =LAMBDA(py,ncr,MIN(IFERROR(AVERAGEIF(py,"<>0"),CHOOSECOLS(ncr,1)),CHOOSECOLS(ncr,2)))
     comment: Calculate forecast rate given array of prior years and array of near mkt rate and rate cap.
   - name: FIRST_LAST
     formula: =LAMBDA(y,HSTACK(DATE(y,1,1),DATE(y,12,31)))
@@ -56,7 +60,7 @@ lambdas:
     formula: =LAMBDA(election,who,cy,LET(e,TEXTSPLIT(election,"-"),dy,0+TAKE(e,1,-1),g,AGE(who,dy),lead,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),lead-(cy-dy)))
     comment: Life expectancy for a beneficiary (not a spouse). Call with election, who, current yr.
   - name: LE_SELF
-    formula: =LAMBDA(who,yr,XLOOKUP(AGE(who,yr),tbl_rmd_3[Age],tbl_rmd_3[Distribution],0))
+    formula: =LAMBDA(who,yr,XLOOKUP(AGE(who,yr),RMD_Age(who),tbl_rmd_3[Distribution],0))
     comment: Life expectancy for normal RMD (table 3), or zero if not yet aged enough. 
   - name: LE_SPOUSE
     formula: =LAMBDA(who,yr,LET(g,AGE(who,yr),le,XLOOKUP(g,tbl_rmd_1[Age],tbl_rmd_1[Life Expectancy]),le))
@@ -88,6 +92,9 @@ lambdas:
   - name: PORTION
     formula: =LAMBDA(s,e,y,MON_THIS(s,DEFAULT_DATE(e),y)/12)
     comment: The number of months in this year where this row applies divided by 12.
+  - name: RMD_AGE
+    formula: =LAMBDA(who,tbl_rmd_3[Age]*(tbl_rmd_3[Age]>=XLOOKUP(who,tbl_people[Initials],tbl_people[RMD Start Age])))
+    comment: Zero out age in rmd_3 age column if less than RMD start age for 'who'. Used to set RMD start in LE_SELF
   - name: TX_CALC_A
     formula: =LAMBDA(tt,ti,LET(m,ti-TX_PRV_BK(tt,ti),tx,TX_THS_BK(tt,ti)*EXPAND(m,1,2,1),SUM(tx)))
     comment: Calc tax using add type tax table. Call with 3 col tax table, taxable income 
@@ -160,11 +167,34 @@ sheets:
             horiz: center
           - name: No Distr Plan # 1 if a no distribution plan feeds iande, zero otherwise
             horiz: center
+          - name: Int Rate
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Div Rate
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Int Tax-ex Rate
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Div Tax-ex Rate
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Cap Gains Rate 
+            width: 15
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
           - name: Near Mkt Rate
             width: 15
             horiz: center
             number_format: 10 # FORMAT_PERCENTAGE_00
           - name: Rate Cap
+            horiz: center
+            number_format: 10 # FORMAT_PERCENTAGE_00
+          - name: Fee Rate
             horiz: center
             number_format: 10 # FORMAT_PERCENTAGE_00
           - name: Reinv Rate
@@ -189,6 +219,7 @@ sheets:
           - Loans
           - Investment Accounts
           include_zeros:
+          - 401K - GBD - TRV
           - 529 - ML
           - BKG - JNT - CP1
           - 401K - GBD MML - Pre-tax
@@ -198,7 +229,7 @@ sheets:
           - HSA - GBD - Devenir
           - HSA - G - Invest
           - HSA - G - HSA Bank
-          - IRA - GBD - FID
+          - IRA - GBD - ML
           - LON - JNT - HED
           tax_free_keys:
           - 401K
@@ -207,8 +238,8 @@ sheets:
           - HSA
           - IRA
           force_active:
+          - IRA - GBD - ML
           - LON - JNT - HED
-          - IRA - GBD - FID
         dyno_fields:
           - base_field: Type # No Distr Plan - default to 1
             matches:
@@ -220,7 +251,7 @@ sheets:
             matches:
               - 401K - GBD - TRV
               - 401K - VEC - UHG
-              - IRA - GBD - FID
+              - IRA - GBD - ML
               - IRA - GBD - Vanguard
               - IRA - VEC - ML
               - IRA - VEC - Vanguard
@@ -233,7 +264,7 @@ sheets:
             matches: B
             actions:
               - target_field: Near Mkt Rate
-                constant: .03
+                formula: =.03
           - base_field: Account # near market rate Investment 2.0 %
             matches:
             - 401K - GBD - TRV
@@ -252,39 +283,45 @@ sheets:
             - MUT - JNT - T. Rowe Price             
             actions:
               - target_field: Near Mkt Rate
-                constant: 0.02
-          - base_field: Type # Rate cap 3.5% for income rate derivation
+                formula: =0.02
+          - base_field: Type # Rate cap 3.5% for unrlz gn
             matches: I
             actions:
               - target_field: Rate Cap
-                constant: 0.035
+                formula: =0.035
           - base_field: Account # rate cap 4%
             matches:
               - BKG - JNT - ML
-              - LON-JNT-HED
+              - LON - JNT - HED
             actions:
               - target_field: Rate Cap
-                constant: 0.04
+                formula: =0.04
           - base_field: Type # default 100% re-investment rate
             matches: 
               - I
               - B
             actions: 
               - target_field: Reinv Rate
-                constant: 1.0
-          - base_field: Account # zero re-investment rate
+                formula: =1.0
+          - base_field: Account # zero re-investment rate 
             matches:
               - LON - JNT - HED
             actions:
               - target_field: Reinv Rate
-                constant: 0.0                                   
+                formula: =0.0                                   
         preserve:
           method: sparse
           non-year-cols:
             - Income Txbl
             - Active
             - No Distr Plan
+            - Int Rate
+            - Div Rate
+            - Int Tax-ex Rate
+            - Div Tax-ex Rate
+            - Cap Gains Rate
             - Near Mkt Rate
+            - Fee Rate
             - Rate Cap
             - Reinv Rate
             - Notes
@@ -685,6 +722,7 @@ sheets:
           hier_insert_paths: &hier_ins_list
             - Income:I:Invest income:CapGn:Sales
             - Income:I:Invest income:CapGn:Shelt:Sales
+            - Income:I:Other taxable income:Dobbs Trust
             - Income:I:Retirement income:Social Security:SS - GBD - SSA
             - Income:I:Retirement income:Social Security:SS - VEC - SSA
             - Income:I:Retirement income:Pension:DB - VEC - PNX
@@ -695,7 +733,7 @@ sheets:
             - Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             - Expenses:X:Health:OOP
             - Income:J:Distributions:IRA:IRA - VEC - ML
-            - Income:J:Distributions:IRA:IRA - GBD - FID
+            - Income:J:Distributions:IRA:IRA - GBD - ML
             - Income:J:Distributions:IRA:IRA - GBD - Vanguard
             - Income:J:Distributions:IRA:IRA - VEC - Vanguard
             - Income:J:Distributions:Roth:IRA Roth - GBD - Vanguard
@@ -712,7 +750,7 @@ sheets:
             - Income:J:Distributions:401K:Rollover:401k - VEC - UHG
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
-            - Expenses:Y:Invest:Reinv
+            - Expenses:Y:Invest:Reinv:Gross
             - Expenses:Y:Invest:Account Fees
             - Expenses:Y:Invest:Action Fees
             - Expenses:Y:Invest:Inherit:Normal
@@ -724,9 +762,11 @@ sheets:
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
+            - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
-            - Expenses:Y:To Asst:Invest:IRA - GBD - FID
+            - Expenses:Y:To Asst:Invest:IRA - GBD - ML
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:MUT - JNT - T. Rowe Price
             - Expenses:Y:To Asst:Bank Accounts
             - Expenses:Y:To Asst:Other Asset # includes depreciation
             - Expenses:Y:To Asst:Real Estate # has included depreciation in 2014
@@ -805,23 +845,28 @@ sheets:
             - Expenses:Y:Payroll Savings:HSA - GBD - Fidelity
             - Expenses:Y:Payroll Savings:HSA - VEC - UHG
             formula: =XLOOKUP(trim([@Account]),tbl_payroll_savings[Account],tbl_payroll_savings[Y1234],0)
-          - base_field: Key # invest:xfer
+          - base_field: Key # move to assets including reinvestments
             matches:
+            - Expenses:Y:To Asst:Invest:BKG - GBD - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
-            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:ESP - VEC - Fidelity
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
             formula: =XLOOKUP(trim([@Account]),tbl_bank_sel_invest[Account],tbl_bank_sel_invest[Y1234],0)
+          - base_field: Key # move to assets where there is no-reinvestment
+            matches:
+            - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            formula: =XLOOKUP(TRIM([@Account])&":Add/Wdraw",tbl_balances[Key],tbl_balances[Y1234],0)
           - base_field: Key # account moves (eg devenir to fidelity. this is the receiving side)
             matches:
             - Expenses:Y:To Asst:Invest:HSA - GBD - Fidelity
             formula: =SUMIFS(tbl_tag_sums[Y1234],tbl_tag_sums[Tag],"acct-move",tbl_tag_sums[Account],trim([@Account]))
         all_col_formulas:
-          - base_field: Key # Reinvestment cashflow
+          - base_field: Key # Reinvestment gross
             matches:
-              - Expenses:Y:Invest:Reinv
+              - Expenses:Y:Invest:Reinv:Gross
             formula: =SUM(FILTER(tbl_balances[Y1234],tbl_balances[ValType]="Reinv Amt"))
           - base_field: Key # remove investing fees
             matches: 
@@ -862,7 +907,7 @@ sheets:
               - Income:I:Retirement income:Pension:DB - VEC - PNX
               - Income:J:Distributions:401K:401k - GBD - TRV
               - Income:J:Distributions:401K:401k - VEC - UHG
-              - Income:J:Distributions:IRA:IRA - GBD - FID        
+              - Income:J:Distributions:IRA:IRA - GBD - ML        
               - Income:J:Distributions:IRA:IRA - VEC - ML        
               - Income:J:Distributions:IRA:IRA - VEC - Vanguard              
               - Income:J:Distributions:IRA:IRA - GBD - Vanguard        
@@ -881,10 +926,17 @@ sheets:
             - Income:J:Distributions:HSA:HSA - GBD - Fidelity
             - Income:J:Distributions:HSA:HSA - VEC - UHG            
             formula: =-XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
-          - base_field: Key # post retirement insurance costs from retir_vals - GBD
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD
-            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Firm]="PRMEDINS")))
-          - base_field: Key # post retirement insurance costs costs from retir_vals - VEC
+          - base_field: Key # post retirement medigap insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Medigap
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PKG")))
+          - base_field: Key # post retirement Part B insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part B
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTB")))
+          - base_field: Key # post retirement Part D insurance costs from retir_vals - GBD
+            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part D
+            formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTD")))
+
+          - base_field: Key # post retirement insurance costs costs from retir_vals - VEC - no need yet to break out due to lack of actuals
             matches: Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="VEC")*(tbl_retir_medical[Firm]="PRMEDINS")))
           - base_field: Key # out of pocket costs from retir_vals
@@ -920,11 +972,15 @@ sheets:
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
             - Expenses:Y:To Asst:Invest:BND - VEC - TRY
-            - Expenses:Y:To Asst:Invest:IRA - GBD - FID
             - Expenses:Y:To Asst:Invest:LON - JNT - HED
+            - Expenses:Y:To Asst:Invest:MUT - JNT - T. Rowe Price
             - Expenses:Y:To Asst:Other Asset
             - Expenses:Y:To Asst:Real Estate
             formula: =XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
+          - base_field: Key # invest inheritance
+            matches:
+            - Expenses:Y:To Asst:Invest:IRA - GBD - ML
+            formula: =XLOOKUP(TRIM([@Account])&":Inherit",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # Social security benefit federal withholding - G
             matches:
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
@@ -966,8 +1022,7 @@ sheets:
             - Expenses:X:Auto:Property Tax
             - Expenses:X:Auto:Regis. & License
             - Expenses:X:Auto:Service
-            - Expenses:X:Clothing:George Clothes
-            - Expenses:X:Clothing:Virginia Clothes
+            - Expenses:X:Clothing
             - Expenses:X:Depreciation
             - Expenses:X:Donations:Charity Cash Contrib.
             - Expenses:X:Donations:Political/other
@@ -994,13 +1049,7 @@ sheets:
             - Expenses:X:Housing:Utilities:Propane
             - Expenses:X:Housing:Utilities:Security System
             - Expenses:X:Housing:Utilities:Sewer
-            - Expenses:X:Housing:Utilities:Taxes Fees & Surcharges
-            - Expenses:X:Housing:Utilities:TeleCell
-            - Expenses:X:Housing:Utilities:TeleCell:0262
-            - Expenses:X:Housing:Utilities:TeleCell:8220
-            - Expenses:X:Housing:Utilities:TeleCell:9359
-            - Expenses:X:Housing:Utilities:TeleCell:9755
-            - Expenses:X:Housing:Utilities:TeleCell:Family Plan
+            - Expenses:X:Housing:Utilities:Telephone
             - Expenses:X:Housing:Utilities:Water
             - Expenses:X:Insurance:Home Insurance
             - Expenses:X:Misc:Bank Chrg
@@ -1012,7 +1061,6 @@ sheets:
             - Expenses:X:Misc:Sales Tax
             - Expenses:X:Misc:tax prep
             formula: =MAX(0,FORECAST.LINEAR(6,tbl_iande[@5<Y1234],SEQUENCE(1,5)))
-
           - base_field: Key # tamped linear for repairs
             matches:
             - Expenses:X:Household:Repairs
@@ -1096,8 +1144,8 @@ sheets:
           - HSA - GBD - Fidelity:demand
           - HSA - VEC - UHG:avail
           - HSA - VEC - UHG:demand
-          - IRA - GBD - FID:Inherit
-          - IRA - GBD - FID:Withdrawal
+          - IRA - GBD - ML:Inherit
+          - IRA - GBD - ML:Withdrawal
           - IRA - GBD - Vanguard:Rollover
           - IRA - GBD - Vanguard:Withdrawal
           - IRA - VEC - Vanguard:Rollover
@@ -1178,7 +1226,7 @@ sheets:
             formula: =SUM(FILTER(tbl_balances[Y2023],ISNUMBER(SEARCH(INDEX(TEXTSPLIT([@Key],":"),1)&":Start Bal",tbl_balances[Key]))))
           - base_field: Key # IRA withdrawals
             matches:
-            - IRA - GBD - FID:Withdrawal
+            - IRA - GBD - ML:Withdrawal
             - IRA - GBD - Vanguard:Withdrawal
             - IRA - VEC - Vanguard:Withdrawal
             - IRA - VEC - ML:Withdrawal
@@ -1268,10 +1316,10 @@ sheets:
             actions:
               - target_field: Yearly
                 formula: =12*XLOOKUP([@Item],tbl_pens_facts[Pension],CHOOSECOLS(tbl_pens_facts[#Data],XMATCH(tbl_retir_vals[@Election],tbl_pens_facts[#Headers])),0)
-          - base_field: Election # social security lookup
+          - base_field: Item # social security lookup
             matches:
-              - GBD66
-              - VEC62
+            - SS - GBD - SSA
+            - SS - VEC - SSA
             actions:
               - target_field: Yearly
                 formula: =@XLOOKUP([@Election],tbl_social_security[Key],tbl_social_security[Amount],0)*12
@@ -1303,11 +1351,10 @@ sheets:
           matches: 
           - ANN
           formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
-        - base_field: Item # Annuity with first_item for IRA - GBD - FID
+        - base_field: Item # Annuity with allowance for first_item for IRA - GBD - ML
           matches: 
-          - IRA - GBD - FID
+          - IRA - GBD - ML
           formula: =LET(dur,[@[Anny Dur Yrs]],pl,PER_LEFT(YEAR([@[Start Date]]),dur,INT_YEAR("Y1234")),bal,XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),-IFERROR(PMT([@[Anny Rate]],pl,bal),0))
-          first_item: 50000
         - base_field: Election # Rollovers
           matches:
           - ROLLOVER
@@ -1319,22 +1366,28 @@ sheets:
           formula: =DIV0(XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1]),LE_SELF([@Who],INT_YEAR("Y1234")))
         - base_field: Election # Inherited IRA Beneficiary
           matches: 
-          - RMD-BEN-2018        
+          - RMD-BEN-2018
+          - RMD-BEN-2024
           formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_BEN([@Election],[@Who],INT_YEAR("Y1234"))
         - base_field: Election # IRA inherited as a spouse
           matches: 
           - RMD-SPOUSE        
           formula: =XLOOKUP([@Item]&" - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])/LE_SPOUSE([@Who],INT_YEAR("Y1234"))
-        - base_field: Election # DB EE100, social security
+        - base_field: Election # Portion for year DB EE100
           matches: 
           - EE100
           - GBD66
           - VEC62
           formula: =PORTION([@[Start Date]],HORIZON(),INT_YEAR("Y1234"))*[@Yearly]
+        - base_field: Item # Portion for year: Social security
+          matches: 
+          - SS - GBD - SSA
+          - SS - VEC - SSA
+          formula: =PORTION([@[Start Date]],HORIZON(),INT_YEAR("Y1234"))*[@Yearly]
         highlights: # conditional formats appied to table
           present: *past_future
         preserve:
-          method: full
+          method: sparse
       - name: tbl_retir_medical
         title: Retirement Medical
         include_years: true
@@ -1616,8 +1669,6 @@ sheets:
           path: data/tagged.tsv
         preserve:
           method: none
-
-
   transfers_actl:
     sheet_group: actuals
     tables:
@@ -1670,7 +1721,7 @@ sheets:
               - "*"
             formula: =XLOOKUP([@Key],[Key],tbl_invest_iande_ratios[Y1234])*IIES([@Account],tbl_balances[Y1234-1])
         preserve:
-          method: none
+          method: sparse
       - name: tbl_invest_iande_ratios
         title: Investment Income & Expense Ratios
         include_years: true
@@ -1691,27 +1742,50 @@ sheets:
             formula: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIES([@Account],tbl_balances[Y1234-1]))
             first_item: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIEF([@Account],tbl_balances[Y1234])) 
         fcst_formulas:
-          - base_field: Key # forecast rates
+          - base_field: Category # forecast int:reg rates
             matches:
-              - "*"
-            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Near Mkt Rate]:[Rate Cap]],0))
-          - base_field: Category # forecast cap gain rates
+              - Int:Reg
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Int Rate]],0))*XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]])
+          - base_field: Category # forecast int:shelt rates
+            matches:
+              - Int:Shelt
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Int Rate]],0))*NOT(XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]]))
+          - base_field: Category # forecast int:deferred-tax rates
+            matches:
+              - Int:Deferred-tax
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Int Rate]],0))*RIGHT([@Account],3)="TRY"
+          - base_field: Category # forecast div:reg rates
+            matches:
+              - Div:Reg
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Div Rate]],0))*XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]])
+          - base_field: Category # forecast div:shelt rates
+            matches:
+              - Div:Shelt
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Div Rate]],0))*NOT(XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]]))
+          - base_field: Category # forecast tax-exempt int rates
+            matches:
+              - Int:Tax-exempt
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Int Tax-ex Rate]],0))
+          - base_field: Category # forecast tax-exempt div rates
+            matches:
+              - Div:Tax-exempt
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Div Tax-ex Rate]],0))
+          - base_field: Category # forecast reg cap gain rates
+            matches:
+              - CapGn:Mut LT
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Cap Gains Rate]],0))*XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]])
+          - base_field: Category # forecast shelt cap gain rates
             matches:
               - Shelt:Distr
-              - CapGn:Mut LT
-              - CapGn:Mut ST
-            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Near Mkt Rate]:[Rate Cap]],0))
-            first_item: 0.0007,0.0008,0.0009
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Cap Gains Rate]],0))*NOT(XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Income Txbl]]))
           - base_field: Category # forecast fees
             matches:
-              - Investing:Account Fees
-              - Investing:Action Fees
-            formula: =AVERAGE(tbl_invest_iande_ratios[@5<Y1234])
-          - base_field: Key # forecast fees for new items with no history
+              - Investing:Account Fees # ignore action fees as they are tiny
+            formula: =FCST_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Fee Rate]],0))
+          - base_field: Category # forecast unrealized gains
             matches:
-              - IRA - GBD - FID:Investing:Account Fees 
-            formula: =AVERAGE(tbl_invest_iande_ratios[@5<Y1234])
-            first_item: -0.0075,-0.0075,-0.0075,-0.0075,-0.0075
+              - Unrlz Gn/Ls 
+            formula: =FCST_MKT_RATE(tbl_invest_iande_ratios[@5<Y1234],XLOOKUP([@Account],tbl_accounts[Account],tbl_accounts[[Near Mkt Rate]:[Rate Cap]],0))
         preserve:
           method: sparse
   invest_actl: # this requires the fees info set above
@@ -1809,8 +1883,9 @@ sheets:
               - Adjusted gross:Taxable interest - TOTAL
               - Adjusted gross:Ordinary dividends - TOTAL
               - Adjusted gross:IRA distributions - TOTAL
+              - Adjusted gross:Other income - TOTAL
               - Adjusted gross:Pensions and annuities - TOTAL
-              - Adjusted gross:Social security benefits - PRODUCT
+              - Adjusted gross:Social Security - taxable - PRODUCT
               - Adjusted gross:CapGn or (loss) - TOTAL
               - Deductions - TOTAL
               - Net invest income Tax - PRODUCT
@@ -1983,6 +2058,8 @@ sheets:
           number_format: 14
         - name: Retire Date
           number_format: 14
+        - name: RMD Start Age
+          number_format: 1
         data:
           source: local
           type: json_index

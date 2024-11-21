@@ -8,7 +8,7 @@ A "Transfers, Detailed" report selecting checking accounts, all passthru account
 
 ## 529-Distr
 
-529 Distributions depend on the tag `529-Distr` being used to make distributions but not inheritance or transfers.  Thus on the iande table it defrays the college expenses.
+529 Distributions depend on the tag `529-distr` being used to make distributions but not inheritance or transfers.  Thus on the iande table it defrays the college expenses.
 
 ## Account Balances
 
@@ -24,7 +24,7 @@ These data are used to compute medical payments made from HSA accounts by year.
 
 ## IRA-Distr
 
-This is a transaction filter report using the tag `IRA-Txbl-Distr`.
+This is a transaction filter report using the tag `ira-txbl-distr`.
 
 ## Income & Expense by Year
 

@@ -16,7 +16,7 @@ def create(filename,overwrite=False):
   Raises error if file is open by Excel
   '''
   logger=get_logger(__file__)
-  logger.debug('current working directory is {}'.format(getcwd()))
+  logger.info('current working directory is {}'.format(getcwd()))
   if exists(filename):
     if not overwrite:
       logger.error('File name {} already exists, use -o to force overwrite'.format(filename))

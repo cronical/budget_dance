@@ -1,17 +1,17 @@
 [project]
 name = "budget-dance"
-version = "0.1.1"
+dynamic = ["version"]
 description = "Tool links accounting data with long term plans"
 authors = [
     {name = "George Dobbs", email = "george.dobbs@gmail.com"},
 ]
 dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.2.1",
     "openpyxl>=3.1.2",
     "pandas>=2.2.2",
     "pyYAML>=6.0.1",
     "requests>=2.31.0",
-    "beautifulsoup4>=4.12.3",
-    "lxml>=5.2.1",
     "tabulate>=0.9.0",
 ]
 requires-python = ">=3.11"
@@ -19,15 +19,18 @@ readme = "README.md"
 license = {text = "BSD2"}
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.packages.find]
-exclude=["data*","docs*","images*","tmp*", "private*"]
+[tool.setuptools.dynamic]
+version = {file = "dance/version.txt"}
 
+[tool.setuptools.packages.find]
+    where=[""]
+    exclude=["versions*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.html","*.xml", "*.png", "*.css"]
@@ -47,11 +50,11 @@ test = [
 ]
 
 [tool.pdm.build]
-excludes = ["dance/experimental/"]
+excludes = ["dance/experimental"]
 
 [project.scripts]
 build_book = "dance.util.build_book:main"
-extract = "dance.extract:main"
+extract_table = "dance.extract_table:main"
 iande_actl_load = "dance.iande_actl_load:main"
 invest_actl_load = "dance.iande_actl_load:main"
 invest_iande_load = "dance.invest_iande_load:main"

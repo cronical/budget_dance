@@ -29,7 +29,7 @@
       "request": "launch",
       "program": "dance/iande_actl_load.py",
       "console": "integratedTerminal",
-      "args": ["-w","data/test_wb.xlsm","-y","Y2022"],
+      "args": ["-s", "current"],
       "justMyCode": true
     },
     {
@@ -47,7 +47,7 @@
       "request": "launch",
       "program": "dance/invest_actl_load.py",
       "console": "integratedTerminal",
-      "args": ["-w","data/test_wb.xlsm"],
+      "args": ["-w","data/fcast.xlsx"],
       "justMyCode": true
     },
     {
@@ -83,7 +83,7 @@
       "request": "launch",
       "program": "dance/ytd.py",
       "console": "integratedTerminal",
-      "args": ["-l","-f" ],
+      "args": ["-w", "/Users/george/budget-dance/data/fcast.xlsx", "-l", "-f" ],
       "justMyCode": true
     },    
     {
@@ -92,7 +92,7 @@
       "request": "launch",
       "program": "tests/cross_check.py",
       "console": "integratedTerminal",
-      "args": ["-g","balances" ],
+      "args": ["-g","cross_check" ],
       "justMyCode": true
     },    
     {
@@ -119,7 +119,7 @@
       "request": "launch",
       "program": "dance/util/bracket_fix.py",
       "console": "integratedTerminal",
-      "args": ["data/tax_rates/2023_tax_brackets_irs.csv"],
+      "args": ["-y", "2024","data/tax_rates/2024_tax_brackets_irs.csv"],
       "justMyCode": true
     }
     ]

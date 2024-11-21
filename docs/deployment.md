@@ -2,7 +2,9 @@
 
 This is barely working.
 
-Using python distribution manager with setuptools backend.
+Using python distribution manager (pdm) with setuptools backend.
+
+Set version with versions/set.py.  This writes the version to dance\version.txt which is referenced in `pyproject.toml`
 
 Invoke with `pdm build`.
 
@@ -14,7 +16,7 @@ Production is `~/budget-dance`.
 
 Target must be prepped with `python -m venv .venv`.
 
-In that folder, with the venv active use:
+In that folder, with the venv active, use:
 
 `pip3 install /Users/george/argus/budget-dance/dist/budget_dance-n.n.n-py3-none-any.whl`
 
@@ -26,7 +28,7 @@ Configuration of the build is in `pyproject.toml` and `MANIFEST.in` in the proje
 
 Data files seem to be only supported inside the package - maybe there is a way, but have not found it.
 
-Two key data folders are `themes` and `docu`.  So are under `dance/`, and are listed in the manifest.  The file types have to be listed in `pyproject.toml`.
+Two key data folders are `themes` and `docu`.  So these are under `dance/`, and are listed in the manifest.  The file types have to be listed in `pyproject.toml`.
 
 The documentation is built by `mkdocs build --no-directory-urls`.  That last bit is to support reading directly from the file system.
 
@@ -37,6 +39,10 @@ Needs a script to perform
 The command lines which are *.py args in dev become scripts that are stored in
 
 `~/.pyenv/shims/` but the `.py` is removed.
+
+# pyproject.toml
+
+I have not been able to exclude dance/experimental.
 
 
 

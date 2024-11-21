@@ -48,7 +48,7 @@ def read_json_file(path:str,tgt_year:str):
     j_df=pd.read_json(f,orient='index')
     if not j_df.columns[0].startswith(tgt_year):
       logger.warning(f"Skipping YTD load since year is {tgt_year} and year to date data is as of {j_df.columns[0]}")
-      sys.exit(-1)
+      return None
     return j_df
 
 def load_and_forward(config:dict, path:str):
@@ -56,12 +56,13 @@ def load_and_forward(config:dict, path:str):
   """
   tgt_year='Y%04d'%config['first_forecast_year']
   j_df=read_json_file(path,tgt_year)
-  wb=load_workbook(filename = config['workbook'])
-  counters={}
-  wb,counters=load_ytd(j_df=j_df,wb=wb,counters=counters)
-  wb,counters=forward_ytd(j_df=j_df,wb=wb,counters=counters,tgt_year='Y%04d'%config['first_forecast_year'])
-  if sum(counters.values())>0:
-    wb.save(defaults['workbook'])
+  if j_df is not None:
+    wb=load_workbook(filename = config['workbook'])
+    counters={}
+    wb,counters=load_ytd(j_df=j_df,wb=wb,counters=counters)
+    wb,counters=forward_ytd(j_df=j_df,wb=wb,counters=counters,tgt_year='Y%04d'%config['first_forecast_year'])
+    if sum(counters.values())>0:
+      wb.save(defaults['workbook'])
 
 def load_ytd(j_df,wb:Workbook,counters:dict):
   """load saved values into current table
@@ -105,6 +106,9 @@ def place_values(j_df, wb,  counters, control):
   for ix,values in j_df.iterrows():
     for src,tgt in src_tgt:
       cx=col_offset+tgt_df.columns.to_list().index(tgt)
+      if ix not in idx:
+        logger.warning(f"Skipping YTD info for {ix}")
+        continue
       rx=row_offset+idx.index(ix)
       val=values[src]
       if ws_name != 'iande':
@@ -119,7 +123,10 @@ def place_values(j_df, wb,  counters, control):
     if ws_name=='current':
       # recompute reprojected year, in case the excel calc has not yet run.
       yx=col_offset+list(tgt_df.columns.str.startswith('Y')).index(True) # locate the ytd date column in the latest tsv
-      j_df.at[ix,'Year']=ws.cell(row=rx,column=yx).value*values['Factor']+values['Add'] 
+      val=ws.cell(row=rx,column=yx).value
+      if val is None:
+        val=0
+      j_df.at[ix,'Year']=val*values['Factor']+values['Add'] 
   logger.info('Wrote %d values into table %s'%(counters[table],table))
   return wb,counters
       

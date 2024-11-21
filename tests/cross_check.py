@@ -14,6 +14,7 @@ from dance.util.files import read_config
 from dance.util.logs import get_logger
 from dance.util.tables import df_for_table_name
 from tests.balance_check import balance_test_pairs
+from tests.iande_check import iande_test_pairs
 from tests.helpers import get_row_set
 
 config=read_config()
@@ -164,7 +165,7 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None,title=''):
 
 def verify(workbook=None,test_group='*'):
   '''Various checks'''
-  test_groups='cross_check,balances,cash_flow,taxes'.split(',')
+  test_groups='iande,cross_check,balances,cash_flow,taxes'.split(',')
   if test_group!='*':
     test_groups=[test_group]
 
@@ -172,23 +173,38 @@ def verify(workbook=None,test_group='*'):
   heading('TESTS','=')
 
   # =========================================
+# I and E
+  test_group="iande"
+  if test_group in test_groups:
+    heading(test_group,'-')
+
+    # totals from export match
+    df=iande_test_pairs(workbook)
+    cols=df.columns
+    tester.run_test(test_group,df[cols[0]],df[cols[1]],title="I(net of capgn sales), T, X match exported values")
+    score=results(test_group=test_group,tester=tester)
+
+
+
+  # =========================================
+
   test_group='cross_check'
   if test_group in test_groups:
     heading(test_group,'-')
 
-    # IRA distributions
+# IRA distributions
     test_lines={
       'tbl_retir_vals':'IRA - ',
       'tbl_iande':'Income:J:Distributions:IRA - TOTAL'}
     row_to_row(workbook,test_group,tester,test_lines,title="IRA Distributions")
   
-    # Pensions
+# Pensions
     test_lines={
       'tbl_retir_vals':'DB - ',
       'tbl_iande':'Income:I:Retirement income:Pension - TOTAL'}
     row_to_row(workbook,test_group,tester,test_lines,title="Pensions")
 
-    # bank interest
+# bank interest
     test_lines={
       'tbl_balances':'Bank Accounts:Retain:Rlz Int/Gn',
       'tbl_iande': 'Income:I:Invest income:Int:Bank'
@@ -197,7 +213,7 @@ def verify(workbook=None,test_group='*'):
 
     df=df_for_table_name(table_name='tbl_invest_actl',data_only=True,workbook=workbook)
 
-    # sheltered
+# sheltered capgn-sales
     sel=(df.ValType=='Gains' ) & (df.Acct_txbl==0)
     keys=df.loc[sel].index.to_list()
     test_lines={
@@ -206,7 +222,7 @@ def verify(workbook=None,test_group='*'):
     }
     row_to_row(workbook,test_group,tester,test_lines,title="Non-txbl Gain from sales")
     
-    # non sheltered
+# non sheltered capgn - sales
     sel=(df.ValType=='Gains' ) & (df.Acct_txbl==1)
     keys=df.loc[sel].index.to_list()
     test_lines={
@@ -216,13 +232,13 @@ def verify(workbook=None,test_group='*'):
 
     row_to_row(workbook,test_group,tester,test_lines,title="Txbl gn from sales")
 
-    # cap gains
+# cap gains
     test_lines={
     'tbl_iande':['Income:I:Invest income:CapGn:Sales','Income:I:Invest income:CapGn:Shelt:Sales'],
     'tbl_invest_actl':'Gains'}
     row_to_row(workbook,test_group,tester,test_lines,title="All Cap Gns from sales")
 
-    # txbl account invest income
+# txbl accounts invest income
     sel=(df.ValType=='Income' ) & (df.Acct_txbl==1)
     keys=df.loc[sel].index.to_list()
     test_lines={
@@ -233,7 +249,7 @@ def verify(workbook=None,test_group='*'):
     row_to_row(workbook,test_group,tester,test_lines,title="Txbl account invest income")
     pass
 
-    # Non-txbl invest income
+# Non-txbl invest income
     sel=(df.ValType=='Income' ) & (df.Acct_txbl==0)
     keys=df.loc[sel].index.to_list()
     test_lines={
@@ -249,13 +265,13 @@ def verify(workbook=None,test_group='*'):
       'tbl_balances':'Rlz Int/Gn'}
     row_to_row(workbook,test_group,tester,test_lines,title="iande invest income tot matches rlz int/gn on balances")
 
-  # reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
+# reinvestment - including banks since bank interest is accrued in place and not transfered in via add/Wdraw
     test_lines={
-    'tbl_iande':'Expenses:Y:Invest:Reinv',
+    'tbl_iande':'Expenses:Y:Invest:Reinv:Gross',
     'tbl_balances':'Retain - PRODUCT'}
     row_to_row(workbook,test_group,tester,test_lines,title="iande reinvest matches balances retained")
 
-    # HSA - compare add/wdraw balances with P/R savings less distrib
+# HSA - compare add/wdraw balances with P/R savings less distrib
     aw=get_row_set(workbook,'tbl_balances','ValType','AcctName',in_list=['Add/Wdraw'])
     hsas=aw.loc[aw.index.str.startswith('HSA')].index.unique()
     for hsa in hsas:
@@ -275,6 +291,7 @@ def verify(workbook=None,test_group='*'):
     results(test_group=test_group,tester=tester)
   # ========================================
 
+# Balances
   test_group='balances'
   if test_group in test_groups:
     heading(test_group,'-')
@@ -285,6 +302,8 @@ def verify(workbook=None,test_group='*'):
     tester.run_test(test_group,df[cols[0]],df[cols[1]],title="Computed balances match exported balances")
     score=results(test_group=test_group,tester=tester)
     # ========================================
+
+# Cash flow
   test_group='cash_flow'
   if test_group in test_groups:
     heading(test_group,'-')
@@ -298,6 +317,8 @@ def verify(workbook=None,test_group='*'):
     expected.name='expected'
     tester.run_test(test_group,expected,found,title="Cash flow")
  # ========================================
+
+# Taxes 
   test_group='taxes'
   if test_group in test_groups:
     heading(test_group,'-')
