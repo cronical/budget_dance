@@ -36,6 +36,7 @@ The Periods column has the following meaning:
 
 ### Report table
 
+The report names below are prefixed with TSV: to club them together in Moneydance.
 (Case sensitive sort to match Moneydance)
 
 |Report|Periods|Save as|Used in config by|Data type code|
@@ -137,6 +138,51 @@ tree -PD '*.tsv' --prune data/
 tree -PD '*.json' --prune data/
 ```
 
+For example: here is production as of 11/18/2024:
+
+```zsh
+[Sep 22 18:54]  data/
+├── [Nov 18 12:07]  529-distr.tsv
+├── [Sep 17 15:47]  acct-bals
+│   ├── [Sep 17 16:07]  2017.tsv
+│   ├── [Sep 17 16:07]  2018.tsv
+│   ├── [Sep 17 16:08]  2019.tsv
+│   ├── [Sep 17 16:08]  2020.tsv
+│   ├── [Sep 17 16:09]  2021.tsv
+│   ├── [Sep 17 16:09]  2022.tsv
+│   ├── [Sep 18 16:11]  2023.tsv
+│   └── [Nov 18 12:15]  2024.tsv
+├── [Nov  3  2022]  cap-gains.tsv
+├── [Nov 18 12:12]  hsa-disbursements.tsv
+├── [Nov 18 12:13]  iande.tsv
+├── [Nov 18 12:14]  iande_ytd.tsv
+├── [Nov 18 12:17]  invest-iande.tsv
+├── [Nov 18 12:18]  invest-p
+│   ├── [Dec 10  2022]  2018.tsv
+│   ├── [Dec 10  2022]  2019.tsv
+│   ├── [Nov 28  2022]  2020.tsv
+│   ├── [May 24  2023]  2021.tsv
+│   ├── [Sep  6  2023]  2022.tsv
+│   ├── [Sep 18 16:08]  2023.tsv
+│   └── [Nov 18 12:18]  2024.tsv
+├── [Nov 18 12:20]  invest-x.tsv
+├── [Nov 18 12:21]  ira-distr.tsv
+├── [Nov 18 13:46]  payroll_to_savings.tsv
+├── [Nov 10  2023]  retire_medical_template.tsv
+├── [Aug 30 09:17]  retire_template.tsv
+├── [Jan  7  2024]  roth_contributions.tsv
+├── [Nov 18 13:49]  tagged.tsv
+├── [Sep 18 16:21]  taxes_template.tsv
+├── [Nov 18 13:50]  trans_bkg.tsv
+└── [Nov 18 13:52]  transfers.tsv
+
+3 directories, 31 files
+```
+
 ## Testing files
 
 The file `known_test_values.json` is set up to allow checking of the results against known historical values.
+
+### Refreshing test data from production
+
+The script `dance/util/refresh_test_data.py` copies the pertinent files from production back into the dev environment. 
