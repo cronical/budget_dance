@@ -5,8 +5,9 @@ hide_years:
   - 2018
   - 2019
   - 2020
+  - 2021
 year_column_width: 12
-first_forecast_year : 2024
+first_forecast_year : 2025
 zoom_scale: 130 # how to scale the worksheets
 theme: Berlin
 lambdas:
@@ -218,6 +219,7 @@ sheets:
           - Loans
           - Investment Accounts
           include_zeros:
+          - 401K - GBD - TRV
           - 529 - ML
           - BKG - JNT - CP1
           - 401K - GBD MML - Pre-tax
@@ -1047,13 +1049,7 @@ sheets:
             - Expenses:X:Housing:Utilities:Propane
             - Expenses:X:Housing:Utilities:Security System
             - Expenses:X:Housing:Utilities:Sewer
-            - Expenses:X:Housing:Utilities:Taxes Fees & Surcharges
-            - Expenses:X:Housing:Utilities:TeleCell
-            - Expenses:X:Housing:Utilities:TeleCell:0262
-            - Expenses:X:Housing:Utilities:TeleCell:8220
-            - Expenses:X:Housing:Utilities:TeleCell:9359
-            - Expenses:X:Housing:Utilities:TeleCell:9755
-            - Expenses:X:Housing:Utilities:TeleCell:Family Plan
+            - Expenses:X:Housing:Utilities:Telephone
             - Expenses:X:Housing:Utilities:Water
             - Expenses:X:Insurance:Home Insurance
             - Expenses:X:Misc:Bank Chrg
