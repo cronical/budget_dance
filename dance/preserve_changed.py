@@ -67,7 +67,7 @@ def load_sparse(config,workbook,path):
   wb=load_workbook(filename = workbook)
   with open (path,encoding='utf-8')as f:
     df_points=pd.read_json(f,orient='records')
-  years=df_points.col.str.extract("Y(\d{4})").squeeze()
+  years=df_points.col.str.extract(r"Y(\d{4})").squeeze()
   sel=years.isnull() # mark items that are not years
   keep=years.loc[~sel].apply(int)>=config['first_forecast_year']
   sel.loc[~sel]=keep
