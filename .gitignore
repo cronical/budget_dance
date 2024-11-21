@@ -19,6 +19,8 @@ vba/workbook.xml.rels
 *_template.bak
 build/**
 dist/**
-budget_dance.egg-info/**
+*.egg-info/
 dance/docu/**
-budget_dance.egg-info/SOURCES.txt
+
+budget_dance.egg-info/requires.txt
+budget_dance.egg-info/top_level.txt
