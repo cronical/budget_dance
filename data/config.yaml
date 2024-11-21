@@ -794,6 +794,7 @@ sheets:
             formula: =SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=0)))
           - base_field: Key # normal IRA distributions
             matches:
+            - Income:J:Distributions:IRA:IRA - GBD - ML
             - Income:J:Distributions:IRA:IRA - VEC - ML
             - Income:J:Distributions:IRA:IRA - GBD - Vanguard
             - Income:J:Distributions:IRA:IRA - VEC - Vanguard
