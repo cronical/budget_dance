@@ -40,7 +40,7 @@ def zip_up(zip_name,directory):
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Notes'],parse_shares=False):
+def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Notes'],parse_shares=False,usecols=None):
   '''Grab the data from a Moneydance report and return a Pandas DataFrame.
 
   Typically the file has tab separated fields.
@@ -52,6 +52,7 @@ def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Note
     nan_is_zero: whether to fill NaN values with zeros.  Default True.
     string_fields: a list of fields to consider as strings and not try to convert. Default is ['Notes']
     parse_shares: If True, move the word Shares from the amount column to a new column, Unit
+    usecols: if None, all cols, otherwise a list of names or indicies.
 
   Returns: A data frame with numbers converted to floats and dates as datetime.
 
@@ -60,7 +61,8 @@ def tsv_to_df(filename,sep='\t',skiprows=0,nan_is_zero=True,string_fields=['Note
   '''
   logger=get_logger(__file__)
   try:
-    df=pd.read_csv(filename,sep=sep,skiprows=skiprows,dtype='str') # keep as string because there are some clean ups needed
+     # keep as string because there are some clean ups needed
+    df=pd.read_csv(filename,sep=sep,skiprows=skiprows,dtype='str',usecols=usecols)
   except FileNotFoundError as e:
     logger.error('No file "{}"'.format(filename))
     raise f'file not found {filename}' from e 
