@@ -44,17 +44,17 @@ The report names below are prefixed with TSV: to club them together in Moneydanc
 |401, HSA, ESP payroll data|Transfers-X|payroll_to_savings.tsv|tbl_payroll_savings|md_pr_sav|
 |529-Distr|All Years|529-distr.tsv|tbl_529_distr|md_529_distr|
 |Account Balances|Each Year|acct-bals/yyyy*.tsv|tbl_accounts[^1], tbl_balances, bank_actl_load.py|md_acct, md_bal2|
-|HSA - disbursements - 2|Transfers-X|hsa-disbursements.tsv|tbl_hsa_disb|md_hsa_disb|
 |IRA-Distr|All Years|ira-distr.tsv|tbl_ira_distr|md_ira_distr|
 |Income & Expense by Year|Annual|iande.tsv|tbl_iande,tbl_iande_actl|md_iande_actl|
 |Income & Expense YTD|Annual|iande_ytd.tsv|tbl_current|md_iande_actl|
 |Investment IandE|All Years|invest-iande.tsv|tbl_invest_iande_values, tbl_invest_iande_ratios|md_invest_iande_values|
 |Investment Performance|Each Year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]|md_invest_actl|
 |Roth-contributions2|All Years|roth_contributions.tsv|tbl_roth_contributions|md_roth|
-|Tagged Export|All Years|tagged.tsv|tbl_tag_sums|md_tag_sums|
+|Tagged Export|All Years|tagged.tsv|tbl_tag_sums,tbl_hsa_disb|md_tag_sums|
 |Transfers BKG detailed|Transfers-X|trans_bkg.tsv|tbl_bank_sel_invest|md_sel_inv|
 |Transfers to Investment Accounts by Year|Transfers|invest-x.tsv|tbl_invest_actl|md_invest_actl|
 |Transfers-to-fcast|Transfers|transfers.tsv|tbl_transfers_actl|md_transfers_actl|
+
 
 Each of the reports should be run for the appropriate period(s) and the output saved as a .tsv file in the data folder or a subfolder, under the name given in the "Save as" column.
 

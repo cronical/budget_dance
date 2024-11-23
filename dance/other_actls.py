@@ -197,28 +197,34 @@ def hsa_disbursements(data_info):
 
   Args: 
     data_info: dict that has a value for path used to locate the input file  
-  
+
   Returns: 
     a dataframe with HSA disbursements by year
     Only has columns where data exists
   ''' 
   filename=data_info['path']
-  df=tsv_to_df(filename,skiprows=3,string_fields='Target Account,Source Account,Description,Memo'.split(','))
-  df.dropna(how='all',inplace=True) # blank rows
-  acct=df[['Target Account']].copy()
-  acct.fillna(method= 'ffill',inplace=True)#propogate accounts
-  df['Target Account']=acct
-  df=df.loc[df.Date.notna()] # remove headings and totals
-  df=add_yyear_col(df)  # create the year field to allow for pivot
+  string_fields="Account,Date,Description,Category,Tags".split(",")
+  df=tsv_to_df(filename,skiprows=3,string_fields=string_fields,usecols=string_fields+['Amount'])
+  df.loc[df.Account=='Total']=None
+  sel=df.Account.notna()
+  df=df.loc[sel] # Total & blank rows
 
+  year=df['Date'].dt.year
+  year.name='Year'
+  df=pd.concat([df,year],axis=1)
+
+  sel = df.Tags=='hsa-distr'
+  df=df.loc[sel]
+  df.loc[df.index,'Amount']=-1*df.Amount
+
+  df=df.fillna('')
   sel = ~ df.Description.str.upper().str.contains('EXCESS') # remove return of excess records
   df=df.loc[sel]
 
-  summary= df.pivot_table(index='Source Account',values='Amount',columns='Year',aggfunc='sum')
+  summary= df.pivot_table(index='Account',values='Amount',columns='Year',aggfunc='sum')
+  mapper=dict(zip(summary.columns,[f"Y{c}" for c in summary.columns]))
+  summary.rename(columns=mapper,inplace=True)
   summary=summary.reset_index()
-  summary.rename(columns={'Source Account':'Account'},inplace=True)
-  summary.Account=summary.Account.str.strip()
-  summary=pd.concat([summary.Account,-summary.drop('Account',axis=1)],axis=1)
 
   return summary
 
@@ -304,9 +310,9 @@ if __name__=='__main__':
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
   # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
-  # hsa_disbursements(data_info={'path':'data/hsa-disbursements.tsv'})
+  hsa_disbursements(data_info={'path':'data/tagged.tsv'})
   # sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
-  tagged_transactions(data_info={'path':'data/tagged.tsv'})
+  #tagged_transactions(data_info={'path':'data/tagged.tsv'})
   
