@@ -31,10 +31,11 @@ class Tester:
     '''Get a dictionary of stats'''
     return self.stats
 
-  def run_test(self,test_group,expected,found,tolerance=0.5,ignore_years=[],title=''):
+  def run_test(self,test_group,expected,found,tolerance=0.5,ignore_years=[],title='') ->list:
     '''under the heading of a test_group, compare expected and found for columns showing which items vary
     expected and found are of type pd.Series with a name.
     By default look for exact match, but if tolerance provided then the difference should be less than or equal to the tolerance.
+    Returns a list of column names (years) where the test failed.
     '''
     if test_group in self.stats:
       group_stat=self.stats[test_group]
@@ -58,10 +59,13 @@ class Tester:
     msg=fmt % self.test_count 
     msg+=' --> %d out of %d pass'%(zeros.sum(),len(zeros))
     logger.info (msg+ignore_msg)
+    failed=[]
     if zeros.sum()!=len(zeros):
       df=df.loc[~ zeros]
       df.columns=['Expected','Found','Difference']
-      print(df)
+      print(indent(df,"    "))
+      failed=list(df.index)
+    return failed
 
 def heading(label,punc):
   '''show a heading'''
@@ -142,6 +146,8 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None,title=''):
           factor - a factor for each of expected and found. Its length should be the same as the number of rows to be selected.
   '''
   values=[]
+  dfs=[] 
+  tables=[]
   agg=None
   if factors is None:
     mult_by=[1,1]
@@ -154,6 +160,9 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None,title=''):
       df=get_row_set(workbook,table,'index','index',contains=line)
     if isinstance(line,list):
       df=get_row_set(workbook,table,'index','index',in_list=line)
+
+    tables.append(table)
+    dfs.append(df)
     if df.shape[0] > 1:
       series=df.multiply(factor,axis=0).sum(axis=0)
       agg='sum'
@@ -161,7 +170,18 @@ def row_to_row(workbook,test_group,tester,table_lines,factors=None,title=''):
       series=df.squeeze()
     series.name=legend(table,line,agg)
     values.append(series)
-  tester.run_test(test_group,values[0],values[1],title=title)
+  failed=tester.run_test(test_group,values[0],values[1],title=title)
+  if len(failed):
+    spaces="    "
+    print (f"{spaces}Addition info")
+    print (f"{spaces}------ {tables[0]}")
+    print (indent(dfs[0][failed],spaces))
+    print (f"{spaces}------ {tables[1]}")
+    print(indent(dfs[1][failed],spaces))
+    pass
+
+def indent(df,spaces):
+  return spaces + df.to_string().replace("\n", "\n"+spaces)
 
 def verify(workbook=None,test_group='*'):
   '''Various checks'''
