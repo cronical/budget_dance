@@ -359,7 +359,7 @@ sheets:
           hier_separator: ":"          
         highlights: 
           present: &past_future
-            formula: =A$2="Y"&YEAR(NOW()) # ref is to heading row
+            formula: =A$2="Y" & YEAR(NOW())+ 1 # ref is to heading row
             border:
               edges: 
               - left
@@ -1637,7 +1637,7 @@ sheets:
         data:
           source: local
           type: md_hsa_disb
-          path: data/hsa-disbursements.tsv
+          path: data/tagged.tsv
         preserve:
           method: none
       - name: tbl_bank_sel_invest # bank transfers to/from selected investments
