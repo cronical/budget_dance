@@ -746,8 +746,11 @@ sheets:
             - Income:J:Distributions:529:529 - ML
             - Income:J:Distributions:401K:401k - GBD - TRV
             - Income:J:Distributions:401K:401k - VEC - UHG
-            - Income:J:Distributions:401K:Rollover:401k - GBD - TRV
-            - Income:J:Distributions:401K:Rollover:401k - VEC - UHG
+
+            - Income:J:Distributions:401K:Rollover:IRA - GBD - Vanguard
+            - Income:J:Distributions:401K:Rollover:IRA - VEC - Vanguard
+            - Income:J:Distributions:401K:Rollover:IRA Roth - VEC - Vanguard
+
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
             - Expenses:Y:Invest:Reinv:Gross
@@ -811,6 +814,36 @@ sheets:
             - Income:J:Distributions:529:CHET - Ben
             - Income:J:Distributions:529:529 - ML
             formula: =XLOOKUP(trim([@Account]),tbl_529_distr[Account],tbl_529_distr[Y1234],0)
+
+          # actual distributions
+          - base_field: Key #from 401K's - always rollovers
+            matches:
+              - Income:J:Distributions:401K:401k - GBD - TRV
+              - Income:J:Distributions:401K:401k - VEC - UHG
+            formula: =-SUM(FILTER(tbl_tag_sums[Y1234],(tbl_tag_sums[Account]=TRIM([@Account])),0))
+
+          - base_field: Key # 401K rollovers - compute offset to normal distribution
+            matches:
+              - Income:J:Distributions:401K:Rollover:IRA - GBD - Vanguard
+              - Income:J:Distributions:401K:Rollover:IRA - VEC - Vanguard
+              - Income:J:Distributions:401K:Rollover:IRA Roth - VEC - Vanguard
+            formula: =-SUM(FILTER(tbl_tag_sums[Y1234],(tbl_tag_sums[Account]=TRIM([@Account]))*(tbl_tag_sums[Tag]="rollover"),0))
+
+          - base_field: Key # taxable IRA distributions
+            matches:
+              - Income:J:Distributions:IRA:IRA - GBD - ML        
+              - Income:J:Distributions:IRA:IRA - VEC - ML        
+              - Income:J:Distributions:IRA:IRA - VEC - Vanguard              
+              - Income:J:Distributions:IRA:IRA - GBD - Vanguard        
+            formula: =-SUM(FILTER(tbl_tag_sums[Y1234],(tbl_tag_sums[Account]=TRIM([@Account]))*(tbl_tag_sums[Tag]="ira-txbl-distr"),0))
+
+          - base_field: Key # non - taxable Roth IRA distributions
+            matches:
+              - Income:J:Distributions:Roth:IRA Roth - GBD - Vanguard
+              - Income:J:Distributions:Roth:IRA Roth - VEC - Vanguard
+            formula: =-SUM(FILTER(tbl_tag_sums[Y1234],(tbl_tag_sums[Account]=TRIM([@Account]))*(tbl_tag_sums[Tag]="roth-distr"),0))
+
+
           # load Expenses:Y
           - base_field: Key # Inherit:Invest (not bank)
             matches:
