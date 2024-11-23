@@ -259,7 +259,7 @@ def tagged_transactions(data_info):
   filename=data_info['path']
   df=tsv_to_df(filename,skiprows=3,string_fields='Account,Check#,Description,Category,Tags,C'.split(','))
   df.drop(columns=['Check#','C'],inplace=True)
-  df.dropna(how='any',inplace=True) # blank rows & total
+  df=df.loc[df.Category.notna()] # remove trailing blank row & total
   for ix,row in df.iterrows():
     # replace form tag, [tag] with just the first item (not sure why MD does this)
     tags=row['Tags'].split(', [')
@@ -309,8 +309,8 @@ if __name__=='__main__':
   workbook=config['workbook']
   # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
-  # IRA_distr(data_info={'path':'data/ira-distr.tsv'})
-  hsa_disbursements(data_info={'path':'data/tagged.tsv'})
+  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  # hsa_disbursements(data_info={'path':'data/tagged.tsv'})
   # sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
   # med_liab_pmts(data_info={'path':'data/med_liab_pmts.tsv'})
