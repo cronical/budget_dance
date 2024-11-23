@@ -5,6 +5,7 @@ May be modified to add new tabs and re-run.  Unless overwrite is selected, does 
 import argparse
 from json import JSONDecodeError 
 from requests.exceptions import ConnectTimeout, ReadTimeout
+from urllib.error import HTTPError
 from os.path import exists
 from openpyxl import load_workbook
 from openpyxl.utils.cell import get_column_letter
@@ -149,7 +150,7 @@ def refresh_sheets(target_file,overwrite=False):
             try:
               data=request(table_info)
               logger.debug('pulled data from remote')
-            except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout) as e:
+            except (JSONDecodeError, ValueError, ConnectTimeout, ReadTimeout, HTTPError) as e:
               logger.error('*** Remote data problem, possible maintenance window')
               logger.error(str(e))
               logger.error('*** Skipping table: %s'%table_info['name'])

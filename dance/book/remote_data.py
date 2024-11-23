@@ -2,14 +2,17 @@
 The following errors may occur and should be caught by caller: 
   json.JSONDecodeError
   requests.exceptions.ConnectTimeout
+  urllib.error.HTTPError
   ValueError
   ('Response code is %d'%response.status_code)
 '''
 import requests
 import json
 from math import ceil, floor
+
 from bs4 import BeautifulSoup
 import pandas as pd
+
 
 #urls={'BLS': 'https://api.bls.gov/publicAPI/v2/timeseries/data/',
 #  'FEDREG':'https://www.federalregister.gov/documents/2020/11/12/2020-24723/updated-life-expectancy-and-distribution-period-tables-used-for-purposes-of-determining-minimum'}
