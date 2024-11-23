@@ -344,13 +344,17 @@ For example the following puts a line between the actual and forecast periods. T
 ```yaml
     highlights: 
       present: &past_future
-        formula: =A$2="Y"&YEAR(NOW()) # ref is to heading row
+        formula: =A$2="Y" & 1+ YEAR(NOW()) # A$2 ref is to heading row.  1 + is workaround to using the ref to table.
         border:
           edges: 
           - left
           style: thin
           color: B50000
 ```
+
+This should work but doesn't:
+
+=A$2=VLOOKUP("first_forecast",INDIRECT("tbl_gen_state"),2)# A$2 ref is to heading row. INDIRECT is Excel work around.
 
 ### Edit Checks
 
