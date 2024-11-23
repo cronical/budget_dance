@@ -55,7 +55,7 @@ The tag `529-distr` is used to identify actual distributions.
 
 Use the tag `hsa-distr` for all distributions. This allows selection of these no matter if the funds go to a bank (including passthru) or directly to the provider.
 
-## IRA Accounts
+## Traditional IRA Accounts
 
 IRA distributions are problematic.
 
@@ -66,6 +66,10 @@ The solution allows a uniform way of handling the data (at the cost of a bit of 
 The solution uses a Moneydance tag, `ira-txbl-distr` on those transactions.  This involves editing the transactions that are downloaded from the financial institution to add in the tag. This needs to be done in the Bank Register view not the Register view.  The tags field is only shown in the Bank Register view. Note the old mixed case version is shown.
 
 ![How it should look](assets/images/ira-txbl-distr.png)
+
+## Roth IRA Accounts
+
+Use the tag `roth-distr`.
 
 ## Tag support
 
