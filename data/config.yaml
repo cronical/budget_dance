@@ -77,7 +77,10 @@ lambdas:
   - name: MONTHLY_PARTB
     formula: =LAMBDA(arr,agi,yr,LET(rates,MC_RATES(arr,yr),m,CHOOSECOLS(rates,3),b,CHOOSECOLS(rates,4),XLOOKUP(agi,m,b,0,1)))
     comment: Returns the monthly part B premium for this year. Called with the tbl_part_b[#Data], agi, this_year as the arguments.
-  - name: MONTHLY_PARTD
+  - name: MONTHLY_PARTD_BASE
+    formula: =LAMBDA(arr,who,yr,SUM(FILTER(CHOOSECOLS(arr,8),(CHOOSECOLS(arr,3)="PartD")*(CHOOSECOLS(arr,1)=yr)*(CHOOSECOLS(arr,4)=who),0)))
+    comment: Returns the the base monthly part B premium for this year. Called with tbl_mcare_opt[#Data],who,this_year as the arguments.
+  - name: MONTHLY_PARTD_IRMAA
     formula: =LAMBDA(arr,agi,yr,LET(rates,MC_RATES(arr,yr),m,CHOOSECOLS(rates,3),b,CHOOSECOLS(rates,5),XLOOKUP(agi,m,b,0,1)))
     comment: Returns the monthly part D premium surcharge for this year.  Called with the tbl_part_b[#Data], agi, this_year as the arguments.
   - name: MC_RATES
@@ -1472,7 +1475,14 @@ sheets:
           matches:
           - PARTD - GBD - PRMEDINS
           - PARTD - VEC - PRMEDINS
-          formula: =ROUND(12 * MONTHLY_PARTD(tbl_part_b[#Data],AGI(tbl_taxes[Y1234-2]),INT_YEAR("Y1234")) * PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234")),0)
+          formula: >
+            =ROUND(12 * 
+            (
+            MONTHLY_PARTD_IRMAA(tbl_part_b[#Data],AGI(tbl_taxes[Y1234-2]),INT_YEAR("Y1234")) +
+            MONTHLY_PARTD_BASE(tbl_mcare_opt[#Data],[@Who],INT_YEAR("Y1234"))
+            )
+             * PORTION([@[Start Date]],[@[End Date]],INT_YEAR("Y1234"))
+            ,0)
         - base_field: Item # package costs (premium + deductible). 
           matches:
           - PKG - GBD - PRMEDINS
