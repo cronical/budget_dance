@@ -15,6 +15,17 @@
     },
 
     {
+      "name": "Python: build_book",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "dance/util/build_book.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+
+
+
+    {
       "name": "create args",
       "type": "debugpy",
       "request": "launch",
