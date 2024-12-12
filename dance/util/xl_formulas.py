@@ -242,6 +242,15 @@ def dyno_fields(table_info,data):
         data.at[ix,action['target_field']]=value
   return data
 
+def replace_all(formula:str,to_find:str,change_to:str)->str:
+  '''Use when re fails to replace all.  
+  Only seen on MONTHLY_PARTD_BASE  
+  Drawbacks:
+   - requires exact case match
+   - does not limit to word boundaries
+  returns modified string'''
+  return change_to.join(formula.split(to_find))
+
 def is_formula(value):
   '''Returns true if the value is a formula'''
   result=False
@@ -279,7 +288,8 @@ def prepare_formula(formula):
   formula = re.sub(r"\bANCHORARRAY\(", "_xlfn.ANCHORARRAY(", formula, re.I)
   formula = re.sub(r"\bBYCOL\(", "_xlfn.BYCOL(", formula, re.I)
   formula = re.sub(r"\bBYROW\(", "_xlfn.BYROW(", formula, re.I)
-  formula = re.sub(r"\bCHOOSECOLS\(", "_xlfn.CHOOSECOLS(", formula, re.I)
+  #formula = re.sub(r"\bCHOOSECOLS\(", "_xlfn.CHOOSECOLS(", formula, re.I)
+  formula=replace_all(formula,"CHOOSECOLS","_xlfn.CHOOSECOLS")
   formula = re.sub(r"\bCHOOSEROWS\(", "_xlfn.CHOOSEROWS(", formula, re.I)
   formula = re.sub(r"\bDROP\(", "_xlfn.DROP(", formula, re.I)
   formula = re.sub(r"\bEXPAND\(", "_xlfn.EXPAND(", formula, re.I)
