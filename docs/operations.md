@@ -1,5 +1,43 @@
 # Operations
 
+## Annual Checklist
+
+These are items that need attention on an annual basis. 
+
+1. Config
+    1. hide_years
+    1. first_forecast_year
+    1. Table Definitions
+        1. tbl_accounts
+            1. path 
+            1. include_zeros
+            1. force_active
+            1. dyno_fields (near market rate
+        1. tbl_balances
+            1. &past_future (whether or not to add 1)
+        1. tbl_iande inspect/change the following:
+            1. hier_insert_paths
+            1. actl_formulas 
+                1. (patches to Income)
+            1. fcst_formulas:
+                1. (income from retir_vals)
+  1. Data items - update and extract_table
+      1. transfers_plan - delete expired items
+      1. gen_tables 
+          - part b premium table
+      1. retireparms 
+          - medical rates
+          - social security - update elected table item
+      1. retirement 
+          - medical packages
+          - income plans 
+      1. tax_tables - federal & state rates
+      1. other_actl - manual input items
+          1. Pct SS taxable
+          1. standard deduction. Source: [Tax Foundation](https://taxfoundation.org/data/all/federal/2024-tax-brackets/)
+          1. SALT Max
+          1. Excess Medicare Wage & Additional Medicare Rate
+
 ## Export Functions
 
 There are three commands to export data.  These write to files that are then used to reload or rebuild the workbook.
