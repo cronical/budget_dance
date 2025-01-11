@@ -362,7 +362,7 @@ sheets:
           hier_separator: ":"          
         highlights: 
           present: &past_future
-            formula: =A$2="Y" & YEAR(NOW())+ 1 # ref is to heading row
+            formula: =A$2="Y" & YEAR(NOW()) # ref is to heading row - change to add 1 if needed late in year
             border:
               edges: 
               - left

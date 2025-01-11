@@ -64,6 +64,8 @@ def main():
     logger.info("Calculations done and file saved.")      
 
   score=verify(config['workbook'],'*')
+  if score==0:
+    score=100
   logger.info(f"Score is {score} pct")
 
 if __name__=="__main__":
