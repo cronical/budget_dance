@@ -38,9 +38,22 @@ def payroll_savings(data_info):
   col = 'Date'
   df[col] = pd.to_datetime(df[col])
   df=add_yyear_col(df)  # create the year field to allow for pivot
-  sel= (df.Amount > 0) != (df.Description.str.upper().str.contains('EXCESS')) # remove payments but not return of excess
-  df=df.loc[~ sel].copy() # remove the transfers in (except for any return of excess)
-  df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() # remove transfer from devenir to fidelity
+
+
+  # remove the transfers in (except for any return of excess)
+  df.Description.fillna('',inplace=True)
+  sel= df.Amount < 0 
+  txt='EXCESS'
+  sel[df.Description.str.upper().str.contains(txt)]=True
+
+  # remove return due to insufficient funds 
+  txt='RETURNED ITEM, INSUFFICIENT'
+  sel[df.Description.str.upper().str.contains(txt)]=False
+
+  df=df.loc[ sel].copy() 
+
+  # remove transfer from devenir to fidelity
+  df=df.loc[~df.Description.str.contains('TRANSFER OF ASSETS')].copy() 
   df.Amount = - df.Amount # change sign
   # remove refunds to hsa
   sel = ~ df.Description.str.contains('ADJ') 
@@ -307,9 +320,9 @@ if __name__=='__main__':
   from dance.util.files import read_config
   config=read_config()
   workbook=config['workbook']
-  # payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
   # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
-  IRA_distr(data_info={'path':'data/ira-distr.tsv'})
+  #IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/tagged.tsv'})
   # sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
   # five_29_distr(data_info={ 'path':'data/529-distr.tsv' })
