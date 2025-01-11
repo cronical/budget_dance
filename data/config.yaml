@@ -1020,9 +1020,24 @@ sheets:
             formula: =XLOOKUP(TRIM([@Account])&":Inherit",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # Social security benefit federal withholding - G
             matches:
+
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
-            formula: =round(XLOOKUP("ss_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("SS - GBD - SSA",tbl_retir_vals[Item],tbl_retir_vals[Y1234],0),2)
-          - base_field: Key # Social security benefit federal withholding - V
+            formula: > # Taxed on SS less medicare payments
+              =round(
+                XLOOKUP("ss_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) *
+                (
+                  XLOOKUP("SS - GBD - SSA",tbl_retir_vals[Item],tbl_retir_vals[Y1234],0) -
+                  SUM(
+                    FILTER(tbl_retir_medical[Y1234],
+                    (tbl_retir_medical[Who]="GBD")*(ISNUMBER(SEARCH("PART",tbl_retir_medical[Type])))
+                    )
+                  )
+                )
+                ,0
+              )
+
+
+          - base_field: Key # Social security benefit federal withholding - V - copy above logic when time comes
             matches:
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
             formula: =round(XLOOKUP("ss_fed_wh",tbl_gen_state[Item],tbl_gen_state[Value],0) * XLOOKUP("SS - VEC - SSA",tbl_retir_vals[Item],tbl_retir_vals[Y1234],0),2)
