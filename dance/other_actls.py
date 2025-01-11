@@ -74,7 +74,9 @@ def roth_contributions(data_info):
   df=add_yyear_col(df)  # create the year field to allow for pivot
   summary= df.pivot_table(index='Category',values='Amount',columns='Year',aggfunc='sum')
   summary.fillna(value=0,inplace=True)
-  summary=-summary.loc[summary.index.str.startswith('401K')]
+  sel=summary.index.str.startswith('401K')
+  sel = sel | summary.index.str.startswith('IRA')
+  summary=-summary.loc[sel]
   summary=summary.reset_index()
   summary.rename(columns={'Category':'Account'},inplace=True)
   return summary
@@ -320,8 +322,8 @@ if __name__=='__main__':
   from dance.util.files import read_config
   config=read_config()
   workbook=config['workbook']
-  payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
-  # roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
+  #payroll_savings(data_info={'path':'data/payroll_to_savings.tsv'}) 
+  roth_contributions(data_info={'path':'data/roth_contributions.tsv'})
   #IRA_distr(data_info={'path':'data/ira-distr.tsv'})
   # hsa_disbursements(data_info={'path':'data/tagged.tsv'})
   # sel_inv_transfers(workbook=workbook,data_info={'path':'data/trans_bkg.tsv'})
