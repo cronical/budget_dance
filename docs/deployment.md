@@ -1,7 +1,5 @@
 # Deployment
 
-This is barely working.
-
 Using python distribution manager (pdm) with setuptools backend.
 
 Set version with versions/set.py.  This writes the version to dance\version.txt which is referenced in `pyproject.toml`
