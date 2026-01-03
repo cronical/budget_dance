@@ -1,5 +1,5 @@
-'''Code for reading balances and preparing balances tab
-'''
+"""Code for reading balances and preparing balances tab
+"""
 import pandas as pd
 from openpyxl import load_workbook
 
@@ -14,16 +14,18 @@ logger=get_logger(__file__)
 def read_balances(data_info,target_file):
   bal_df=read_accounts(data_info)
   acct_df=pd.read_excel(target_file,sheet_name='accounts',skiprows=1)
-  if len(bal_df)!=len(bal_df.merge(acct_df,on='Account')): # make sure all the balances are in the account list
-
-    raise ValueError('Balance account(s) are not all in the Accounts table')
-  logger.info('All balance accounts are in the accounts table.')
+  accts_a=set(acct_df.Account)
+  accts_b=set(bal_df.Account)
+  if len(accts_a-accts_b):
+    logger.info(f"Setting zero initial balance for {sorted(list(accts_a-accts_b))}")
+  if len(accts_b-accts_a):
+    logger.info(f"Dropping old accounts {sorted(list(accts_b-accts_a))}")
   bal_df=acct_df[['Account']].merge(bal_df[['Account','Current Balance']],on='Account',how='left').fillna(value=0)
 
   return bal_df
 
 def prepare_balances_folding(years,in_df,workbook):
-  '''Prepare a folding version of the balances table to avoid dependencies in the same column.
+  """Prepare a folding version of the balances table to avoid dependencies in the same column.
   args:
     years: iterable with the numeric years to be appended to the columns
     in_df: a dataframe with at least the Account and Current Balance columns
@@ -31,7 +33,7 @@ def prepare_balances_folding(years,in_df,workbook):
   returns: a dataframe for the balance tab with the years columns set as None.
 
   The forecast and actuals items in the years columns are set later based on config.
-  '''
+  """
  
   lead_cols=['Key','ValType','AcctName','Type','Income Txbl','Active','No Distr Plan']
 
