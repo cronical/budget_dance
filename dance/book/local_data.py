@@ -33,7 +33,7 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
     Such as in the case of balances if there is an account not found in the accounts worksheet
     '''
   groups=None
-  match data_info['type']:
+  match data_info['data_type']:
     case 'md_529_distr':
       df=five_29_distr(data_info=data_info)
     case 'md_acct':
@@ -45,6 +45,13 @@ def read_data(data_info,years=None,ffy=None,target_file=None,table_map=None,titl
       df,groups=prepare_balances_folding(years,df,workbook=target_file)
     case 'md_iande_actl':
       df=read_iande_actl(data_info=data_info)
+
+      # in case iande was saved after the new year started (as in when a new row was created)
+      # remove the column from so that the forecast year can be constructed without duplicating the year
+      if data_info["sheet"] == 'iande':
+        if str(ffy) in df.columns:
+          del df[str(ffy)]
+
       df,groups=prepare_iande_actl(workbook=target_file,target_sheet=data_info['sheet'],df=df,title_row=title_row,table_map=table_map)
     case 'md_transfers_actl':
       df=read_transfers_actl(data_info=data_info,target_file=target_file,table_map=table_map)
