@@ -55,6 +55,7 @@ excludes = ["dance/experimental"]
 [project.scripts]
 build_book = "dance.util.build_book:main"
 extract_table = "dance.extract_table:main"
+help = "dance.help:start_help"
 iande_actl_load = "dance.iande_actl_load:main"
 invest_actl_load = "dance.iande_actl_load:main"
 invest_iande_load = "dance.invest_iande_load:main"
