@@ -52,7 +52,7 @@ def table_as_df(wb,table_name):
   return table, ws_name,ref
 
 def df_for_table_name(table_name:str, workbook:str|Workbook, data_only:bool=False, table_map:dict=None):
-  '''Extracts a table from a workbook as a Pandas dataframe. 
+  """Extracts a table from a workbook as a Pandas dataframe.
 
   args:
     table_name: the name of the table
@@ -65,7 +65,7 @@ def df_for_table_name(table_name:str, workbook:str|Workbook, data_only:bool=Fals
   raises:
     ValueError: when the file does not exist or its structures are not right
 
-  '''
+  """
 
   if isinstance(workbook,str):# if workbook is a string then read file
     try:
@@ -267,11 +267,11 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
           else:
             ws.cell(row=rix ,column=cix).number_format=fin_format # no decimals for forecast
           # determine if format should be overwritten: for percentage or integer
-          # check table title, then line name - last word is key
+          # check table title, then line name - first or last word is matched
           fmt_map={'ratios':FORMAT_PERCENTAGE_00,'rate':FORMAT_PERCENTAGE_00,
                     'pct':FORMAT_PERCENTAGE_00,'percent':FORMAT_PERCENTAGE_00,'tax table':FORMAT_NUMBER}
-          pat='.*\\b(%s).*'%('|'.join(fmt_map.keys())) # TODO make balance key have a separator and add 2nd \b here
-          prog=re.compile(pat)
+          pat=r'.*?\b(%s).*'%('|'.join(fmt_map.keys())) # TODO make balance key have a separator and add 2nd \b here
+          prog=re.compile(pat,re.IGNORECASE)
           line_name=values[first_field]
           if line_name is None: # when no data is provided, there is a row of Nones
             line_name=''
@@ -280,7 +280,7 @@ def write_table(wb,target_sheet,table_name,df,groups=None,title_row=None,edit_ch
             rx_result=prog.match(legend)
             if rx_result:
               kw=rx_result.group(1)
-              special_fmt=fmt_map[kw]
+              special_fmt=fmt_map[kw.lower()]
               ws.cell(row=rix,column=cix).number_format=special_fmt
               break
 
