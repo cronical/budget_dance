@@ -49,6 +49,23 @@ In Moneydance generate each report and save the file with the default name, whic
 The `iande_ytd` report can be skipped at year end.
 Run the command `md_names yyyy` to rename and relocate these files as needed, replacing prior versions.
 
+```zsh
+[.venv] george@MacStudio:~/budget-dance
+$ md_names 2025
+2026-01-03 11:49:29,771 - md_names - INFO - data/invest_iande.tsv
+2026-01-03 11:49:29,771 - md_names - INFO - data/529_distr.tsv
+2026-01-03 11:49:29,772 - md_names - INFO - data/acct_bals/2025.tsv
+2026-01-03 11:49:29,772 - md_names - INFO - data/invest_x.tsv
+2026-01-03 11:49:29,773 - md_names - INFO - data/ira_distr.tsv
+2026-01-03 11:49:29,773 - md_names - INFO - data/tagged.tsv
+2026-01-03 11:49:29,773 - md_names - INFO - data/transfers.tsv
+2026-01-03 11:49:29,774 - md_names - INFO - data/iande.tsv
+2026-01-03 11:49:29,774 - md_names - INFO - data/iande_ytd.tsv
+2026-01-03 11:49:29,775 - md_names - INFO - data/invest_p/2025.tsv
+2026-01-03 11:49:29,775 - md_names - INFO - data/roth_contributions.tsv
+2026-01-03 11:49:29,775 - md_names - INFO - data/payroll_to_savings.tsv
+2026-01-03 11:49:29,775 - md_names - INFO - data/trans_bkg.tsv
+```
 
 | Report             |Periods| Final name             |Used in config by|Data type code|
 |:-------------------|:--|:-----------------------|:--|:--|
