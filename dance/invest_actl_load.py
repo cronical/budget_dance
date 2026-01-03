@@ -1,10 +1,9 @@
 #! /usr/bin/env python
-'''
+"""
 Update the table 'tbl_invest_actl'
-'''
+"""
 import argparse
 import os
-import sys
 
 import pandas as pd
 from dateutil.parser import parse
@@ -14,6 +13,7 @@ from dance.other_actls import add_yyear_col
 from dance.util.books import col_attrs_for_sheet, fresh_sheet, set_col_attrs
 from dance.util.files import read_config, tsv_to_df
 from dance.util.logs import get_logger
+from dance.util.prompts import prompt_no_yes
 from dance.util.tables import (columns_for_table, conform_table,
                                df_for_table_name, write_table)
 from dance.util.xl_formulas import dyno_fields
@@ -22,10 +22,10 @@ config=read_config()
 logger=get_logger(__file__)
 
 def read_passthru_accts(data_info):
-  '''Grab the balances of the pass through accounts from the tsv file indicated in the argument
-  
+  """Grab the balances of the pass through accounts from the tsv file indicated in the argument
+
   argument: dictionary with 'path' to locate the file
-  returns dataframe with the passthrough account names transformed to the actual account names and and their balances'''
+  returns dataframe with the passthrough account names transformed to the actual account names and and their balances"""
 
   df=tsv_to_df(data_info['path'],skiprows=3,string_fields=['Account','Notes'])
   df=df.dropna(how='any')
@@ -38,7 +38,7 @@ def read_passthru_accts(data_info):
   return df
 
 def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
-  '''  Read investment actual data from files into a dataframe
+  """  Read investment actual data from files into a dataframe
 
   args:
     workbook: name of the workbook (to get the accounts and fees data from)
@@ -51,7 +51,7 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
   raises:
     FileNotFoundError: if the input file does not exist.
-  '''
+  """
 
   logger.info('Starting investment actual load')
 
@@ -120,6 +120,8 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
       continue
     
     fn_year = file_name.split('.')[0].split('-')[-1] #grab the year from the file name
+    if int(fn_year) < config['start_year']:
+      continue
     perf_file=perf_files_dir+file_name
     logger.debug('Processing %s',fn_year)
     #read the internal date and check it.
@@ -203,28 +205,25 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
     df['Check']=(df.Open + df.Transfers + df.Realized + df.Unrealized +df.Fees - df.LIR).round(2)
     df['Delta']=df.End - df.Check
     valid= (df.End-df.Check).abs() < .001
-    if ~valid.all():
+    if not valid.all():
       logger.error('We have a problem getting the end balances. File = {}'.format(file_name))
       print(df.loc[~valid])
       print ("Note:\ncheck=Open + Transfers + Realized + Unrealized +Fees - Loan Interest Received\n")
       print('''
       Things to look at
-      - Merrill (IRA) reinvestment rounding problems - off by 1 or 2 cents.
+      - Merrill (IRA - VEC - ML) reinvestment rounding problems - off by 1 or 2 cents.
         - Export Transfers, Detailed report and run dance.util.match_retro.py to locate
       - Unit prices - not same precision 
         - At price history don't take the printed unit value - recalculate as ratio for 12/31/yy price on items that are off
       - Income items not marked as MiscInc 
         - such as interest being coded as xfr
         - remember to re-run/save performance report
+      - Dividends not attributed security will cause invest_p to be too low, but the dividends will show up in income, causing a mismatch.
       - Transfers that do not pass through a bank (or items in the transfers report used to generate the invest_x.tsv file)
       - The Transfers, Detailed report for just the account and year can be helpful.
       - Transfers to/from investment accounts should use xfr not buyxfr or sellxfr.
       ...''')
-      yn='Q'
-      while yn not in 'YN':
-        yn = input("Continue? (N/y):").strip().upper()+'N'
-        if yn=='N':
-          sys.exit(-1)
+      prompt_no_yes()
       logger.info(f'Continuing, with known Investment balance error for {file_name}')
     else:
       logger.info('Investment balance checks OK for {}'.format(file_name))
@@ -255,8 +254,9 @@ def read_and_prepare_invest_actl(workbook,data_info,table_map=None):
 
   return table
 
+
 def get_cap_gains(data_info):
-  '''Get cap gains'''
+  """Get cap gains"""
   txt_fields=['Account', 'Security', 'Action','Unnamed: 8']
   df=tsv_to_df (data_info['path'],skiprows=3,string_fields=txt_fields)
   df['Account'].fillna(method='ffill',inplace=True)
@@ -294,7 +294,7 @@ def get_cap_gains(data_info):
   pass
   # Notes:
   #  return amount column on Investment Performance seems to include unrealized, realized and income
-  #  average cost method seems to return non sensical results for unrealized
+  #  average cost method seems to return nonsensical results for unrealized
   #   with possible exception when entire lot is sold - like in BKG - JNT - ML
   
 
