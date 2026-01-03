@@ -11,8 +11,7 @@ import argparse
 import pandas as pd
 
 from dance.util.files import tsv_to_df,read_config
-from dance.util.tables import df_for_table_name
-from tests.helpers import actual_years, align,  get_row_set, stack_as
+from dance.util.helpers import actual_years, align,  get_row_set, stack_as
 
 
 def md_iande():
