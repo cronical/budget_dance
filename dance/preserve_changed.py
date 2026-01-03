@@ -43,8 +43,8 @@ def save_sparse(config,workbook,path):
       if 'preserve' in table_info:
         if table_info['preserve']['method']=='sparse':
           non_year_cols=[]
-          if 'non-year-cols' in table_info['preserve']:
-            non_year_cols=table_info['preserve']['non-year-cols']
+          if 'non_year_cols' in table_info['preserve']:
+            non_year_cols=table_info['preserve']['non_year_cols']
           table=table_info['name']
           counters[table]=0
           df= df_for_table_name(table,workbook,data_only=False)# key is in index
