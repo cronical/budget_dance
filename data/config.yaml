@@ -1,13 +1,13 @@
 workbook: data/fcast.xlsx
-start_year : 2018
+start_year : 2019
 end_year : 2046
 hide_years:
-  - 2018
   - 2019
   - 2020
   - 2021
+  - 2022
 year_column_width: 12
-first_forecast_year : 2025
+first_forecast_year : 2026
 zoom_scale: 130 # how to scale the worksheets
 theme: Berlin
 lambdas:
@@ -205,11 +205,11 @@ sheets:
             number_format: 10 # FORMAT_PERCENTAGE_00
           - name: Notes
             width: 55
-        data: &acct_data_info
-          source: local
-          type: md_acct
-          path: ./data/acct-bals/2024.tsv
-          group:
+        data:
+          source: &acct_data_source local
+          data_type: &acct_data_type md_acct
+          path: &acct_data_path ./data/acct_bals/2025.tsv
+          group: &acct_data_group
           - Bank Accounts
           - Credit Cards
           - Real Estate
@@ -217,32 +217,30 @@ sheets:
           - Liabilities
           - Mortgage Loans
           - Non Mort Loans
-          no_details_for:
+          no_details_for: &acct_data_no_details_for
           - Assets
           - Loans
           - Investment Accounts
-          include_zeros:
+          include_zeros: &acct_data_include_zeros
           - 401K - GBD - TRV
-          - 529 - ML
-          - BKG - JNT - CP1
-          - 401K - GBD MML - Pre-tax
-          - 401K - GBD MML - Roth
           - 401K - VEC - UHG
+          - 529 - GBD - FID
+          - 529 - ML
+          - BKG - GBD - FID
+          - Chk - MMFCU
           - CHET - Ben
-          - HSA - GBD - Devenir
-          - HSA - G - Invest
-          - HSA - G - HSA Bank
-          - IRA - GBD - ML
+          - Escrow - Mortgage
+          - ESP - VEC - Fidelity
+          - HSA - VEC - UHG
+          - IRA - GBD - FID
           - LON - JNT - HED
-          tax_free_keys:
+          - Savings - MMFCU
+          tax_free_keys: &acct_data_tax_free_keys
           - 401K
           - CHET
           - "529"
           - HSA
           - IRA
-          force_active:
-          - IRA - GBD - ML
-          - LON - JNT - HED
         dyno_fields:
           - base_field: Type # No Distr Plan - default to 1
             matches:
@@ -274,7 +272,7 @@ sheets:
             - 401K - VEC - UHG
             - BKG - JNT - ML
             - BKG - JNT - Vanguard
-            - CHET - Fidelity
+            - 529 - GBD - FID
             - ESP - VEC - Fidelity
             - HSA - GBD - Fidelity
             - HSA - VEC - UHG
@@ -299,7 +297,7 @@ sheets:
             actions:
               - target_field: Rate Cap
                 formula: =0.04
-          - base_field: Type # default 100% re-investment rate
+          - base_field: "Type" # default 100% re-investment rate
             matches: 
               - I
               - B
@@ -314,7 +312,7 @@ sheets:
                 formula: =0.0                                   
         preserve:
           method: sparse
-          non-year-cols:
+          non_year_cols:
             - Income Txbl
             - Active
             - No Distr Plan
@@ -356,13 +354,17 @@ sheets:
         - Income Txbl
         - No Distr Plan
         data:
-          <<: *acct_data_info
-          type: md_bal2
-          path: ./data/acct-bals/2017.tsv
+          source: *acct_data_source
+          group: *acct_data_group
+          no_details_for: *acct_data_no_details_for
+          include_zeros: *acct_data_include_zeros
+          tax_free_keys: *acct_data_tax_free_keys
+          data_type: md_bal2
+          path: ./data/acct_bals/2018.tsv
           hier_separator: ":"          
         highlights: 
           present: &past_future
-            formula: =A$2="Y" & YEAR(NOW()) # ref is to heading row - change to add 1 if needed late in year
+            formula: =A$2="Y" & YEAR(NOW())+1 # ref is to heading row - change to add 1 if needed late in year
             border:
               edges: 
               - left
@@ -443,11 +445,13 @@ sheets:
                 value_field: Type
             formula: =XLOOKUP([@AcctName] & " - TOTAL",tbl_transfers_actl[Account],tbl_transfers_actl[Y1234])
           - base_field: ValType # Start Bal
-            matches: Start Bal
+            matches:
+            - Start Bal
             first_item: skip
             formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
           - base_field: ValType # Investment Start Bal
-            matches: I Start Bal 
+            matches:
+            - I Start Bal
             formula: "=0" 
           - query: # Bank actual interest
             - field: ValType 
@@ -487,7 +491,8 @@ sheets:
             formula: =XLOOKUP("Unrlz Gn/Ls"&[@AcctName],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
         all_col_formulas:
           - base_field: ValType # Reinv Rate - default to account's Reinv Rate
-            matches: Reinv Rate
+            matches:
+            - Reinv Rate
             formula: =XLOOKUP( tbl_balances[@AcctName],tbl_accounts[Account],tbl_accounts[Reinv Rate])
           - query: # Investment accounts may have fees. Do not include action fees since those are included as part of the realized gain.
             - field: ValType # Fees
@@ -672,7 +677,8 @@ sheets:
             formula: =SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=tbl_balances[@AcctName])*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())))
             # the SUM phrase calculates the net change defined in the transfers_plan for this account, this year
           - base_field: ValType # Start Bal
-            matches: Start Bal
+            matches:
+            - Start Bal
             formula: =XLOOKUP([@AcctName]& " - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
         preserve:
           method: sparse
@@ -702,7 +708,7 @@ sheets:
           formula: =SORT(FILTER(tbl_accounts[Account],(tbl_accounts[Active]=1)))
       data:
         source: local
-        type: json_records
+        data_type: json_records
         path: data/transfers_plan.json
   iande:
     sheet_group: income-expense
@@ -719,21 +725,14 @@ sheets:
         - Key
         data: &iande_data_info
           source: local
-          type: md_iande_actl
+          data_type: md_iande_actl
           path: ./data/iande.tsv
           sheet: iande    
           hier_insert_paths: &hier_ins_list
             - Income:I:Invest income:CapGn:Sales
             - Income:I:Invest income:CapGn:Shelt:Sales
-            - Income:I:Other taxable income:Dobbs Trust
-            - Income:I:Retirement income:Social Security:SS - GBD - SSA
             - Income:I:Retirement income:Social Security:SS - VEC - SSA
-            - Income:I:Retirement income:Pension:DB - VEC - PNX
-            - Income:I:Retirement income:Pension:DB - GBD - TRV
             - Income:I:Retirement income:Pension:DB - VEC - MML
-            - Income:I:Sheltered income:ER health acct contrib:ER HIA contribution - V
-            - Expenses:X:Health:Prem:Post Ret Med Ins - GBD
-            - Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             - Expenses:X:Health:OOP
             - Income:J:Distributions:IRA:IRA - VEC - ML
             - Income:J:Distributions:IRA:IRA - GBD - ML
@@ -742,9 +741,8 @@ sheets:
             - Income:J:Distributions:Roth:IRA Roth - GBD - Vanguard
             - Income:J:Distributions:Roth:IRA Roth - VEC - Vanguard
             - Income:J:Distributions:HSA:HSA - GBD - Fidelity
-            - Income:J:Distributions:HSA:HSA - GBD - Devenir
             - Income:J:Distributions:HSA:HSA - VEC - UHG
-            - Income:J:Distributions:529:CHET - Fidelity
+            - Income:J:Distributions:529:529 - GBD - FID
             - Income:J:Distributions:529:CHET - Ben
             - Income:J:Distributions:529:529 - ML
             - Income:J:Distributions:401K:401k - GBD - TRV
@@ -754,7 +752,6 @@ sheets:
             - Income:J:Distributions:401K:Rollover:IRA - VEC - Vanguard
             - Income:J:Distributions:401K:Rollover:IRA Roth - VEC - Vanguard
 
-            - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - V
             - Expenses:Y:Invest:Reinv:Gross
             - Expenses:Y:Invest:Account Fees
@@ -763,7 +760,7 @@ sheets:
             - Expenses:Y:Invest:Rollover:DB - GBD - MML
             - Expenses:Y:Invest:Rollover:DB - GBD - TRV
             - Expenses:Y:To Asst:Invest:BKG - GBD - FID
-            - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
+            - Expenses:Y:To Asst:Invest:BKG - JNT - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
             - Expenses:Y:To Asst:Invest:BND - GBD - TRY
@@ -794,10 +791,12 @@ sheets:
         actl_formulas:
           # Patches to Income:I
           - base_field: Key # Taxable Capital gains from sales
-            matches: Income:I:Invest income:CapGn:Sales
+            matches:
+            - Income:I:Invest income:CapGn:Sales
             formula: =SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=1)))
           - base_field: Key # Sheltered Capital gains from sales
-            matches: Income:I:Invest income:CapGn:Shelt:Sales
+            matches:
+            - Income:I:Invest income:CapGn:Shelt:Sales
             formula: =SUM(FILTER(tbl_invest_actl[Y1234],(tbl_invest_actl[ValType]="Gains")*(tbl_invest_actl[Acct_txbl]=0)))
           - base_field: Key # normal IRA distributions
             matches:
@@ -809,12 +808,11 @@ sheets:
           - base_field: Key # HSA disbursements
             matches:
             - Income:J:Distributions:HSA:HSA - GBD - Fidelity
-            - Income:J:Distributions:HSA:HSA - GBD - Devenir
             - Income:J:Distributions:HSA:HSA - VEC - UHG
             formula: =XLOOKUP(trim([@Account]),tbl_hsa_disb[Account],tbl_hsa_disb[Y1234],0)
           - base_field: Key # 529 plans
             matches:
-            - Income:J:Distributions:529:CHET - Fidelity
+            - Income:J:Distributions:529:529 - GBD - FID
             - Income:J:Distributions:529:CHET - Ben
             - Income:J:Distributions:529:529 - ML
             formula: =XLOOKUP(trim([@Account]),tbl_529_distr[Account],tbl_529_distr[Y1234],0)
@@ -879,13 +877,13 @@ sheets:
             - Expenses:Y:Payroll Savings:401K - GBD MML - Roth
             - Expenses:Y:Payroll Savings:401K - VEC - UHG
             - Expenses:Y:Payroll Savings:ESP - VEC - Fidelity
-            - Expenses:Y:Payroll Savings:HSA - GBD - Devenir
             - Expenses:Y:Payroll Savings:HSA - GBD - Fidelity
             - Expenses:Y:Payroll Savings:HSA - VEC - UHG
             formula: =XLOOKUP(trim([@Account]),tbl_payroll_savings[Account],tbl_payroll_savings[Y1234],0)
           - base_field: Key # move to assets including reinvestments
             matches:
             - Expenses:Y:To Asst:Invest:BKG - GBD - FID
+            - Expenses:Y:To Asst:Invest:BKG - JNT - FID
             - Expenses:Y:To Asst:Invest:BKG - JNT - CP1
             - Expenses:Y:To Asst:Invest:BKG - JNT - ML
             - Expenses:Y:To Asst:Invest:BKG - JNT - Vanguard
@@ -969,20 +967,24 @@ sheets:
             - Income:J:Distributions:HSA:HSA - VEC - UHG            
             formula: =-XLOOKUP(TRIM([@Account]&":Add/Wdraw"),tbl_balances[Key],tbl_balances[Y1234])
           - base_field: Key # post retirement medigap insurance costs from retir_vals - GBD
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Medigap
+            matches:
+            - Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Medigap
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PKG")))
           - base_field: Key # post retirement Part B insurance costs from retir_vals - GBD
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part B
+            matches:
+            - Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part B
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTB")))
           - base_field: Key # post retirement Part D insurance costs from retir_vals - GBD
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part D
+            matches:
+            - Expenses:X:Health:Prem:Post Ret Med Ins - GBD:Part D
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="GBD")*(tbl_retir_medical[Type]="PARTD")))
-
           - base_field: Key # post retirement insurance costs costs from retir_vals - VEC - no need yet to break out due to lack of actuals
-            matches: Expenses:X:Health:Prem:Post Ret Med Ins - VEC
+            matches:
+            - Expenses:X:Health:Prem:Post Ret Med Ins - VEC
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],(tbl_retir_medical[Who]="VEC")*(tbl_retir_medical[Firm]="PRMEDINS")))
           - base_field: Key # out of pocket costs from retir_vals
-            matches: Expenses:X:Health:OOP
+            matches:
+            - Expenses:X:Health:OOP
             formula: =SUM(FILTER(tbl_retir_medical[Y1234],tbl_retir_medical[Type]="OOP"))
           - base_field: Key # pension fed withholdings
             matches:
@@ -1025,7 +1027,6 @@ sheets:
             formula: =XLOOKUP(TRIM([@Account])&":Inherit",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # Social security benefit federal withholding - G
             matches:
-
             - Expenses:T:Income Tax:Current Yr:Fed:Soc Sec WH - G
             formula: > # Taxed on SS less medicare payments
               =round(
@@ -1057,10 +1058,12 @@ sheets:
             - Expenses:T:Medicare:Medicare - V
             formula: =XLOOKUP("WH:Medicare:" & DROP(TEXTSPLIT([@Key]," - "),0,1) & " - PRODUCT",tbl_aux[Key],tbl_aux[Y1234])
           - base_field: Key # Fed estimated taxes
-            matches: Expenses:T:Income Tax:Current Yr:Fed:Est pmts
+            matches:
+            - Expenses:T:Income Tax:Current Yr:Fed:Est pmts
             formula: =0
           - base_field: Key # CT estimated taxes
-            matches: Expenses:T:Income Tax:Current Yr:State:CT Tax:Est pmts
+            matches:
+            - Expenses:T:Income Tax:Current Yr:State:CT Tax:Est pmts
             formula: =2000
           - base_field: Key # prior year payments/refunds
             matches:
@@ -1131,8 +1134,8 @@ sheets:
           - base_field: Key # college
             matches: 
               - Expenses:X:College
-              - Income:J:Distributions:529:CHET - Fidelity
-            formula: =-XLOOKUP("CHET - Fidelity:Add/Wdraw",tbl_balances[Key],tbl_balances[Y1234])
+              - Income:J:Distributions:529:529 - GBD - FID
+            formula: =-XLOOKUP("529 - GBD - FID:Add/Wdraw",tbl_balances[Key],tbl_balances[Y1234])
         preserve:
           method: sparse
   current:
@@ -1162,7 +1165,7 @@ sheets:
         - is_leaf
         data:
           source: local
-          type: md_iande_actl
+          data_type: md_iande_actl
           path: data/iande_ytd.tsv
           sheet: current
           hier_separator: ":"
@@ -1233,30 +1236,35 @@ sheets:
             "WH:Soc Sec:V": PRODUCT
         fcst_formulas:
           - query: # Default all rows to "=0" to prevent preserve_changes from copying every zero
-              - field: Key
-                compare_to:
-                - CT_TAX
-                - FED_TAX
-                - MAX
-                - MIN
-                - PRODUCT
-                - TOTAL
-                compare_with: "not_ending"
+            - field: Key
+              compare_to:
+              - CT_TAX
+              - FED_TAX
+              - MAX
+              - MIN
+              - PRODUCT
+              - TOTAL
+              compare_with: "not_ending"
             formula: =0
           - base_field: Key # Bank Interest Start Bal
-            matches: Bank Interest:Start Bal
+            matches:
+            - Bank Interest:Start Bal
             formula: =XLOOKUP("Bank Accounts - TOTAL",tbl_balances[Key],tbl_balances[Y1234-1])
           - base_field: Key # Bank Interest Rate
-            matches: Bank Interest:Rate
+            matches:
+            - Bank Interest:Rate
             formula: =.02 # TODO something reasonble.
           - base_field: Key # 401K withdrawal gbd
-            matches: 401K - GBD - TRV:Withdrawal
+            matches:
+            -  401K - GBD - TRV:Withdrawal
             formula: =-XLOOKUP("401K - GBD - TRV",tbl_retir_vals[Item],tbl_retir_vals[Y1234])
           - base_field: Key # 401K add gbd
-            matches: 401K - GBD - TRV:contributions:ER
+            matches:
+            - 401K - GBD - TRV:contributions:ER
             formula: =XLOOKUP("Income:I:Sheltered income:Match 401K - G",tbl_iande[Key],tbl_iande[Y1234])
           - base_field: Key # 401K withdrawal vec
-            matches: 401K - VEC - UHG:Withdrawal
+            matches:
+            - 401K - VEC - UHG:Withdrawal
             formula: =-XLOOKUP("401K - VEC - UHG",tbl_retir_vals[Item],tbl_retir_vals[Y1234])
           - base_field: Key # 401K vec ee contributions, changes in other assets - from transfer_plans
             matches: 
@@ -1264,7 +1272,8 @@ sheets:
             - Other Asset:plans
             formula: =SUM(BYROW((tbl_transfers_plan[[From_Account]:[To_Account]]=INDEX(TEXTSPLIT([@Key],":"),1))*HSTACK(-tbl_transfers_plan[Amount],tbl_transfers_plan[Amount]),LAMBDA(row,SUM(row)))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())))
           - base_field: Key # 401K vec er contributions
-            matches: 401K - VEC - UHG:contributions:ER
+            matches:
+            - 401K - VEC - UHG:contributions:ER
             formula: =XLOOKUP("Income:I:Sheltered income:Match 401K - V",tbl_iande[Key],tbl_iande[Y1234])
           - base_field: Key # draw down HSA - GBD as 100 percent of OOP
             matches:
@@ -1296,7 +1305,8 @@ sheets:
             # assume only positive rollovers
             formula: =SUM(FILTER(tbl_transfers_plan[Amount],(tbl_transfers_plan[To_Account]=INDEX(TEXTSPLIT([@Key],":"),1))*(tbl_transfers_plan[Y_Year]=INDEX([#Headers],COLUMN())),0))
           - base_field: Key # depreciation
-            matches: Other Asset:depreciation
+            matches:
+            - Other Asset:depreciation
             formula: =-XLOOKUP("Expenses:X:Depreciation",tbl_iande[Key],tbl_iande[Y1234])
           - base_field: Key # medicare & social security gross 
             matches:
@@ -1357,7 +1367,7 @@ sheets:
         - Firm
         data:
           source: local
-          type: retire_template
+          data_type: retire_template
           path: data/retire_template.tsv
           template:
             fields:
@@ -1477,7 +1487,7 @@ sheets:
         - Firm
         data:
           source: local
-          type: retire_medical_template
+          data_type: retire_medical_template
           path: data/retire_medical_template.tsv
           template:
             fields:
@@ -1549,7 +1559,7 @@ sheets:
           width: 30
         data:
           source: local
-          type: json_index
+          data_type: json_index
           path: data/pension_facts.json
         preserve:
           method: full
@@ -1569,7 +1579,7 @@ sheets:
           number_format: 3
         data:
           source: local
-          type: json_records
+          data_type: json_records
           path: data/social_security.json
         preserve:
           method: full
@@ -1600,7 +1610,7 @@ sheets:
           number_format: 4
         data:
           source: local
-          type: json_records
+          data_type: json_records
           path: data/mcare_opt.json       
         dyno_fields:
         - base_field: Who # total cost
@@ -1624,7 +1634,7 @@ sheets:
         - name: Notes
         data:
           source: local
-          type: json_index
+          data_type: json_index
           path: data/manual_actl.json
         preserve:
           method: full
@@ -1639,7 +1649,7 @@ sheets:
           width: 25
         data: 
           source: local
-          type: md_pr_sav
+          data_type: md_pr_sav
           path: data/payroll_to_savings.tsv
         preserve:
           method: none
@@ -1654,7 +1664,7 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_roth
+          data_type: md_roth
           path: data/roth_contributions.tsv
         preserve:
           method: none
@@ -1669,8 +1679,8 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_529_distr
-          path: data/529-distr.tsv      
+          data_type: md_529_distr
+          path: data/529_distr.tsv
         preserve:
           method: none
       - name: tbl_ira_distr
@@ -1684,8 +1694,8 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_ira_distr
-          path: data/ira-distr.tsv
+          data_type: md_ira_distr
+          path: data/ira_distr.tsv
         preserve:
           method: none
       - name: tbl_hsa_disb
@@ -1699,7 +1709,7 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_hsa_disb
+          data_type: md_hsa_disb
           path: data/tagged.tsv
         preserve:
           method: none
@@ -1714,7 +1724,7 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_sel_inv
+          data_type: md_sel_inv
           path: data/trans_bkg.tsv    
         preserve:
           method: none
@@ -1730,7 +1740,7 @@ sheets:
           width: 25
         data:
           source: local
-          type: md_tag_sums
+          data_type: md_tag_sums
           path: data/tagged.tsv
         preserve:
           method: none
@@ -1746,10 +1756,10 @@ sheets:
         width: 50
       data:
         source: local
-        type: md_transfers_actl
+        data_type: md_transfers_actl
         path: ./data/transfers.tsv
         file_sets:
-          balances: ./data/acct-bals/
+          balances: ./data/acct_bals/
         preserve:
           method: none
   invest_iande_work: # this gets actual income and expenses for investment including fees. Must come before invest_actl
@@ -1772,13 +1782,14 @@ sheets:
         - Key
         data:
           source: local
-          type: md_invest_iande_values
-          path: data/invest-iande.tsv      
+          data_type: md_invest_iande_values
+          path: data/invest_iande.tsv
         highlights: # conditional formats appied to table
           present: *past_future
         actl_formulas:
           - base_field: Category
-            matches: Unrlz Gn/Ls
+            matches:
+            - Unrlz Gn/Ls
             formula: =XLOOKUP([@Category]&[@Account],tbl_invest_actl[Key],tbl_invest_actl[Y1234])
         fcst_formulas:
           - base_field: Key # forecast values
@@ -1797,13 +1808,14 @@ sheets:
         - Category_Type
         data:
           source: local
-          type: md_invest_iande_values
-          path: data/invest-iande.tsv    
+          data_type: md_invest_iande_values
+          path: data/invest_iande.tsv
         highlights: # conditional formats appied to table
           present: *past_future
         actl_formulas:
           - base_field: Key
-            matches: "*"
+            matches:
+            - "*"
             formula: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIES([@Account],tbl_balances[Y1234-1]))
             first_item: =DIV0(IIEV([@Key],tbl_invest_iande_values[Y1234]),IIEF([@Account],tbl_balances[Y1234])) 
         fcst_formulas:
@@ -1871,11 +1883,11 @@ sheets:
         width: 12
       data:
         source: local
-        type: md_invest_actl
-        path: data/invest-x.tsv
+        data_type: md_invest_actl
+        path: data/invest_x.tsv
         file_sets:
-          performance: data/invest-p/
-          balances: ./data/acct-bals/
+          performance: data/invest_p/
+          balances: ./data/acct_bals/
       dyno_fields:
       - base_field: Account
         matches:
@@ -1914,7 +1926,7 @@ sheets:
         - Sign
         data:
           source: local
-          type: tax_template
+          data_type: tax_template
           path: data/taxes_template.tsv
           template:
             fold_spacing: 3
@@ -1996,13 +2008,14 @@ sheets:
           matches:
             - State tax due:CT:Taxes:Initial Tax Calculation:CT income:CT subtractions:Tax-exempt Muni Accrued Int Paid
           formula: =XLOOKUP(TRIM([@Source]),tbl_iande[Key],tbl_iande[Y1234],0)*[@Sign]
-          first_item: 0,0,0,0,0
+          first_item: 0,0,0,0
         - base_field: Tab # Lookup from taxes
           matches:
             - tbl_taxes
           formula: =XLOOKUP(TRIM([@Source]),tbl_taxes[Key],tbl_taxes[Y1234],0)*[@Sign]
         - base_field: Key # CT tax table
-          matches: State tax due:CT:Taxes:Initial Tax Calculation:CT tax table
+          matches:
+          - State tax due:CT:Taxes:Initial Tax Calculation:CT tax table
           formula: =MIN(INT_YEAR("Y1234"),MAX(tbl_ct_tax[Year]))
         - base_field: Key # Fed tax table
           matches: 
@@ -2046,7 +2059,7 @@ sheets:
         - name: Subtract
         data:
           source: local
-          type: json_records
+          data_type: json_records
           path: data/tax_rates/fed_tax_rates.json
         preserve:
           method: none
@@ -2064,7 +2077,7 @@ sheets:
         title_row: 1
         data:
           source: local
-          type: json_records
+          data_type: json_records
           path: data/tax_rates/ct_tax_rates.json    
         preserve:
           method: none
@@ -2127,7 +2140,7 @@ sheets:
           number_format: 1
         data:
           source: local
-          type: json_index
+          data_type: json_index
           path: data/people.json        
         preserve:
           method: full
@@ -2144,7 +2157,7 @@ sheets:
           width: 30
         data:
           source: internal
-          type: json_index
+          data_type: json_index
           name: general_state
           path: data/gen_state.json
         preserve:
@@ -2181,7 +2194,7 @@ sheets:
           width: 12
         data:
           source: local
-          type: json_index
+          data_type: json_index
           path: data/state_tax_facts.json
         preserve:
           method: full
@@ -2203,7 +2216,7 @@ sheets:
           number_format: 4
         data:
           source: local
-          type: json_records
+          data_type: json_records
           path: data/part_b.json
         preserve:
           method: full
