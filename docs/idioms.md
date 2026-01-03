@@ -67,7 +67,7 @@ Useful to get the last actual, for instance.
 ## Lookup
 
 Use a value from this table to find a value in another table. The 4th parameter is the default if not found.
-=XLOOKUP("Medicare withholding rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))
+`=XLOOKUP("Medicare withholding rate",tbl_manual_actl[Item],CHOOSECOLS(tbl_manual_actl[#Data],-1))`
 
 
 ```title="Locate a value with a common key"

@@ -85,10 +85,10 @@ The other fees are rolled into the plug field (Return Amount), along with unreal
 
 To do this the investment fees need two categories.  
 
-- Investing:Action Fees, 
-- Investing:Account Fees.  
+- Investing:Action Fees -- used only for sales,
+- Investing:Account Fees -- used for advisory and adr fees.  Must be Xfr not MiscExp.
 
-Only the account fee is selected in the Investment IandE report.  This allows the loading of investment actuals to add the account fees to the gains.  It also means that the transaction fees are not used to forecast future fees.  This is reasonable since they are by nature not asset based and the forecast method uses percentage of assets.
+Only the account fee is selected during the processing of the Investment IandE report.  This allows the loading of investment actuals to add the account fees to the gains.  It also means that the transaction fees are not used to forecast future fees.  This is reasonable since they are by nature not asset based and the forecast method uses percentage of assets.
 
 ### Technique
 

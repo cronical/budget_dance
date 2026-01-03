@@ -31,7 +31,7 @@ nav:
       - "Income, Expense & Cashflow":
         - "All years": sheets/iande.md
         - "Current year": sheets/current.md
-        - "Auxilliary calculations": sheets/aux.md
+        - "Auxiliary calculations": sheets/aux.md
         - "Impact of investments": sheets/invest_iande_work.md
       - Retirement: 
         - "Income & medical plan": sheets/retirement.md
@@ -55,12 +55,13 @@ nav:
     - "Report definitions": report_configs.md
     - "Accounting notes": accounting.md
     - "Validation": validation.md
-  - Configuration: 
+  - Configuration & deployment:
     - Summary: configuration_summary.md
     - Libraries: libraries.md
     - "API Key": configure_api.md
     - "Configuration control file": configuration.md
-    - "Python environment": python.md  
+    - "Python environment": python.md
+    - "Deployment": deployment.md
   - Operations: 
     - "Export/Import Cycle": operations.md
     - "Use cases": use_cases.md

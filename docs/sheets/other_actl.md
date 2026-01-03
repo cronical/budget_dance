@@ -24,7 +24,7 @@ Used to populate untaxed income lines in iande.
 
 Used to populate `Income:J:Distributions:IRA` lines on iande.
 
-This table is needed to handle the accounting difficulty that arises with IRA distributions.  [See accounting note on ira-txbl-distr](../accounting.md#ira-accounts).
+This table is needed to handle the accounting difficulty that arises with IRA distributions.  [See accounting note on ira-txbl-distr](../accounting.md#traditional-ira-accounts).
 
 This data is exported from Moneydance via the `IRA-Distr` report, and saved in the `data/IRA-Distr.tsv` file. It is then imported via special handling in `IRA_distr` processes the transactions to create a table `tbl_ira_distr`. The  `Income:J:Distributions:IRA`  line on the `tbl_iande` pulls from that table.  From there it flows to the `taxes` tab.  
 

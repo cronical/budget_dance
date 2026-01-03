@@ -3,40 +3,42 @@
 ## Annual Checklist
 
 These are items that need attention on an annual basis. 
+Copy the following table to Obsidian to use as a check list.
 
-1. Config
-    1. hide_years
-    1. first_forecast_year
-    1. Table Definitions
-        1. tbl_accounts
-            1. path 
-            1. include_zeros
-            1. force_active
-            1. dyno_fields (near market rate
-        1. tbl_balances
-            1. &past_future (whether or not to add 1)
-        1. tbl_iande inspect/change the following:
-            1. hier_insert_paths
-            1. actl_formulas 
-                1. (patches to Income)
-            1. fcst_formulas:
-                1. (income from retir_vals)
-  1. Data items - update and extract_table
-      1. transfers_plan - delete expired items
-      1. gen_tables 
-          - part b premium table
-      1. retireparms 
-          - medical rates
-          - social security - update elected table item
-      1. retirement 
-          - medical packages
-          - income plans 
-      1. tax_tables - federal & state rates
+1. Config - update test then copy to production
+    - [ ] start_year
+    - [ ] hide_years
+    - [ ] first_forecast_year
+
+    1. tbl_accounts
+        - [ ] data.path - this should point to the latest account balance file
+        - [ ] include_zeros - use to keep rows even if current balance is zero
+        - [ ] force_active - exceptions to rule that accounts with zero balance are inactive
+        - [ ] dyno_fields (near market rate)
+    1. tbl_balances
+        - [ ] data.path - should point to balance file for year before start year
+        - [ ] &past_future (whether or not to add 1)
+    1. tbl_iande inspect/change the following:
+       - [ ] hier_insert_paths (e.g. in Y: section remove any old accounts that have dropped off)
+       - [ ] actl_formulas (patches to Income)
+       - [ ] fcst_formulas (income from retir_vals)
+    1. tbl_taxes
+        - [ ] Reduce count of first_item in this patch until 2022 is retired `patch error in 2022 taxes - did not adjust for accrued interest` 
+
+  1. Data items - update production and extract_table, then copy to test
+     - [ ] tbl_transfers_plan - delete expired items(transfers_plan)
+     - [ ] tbl_part_b - premium table  (gen_tables)
+     - [ ] tbl_mcare_opt - medical rates (retireparms)
+     - [ ] tbl_retir_medical (retirement)
+     - [ ] tbl_retir_vals income plans (retirement) 
+      1. tax_tables sheet
+         - [ ] tbl_fed_tax - federal rates
+         - [ ] tbl_ct_tax - state rates
       1. other_actl - manual input items
-          1. Pct SS taxable
-          1. standard deduction. Source: [Tax Foundation](https://taxfoundation.org/data/all/federal/2024-tax-brackets/)
-          1. SALT Max
-          1. Excess Medicare Wage & Additional Medicare Rate
+         - [ ] Pct SS taxable
+         - [ ] standard deduction. Source: [Tax Foundation](https://taxfoundation.org/data/all/federal/2024-tax-brackets/)
+         - [ ] SALT Max
+         - [ ] Excess Medicare Wage & Additional Medicare Rate
 
 ## Export Functions
 
@@ -302,6 +304,41 @@ transfers_actl_load.py
 
 
 # Utility
+
+## Account rename
+
+When an account is renamed in Moneydance it will also need to be renamed in the historical files.
+The utility `md_account_rename` does this.
+
+```zsh
+$ md_account_rename "CHET - Fidelity" "529 - GBD - FID"
+2025-12-29 11:15:09,873 - md_account_rename - INFO - Updated 18 occurrences in data/529_distr.tsv
+2025-12-29 11:16:01,519 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2017.tsv
+2025-12-29 11:16:01,521 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2019.tsv
+2025-12-29 11:16:01,523 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2024.tsv
+2025-12-29 11:16:01,524 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2018.tsv
+2025-12-29 11:16:01,525 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2023.tsv
+2025-12-29 11:16:01,526 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2022.tsv
+2025-12-29 11:16:01,528 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2020.tsv
+2025-12-29 11:16:01,529 - md_account_rename - INFO - Updated 2 occurrences in data/acct_bals/2021.tsv
+2025-12-29 11:16:01,530 - md_account_rename - INFO - Updated 2 occurrences in data/invest_p/2024.tsv
+2025-12-29 11:16:01,532 - md_account_rename - INFO - Updated 2 occurrences in data/invest_p/2023.tsv
+2025-12-29 11:16:01,533 - md_account_rename - INFO - Updated 2 occurrences in data/invest_p/2022.tsv
+2025-12-29 11:16:01,534 - md_account_rename - INFO - Updated 2 occurrences in data/invest_p/2021.tsv
+2025-12-29 11:16:01,534 - md_account_rename - INFO - Erasing backup files
+```
+
+## Rotate test values
+
+If you drop an old year the test values will be out of alignment.
+Assuming you add a year at the end the `rotate_test_values` command will fix these.
+The year must be provided os that if one of the ignore commands references that year that can be cleaned up.
+
+```zsh
+rotate_test_values 2018
+2025-12-29 13:22:13,403 - rotate_test_values - INFO - Updated 19 items in data/known_test_values.json
+2025-12-29 13:22:13,404 - rotate_test_values - INFO - Erasing backup files
+```
 
 ## index_tables
 

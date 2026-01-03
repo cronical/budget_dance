@@ -20,40 +20,51 @@ Files are of the following types:
 
 Abbreviations such as IRA and HSA are forced to lowercase, to aid sorting. 
 
-Preferred format uses hyphen not underscores or spaces to separate words, although this remains to be cleaned up.
+The file names do not use spaces.
+Underscores are used to separate words.
 
 ## Files from Moneydance reports
 
-The table, [below](#report-table), provides a list of Moneydance reports and the file names under which the output should be saved. The table also shows where the data goes and the code by which the configuration knows to read that file.
+The table, [below](#report-table), provides a list of Moneydance reports and the file names under which the output should be saved. 
+The table also shows where the data goes and the data type code used by the configuration to indicate how to read that file.
 
-The Periods column has the following meaning:
+The Periods column uses the following codes:
 
-- All Years: Transaction Filter for all actual years
-- Annual: Summary data in annual columns (possibly just one)
-- Each Year: Separate file for each year in a folder
-- Transfers: Transfers summarized by year into annual columns
-- Transfers-X: Transfers, Detailed transaction data for all actual years
+|Period Code|Period Meaning|
+|---|---|
+|All Years|Transaction Filter for all actual years|
+|Annual|Summary data in annual columns (possibly just one)|
+|Each Year|Separate file for each year in a folder|
+|Transfers|Transfers summarized by year into annual columns|
+|Transfers-X|Transfers, Detailed transaction data for all actual years|
 
 ### Report table
 
-The report names below are prefixed with TSV: to club them together in Moneydance.
-(Case sensitive sort to match Moneydance)
+The report names below are prefixed with TSV_ to club them together in Moneydance.
 
-|Report|Periods|Save as|Used in config by|Data type code|
-|:--|:--|:--|:--|:--|
-|401, HSA, ESP payroll data|Transfers-X|payroll_to_savings.tsv|tbl_payroll_savings|md_pr_sav|
-|529-Distr|All Years|529-distr.tsv|tbl_529_distr|md_529_distr|
-|Account Balances|Each Year|acct-bals/yyyy*.tsv|tbl_accounts[^1], tbl_balances, bank_actl_load.py|md_acct, md_bal2|
-|IRA-Distr|All Years|ira-distr.tsv|tbl_ira_distr|md_ira_distr|
-|Income & Expense by Year|Annual|iande.tsv|tbl_iande,tbl_iande_actl|md_iande_actl|
-|Income & Expense YTD|Annual|iande_ytd.tsv|tbl_current|md_iande_actl|
-|Investment IandE|All Years|invest-iande.tsv|tbl_invest_iande_values, tbl_invest_iande_ratios|md_invest_iande_values|
-|Investment Performance|Each Year|invest-p-*yyyy*.tsv|tbl_invest_actl[^7]|md_invest_actl|
-|Roth-contributions2|All Years|roth_contributions.tsv|tbl_roth_contributions|md_roth|
-|Tagged Export|All Years|tagged.tsv|tbl_tag_sums,tbl_hsa_disb|md_tag_sums|
-|Transfers BKG detailed|Transfers-X|trans_bkg.tsv|tbl_bank_sel_invest|md_sel_inv|
-|Transfers to Investment Accounts by Year|Transfers|invest-x.tsv|tbl_invest_actl|md_invest_actl|
-|Transfers-to-fcast|Transfers|transfers.tsv|tbl_transfers_actl|md_transfers_actl|
+Each year some of these need to be modified and updated to reflect the changed years.
+The `All years` type should change both the start and end years assuming the desire to drop the oldest year.
+
+In Moneydance generate each report and save the file with the default name, which will be the report name with a `.txt` extension.
+The `iande_ytd` report can be skipped at year end.
+Run the command `md_names yyyy` to rename and relocate these files as needed, replacing prior versions.
+
+
+| Report             |Periods| Final name             |Used in config by|Data type code|
+|:-------------------|:--|:-----------------------|:--|:--|
+| 529_distr          |All Years| 529_distr.tsv          |tbl_529_distr|md_529_distr|
+| acct_bals          |Each Year| acct_bals/yyyy*.tsv    |tbl_accounts[^1], tbl_balances, bank_actl_load.py|md_acct, md_bal2|
+| iande              |Annual| iande.tsv              |tbl_iande,tbl_iande_actl|md_iande_actl|
+| iande_ytd          |Annual| iande_ytd.tsv          |tbl_current|md_iande_actl|
+| invest_iande       |All Years| invest_iande.tsv       |tbl_invest_iande_values, tbl_invest_iande_ratios|md_invest_iande_values|
+| invest_p           |Each Year| invest_p/*yyyy*.tsv    |tbl_invest_actl[^7]|md_invest_actl|
+| invest_x           |Transfers| invest_x.tsv           |tbl_invest_actl|md_invest_actl|
+| ira_distr          |All Years| ira_distr.tsv          |tbl_ira_distr|md_ira_distr|
+| payroll_to_savings |Transfers-X| payroll_to_savings.tsv |tbl_payroll_savings|md_pr_sav|
+| roth_contributions |All Years| roth_contributions.tsv |tbl_roth_contributions|md_roth|
+| tagged             |All Years| tagged.tsv             |tbl_tag_sums,tbl_hsa_disb|md_tag_sums|
+| trans_bkg          |Transfers-X| trans_bkg.tsv          |tbl_bank_sel_invest|md_sel_inv|
+| transfers.tsv      |Transfers| transfers.tsv          |tbl_transfers_actl|md_transfers_actl|
 
 
 Each of the reports should be run for the appropriate period(s) and the output saved as a .tsv file in the data folder or a subfolder, under the name given in the "Save as" column.

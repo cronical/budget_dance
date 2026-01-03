@@ -21,15 +21,15 @@ The following values are global in nature:
 |Item|Purpose|Example|
 |:--|:---|---|
 |bank_interest|Moneydance category used to convey bank interest to the account balances| Income:I:Invest income:Int:Bank|
-|end_year |Last Year of the time series| 2030
-|first_forecast_year |First year that is considered a forecast. Prior years are considered actual| 2022
-|hide_years|List the years to hide on all sheets as numbers| 2018
+|end_year |Last Year of the time series| 2030|
+|first_forecast_year |First year that is considered a forecast. Prior years are considered actual| 2022|
+|hide_years|List the years to hide on all sheets as numbers| 2018|
 |lambdas|Excel lambda functions are defined here|[See Lambdas](#lambdas)|
-|start_year |Integer of 1st year to use for time series| 2018
+|start_year |Integer of 1st year to use for time series| 2018|
 |theme|Set the formatting theme from files in `themes/`|Berlin|
 |workbook|The name of the workbook including path from project folder. Used as the default for most programs.|data/test_wb.xlsx|
-|year_column_width|Column size for years| 12
-|zoom_scale|Scaling factor for all sheets| 135 # how to scale the worksheets
+|year_column_width|Column size for years| 12|
+|zoom_scale|Scaling factor for all sheets| 135 # how to scale the worksheets|
 
 ### Lambdas
 

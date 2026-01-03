@@ -7,7 +7,7 @@
 1. Build of the workbook is defined for initialization and periodic updates
     - Controlled by a definition file, including formulas
     - Preservation of input data is supported so re-building can be done
-1. Avoids volatile functions and over large dependencies by using [build time](#build-time-column-substitutions) substitutions for generics such as "this column"[^1].
+1. Avoids volatile functions and over large dependencies by using [build-time](#build-time-column-substitutions) substitutions for generics such as "this column"[^1].
 1. Bias toward use of modern array oriented Excel functions
     - Excel Lambda functions[^2] are in use to make calculations more readable.
     - Tables don't support dynamic arrays - array functions reduced to a single value
@@ -15,6 +15,8 @@
     - Replaces the SUBTOTAL(9,...) technique with aggregation by SUM, PROD, MIN, MAX & special tax calculations
     - Unlike SUBTOTAL(9,...) uses the inner level aggregations not the interior leaf values.  
     - This supports typical tax calcs.
+1. Format: config controls column formats but rows will overrule these formats for lines that begin or end with any of 'ratios','rate','pct','percent', or 'tax table'.
+    - The work book has precision set to `as displayed` so it is important that fractional numbers like percents and ratios be formatted correctly.
 
 ## Dependencies
 

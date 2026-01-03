@@ -134,24 +134,46 @@ U.S. Treasury offers a product called i-bond, which allows for the deferral of t
 
 
 ## New year - new tax rates
+We use the subtraction method.
+The `Range` column should contain the top of the bracket.
 
-Pull the IRS data as a .csv file. Use `bracket_fix.py` to transform into the correct format. If the file name does not start with the year as below, use the -y option. After modifying the table, remember to [extract](./operations.md#extract-table) it.
+The best source of the subtraction method seems to be in the 1040 instructions.
+The easiest thing is to type the data in. 
 
-For example:
+The following search will turn up instructions toward the end of the year.
+It may be marked as draft.
 
-```zsh
-    dance/util/bracket_fix.py data/tax_rates/2023_tax_brackets_irs.csv 
-    Year    Range  Rate  Subtract
-    2023      0.0  0.10       0.0
-    2023  22000.0  0.12     440.0
-    2023  89450.0  0.22    9385.0
-    2023 190750.0  0.24   13200.0
-    2023 364200.0  0.32   42336.0
-    2023 462500.0  0.35   56211.0
-    2023 693750.0  0.37   70086.0
-    The above numbers copied into paste buffer.
-    Paste into the table
-```
+`2025 1040 instructions`
+
+You should be able to find something like:
+
+`https://www.irs.gov/pub/irs-dft/i1040gi--dft.pdf`
+
+Within that pdf search for `Tax Computation Worksheet`
+
+After modifying the table, remember to [extract](./operations.md#extract-table) it.
+
+### Method to covert to subtraction format
+
+The following was attempted but getting the data in a consistent format has proven more difficult than typing it in.
+This method should be considered deprecated.
+
+Pull the IRS data as a .csv file. Use `bracket_fix.py` to transform into the correct format. 
+If the file name does not start with the year as below, use the -y option.
+   
+   ```zsh
+       dance/util/bracket_fix.py data/tax_rates/2023_tax_brackets_irs.csv 
+       Year    Range  Rate  Subtract
+       2023      0.0  0.10       0.0
+       2023  22000.0  0.12     440.0
+       2023  89450.0  0.22    9385.0
+       2023 190750.0  0.24   13200.0
+       2023 364200.0  0.32   42336.0
+       2023 462500.0  0.35   56211.0
+       2023 693750.0  0.37   70086.0
+       The above numbers copied into paste buffer.
+       Paste into the table
+   ```
 
 ## Add a row to taxes
 
