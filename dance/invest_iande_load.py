@@ -77,7 +77,8 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
   vals_df=pd.concat([vals_df,ia_df])
 
   # now add other categories that if they don't exist
-  for cat in ["X:Investing:Account Fees",
+  for cat in [
+    "X:Investing:Account Fees",
     "I:Invest income:CapGn:Mut LT",
     "I:Invest income:CapGn:Mut ST",
     "I:Invest income:CapGn:Shelt:Distr",
@@ -87,7 +88,8 @@ def read_and_prepare_invest_iande(workbook,data_info,f_fcast=None):
     "I:Invest income:Int:Defered-tax",
     "I:Invest income:Int:Reg",
     "I:Invest income:Int:Shelt",
-    "I:Invest income:Int:Tax-exempt"]:
+    "I:Invest income:Int:Tax-exempt"
+    ]:
 
     ia_df['Category']=cat
     df_all=ia_df.merge(vals_df,on=['Account','Category'],how='left',indicator=True) # find the ones that are not already there
