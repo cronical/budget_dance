@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://argus.com/budget/dance/setup/setup_schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "file:///Users/george/argus/budget/dance/setup/setup_schema.json",
   "title": "Budget Dance Setup",
   "description": "Validates setup.yaml",
   "type": "object",
@@ -12,7 +12,7 @@
     "hide_years":{"type":"array","items":{"type": "integer"}},
     "first_forecast_year": {"type": "integer","exclusiveMinimum": 2010,"exclusiveMaximum": 2070},
     "zoom_scale": {"type": "integer","exclusiveMinimum": 39,"exclusiveMaximum": 301},
-    "theme":{"type": "string","enum":["Office Theme","Badge","Berlin","Vapor Trail"]},
+    "theme":{"enum":["Office Theme","Badge","Berlin","Vapor Trail"]},
     "lambdas":{
       "type":"array",
       "items": {
@@ -22,11 +22,7 @@
           "comment":{"type":"string"},
           "formula":{"type":"string"}
         },
-        "required": [
-          "name",
-          "formula",
-          "comment"
-        ]
+        "required": ["name", "formula", "comment"]
       }
     },
     "sheet_groups": {
@@ -71,17 +67,18 @@
       "type": "object",
       "properties": {
         "target_field": {"type": "string"},
-        "constant": {"type":["string","number"]},
+        "constant": {"anyOf": [{"type":"string"},{"type":"number"}]},
         "formula": {"type": "string"},
         "suffix": {"type": "string"}
       },
       "required":["target_field"]
     },
+    "edge":{"enum" :["left","right","top","bottom"]},
     "border":{
       "type": "object",
       "properties": {
-        "edges": {"type":"array","items":{"$ref":"edge"}},
-        "style": {"type":"string","enum":["thin","medium","thick"]},
+        "edges": {"type":"array","items":{"$ref":"#/$defs/edge"}},
+        "style": {"enum" :["thin","medium","thick"]},
         "color": {"$ref": "#/$defs/color"}
       },
       "required":["edges","style","color"]
@@ -97,25 +94,15 @@
       "properties": {
         "name": {"type": "string"},
         "width": {"type": "integer"},
-        "horiz": {
-          "type": "string",
-          "enum": [
-            "center",
-            "left",
-            "right"
-          ]
-        },
+        "horiz": {"enum": ["center", "left", "right"]},
         "number_format": {
-          "type": "integer",
-          "exclusiveMinimum": -1,
-          "exclusiveMaximum": 49
+          "oneOf": [
+            {"type": "integer", "exclusiveMinimum": -1, "exclusiveMaximum": 49},
+            {"enum": ["####"]}
+          ]
         }
       },
-      "required": [
-        "name"
-      ]
-    },
-    "edge":{"type":"string","enum":["left","right","top","bottom"]},
+      "required": ["name"]},
     "file_set": {
       "type": "object",
       "properties": {
@@ -130,16 +117,12 @@
     "data": {
       "type": "object",
       "properties": {
-        "source": {"type":"string","enum":["internal","local","remote","none"]},
-        "site_code": {"type":"string","enum":["BLS","FEDREG"]},
+        "source": {"enum" :["internal","local","remote","none"]},
+        "site_code": {"enum" :["BLS","FEDREG"]},
         "api_key": {"type":"string"},
         "url": {"type":"string"},
         "parameters": {"$ref":"#/$defs/parameter"},
-        "type": {
-          "type":"string",
-          "enum":["json_index","json_records","md_529_distr","md_acct","md_bal","md_hsa_disb","md_iande_actl",
-            "md_invest_actl","md_invest_iande_values","md_invest_iande_ratios","md_ira_distr","md_pr_sav","md_roth","md_sel_inv","md_transfers_actl",
-            "retire_template","retire_medical_template","tax_template"]},
+        "data_type": {"enum" : ["json_index","json_records","md_529_distr","md_acct","md_bal2","md_hsa_disb","md_iande_actl", "md_invest_actl","md_invest_iande_values","md_invest_iande_ratios","md_ira_distr","md_pr_sav","md_roth","md_sel_inv","md_transfers_actl", "retire_template","retire_medical_template","tax_template","md_tag_sums"]},
         "path": {"type":"string"},
         "group": {"type":"array","items":{"type":"string"}},
         "no_details_for": {"type":"array","items":{"type":"string"}},
@@ -150,7 +133,7 @@
         "file_set": {"$ref":"#/$defs/file_set"},
         "hier_alt_agg":{
           "type": "object",
-          "additionalProperties":{ "type": "string","enum":["MIN","MAX","PRODUCT"] }
+          "additionalProperties":{"enum":["MIN","MAX","PRODUCT"] }
         },
         "template":{
           "type": "object",
@@ -159,7 +142,8 @@
             "fold_field": {"type":"string"},
             "fields": {"type":"array","items":{"type":"string"}}
           }
-        },        "sheet": {"type":"string"},
+        },
+        "sheet": {"type":"string"},
         "table": {"$ref":"#/$defs/data_table"},
         "name": {"type":"string"}
       },
@@ -168,7 +152,7 @@
     "data_table": {
       "type": "object",
       "properties": {
-        "find_method": {"type": "string", "enum":["caption","xml"]},
+        "find_method": {"enum":["caption","xml"]},
         "method_parms": {
           "type": "object",
           "properties": {
@@ -181,8 +165,8 @@
     "dyno_field":{
       "type": "object",
       "properties":{
-        "base_field": {"type":["string","array"]},
-        "matches": {"type":["string","array"]},
+        "base_field": {"anyOf": [{"type":"string"},{"type":"array"}]},
+        "matches": {"anyOf": [{"type":"string"},{"type":"array"}]},
         "actions": {"type":"array","items":{"$ref":"#/$defs/action"}}        
       },
       "required":["base_field","matches","actions"]    
@@ -210,61 +194,83 @@
     },
     "highlight":{
       "type": "object",
-      "properties":{
-        "formula":{"type":"string"},
-        "border": {"$ref":"#/$defs/border"},
-        "fill":{"$ref":"#/$defs/fill"},
-        "font":{"$ref":"#/$defs/font"},
-        "keys":{"type":"array","items":{"type":"string"}}
-      },
-      "required":["formula"],
-      "additionalProperties": false
-    },
-    "match_criteria":{
-      "type":"object",
-      "properties":{
-        "required": ["formula","query"],
-        "type": "array",
-        "items": {
-          "type":"object",
-          "properties":{
-            "formula": {"type":"string"},
-            "first_item": {"type":"string"},
-            "query": {
-              "type": "array",
-              "items":{
-                "required": ["field","compare_with","compare_to"],
-                "additionalProperties": false,
-                "type":"object",
-                "properties":{
-                  "field": {"type":"string"},
-                  "compare_with": {"type":"string", "enum":["=","starts","not_starting","is_in"]},
-                  "compare_to": {"type": ["string","number","array"]},
-                  "look_up": {                    
-                    "type":"object",
-                    "properties":{
-                      "required":["table","index_on","value_field"],
-                      "table": {"type":"string"},
-                      "index_on":{"type":"string"},
-                      "value_field":{"type":"string"}
-                    }
-                  }
-                }
-              } 
+      "properties": {
+        "highlight_set": {
+          "type": "object",
+          "properties": {
+            "formula": {
+              "type": "string"
+            },
+            "border": {
+              "$ref": "#/$defs/border"
+            },
+            "fill": {
+              "$ref": "#/$defs/fill"
+            },
+            "font": {
+              "$ref": "#/$defs/font"
+            },
+            "keys": {
+              "type": "array"
             }
-          }
+          },
+          "required": ["formula"],
+          "additionalProperties": false
         }
       }
+    },
+    "match_criteria":{
+
+        "type":"object",
+        "properties":{
+          "formula": {"type":"string"},
+          "first_item": {"type":"string"},
+          "query": {
+            "type": "array",
+            "items":{
+              "additionalProperties": false,
+              "type":"object",
+              "properties":{
+                "field": {"type":"string"},
+                "compare_with": {"enum" :["=","starts","not_starting","is_in","not_ending"]},
+                "compare_to": {
+                  "anyOf": [
+                    {"type": "string"},
+                    {"type": "number"},
+                    {"type": "array",
+                      "items": {"type": "string"}
+                    }
+                  ]
+                },
+                "look_up": {
+                  "type":"object",
+                  "properties":{
+                    "table": {"type":"string"},
+                    "index_on":{"type":"string"},
+                    "value_field":{"type":"string"}
+                  },
+                  "required":["table","index_on","value_field"]
+                }
+              },
+              "required": ["field","compare_with","compare_to"]
+            }
+          }
+        },
+        "required": ["formula","query"]
+
     },
     "match_list":{
       "type": "object",
       "properties": {
         "base_field": {"type":"string"},
-        "matches": {"type":["string","array"]},
+        "matches": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
         "first_item": {"type":"string"},
-        "xl_formula": {"type":"string"} 
+        "formula": {"type":"string"}
       },
-      "required": ["base_field","matches","xl_formula"],
+      "required": ["base_field","matches","formula"],
       "additionalProperties": false           
     },
     "parameter": {
@@ -276,27 +282,21 @@
         }
       }
     },
-
     "preserve":{
       "type":"object",
       "properties":{
-        "method": {"type":"string","enum":["sparse","full","none"]},
-        "non-year-cols": {
+        "method": {"enum" :["sparse","full","none"]},
+        "non_year_cols": {
           "type":"array",
           "items": {"type":"string"}
         }
       }
     },
-
-
     "row_formula":{
-      "type": "object",
-      "properties": {
-        "oneOf":[
-          {"$ref" :  "#/$defs/match_list"},
-          {"$ref" :  "#/$defs/match_criteria"}          
-        ]
-      }    
+      "oneOf":[
+        {"$ref" :  "#/$defs/match_list"},
+        {"$ref" :  "#/$defs/match_criteria"}
+      ]
     },
     "sheet": {
       "type": "object",
@@ -322,10 +322,10 @@
         "name": {"type": "string"},
         "title": {"type": "string"},
         "include_years": {"type": "boolean"},
-        "columns": {"type": "array","items": {"column": {"$ref": "#/$defs/column"}}},
+        "columns": {"type": "array","items": {"$ref": "#/$defs/column"}},
         "data":{"$ref":"#/$defs/data"},
         "hidden": {"type":"array","items":{"type":"string"}},
-        "highlights": {"type": "object","additionalProperties":{"type":"object","properties": {"#ref":"#/$defs/hidden"}}},
+        "highlights": {"$ref": "#/$defs/highlight"},
         "actl_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
         "all_col_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
         "fcst_formulas":{"type":"array","items": {"$ref": "#/$defs/row_formula"}},
@@ -333,7 +333,7 @@
         "start_col":{"type":"integer"},
         "actual_only":{"type":"boolean"},
         "dyno_fields":{"type":"array","items":{"$ref":"#/$defs/dyno_field"}},
-        "edit_checks":{"type":"array","items":{"$ref":"#$defs/edit_check"}},
+        "edit_checks":{"type":"array","items":{"$ref":"#/$defs/edit_check"}},
         "preserve":{"$ref":"#/$defs/preserve"},
         "fold_at":{"type":"integer"}
       },
