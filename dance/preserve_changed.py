@@ -78,20 +78,23 @@ def load_sparse(config,workbook,path):
     counters[table]=0
     df_table,ws_name,ref=table_as_df(wb,table)
     ws=wb[ws_name]
-    kes={}
+    kes={} # keep track of missing counts
     for _,row in df_points.loc[df_points.table==table].iterrows():
       top_left=coordinate_to_tuple(ref.split(':')[0]) # in Excel origin 1
       # in Python origin 0, so adding to top_left is also in Excel origin 1
+      idx = row['row']
       try:
-        rx=top_left[0]+df_table.index.get_loc(row['row']) +1 # +1 to skip the table heading 
+        # KeyError occurs when the table definition has changed to remove a row that was preserved
+        # or if regenerating table with fewer columns than were preserved
+        rx=top_left[0]+df_table.index.get_loc(idx) +1 # +1 to skip the table heading
+        idx=row['col']
+        cx = top_left[1] + df_table.columns.get_loc(idx) + 1  # +1 since we moved the column to the index
       except KeyError:
-        # occurs when the table definition has changed to remove a row that was preserved
-        if row['row']in kes:
-          kes[row['row']]+=1
-          pass
+        if idx in kes:
+          kes[idx]+=1
         else:
-          kes[row['row']]=1
-      cx=top_left[1]+df_table.columns.get_loc(row['col'])+1 # +1 since we moved the column to the index
+          kes[idx]=1
+        continue
       val=row['value']
       curr_val=ws.cell(row=rx,column=cx).value
       if val != curr_val:
@@ -104,7 +107,7 @@ def load_sparse(config,workbook,path):
     logger.info('Wrote %d values into table %s'%(counters[table],table))
     if len(kes):
       for k,v in kes.items():
-        logger.info(f"   Skipped {v} items for missing row {k}")
+        logger.info(f"   Skipped {v} items for missing row/column {k}")
   wb.save(workbook)
 
 def main():
