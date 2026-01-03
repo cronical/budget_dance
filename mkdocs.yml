@@ -1,5 +1,7 @@
 site_name: Budget Dance
-site_dir: dance/docu
+site_dir: via/docu
+use_directory_urls: false
+
 theme:
   name: material
   palette: 
