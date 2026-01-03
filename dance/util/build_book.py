@@ -18,7 +18,7 @@ from dance.util.doc_lambda import gen_lambda_docs
 from dance.util.logs import get_logger
 from dance.util.theme import set_theme
 
-from tests.cross_check import verify
+from dance.util.cross_check import verify
 
 
 def main():
