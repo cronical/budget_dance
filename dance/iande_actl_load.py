@@ -215,6 +215,14 @@ def main():
   ffy=config['first_forecast_year']
   table_info=config['sheets'][args.sheet]['tables'][0]
   data=read_iande_actl(data_info={'path':path})
+
+  # TODO Combine the following with duplicate code in local_data
+  # in case iande was saved after the new year started (as in when a new row was created)
+  # remove the column from so that the forecast year can be constructed without duplicating the year
+  if args.sheet=='iande':
+    if str(ffy) in data.columns:
+      del data[str(ffy)]
+
   table='tbl_'+args.sheet
   data,fold_groups=prepare_iande_actl(workbook=args.workbook,target_sheet=args.sheet,df=data,force=args.force,f_fcast='Y%04d'%ffy)
   wkb = load_workbook(filename = args.workbook, read_only=False)
