@@ -26,9 +26,9 @@ def extract(workbook,tables,data_only=None):
           continue
         column_info=table_info['columns']
         data_info=table_info['data']
-        if 'type' not in data_info:
+        if 'data_type' not in data_info:
           raise ValueError('No source_data type found for this table in config')
-        source_data=data_info['type']
+        source_data=data_info['data_type']
         orient=source_data.split('_')[-1]
         if orient not in ['records','index','template']:
           raise ValueError('This table is not sourced as json or template')
